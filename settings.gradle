@@ -1,0 +1,11 @@
+include ':core', ':inappmessaging', ':notifications', ':variables', ':visualtracking'
+include ':sample_java', ':sample_kotlin'
+rootProject.name='Karte'
+includeBuild('gradle-plugin') {
+    dependencySubstitution {
+        substitute module('io.karte.android:karte-gradle-plugin') with project(':')
+    }
+}
+
+project(':sample_java').projectDir = new File(settingsDir, 'examples/sample_java')
+project(':sample_kotlin').projectDir = new File(settingsDir, 'examples/sample_kotlin')

@@ -1,0 +1,87 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ext.kotlin_version = '1.3.50'
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'io.karte.android:karte-gradle-plugin'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+plugins {
+    id 'org.jetbrains.dokka' version '0.10.1'
+    id 'com.jfrog.bintray' version '1.8.5'
+    id 'maven-publish'
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    apply plugin: 'org.jetbrains.dokka'
+    apply plugin: 'com.jfrog.bintray'
+    apply plugin:  'maven-publish'
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+configurations {
+    ktlint
+}
+
+dependencies {
+    ktlint "com.pinterest:ktlint:0.36.0"
+    // additional 3rd party ruleset(s) can be specified here
+    // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and
+    // ktlint will pick them up
+}
+
+
+task ktlint(type: JavaExec, group: "verification") {
+    description = "Check Kotlin code style."
+    classpath = configurations.ktlint
+    main = "com.pinterest.ktlint.Main"
+    args "**/src/**/*.kt --editorconfig=.editorconfig"
+    // to generate report in checkstyle format prepend following args:
+    // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
+    // see https://github.com/pinterest/ktlint#usage for more
+}
+//check.dependsOn ktlint
+
+task ktlintFormat(type: JavaExec, group: "formatting") {
+    description = "Fix Kotlin code style deviations."
+    classpath = configurations.ktlint
+    main = "com.pinterest.ktlint.Main"
+    args "-F", "src/**/*.kt --editorconfig=.editorconfig"
+}
+
+dokka {
+    subProjects = ["core", "inappmessaging", "notifications", "variables", "visualtracking"]
+    outputDirectory = "${buildDir}/dokka"
+    outputFormat = "html"
+}
+
+task generate_docs(type: Exec) {
+    dependsOn ':dokka'
+    commandLine "ruby", "scripts/publish_docs.rb"
+    standardOutput = new ByteArrayOutputStream()
+    ext.output = {
+        return standardOutput.toString()
+    }
+    doLast {
+        println(standardOutput.toString())
+    }
+}

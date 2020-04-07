@@ -1,0 +1,16 @@
+# Pull Requestの変更に対応するラベルの定義
+# https://github.com/actions/labeler
+'Module:Core':
+  - core/**
+'Module:IAM':
+  - inappmessaging/**
+'Module:Notification':
+  - notifications/**
+'Module:Variables':
+  - variables/**
+'Module:VT':
+  - visualtracking/**
+'Examples':
+  - examples/**
+'Gradle-Plugin':
+  - gradle-plugin/**

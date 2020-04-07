@@ -1,0 +1,54 @@
+buildscript {
+    ext.kotlin_version = '1.3.21'
+    repositories {
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'maven-publish'
+
+repositories {
+    mavenCentral()
+    jcenter()
+    google()
+}
+
+// Include the generated Version file
+sourceSets {
+    main {
+        java {
+            srcDirs += ['src/main/kotlin']
+        }
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    compileOnly 'com.android.tools.build:gradle:3.5.0'
+    implementation 'org.javassist:javassist:3.24.1-GA'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+
+publishing {
+    publications {
+        gradlePlugin(MavenPublication) {
+            groupId = 'io.karte.android'
+            artifactId = 'karte-gradle-plugin'
+            version = new File("${projectDir}/version").getText("UTF-8")
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            name = "trackerRelease"
+            url "file:${projectDir.parent}/maven-repo"
+        }
+    }
+}

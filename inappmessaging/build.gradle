@@ -1,0 +1,125 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+group 'io.karte.android'
+def moduleName = 'inappmessaging'
+def version_name = project.file('version').getText('UTF-8')
+def gitUrl = 'https://github.com/plaidev/karte-android-sdk'
+
+android {
+    compileSdkVersion 29
+
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 29
+        versionName version_name
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(path: ':core')
+    compileOnly 'androidx.appcompat:appcompat:1.1.0'
+    compileOnly 'androidx.core:core-ktx:1.2.0'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'androidx.test:core:1.2.0'
+    testImplementation "com.google.truth:truth:1.0.1"
+    testImplementation "io.mockk:mockk:1.9.3"
+    testImplementation "org.robolectric:robolectric:4.3.1"
+    testImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
+    testImplementation project(path: ':core', configuration: 'testRuntime')
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
+
+
+task sourceJar(type: Jar) {
+    classifier = "sources"
+    from android.sourceSets.main.java.srcDirs
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name 'The Apache Software License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            distribution 'repo'
+        }
+    }
+    developers {
+        developer {
+            id "kartetaro"
+            name "Taro Karte"
+            email "dev.share@plaid.co.jp"
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact sourceJar
+            groupId project.group
+            artifactId moduleName
+            version version_name
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', "${moduleName} module for KARTE SDK")
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+
+    pkg {
+        repo = 'maven'
+        name = project.group + ':' + moduleName
+        userOrg = 'plaidev'
+        licenses = ['Apache-2.0']
+        vcsUrl = gitUrl + '.git'
+        version {
+            name = version_name
+            released = new Date()
+            vcsTag = version_name
+            desc = 'https://developers.karte.io/docs/release-note-android-sdk'
+        }
+    }
+    publications = ['maven']
+}
+
+dokka {
+    Set<ProjectDependency> deps =
+            project.configurations.collectMany {
+                it.allDependencies
+            }.findAll {
+                it instanceof ProjectDependency
+            }
+
+    configuration {
+        deps.collect { p ->
+            sourceRoot {
+                path = "${p.getDependencyProject().projectDir.toString()}/src/main/java"
+            }
+        }
+    }
+}
