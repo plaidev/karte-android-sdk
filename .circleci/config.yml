@@ -83,6 +83,7 @@ jobs:
     executor:
       name: build
     steps:
+      - checkout
       - setup_gradle
       - run:
           name: Publish
@@ -99,13 +100,14 @@ workflows:
       #         only:
       #           - master
       - sync_repository:
+          requires:
+            - test
           filters:
             branches:
               only:
                 - master
       - publish:
           requires:
-            - test
             - sync_repository
           filters:
             branches:
