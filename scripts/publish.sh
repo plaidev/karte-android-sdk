@@ -34,7 +34,7 @@ function sync_repository() {
 }
 
 function publish() {
-  local TARGETS_MODULES=$@
+  local TARGETS_MODULES=($@)
   if [ -z $TARGETS_MODULES ]; then
     echo "Module is not updated"
     exit 1
@@ -42,20 +42,19 @@ function publish() {
 
   sync_repository
 
-  for MODULE in $TARGETS_MODULES; do
+  for MODULE in ${TARGETS_MODULES[@]}; do
     local TARGET=`echo $MODULE | sed -e "s/\/version//"`
     TAG_VERSION=`ruby scripts/bump_version.rb current-tag -t $TARGET`
 
     has_tag $TAG_VERSION
     if [ $? -eq 1 ]; then
       echo "This tag is already exist: $TAG_VERSION"
-      exit 1
     else
       set_tag $TAG_VERSION
     fi
   done
 
-  for MODULE in $TARGETS_MODULES; do
+  for MODULE in ${TARGETS_MODULES[@]}; do
     local TARGET=`echo $MODULE | sed -e "s/\/version//"`
     ./gradlew $TARGET:bintrayUpload
   done
@@ -84,4 +83,4 @@ set_remote_repository
 
 DIFF_TARGETS=(`git diff --name-only origin/develop | grep version`)
 
-publish $DIFF_TARGETS
+publish ${DIFF_TARGETS[@]}
