@@ -13,6 +13,11 @@ buildscript {
 apply plugin: 'kotlin'
 apply plugin: 'maven-publish'
 
+group 'io.karte.android'
+def moduleName = 'core'
+def version_name = project.file('version').getText('UTF-8')
+def gitUrl = 'https://github.com/plaidev/karte-android-sdk'
+
 repositories {
     mavenCentral()
     jcenter()
@@ -35,20 +40,61 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
+task sourceJar(type: Jar) {
+    classifier = "sources"
+    from android.sourceSets.main.java.srcDirs
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name 'The Apache Software License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            distribution 'repo'
+        }
+    }
+    developers {
+        developer {
+            id "kartetaro"
+            name "Taro Karte"
+            email "dev.share@plaid.co.jp"
+        }
+    }
+}
+
 publishing {
     publications {
-        gradlePlugin(MavenPublication) {
-            groupId = 'io.karte.android'
-            artifactId = 'karte-gradle-plugin'
-            version = new File("${projectDir}/version").getText("UTF-8")
-            from components.java
-        }
-    }
+        maven(MavenPublication) {
+            artifact sourceJar
+            groupId project.group
+            artifactId moduleName
+            version version_name
 
-    repositories {
-        maven {
-            name = "trackerRelease"
-            url "file:${projectDir.parent}/maven-repo"
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', "${moduleName} module for KARTE SDK")
+                root.children().last() + pomConfig
+            }
         }
     }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+
+    pkg {
+        repo = 'maven'
+        name = project.group + ':' + moduleName
+        userOrg = 'plaidev'
+        licenses = ['Apache-2.0']
+        vcsUrl = gitUrl + '.git'
+        version {
+            name = version_name
+            released = new Date()
+            vcsTag = version_name
+            desc = 'https://developers.karte.io/docs/release-note-android-sdk'
+        }
+    }
+    publications = ['maven']
 }
