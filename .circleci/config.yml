@@ -32,13 +32,8 @@ commands:
           paths:
             - ~/.gradle
 
-jobs:
-  test:
-    executor:
-      name: build
+  add_google_services:
     steps:
-      - checkout
-      - setup_gradle
       - run:
           name: Build modules
           command: |
@@ -48,6 +43,15 @@ jobs:
       - run:
           name: Download Dependencies
           command: ./gradlew androidDependencies
+
+jobs:
+  test:
+    executor:
+      name: build
+    steps:
+      - checkout
+      - setup_gradle
+      - add_google_services
       - run:
           name: Test
           command: |
@@ -59,6 +63,7 @@ jobs:
     steps:
       - checkout
       - setup_gradle
+      - add_google_services
       - run:
           name: Check Lint & Doc
           command: |
