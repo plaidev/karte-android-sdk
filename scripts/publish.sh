@@ -6,12 +6,16 @@
 
 function set_tag() {
   local TAG=$1
+  git tag $TAG
+  git push $TAG
+}
+
+function sync_repository() {
   EXIST_REMOTE_REPO=`git remote | grep sync_repo | echo $?`
   if [[ $EXIST_REMOTE_REPO == 0 ]]; then
     git remote add sync_repo ${GITHUB_REMOTE_ADDRESS}
   fi
-  git tag $TAG
-  git push sync_repo $TAG
+  git push -f sync_repo master
 }
 
 function publish() {
@@ -31,8 +35,14 @@ function publish() {
       exit 1
     else
       set_tag $TAG_VERSION
-      # ./gradlew $TARGET:bintrayUpload
     fi
+  done
+
+  sync_repository
+
+  for MODULE in $TARGETS_MODULES; do
+    local TARGET=`echo $MODULE | sed -e "s/\/version//"`
+    ./gradlew $TARGET:bintrayUpload
   done
 }
 

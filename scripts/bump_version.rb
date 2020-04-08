@@ -30,7 +30,7 @@ class BaseCommand
         show_version
       end
     end
-    @modules = ['core', 'inappmessaging', 'notifications', 'variables', 'visualtracking']
+    @modules = ['core', 'inappmessaging', 'notifications', 'variables', 'visualtracking', 'gradle-plugin']
   end
 
   def define_program_name(opt)
