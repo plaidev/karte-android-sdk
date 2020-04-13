@@ -1,0 +1,107 @@
+buildscript {
+    ext.kotlin_version = '1.3.21'
+    repositories {
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
+    }
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
+
+repositories {
+    mavenCentral()
+    jcenter()
+    google()
+}
+
+// Include the generated Version file
+sourceSets {
+    main {
+        java {
+            srcDirs += ['src/main/kotlin']
+        }
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation 'org.javassist:javassist:3.24.1-GA'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compileOnly 'com.android.tools.build:gradle:3.5.0'
+}
+
+group 'io.karte.android'
+version project.file('version').getText('UTF-8').trim()
+def moduleName = 'gradle-plugin'
+def gitUrl = 'https://github.com/plaidev/karte-android-sdk'
+def pomConfig = {
+    licenses {
+        license {
+            name 'The Apache Software License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            distribution 'repo'
+        }
+    }
+    developers {
+        developer {
+            id "kartetaro"
+            name "Taro Karte"
+            email "dev.share@plaid.co.jp"
+        }
+    }
+    scm {
+        connection 'scm:git:git://github.com/plaidev/karte-android-sdk.git'
+        developerConnection 'scm:git:ssh://github.com/plaidev/karte-android-sdk.git'
+        url gitUrl
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier = "sources"
+    from sourceSets.main.java.srcDirs
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId group
+            artifactId moduleName
+            version version
+            from components.java
+            artifact sourcesJar
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', "${moduleName} module for KARTE SDK")
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+
+    pkg {
+        repo = 'maven'
+        name = "$group:$moduleName"
+        userOrg = 'plaidev'
+        licenses = ['Apache-2.0']
+        vcsUrl = gitUrl + '.git'
+        version {
+            name = version
+            released = new Date()
+            vcsTag = version
+            desc = 'https://developers.karte.io/docs/release-note-android-sdk'
+        }
+    }
+    publications = ['maven']
+}

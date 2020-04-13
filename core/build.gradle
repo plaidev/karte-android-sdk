@@ -1,0 +1,47 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 29
+        versionName version
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    compileOnly 'androidx.core:core-ktx:1.2.0'
+    compileOnly 'androidx.ads:ads-identifier:1.0.0-alpha04'
+    compileOnly 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'androidx.test:core:1.2.0'
+    testImplementation "com.google.truth:truth:1.0.1"
+    testImplementation "io.mockk:mockk:1.9.3"
+    testImplementation "org.robolectric:robolectric:4.3.1"
+    testImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
+    testImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
+
+task testJar(type: Jar, dependsOn: "assembleDebugUnitTest") {
+    classifier = 'test'
+    from 'build/tmp/kotlin-classes/debugUnitTest'
+}
+
+configurations.maybeCreate('testRuntime')
+artifacts.add('testRuntime', testJar)
