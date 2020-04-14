@@ -329,6 +329,7 @@ class InAppMessagingTest {
         @Test
         fun viewによりページが切り替わった時にInAppMessagingViewが破棄されること() {
             Tracker.view("page2")
+            proceedBufferedCall()
             assertThat(view).isNull()
         }
 
@@ -344,6 +345,7 @@ class InAppMessagingTest {
             val currentShadowWebView = shadowWebView
 
             activity.pause()
+            proceedBufferedCall()
             if (InAppMessaging.Config.enabledWebViewCache) {
                 assertThat(currentShadowWebView?.loadedUrls).contains("javascript:window.tracker.resetPageState();")
             } else {
@@ -494,6 +496,7 @@ class InAppMessagingTest {
         @Test
         fun overlayの読み込みに失敗する場合は非表示になりその後レスポンスは渡らない_onReceivedError() {
             shadowWebView?.webViewClient?.onReceivedError(webView, mockReq, mockError)
+            proceedBufferedCall()
             assertThat(view).isNull()
 
             // 以降のイベントはviewは追加されるが何もロードしない
@@ -509,6 +512,7 @@ class InAppMessagingTest {
                 mockReq,
                 mockResourceResponse
             )
+            proceedBufferedCall()
             assertThat(view).isNull()
 
             // 以降のイベントはviewは追加されるが何もロードしない
@@ -520,6 +524,7 @@ class InAppMessagingTest {
         @Test
         fun overlayの読み込みに失敗する場合は非表示になりその後レスポンスは渡らない_onReceivedSslError() {
             shadowWebView?.webViewClient?.onReceivedSslError(webView, mockSslHandler, mockSslError)
+            proceedBufferedCall()
             assertThat(view).isNull()
 
             // 以降のイベントはviewは追加されるが何もロードしない
