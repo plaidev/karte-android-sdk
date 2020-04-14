@@ -37,6 +37,7 @@ import io.karte.android.createMessage
 import io.karte.android.createMessageOpen
 import io.karte.android.createMessageResponse
 import io.karte.android.createMessagesResponse
+import io.karte.android.parseBody
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.proceedBufferedCall
@@ -108,7 +109,7 @@ abstract class InAppMessagingTestCase(private val webViewCache: Boolean = false)
         server = MockWebServer()
         dispatcher = object : TrackerRequestDispatcher() {
             override fun onTrackRequest(request: RecordedRequest): MockResponse {
-                val body = JSONObject(request.body.clone().readUtf8())
+                val body = JSONObject(request.parseBody())
                 val eventNames =
                     body.getJSONArray("events").toList().map { it.getString("event_name") }
 

@@ -23,6 +23,7 @@ import io.karte.android.assertThatNoEventOccured
 import io.karte.android.core.config.Config
 import io.karte.android.core.optout.PREF_KEY_OPT_OUT
 import io.karte.android.core.usersync.UserSync
+import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
 import io.karte.android.tracking.Tracker
@@ -147,7 +148,7 @@ class OptOutTest {
                     proceedBufferedCall()
                     val request = server.takeRequest()
                     val event =
-                        JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+                        JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
                     assertThat(event.getString("event_name")).isEqualTo("test")
                     assertThat(eventValues.getString("huga")).isEqualTo("hoge")

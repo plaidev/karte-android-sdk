@@ -22,6 +22,7 @@ import io.karte.android.BuildConfig
 import io.karte.android.KarteApp
 import io.karte.android.TrackerTestCase
 import io.karte.android.eventNameTransform
+import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.toList
 import io.karte.android.tracking.Tracker
@@ -43,13 +44,12 @@ import kotlin.math.min
 private fun createJsonValues(): JSONObject {
     val jsonItem = JSONObject().put("item_name", "t-shirt")
     val arrayParam = JSONArray().put(1).put("hoge")
-    val jsonValues = JSONObject()
+    return JSONObject()
         .put("num", 10)
         .put("str", "hoge")
         .put("date", Date())
         .put("json", jsonItem)
         .put("arr", arrayParam)
-    return jsonValues
 }
 
 /**
@@ -74,7 +74,7 @@ class TrackerIntegrationTest {
                 proceedBufferedCall()
                 val request = server.takeRequest()
                 val event =
-                    JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+                    JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                 val eventValues = event.getJSONObject("values")
                 assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
                     .isEqualTo("buy")
@@ -106,7 +106,7 @@ class TrackerIntegrationTest {
             proceedBufferedCall()
 
             val request = server.takeRequest()
-            val event = JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+            val event = JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
             val eventValues = event.getJSONObject("values")
             assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
                 .isEqualTo("identify")
@@ -140,7 +140,7 @@ class TrackerIntegrationTest {
 
                     val request = server.takeRequest()
                     val event =
-                        JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+                        JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
                     assertWithMessage("event_nameがviewとしてtrackサーバに送信されること").that(event.getString("event_name"))
                         .isEqualTo("view")
@@ -171,7 +171,7 @@ class TrackerIntegrationTest {
 
                     val request = server.takeRequest()
                     val event =
-                        JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+                        JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
                     assertWithMessage("event_nameがviewとしてtrackサーバに送信されること").that(event.getString("event_name"))
                         .isEqualTo("view")
@@ -206,7 +206,7 @@ class TrackerIntegrationTest {
 
                     val request = server.takeRequest()
                     val event =
-                        JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+                        JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
                     assertWithMessage("event_nameがviewとしてtrackサーバに送信されること").that(event.getString("event_name"))
                         .isEqualTo("view")
@@ -249,7 +249,7 @@ class TrackerIntegrationTest {
 
                     val request = server.takeRequest()
                     val event =
-                        JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+                        JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
                     assertWithMessage("event_nameがviewとしてtrackサーバに送信されること").that(event.getString("event_name"))
                         .isEqualTo("view")
@@ -291,7 +291,7 @@ class TrackerIntegrationTest {
 
                     val request = server.takeRequest()
                     val event =
-                        JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+                        JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
                     assertWithMessage("event_nameがviewとしてtrackサーバに送信されること").that(event.getString("event_name"))
                         .isEqualTo("view")
@@ -499,7 +499,7 @@ class TrackerIntegrationTest {
             proceedBufferedCall()
 
             val request = server.takeRequest()
-            val bodyAppInfo = JSONObject(request.body.readUtf8()).getJSONObject("app_info")
+            val bodyAppInfo = JSONObject(request.parseBody()).getJSONObject("app_info")
             val bodySystemInfo = bodyAppInfo.getJSONObject("system_info")
             assertWithMessage("バージョン番号がversion_nameパラメータとしてtrackサーバに送信されること").that(
                 bodyAppInfo.getString(
@@ -582,7 +582,7 @@ class TrackerIntegrationTest {
         private fun coreで発火されるeventのみを確認(oldVisitorId: String) {
             // renew event for old user
             with(server.takeRequest()) {
-                val body = JSONObject(this.body.readUtf8())
+                val body = JSONObject(this.parseBody())
                 val visitorId = body.getJSONObject("keys").get("visitor_id")
                 assertThat(visitorId).isEqualTo(oldVisitorId)
                 val event = body.getJSONArray("events").getJSONObject(0)
@@ -594,7 +594,7 @@ class TrackerIntegrationTest {
 
             // renew event for new user
             with(server.takeRequest()) {
-                val body = org.json.JSONObject(this.body.readUtf8())
+                val body = org.json.JSONObject(this.parseBody())
                 val visitorId = body.getJSONObject("keys").get("visitor_id")
                 assertThat(visitorId).isEqualTo(KarteApp.visitorId)
                 val event = body.getJSONArray("events").getJSONObject(0)
@@ -621,7 +621,7 @@ class TrackerIntegrationTest {
             proceedBufferedCall()
 
             val request = server.takeRequest()
-            val event = JSONObject(request.body.readUtf8()).getJSONObject("keys")
+            val event = JSONObject(request.parseBody()).getJSONObject("keys")
             assertWithMessage("ビジターIDがvisitor_idパラメータとしてtrackサーバに送信されること").that(event.getString("visitor_id"))
                 .isNotNull()
         }

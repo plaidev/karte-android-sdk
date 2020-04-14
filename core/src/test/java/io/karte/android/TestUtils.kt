@@ -20,7 +20,9 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Correspondence
 import io.karte.android.core.config.Config
 import io.karte.android.tracking.queue.THREAD_NAME
+import io.karte.android.utilities.gunzip
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONArray
 import org.json.JSONObject
 import org.robolectric.Robolectric
@@ -137,4 +139,8 @@ fun Array<out JSONObject>.toJSONArray(): JSONArray {
         ret.put(json)
     }
     return ret
+}
+
+fun RecordedRequest.parseBody(): String {
+    return gunzip(this.body.clone().readByteArray())!!
 }

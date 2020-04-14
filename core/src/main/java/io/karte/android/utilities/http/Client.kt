@@ -17,7 +17,9 @@ package io.karte.android.utilities.http
 
 import io.karte.android.core.logger.Logger
 import io.karte.android.utilities.asString
+import io.karte.android.utilities.gzip
 import java.io.BufferedInputStream
+import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -46,7 +48,19 @@ object Client {
                 conn.requestMethod = request.method
                 if (request.hasBody) {
                     conn.doOutput = true
-                    request.writeBody(conn.outputStream)
+                    var written = false
+                    if (request is JSONRequest){
+                        val tmpStream = ByteArrayOutputStream()
+                        request.writeBody(tmpStream)
+                        gzip(tmpStream.toString("UTF-8"))?.let {
+                            conn.setRequestProperty(HEADER_CONTENT_ENCODING, CONTENT_ENCODING_GZIP)
+                            conn.outputStream.write(it)
+                            written = true
+                        }
+                    }
+                    if (!written) {
+                        request.writeBody(conn.outputStream)
+                    }
                 }
 
                 conn.connect()

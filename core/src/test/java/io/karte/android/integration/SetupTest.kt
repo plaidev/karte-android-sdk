@@ -25,6 +25,7 @@ import io.karte.android.RobolectricTestCase
 import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.core.config.Config
 import io.karte.android.eventNameTransform
+import io.karte.android.parseBody
 import io.karte.android.modules.crashreporting.CrashReporting
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
@@ -214,7 +215,7 @@ class SetupTest {
                         Robolectric.buildActivity(Activity::class.java).create()
                         proceedBufferedCall()
                         val request = server.takeRequest()
-                        val actual = JSONObject(request.body.readUtf8()).getJSONObject("app_info")
+                        val actual = JSONObject(request.parseBody()).getJSONObject("app_info")
                             .getJSONObject("system_info").getString("aaid")
                         assertThat(actual).isEqualTo(advertisingId)
                     }
@@ -230,7 +231,7 @@ class SetupTest {
                         proceedBufferedCall()
                         val request = server.takeRequest()
                         val systemInfo =
-                            JSONObject(request.body.readUtf8()).getJSONObject("app_info")
+                            JSONObject(request.parseBody()).getJSONObject("app_info")
                                 .getJSONObject("system_info")
                         assertThat(systemInfo.has("aaid")).isFalse()
                     }
@@ -252,7 +253,7 @@ class SetupTest {
                         proceedBufferedCall()
                         val request = server.takeRequest()
                         val systemInfo =
-                            JSONObject(request.body.readUtf8()).getJSONObject("app_info")
+                            JSONObject(request.parseBody()).getJSONObject("app_info")
                                 .getJSONObject("system_info")
                         assertThat(systemInfo.has("aaid")).isFalse()
                     }

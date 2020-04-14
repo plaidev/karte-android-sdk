@@ -55,7 +55,7 @@ open class TrackerRequestDispatcher : Dispatcher() {
     }
 
     fun trackedEvents(): List<JSONObject> {
-        return trackedRequests().map { JSONObject(it.body.clone().readUtf8()) }
+        return trackedRequests().map { JSONObject(it.parseBody()) }
             .flatMap { it.getJSONArray("events").toList() }
     }
 }

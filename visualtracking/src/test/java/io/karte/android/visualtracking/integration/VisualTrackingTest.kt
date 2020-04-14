@@ -22,6 +22,7 @@ import io.karte.android.RobolectricTestCase
 import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.core.config.Config
 import io.karte.android.eventNameTransform
+import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
 import io.karte.android.tearDownKarteApp
@@ -143,7 +144,7 @@ class VisualTrackingTest : RobolectricTestCase() {
             )
         )
         val request = server.takeRequest()
-        assertThatJson(JSONObject(request.body.readUtf8())).node("app_info").isObject
+        assertThatJson(JSONObject(request.parseBody())).node("app_info").isObject
     }
 
     @Test

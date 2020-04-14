@@ -17,6 +17,7 @@ package io.karte.android.notifications.integration
 
 import com.google.common.truth.Truth
 import io.karte.android.KarteApp
+import io.karte.android.parseBody
 import io.karte.android.integration.OptOutTestCase
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
@@ -47,7 +48,7 @@ class OptOutNotificationTest {
         fun plugin_native_app_identifyが送信されること() {
             val request = server.takeRequest()
             val event =
-                JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+                JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
             val eventValues = event.getJSONObject("values")
             Truth.assertThat(event.getString("event_name")).isEqualTo("plugin_native_app_identify")
             Truth.assertThat(eventValues.getBoolean("subscribe")).isEqualTo(false)
