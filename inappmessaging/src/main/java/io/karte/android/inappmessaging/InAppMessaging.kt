@@ -248,6 +248,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     private lateinit var app: KarteApp
     private val uiThreadHandler: Handler = Handler(Looper.getMainLooper())
     private val panelWindowManager = PanelWindowManager()
+    private val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
     private var currentActiveActivity: WeakReference<Activity>? = null
     private var presenter: IAMPresenter? = null
     private var isSuppressed = false
@@ -294,7 +295,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     }
 
     private fun generateOverlayURL(): String {
-        return "${app.config.baseUrl}/overlay?app_key=${app.appKey}&_k_vid=${KarteApp.visitorId}&_k_app_prof=${app.appInfo?.json}"
+        return "${overlayBaseUrl}/overlay?app_key=${app.appKey}&_k_vid=${KarteApp.visitorId}&_k_app_prof=${app.appInfo?.json}"
     }
 
     private fun clearWebViewCookies() {

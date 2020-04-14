@@ -68,6 +68,7 @@ import org.robolectric.shadows.ShadowWindowManagerImpl
 import java.util.Base64
 
 private const val appKey = "sampleappkey"
+private const val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
 
 private val popupMsg1 = createMessage(shortenId = "action1", pluginType = "webpopup")
 private val popupMsg2 = createMessage(shortenId = "action2", pluginType = "webpopup")
@@ -203,10 +204,9 @@ class InAppMessagingTest {
             val shadow = shadowWebView ?: throw AssertionError()
             val uri = Uri.parse(shadow.loadedUrls.first())
 
-            val expected = server.url("/native/overlay")
-            assertThat(uri.scheme).isEqualTo(expected.scheme())
-            assertThat(uri.host).isEqualTo(expected.host())
-            assertThat(uri.port).isEqualTo(expected.port())
+            assertThat(uri.scheme).isEqualTo("https")
+            assertThat(uri.host).isEqualTo("cf-native.karte.io")
+            assertThat(uri.path).isEqualTo("/v0/native/overlay")
             assertThat(uri.queryParameterNames).isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
             assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
@@ -225,7 +225,7 @@ class InAppMessagingTest {
             assertThat(webView).isNotNull()
             assertThat(view?.visibility).isEqualTo(View.VISIBLE)
             assertThat(shadowWebView?.lastLoadedUrl).startsWith("javascript:window.tracker.handleResponseData")
-            assertThat(shadowWebView?.loadedUrls?.first()).startsWith(app.config.baseUrl)
+            assertThat(shadowWebView?.loadedUrls?.first()).startsWith(overlayBaseUrl)
             val uri = Uri.parse(shadowWebView?.loadedUrls?.first())
             assertThat(uri.queryParameterNames).isEqualTo(
                 setOf(
@@ -245,7 +245,7 @@ class InAppMessagingTest {
 
             assertThat(view).isNull()
             assertThat(webView).isNull()
-            assertThat(shadowWebView?.lastLoadedUrl).startsWith(app.config.baseUrl)
+            assertThat(shadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
         }
 
         @Test
@@ -565,7 +565,7 @@ class InAppMessagingTest {
 
             assertThat(view).isNull()
             if (InAppMessaging.Config.enabledWebViewCache) {
-                assertThat(currentShadowWebView?.lastLoadedUrl).startsWith(app.config.baseUrl)
+                assertThat(currentShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
                 val uri = Uri.parse(currentShadowWebView?.lastLoadedUrl)
                 assertThat(uri.queryParameterNames).isEqualTo(
                     setOf(
