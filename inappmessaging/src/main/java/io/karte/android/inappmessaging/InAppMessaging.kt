@@ -307,8 +307,11 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
                 .split("; ")
                 .filter { !it.isNullOrBlank() }
                 .forEach {
-                    val cookieString = it.substringBefore("=") + "=; Domain=" + COOKIE_DOMAIN
-                    cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
+                    val equalCharIndex = it.indexOf("=")
+                    if (equalCharIndex >= 0) {
+                        val cookieString = it.substring(0,equalCharIndex) + "=; Domain=" + COOKIE_DOMAIN
+                        cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
+                    }
                 }
             cookieManager.flush()
         }
