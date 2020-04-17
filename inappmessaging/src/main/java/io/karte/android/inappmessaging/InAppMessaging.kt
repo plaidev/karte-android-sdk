@@ -44,6 +44,7 @@ import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.InAppMessaging"
 private const val PREVENT_RELAY_TO_PRESENTER_KEY = "krt_prevent_relay_to_presenter"
+private const val COOKIE_DOMAIN = "karte.io"
 
 /**
  * アプリ内メッセージの管理を行うクラスです。
@@ -249,7 +250,6 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     private val uiThreadHandler: Handler = Handler(Looper.getMainLooper())
     private val panelWindowManager = PanelWindowManager()
     private val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
-    private val cookieDomain = "karte.io"
     private var currentActiveActivity: WeakReference<Activity>? = null
     private var presenter: IAMPresenter? = null
     private var isSuppressed = false
@@ -302,13 +302,13 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     private fun clearWebViewCookies() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val cookieManager = CookieManager.getInstance()
-            val allCookies = cookieManager.getCookie(cookieDomain) ?: return
+            val allCookies = cookieManager.getCookie(COOKIE_DOMAIN) ?: return
             allCookies
                 .split("; ")
                 .filter { !it.isNullOrBlank() }
                 .forEach {
-                    val cookieString = it.substringBefore("=") + "=; Domain=" + cookieDomain
-                    cookieManager.setCookie(cookieDomain, cookieString)
+                    val cookieString = it.substringBefore("=") + "=; Domain=" + COOKIE_DOMAIN
+                    cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
                 }
             cookieManager.flush()
         }
