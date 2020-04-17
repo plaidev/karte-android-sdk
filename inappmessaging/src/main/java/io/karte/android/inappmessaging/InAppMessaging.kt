@@ -249,6 +249,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     private val uiThreadHandler: Handler = Handler(Looper.getMainLooper())
     private val panelWindowManager = PanelWindowManager()
     private val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
+    private val cookieDomain = "karte.io"
     private var currentActiveActivity: WeakReference<Activity>? = null
     private var presenter: IAMPresenter? = null
     private var isSuppressed = false
@@ -300,8 +301,16 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
 
     private fun clearWebViewCookies() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            CookieManager.getInstance().removeAllCookies(null)
-            CookieManager.getInstance().flush()
+            val cookieManager = CookieManager.getInstance()
+            val allCookies = cookieManager.getCookie(cookieDomain) ?: return
+            allCookies
+                .split("; ")
+                .filter { !it.isNullOrBlank() }
+                .forEach {
+                    val cookieString = it.substringBefore("=") + "=; Domain=" + cookieDomain
+                    cookieManager.setCookie(cookieDomain, cookieString)
+                }
+            cookieManager.flush()
         }
     }
 
