@@ -28,6 +28,7 @@ import com.google.firebase.messaging.RemoteMessage
 import io.karte.android.KarteApp
 import io.karte.android.TrackerTestCase
 import io.karte.android.assertThatNoEventOccured
+import io.karte.android.parseBody
 import io.karte.android.notifications.MessageHandler
 import io.karte.android.notifications.MessageReceiver
 import io.karte.android.notifications.registerFCMToken
@@ -105,7 +106,7 @@ class PushTrackTest {
 
                 val request = server.takeRequest()
                 val event =
-                    JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+                    JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                 val eventValues = event.getJSONObject("values")
                 assertWithMessage("event_nameがplugin_native_app_identifyとしてtrackサーバに送信されること").that(
                     event.getString("event_name")
@@ -138,7 +139,7 @@ class PushTrackTest {
 
                 val request = server.takeRequest()
                 val event =
-                    JSONObject(request.body.readUtf8()).getJSONArray("events").getJSONObject(0)
+                    JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                 val eventValues = event.getJSONObject("values")
                 assertWithMessage("event_nameがplugin_native_app_identifyとしてtrackサーバに送信されること").that(
                     event.getString("event_name")
@@ -204,7 +205,7 @@ class PushTrackTest {
                         proceedMessage(notification)
 
                         val request = server.takeRequest()
-                        val event = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val event = JSONObject(request.parseBody()).getJSONArray("events")
                             .getJSONObject(0)
                         val eventMessage = event.getJSONObject("values").getJSONObject("message")
                         assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
@@ -239,7 +240,7 @@ class PushTrackTest {
                         clickNotification(data)
 
                         val request = server.takeRequest()
-                        val event = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val event = JSONObject(request.parseBody()).getJSONArray("events")
                             .getJSONObject(1)
                         val eventMessage = event.getJSONObject("values").getJSONObject("message")
                         assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
@@ -280,7 +281,7 @@ class PushTrackTest {
                         clickNotification(data)
 
                         val request = server.takeRequest()
-                        val event = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val event = JSONObject(request.parseBody()).getJSONArray("events")
                             .getJSONObject(1)
                         val eventValues = event.getJSONObject("values")
                         assertWithMessage("krt_user_idがuser_idパラメータとしてtrackサーバに送信されること").that(
@@ -351,7 +352,7 @@ class PushTrackTest {
                         clickNotification(data)
 
                         val request = server.takeRequest()
-                        val events = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
                         assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと").that(
@@ -416,7 +417,7 @@ class PushTrackTest {
                         clickNotification(data)
 
                         val request = server.takeRequest()
-                        val events = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
                         assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと").that(
@@ -479,7 +480,7 @@ class PushTrackTest {
                         clickNotification(data)
 
                         val request = server.takeRequest()
-                        val events = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
                         assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと").that(
@@ -542,7 +543,7 @@ class PushTrackTest {
                         clickNotification(data)
 
                         val request = server.takeRequest()
-                        val events = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
                         assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと").that(
@@ -584,7 +585,7 @@ class PushTrackTest {
                         proceedMessage(notification)
 
                         val request = server.takeRequest()
-                        val event = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val event = JSONObject(request.parseBody()).getJSONArray("events")
                             .getJSONObject(0)
                         val eventValues = event.getJSONObject("values")
 
@@ -618,7 +619,7 @@ class PushTrackTest {
                         clickNotification(data)
 
                         val request = server.takeRequest()
-                        val event = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val event = JSONObject(request.parseBody()).getJSONArray("events")
                             .getJSONObject(1)
                         val eventValues = event.getJSONObject("values")
                         assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
@@ -677,7 +678,7 @@ class PushTrackTest {
                         clickNotification(data)
 
                         val request = server.takeRequest()
-                        val events = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
                         assertWithMessage("event_nameがmass_push_clickしてtrackサーバに送信されないこと").that(
@@ -736,7 +737,7 @@ class PushTrackTest {
                         clickNotification(data)
 
                         val request = server.takeRequest()
-                        val events = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                        val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
                         assertWithMessage("event_nameがmass_push_clickしてtrackサーバに送信されないこと").that(
@@ -794,7 +795,7 @@ class PushTrackTest {
                     clickNotification(data)
 
                     val request = server.takeRequest()
-                    val events = JSONObject(request.body.readUtf8()).getJSONArray("events")
+                    val events = JSONObject(request.parseBody()).getJSONArray("events")
                     val event = events.getJSONObject(0)
                     assertThat(events.length()).isEqualTo(1)
                     assertWithMessage("event_nameがmass_push_clickしてtrackサーバに送信されないこと").that(

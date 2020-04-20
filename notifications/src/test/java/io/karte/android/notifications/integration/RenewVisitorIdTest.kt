@@ -23,6 +23,7 @@ import com.google.firebase.iid.InstanceIdResult
 import io.karte.android.KarteApp
 import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.TrackerTestCase
+import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.toList
 import io.mockk.every
@@ -58,8 +59,8 @@ class RenewVisitorIdTest {
             proceedBufferedCall()
 
             val requestEvents = dispatcher.trackedRequests().groupBy({
-                JSONObject(it.body.clone().readUtf8()).getJSONObject("keys").getString("visitor_id")
-            }) { JSONObject(it.body.clone().readUtf8()).getJSONArray("events").toList() }
+                JSONObject(it.parseBody()).getJSONObject("keys").getString("visitor_id")
+            }) { JSONObject(it.parseBody()).getJSONArray("events").toList() }
                 .mapValues { it.value.flatten() }
 
             // unsubscribe event for old user

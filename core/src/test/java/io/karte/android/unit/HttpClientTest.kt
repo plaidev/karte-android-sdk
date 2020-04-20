@@ -15,9 +15,17 @@
 //
 package io.karte.android.unit
 
+import io.karte.android.parseBody
+import io.karte.android.utilities.gzip
+import io.karte.android.utilities.http.CONTENT_ENCODING_GZIP
+import io.karte.android.utilities.http.CONTENT_TYPE_JSON
 import io.karte.android.utilities.http.Client
+import io.karte.android.utilities.http.HEADER_CONTENT_ENCODING
+import io.karte.android.utilities.http.HEADER_CONTENT_TYPE
 import io.karte.android.utilities.http.JSONRequest
 import io.karte.android.utilities.http.METHOD_POST
+import io.mockk.every
+import io.mockk.mockkStatic
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -50,14 +58,35 @@ class HttpClientTest {
         val url = server.url("/sample").toString()
 
         val response = Client.execute(JSONRequest(url, METHOD_POST).apply { body = "mybody" })
+
         Assert.assertEquals(200, response.code)
         Assert.assertEquals("hello, world!", response.body)
         Assert.assertEquals(
             listOf("text/html; charset=utf-8"),
-            response.headers.get("Content-Type")
+            response.headers["Content-Type"]
         )
         Assert.assertTrue(response.isSuccessful)
         val request = server.takeRequest()
+        Assert.assertEquals(CONTENT_TYPE_JSON, request.headers[HEADER_CONTENT_TYPE])
+        Assert.assertEquals(CONTENT_ENCODING_GZIP, request.headers[HEADER_CONTENT_ENCODING])
+        Assert.assertEquals("mybody", request.parseBody())
+    }
+
+    @Test
+    fun postRequestWithJsonWhenGzipFailed() {
+        server.enqueue(
+            MockResponse().setResponseCode(200)
+        )
+        val url = server.url("/sample").toString()
+        mockkStatic("io.karte.android.utilities.GzipUtilKt")
+        every { gzip(any()) } returns null
+
+        val response = Client.execute(JSONRequest(url, METHOD_POST).apply { body = "mybody" })
+
+        Assert.assertTrue(response.isSuccessful)
+        val request = server.takeRequest()
+        Assert.assertEquals(CONTENT_TYPE_JSON, request.headers[HEADER_CONTENT_TYPE])
+        Assert.assertNull(request.headers[HEADER_CONTENT_ENCODING])
         Assert.assertEquals("mybody", request.body.readUtf8())
     }
 

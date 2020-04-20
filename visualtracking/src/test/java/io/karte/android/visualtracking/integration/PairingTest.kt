@@ -23,6 +23,7 @@ import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
 import io.karte.android.RobolectricTestCase
 import io.karte.android.TrackerRequestDispatcher
+import io.karte.android.parseBody
 import io.karte.android.setupKarteApp
 import io.karte.android.tearDownKarteApp
 import io.karte.android.visualtracking.PairingActivity
@@ -79,7 +80,7 @@ class PairingTest : RobolectricTestCase() {
         assertThat(req.getHeader("X-KARTE-Auto-Track-Account-Id")).isEqualTo("sampleAccountId")
         assertThat(req.getHeader("X-KARTE-App-Key")).isEqualTo("appkey")
 
-        val body = JSONObject(req.body.readUtf8())
+        val body = JSONObject(req.parseBody())
         assertThatJson(body).node("os").isString.isEqualTo("android")
         assertThatJson(body).node("visitor_id").isString.isEqualTo(KarteApp.visitorId)
         assertThatJson(body).node("app_info").isNotNull
