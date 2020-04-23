@@ -35,11 +35,15 @@ import io.karte.android.inappmessaging.internal.IAMWindow
 import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.inappmessaging.internal.PanelWindowManager
 import io.karte.android.inappmessaging.internal.preview.PreviewParams
+import io.karte.android.tracking.MessageEvent
+import io.karte.android.tracking.MessageEventType
+import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
 import io.karte.android.utilities.ActivityLifecycleCallback
 import io.karte.android.utilities.getLowerClassName
 import org.json.JSONException
+import org.json.JSONObject
 import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.InAppMessaging"
@@ -84,7 +88,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
             currentActiveActivity?.get()?.let { activity ->
                 try {
                     val message = MessageModel(trackResponse.json, trackRequest)
-                    message.filter(app.pvId)
+                    message.filter(app.pvId, ::trackMessageSuppressed)
                     if (message.shouldLoad()) {
                         Logger.d(
                             LOG_TAG,
@@ -319,5 +323,13 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
                 ) { presenter = null }
             }
         }
+    }
+
+    private fun trackMessageSuppressed(message: JSONObject, reason: String) {
+        val action = message.getJSONObject("action")
+        val campaignId = action.getString("campaign_id")
+        val shortenId = action.getString("shorten_id")
+        val values = mapOf("reason" to "The display is suppressed by native_app_display_limit_mode.")
+        Tracker.track(MessageEvent(MessageEventType.Suppressed, campaignId, shortenId, values))
     }
 }
