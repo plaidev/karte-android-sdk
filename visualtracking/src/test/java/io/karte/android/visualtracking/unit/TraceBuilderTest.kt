@@ -18,6 +18,7 @@ package io.karte.android.visualtracking.unit
 import android.app.Activity
 import android.content.Context
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
@@ -29,10 +30,13 @@ import org.junit.Test
 import org.robolectric.Robolectric
 
 private fun createLinearLayoutWithText(context: Context, text: String): View {
-    val layout = LinearLayout(context)
-    val textView = TextView(context)
-    textView.text = text
-    layout.addView(textView)
+    val contentView = FrameLayout(context)
+    val layout = LinearLayout(context).apply {
+        addView(TextView(context).apply { this.text = text })
+        contentView.addView(View(context))
+        contentView.addView(this)
+    }
+    if (context is Activity) context.setContentView(contentView)
     return layout
 }
 
@@ -50,7 +54,8 @@ class TraceBuilderTest : RobolectricTestCase() {
                 "action" to "action1",
                 "target_text" to "hoge",
                 "view" to "android.widget.LinearLayout",
-                "activity" to "android.app.Activity"
+                "activity" to "android.app.Activity",
+                "action_id" to "android.widget.LinearLayout1android.widget.FrameLayout0android.widget.FrameLayout0com.android.internal.widget.ActionBarOverlayLayout0com.android.internal.policy.DecorView"
             )
         )
         assertThatJson(values).node("app_info.version_name").isString.isEqualTo("1.5.5")
@@ -72,7 +77,8 @@ class TraceBuilderTest : RobolectricTestCase() {
             mapOf(
                 "action" to "action1",
                 "target_text" to "hoge",
-                "view" to "android.widget.LinearLayout"
+                "view" to "android.widget.LinearLayout",
+                "action_id" to "android.widget.LinearLayout1android.widget.FrameLayout"
             )
         )
         assertThatJson(values).isObject.doesNotContainKey("activity")
@@ -104,9 +110,13 @@ class TraceBuilderTest : RobolectricTestCase() {
         ).values
         assertThatJson(values).isObject.containsAllEntriesOf(
             mapOf(
+                "action" to "android.app.ListActivity#onListItemClick",
                 "view" to "android.widget.LinearLayout",
-                "target_text" to "hoge"
+                "target_text" to "hoge",
+                "activity" to "android.app.Activity",
+                "action_id" to "android.widget.LinearLayout1android.widget.FrameLayout0android.widget.FrameLayout0com.android.internal.widget.ActionBarOverlayLayout0com.android.internal.policy.DecorView"
             )
         )
+        assertThatJson(values).node("app_info.version_name").isString.isEqualTo("1.5.5")
     }
 }

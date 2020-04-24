@@ -23,6 +23,7 @@ import io.karte.android.assertThat
 import io.karte.android.createControlGroupMessage
 import io.karte.android.createMessage
 import io.karte.android.createMessagesResponse
+import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
 import io.karte.android.tearDownKarteApp
@@ -111,7 +112,7 @@ class VariablesTest {
             Variables.fetch()
             proceedBufferedCall()
 
-            val events = JSONObject(server.takeRequest().body.readUtf8()).getJSONArray("events")
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             val eventName = events.getJSONObject(0).getString("event_name")
             assertThat(eventName).isEqualTo("_fetch_variables")
         }
@@ -123,7 +124,7 @@ class VariablesTest {
             proceedBufferedCall()
 
             assertThat(server.requestCount).isEqualTo(1)
-            val events = JSONObject(server.takeRequest().body.readUtf8()).getJSONArray("events")
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             val eventName = events.getJSONObject(0).getString("event_name")
             assertThat(eventName).isEqualTo("_fetch_variables")
         }
@@ -974,7 +975,7 @@ class VariablesTest {
 
             proceedBufferedCall()
             val messageOpenRequest = server.takeRequest()
-            val events = JSONObject(messageOpenRequest.body.readUtf8()).getJSONArray("events")
+            val events = JSONObject(messageOpenRequest.parseBody()).getJSONArray("events")
             val eventNames = mapJsonArrayToArrayList(events) { evt -> evt.getString("event_name") }
 
             assertThat(eventNames).isEqualTo(arrayListOf("_message_ready", "_message_ready"))
@@ -998,7 +999,7 @@ class VariablesTest {
             server.takeRequest()
 
             proceedBufferedCall()
-            val events = JSONObject(server.takeRequest().body.readUtf8()).getJSONArray("events")
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             val campaignIds = mapJsonArrayToArrayList(events) { evt ->
                 evt.getJSONObject("values").getJSONObject("message").getString("campaign_id")
             }
@@ -1024,7 +1025,7 @@ class VariablesTest {
             server.takeRequest()
 
             proceedBufferedCall()
-            val events = JSONObject(server.takeRequest().body.readUtf8()).getJSONArray("events")
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             val shortenIds = mapJsonArrayToArrayList(events) { evt ->
                 evt.getJSONObject("values").getJSONObject("message").getString("shorten_id")
             }
@@ -1154,7 +1155,7 @@ class VariablesTest {
             // TODO: RobolectricのThreadのshadowのバグか、delayが複数種類あると一度flushしても全部実行されない
             proceedBufferedCall()
 
-            val events = JSONObject(server.takeRequest().body.readUtf8()).getJSONArray("events")
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             assertThat(events.length()).isEqualTo(2)
             assertThat(events.getJSONObject(0).getString("event_name")).isEqualTo("message_click")
             assertThat(
@@ -1193,7 +1194,7 @@ class VariablesTest {
             // TODO: RobolectricのThreadのshadowのバグか、delayが複数種類あると一度flushしても全部実行されない
             proceedBufferedCall()
 
-            val events = JSONObject(server.takeRequest().body.readUtf8()).getJSONArray("events")
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             assertThat(events.length()).isEqualTo(2)
             assertThat(events.getJSONObject(0).getJSONObject("values").getString("hoge")).isEqualTo(
                 "fuga"

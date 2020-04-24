@@ -37,6 +37,7 @@ import io.karte.android.createMessage
 import io.karte.android.createMessageOpen
 import io.karte.android.createMessageResponse
 import io.karte.android.createMessagesResponse
+import io.karte.android.parseBody
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.proceedBufferedCall
@@ -68,6 +69,7 @@ import org.robolectric.shadows.ShadowWindowManagerImpl
 import java.util.Base64
 
 private const val appKey = "sampleappkey"
+private const val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
 
 private val popupMsg1 = createMessage(shortenId = "action1", pluginType = "webpopup")
 private val popupMsg2 = createMessage(shortenId = "action2", pluginType = "webpopup")
@@ -107,7 +109,7 @@ abstract class InAppMessagingTestCase(private val webViewCache: Boolean = false)
         server = MockWebServer()
         dispatcher = object : TrackerRequestDispatcher() {
             override fun onTrackRequest(request: RecordedRequest): MockResponse {
-                val body = JSONObject(request.body.clone().readUtf8())
+                val body = JSONObject(request.parseBody())
                 val eventNames =
                     body.getJSONArray("events").toList().map { it.getString("event_name") }
 
@@ -203,10 +205,9 @@ class InAppMessagingTest {
             val shadow = shadowWebView ?: throw AssertionError()
             val uri = Uri.parse(shadow.loadedUrls.first())
 
-            val expected = server.url("/native/overlay")
-            assertThat(uri.scheme).isEqualTo(expected.scheme())
-            assertThat(uri.host).isEqualTo(expected.host())
-            assertThat(uri.port).isEqualTo(expected.port())
+            assertThat(uri.scheme).isEqualTo("https")
+            assertThat(uri.host).isEqualTo("cf-native.karte.io")
+            assertThat(uri.path).isEqualTo("/v0/native/overlay")
             assertThat(uri.queryParameterNames).isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
             assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
@@ -225,7 +226,7 @@ class InAppMessagingTest {
             assertThat(webView).isNotNull()
             assertThat(view?.visibility).isEqualTo(View.VISIBLE)
             assertThat(shadowWebView?.lastLoadedUrl).startsWith("javascript:window.tracker.handleResponseData")
-            assertThat(shadowWebView?.loadedUrls?.first()).startsWith(app.config.baseUrl)
+            assertThat(shadowWebView?.loadedUrls?.first()).startsWith(overlayBaseUrl)
             val uri = Uri.parse(shadowWebView?.loadedUrls?.first())
             assertThat(uri.queryParameterNames).isEqualTo(
                 setOf(
@@ -245,7 +246,7 @@ class InAppMessagingTest {
 
             assertThat(view).isNull()
             assertThat(webView).isNull()
-            assertThat(shadowWebView?.lastLoadedUrl).startsWith(app.config.baseUrl)
+            assertThat(shadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
         }
 
         @Test
@@ -329,6 +330,7 @@ class InAppMessagingTest {
         @Test
         fun viewによりページが切り替わった時にInAppMessagingViewが破棄されること() {
             Tracker.view("page2")
+            proceedBufferedCall()
             assertThat(view).isNull()
         }
 
@@ -344,6 +346,7 @@ class InAppMessagingTest {
             val currentShadowWebView = shadowWebView
 
             activity.pause()
+            proceedBufferedCall()
             if (InAppMessaging.Config.enabledWebViewCache) {
                 assertThat(currentShadowWebView?.loadedUrls).contains("javascript:window.tracker.resetPageState();")
             } else {
@@ -494,6 +497,7 @@ class InAppMessagingTest {
         @Test
         fun overlayの読み込みに失敗する場合は非表示になりその後レスポンスは渡らない_onReceivedError() {
             shadowWebView?.webViewClient?.onReceivedError(webView, mockReq, mockError)
+            proceedBufferedCall()
             assertThat(view).isNull()
 
             // 以降のイベントはviewは追加されるが何もロードしない
@@ -509,6 +513,7 @@ class InAppMessagingTest {
                 mockReq,
                 mockResourceResponse
             )
+            proceedBufferedCall()
             assertThat(view).isNull()
 
             // 以降のイベントはviewは追加されるが何もロードしない
@@ -520,6 +525,7 @@ class InAppMessagingTest {
         @Test
         fun overlayの読み込みに失敗する場合は非表示になりその後レスポンスは渡らない_onReceivedSslError() {
             shadowWebView?.webViewClient?.onReceivedSslError(webView, mockSslHandler, mockSslError)
+            proceedBufferedCall()
             assertThat(view).isNull()
 
             // 以降のイベントはviewは追加されるが何もロードしない
@@ -565,7 +571,7 @@ class InAppMessagingTest {
 
             assertThat(view).isNull()
             if (InAppMessaging.Config.enabledWebViewCache) {
-                assertThat(currentShadowWebView?.lastLoadedUrl).startsWith(app.config.baseUrl)
+                assertThat(currentShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
                 val uri = Uri.parse(currentShadowWebView?.lastLoadedUrl)
                 assertThat(uri.queryParameterNames).isEqualTo(
                     setOf(

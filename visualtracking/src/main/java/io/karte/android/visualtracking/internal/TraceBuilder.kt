@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import android.view.ViewParent
 import android.widget.TextView
 import androidx.annotation.UiThread
-import androidx.core.view.children
 import com.google.android.material.tabs.TabLayout
 import org.json.JSONException
 import org.json.JSONObject
@@ -39,12 +38,10 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
 
         jsonObject.put("view", view.javaClass.name)
             .putOpt("target_text", getTargetText(view))
+            .putOpt("action_id", getActionId(view))
         val activity = getActivity(view) ?: return Trace(view, jsonObject)
 
         jsonObject.put("activity", activity.javaClass.name)
-
-        val actionId = getActionId(view)
-        jsonObject.putOpt("action_id", actionId)
 
         return Trace(view, jsonObject)
     }
@@ -111,8 +108,15 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
             sb.append(target.javaClass.name)
             val parent = target.parent
 
-            if (parent is ViewGroup)
-                parent.children.forEachIndexed { i, v -> if (v === target) sb.append(i) }
+            if (parent is ViewGroup) {
+                var i = 0
+                while (i < parent.childCount) {
+                    val v = parent.getChildAt(i)
+                    if (v === target)
+                        sb.append(i)
+                    i++
+                }
+            }
 
             target = when (parent) {
                 is View -> parent

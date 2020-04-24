@@ -175,6 +175,8 @@ enum class MessageEventName(override val value: String) : EventName {
     MessageClose("message_close"),
     /** message_click イベント*/
     MessageClick("message_click"),
+    /** _message_suppressed イベント */
+    MessageSuppressed("_message_suppressed"),
 }
 
 /**カスタムイベント名を保持するクラスです。*/
@@ -189,5 +191,7 @@ enum class MessageEventType(val eventName: EventName) {
     /** message_close イベント*/
     Close(MessageEventName.MessageClose),
     /** message_click イベント*/
-    Click(MessageEventName.MessageClick)
+    Click(MessageEventName.MessageClick),
+    /** _message_suppressed イベント */
+    Suppressed(MessageEventName.MessageSuppressed),
 }

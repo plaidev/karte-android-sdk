@@ -25,6 +25,8 @@ import java.io.OutputStreamWriter
 import java.util.UUID
 
 const val HEADER_CONTENT_TYPE = "Content-Type"
+const val HEADER_CONTENT_ENCODING = "Content-Encoding"
+const val CONTENT_ENCODING_GZIP = "gzip"
 const val CONTENT_TYPE_TEXT = "text/plain; charset=utf-8"
 const val CONTENT_TYPE_OCTET_STREAM = "application/octet-stream"
 const val CONTENT_TYPE_JSON = "application/json"

@@ -55,7 +55,7 @@ private const val ENDPOINT_POST_TRACE = "/auto-track/trace"
 private const val RESPONSE_INVALID_STATE = "invalid_state"
 private const val RESPONSE_BODY_TYPE = "type"
 
-internal class PairingManager(private val app: KarteApp): ActivityLifecycleCallback() {
+internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCallback() {
     private val traceSendExecutor = Executors.newCachedThreadPool()
     private val pollingExecutor = Executors.newScheduledThreadPool(1)
     private var pairingAccountId: String? = null
@@ -106,7 +106,7 @@ internal class PairingManager(private val app: KarteApp): ActivityLifecycleCallb
 
                     val json = JSONObject().put("visitor_id", KarteApp.visitorId)
                     val request =
-                        JSONRequest(url, METHOD_POST).apply { this.body = json.toString() }
+                        JSONRequest(url, METHOD_POST).apply { body = json.toString() }
                     request.headers[HEADER_APP_KEY] = app.appKey
                     request.headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_JSON
                     request.headers[HEADER_ACCOUNT_ID] = accountId

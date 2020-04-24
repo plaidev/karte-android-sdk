@@ -35,15 +35,20 @@ import io.karte.android.inappmessaging.internal.IAMWindow
 import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.inappmessaging.internal.PanelWindowManager
 import io.karte.android.inappmessaging.internal.preview.PreviewParams
+import io.karte.android.tracking.MessageEvent
+import io.karte.android.tracking.MessageEventType
+import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
 import io.karte.android.utilities.ActivityLifecycleCallback
 import io.karte.android.utilities.getLowerClassName
 import org.json.JSONException
+import org.json.JSONObject
 import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.InAppMessaging"
 private const val PREVENT_RELAY_TO_PRESENTER_KEY = "krt_prevent_relay_to_presenter"
+private const val COOKIE_DOMAIN = "karte.io"
 
 /**
  * アプリ内メッセージの管理を行うクラスです。
@@ -84,7 +89,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
             currentActiveActivity?.get()?.let { activity ->
                 try {
                     val message = MessageModel(trackResponse.json, trackRequest)
-                    message.filter(app.pvId)
+                    message.filter(app.pvId, ::trackMessageSuppressed)
                     if (message.shouldLoad()) {
                         Logger.d(
                             LOG_TAG,
@@ -248,6 +253,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     private lateinit var app: KarteApp
     private val uiThreadHandler: Handler = Handler(Looper.getMainLooper())
     private val panelWindowManager = PanelWindowManager()
+    private val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
     private var currentActiveActivity: WeakReference<Activity>? = null
     private var presenter: IAMPresenter? = null
     private var isSuppressed = false
@@ -294,13 +300,21 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     }
 
     private fun generateOverlayURL(): String {
-        return "${app.config.baseUrl}/overlay?app_key=${app.appKey}&_k_vid=${KarteApp.visitorId}&_k_app_prof=${app.appInfo?.json}"
+        return "${overlayBaseUrl}/overlay?app_key=${app.appKey}&_k_vid=${KarteApp.visitorId}&_k_app_prof=${app.appInfo?.json}"
     }
 
     private fun clearWebViewCookies() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            CookieManager.getInstance().removeAllCookies(null)
-            CookieManager.getInstance().flush()
+            val cookieManager = CookieManager.getInstance()
+            val allCookies = cookieManager.getCookie(COOKIE_DOMAIN) ?: return
+            allCookies
+                .split("; ")
+                .filter { !it.isBlank() && it.contains("=") }
+                .forEach {
+                        val cookieString = it.substringBefore("=") + "=; Domain=" + COOKIE_DOMAIN
+                        cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
+                }
+            cookieManager.flush()
         }
     }
 
@@ -318,5 +332,13 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
                 ) { presenter = null }
             }
         }
+    }
+
+    private fun trackMessageSuppressed(message: JSONObject, reason: String) {
+        val action = message.getJSONObject("action")
+        val campaignId = action.getString("campaign_id")
+        val shortenId = action.getString("shorten_id")
+        val values = mapOf("reason" to "The display is suppressed by native_app_display_limit_mode.")
+        Tracker.track(MessageEvent(MessageEventType.Suppressed, campaignId, shortenId, values))
     }
 }
