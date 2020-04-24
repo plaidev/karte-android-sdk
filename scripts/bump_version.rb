@@ -173,8 +173,11 @@ class BumpVersionCommand < UpdateVersionCommand
     case @name
     when "major"
       version_splits[0] = version_splits[0].to_i + 1
+      version_splits[1] = 0
+      version_splits[2] = 0
     when "minor"
       version_splits[1] = version_splits[1].to_i + 1
+      version_splits[2] = 0
     when "patch"
       version_splits[2] = version_splits[2].to_i + 1
     end
