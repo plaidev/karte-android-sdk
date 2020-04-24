@@ -305,13 +305,10 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
             val allCookies = cookieManager.getCookie(COOKIE_DOMAIN) ?: return
             allCookies
                 .split("; ")
-                .filter { !it.isNullOrBlank() }
+                .filter { !it.isBlank() && it.contains("=") }
                 .forEach {
-                    val equalCharIndex = it.indexOf("=")
-                    if (equalCharIndex >= 0) {
-                        val cookieString = it.substring(0,equalCharIndex) + "=; Domain=" + COOKIE_DOMAIN
+                        val cookieString = it.substringBefore("=") + "=; Domain=" + COOKIE_DOMAIN
                         cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
-                    }
                 }
             cookieManager.flush()
         }
