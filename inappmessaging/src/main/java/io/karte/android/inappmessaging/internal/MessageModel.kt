@@ -31,7 +31,7 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
     val string: String
         get() = Base64.encodeToString(data.toString().toByteArray(), Base64.NO_WRAP)
 
-    fun filter(pvId: String) {
+    fun filter(pvId: String, exclude: (JSONObject, String) -> Unit) {
         if (request.pvId == pvId || request.pvId == request.originalPvId) {
             // pageIdが一致 または 未定義の場合は何もしない
             return
@@ -50,6 +50,7 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
                     modifiedMessages.add(message)
                 } else {
                     Logger.i(LOG_TAG, "Skip to handle response because screen transited.")
+                    exclude(message, "The display is suppressed by native_app_display_limit_mode.")
                 }
             }
             data.put("messages", JSONArray(modifiedMessages))
