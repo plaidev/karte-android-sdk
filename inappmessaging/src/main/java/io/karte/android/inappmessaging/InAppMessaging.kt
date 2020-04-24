@@ -48,6 +48,7 @@ import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.InAppMessaging"
 private const val PREVENT_RELAY_TO_PRESENTER_KEY = "krt_prevent_relay_to_presenter"
+private const val COOKIE_DOMAIN = "karte.io"
 
 /**
  * アプリ内メッセージの管理を行うクラスです。
@@ -304,8 +305,16 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
 
     private fun clearWebViewCookies() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            CookieManager.getInstance().removeAllCookies(null)
-            CookieManager.getInstance().flush()
+            val cookieManager = CookieManager.getInstance()
+            val allCookies = cookieManager.getCookie(COOKIE_DOMAIN) ?: return
+            allCookies
+                .split("; ")
+                .filter { !it.isBlank() && it.contains("=") }
+                .forEach {
+                        val cookieString = it.substringBefore("=") + "=; Domain=" + COOKIE_DOMAIN
+                        cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
+                }
+            cookieManager.flush()
         }
     }
 
