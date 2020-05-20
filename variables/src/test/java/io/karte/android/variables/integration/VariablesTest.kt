@@ -27,6 +27,7 @@ import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
 import io.karte.android.tearDownKarteApp
+import io.karte.android.variables.Variable
 import io.karte.android.variables.Variables
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -1094,15 +1095,15 @@ class VariablesTest {
     }
 
     class イベントトラッキング : VariablesTestCase() {
-        val campaignId1 = "campaignId1"
-        val campaignId2 = "campaignId2"
-        val shortenId1 = "shortenId1"
-        val shortenId2 = "shortenId2"
+        private val campaignId1 = "campaignId1"
+        private val campaignId2 = "campaignId2"
+        private val shortenId1 = "shortenId1"
+        private val shortenId2 = "shortenId2"
 
-        val campaign1Var1 = Var("var1", "hoge")
-        val campaign1Var2 = Var("var2", "hoge")
-        val campaign2Var1 = Var("var3", "hoge")
-        val campaign2Var2 = Var("var4", "hoge")
+        private val campaign1Var1 = Var("var1", "hoge")
+        private val campaign1Var2 = Var("var2", "hoge")
+        private val campaign2Var1 = Var("var3", "hoge")
+        private val campaign2Var2 = Var("var4", "hoge")
 
         @Before
         override fun init() {
@@ -1137,27 +1138,80 @@ class VariablesTest {
         }
 
         @Test
-        fun 接客ごとにユニークなトラッキングができること() {
-            val var1 = Variables.get(campaign1Var1.name)
-            val var2 = Variables.get(campaign1Var2.name)
-            val var3 = Variables.get(campaign2Var1.name)
-            val var4 = Variables.get(campaign2Var2.name)
-
-            Variables.trackClick(
-                listOf(
-                    var1,
-                    var2,
-                    var3,
-                    var4
-                )
-            )
-            proceedBufferedCall()
-            // TODO: RobolectricのThreadのshadowのバグか、delayが複数種類あると一度flushしても全部実行されない
+        fun 接客ごとにユニークなトラッキングができること_Click() {
+            Variables.trackClick(getVariables())
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             assertThat(events.length()).isEqualTo(2)
-            assertThat(events.getJSONObject(0).getString("event_name")).isEqualTo("message_click")
+            assertRequest(events, "message_click")
+        }
+
+        @Test
+        fun 設定したvaluesが送信されること_Click_Map() {
+            Variables.trackClick(
+                getVariables(),
+                HashMap<String, Any?>().apply { put("hoge", "fuga") })
+            proceedBufferedCall()
+
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            assertThat(events.length()).isEqualTo(2)
+            assertValues(events, "hoge", "fuga")
+        }
+
+        @Test
+        fun 設定したvaluesが送信されること_Click_Json() {
+            Variables.trackClick(getVariables(), JSONObject().put("hoge", "fuga"))
+            proceedBufferedCall()
+
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            assertThat(events.length()).isEqualTo(2)
+            assertValues(events, "hoge", "fuga")
+        }
+
+        @Test
+        fun 接客ごとにユニークなトラッキングができること_Open() {
+            Variables.trackOpen(getVariables())
+            proceedBufferedCall()
+
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            assertThat(events.length()).isEqualTo(2)
+            assertRequest(events, "message_open")
+        }
+
+        @Test
+        fun 設定したvaluesが送信されること_Open_Map() {
+            Variables.trackOpen(
+                getVariables(),
+                HashMap<String, Any?>().apply { put("hoge", "fuga") })
+            proceedBufferedCall()
+
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            assertThat(events.length()).isEqualTo(2)
+            assertValues(events, "hoge", "fuga")
+        }
+
+        @Test
+        fun 設定したvaluesが送信されること_Open_Json() {
+            Variables.trackOpen(getVariables(), JSONObject().put("hoge", "fuga"))
+            proceedBufferedCall()
+
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            assertThat(events.length()).isEqualTo(2)
+            assertValues(events, "hoge", "fuga")
+        }
+
+        private fun getVariables(): List<Variable> {
+            return listOf(
+                Variables.get(campaign1Var1.name),
+                Variables.get(campaign1Var2.name),
+                Variables.get(campaign2Var1.name),
+                Variables.get(campaign2Var2.name)
+            )
+        }
+
+        private fun assertRequest(events: JSONArray, expectedEventName: String) {
+            assertThat(events.getJSONObject(0).getString("event_name")).isEqualTo(expectedEventName)
             assertThat(
                 events.getJSONObject(0).getJSONObject("values").getJSONObject("message").getString(
                     "campaign_id"
@@ -1180,27 +1234,12 @@ class VariablesTest {
             ).isEqualTo(shortenId2)
         }
 
-        @Test
-        fun 設定したvaluesが送信されること() {
-            val var1 = Variables.get(campaign1Var1.name)
-            val var2 = Variables.get(campaign1Var2.name)
-            val var3 = Variables.get(campaign2Var1.name)
-            val var4 = Variables.get(campaign2Var2.name)
-
-            Variables.trackClick(
-                listOf(var1, var2, var3, var4),
-                HashMap<String, Any?>().apply { put("hoge", "fuga") })
-            proceedBufferedCall()
-            // TODO: RobolectricのThreadのshadowのバグか、delayが複数種類あると一度flushしても全部実行されない
-            proceedBufferedCall()
-
-            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
-            assertThat(events.length()).isEqualTo(2)
-            assertThat(events.getJSONObject(0).getJSONObject("values").getString("hoge")).isEqualTo(
-                "fuga"
+        private fun assertValues(events: JSONArray, key: String, value: String) {
+            assertThat(events.getJSONObject(0).getJSONObject("values").getString(key)).isEqualTo(
+                value
             )
-            assertThat(events.getJSONObject(1).getJSONObject("values").getString("hoge")).isEqualTo(
-                "fuga"
+            assertThat(events.getJSONObject(1).getJSONObject("values").getString(key)).isEqualTo(
+                value
             )
         }
     }
