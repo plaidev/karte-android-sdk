@@ -108,7 +108,7 @@ internal class PanelWindowManager {
                 val y = event.y.toInt()
                 val view = window.peekDecorView()
                 view.getLocationOnScreen(locationOnScreen)
-                if (x >= locationOnScreen[0] && x <= locationOnScreen[1] + view.width && y >= locationOnScreen[1] && y <= locationOnScreen[1] + view.height) {
+                if (x >= locationOnScreen[0] && x <= locationOnScreen[0] + view.width && y >= locationOnScreen[1] && y <= locationOnScreen[1] + view.height) {
                     shouldDispatch = true
                 }
             }
