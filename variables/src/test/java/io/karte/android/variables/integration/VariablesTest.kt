@@ -38,6 +38,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
+import java.util.Date
 
 data class Var(val name: String, val value: String)
 
@@ -1105,6 +1106,9 @@ class VariablesTest {
         private val campaign2Var1 = Var("var3", "hoge")
         private val campaign2Var2 = Var("var4", "hoge")
 
+        private val dateParam = Date()
+        private val expectedDateValue = dateParam.time / 1000
+
         @Before
         override fun init() {
             super.init()
@@ -1151,22 +1155,27 @@ class VariablesTest {
         fun 設定したvaluesが送信されること_Click_Map() {
             Variables.trackClick(
                 getVariables(),
-                HashMap<String, Any?>().apply { put("hoge", "fuga") })
+                HashMap<String, Any?>().apply { put("hoge", "fuga");put("date", dateParam) })
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             assertThat(events.length()).isEqualTo(2)
-            assertValues(events, "hoge", "fuga")
+            assertStringValue(events, "hoge", "fuga")
+            assertLongValue(events, "date", expectedDateValue)
         }
 
         @Test
         fun 設定したvaluesが送信されること_Click_Json() {
-            Variables.trackClick(getVariables(), JSONObject().put("hoge", "fuga"))
+            Variables.trackClick(
+                getVariables(),
+                JSONObject().put("hoge", "fuga").put("date", dateParam)
+            )
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             assertThat(events.length()).isEqualTo(2)
-            assertValues(events, "hoge", "fuga")
+            assertStringValue(events, "hoge", "fuga")
+            assertLongValue(events, "date", expectedDateValue)
         }
 
         @Test
@@ -1183,22 +1192,27 @@ class VariablesTest {
         fun 設定したvaluesが送信されること_Open_Map() {
             Variables.trackOpen(
                 getVariables(),
-                HashMap<String, Any?>().apply { put("hoge", "fuga") })
+                HashMap<String, Any?>().apply { put("hoge", "fuga");put("date", dateParam) })
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             assertThat(events.length()).isEqualTo(2)
-            assertValues(events, "hoge", "fuga")
+            assertStringValue(events, "hoge", "fuga")
+            assertLongValue(events, "date", expectedDateValue)
         }
 
         @Test
         fun 設定したvaluesが送信されること_Open_Json() {
-            Variables.trackOpen(getVariables(), JSONObject().put("hoge", "fuga"))
+            Variables.trackOpen(
+                getVariables(),
+                JSONObject().put("hoge", "fuga").put("date", dateParam)
+            )
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             assertThat(events.length()).isEqualTo(2)
-            assertValues(events, "hoge", "fuga")
+            assertStringValue(events, "hoge", "fuga")
+            assertLongValue(events, "date", expectedDateValue)
         }
 
         private fun getVariables(): List<Variable> {
@@ -1234,13 +1248,20 @@ class VariablesTest {
             ).isEqualTo(shortenId2)
         }
 
-        private fun assertValues(events: JSONArray, key: String, value: String) {
-            assertThat(events.getJSONObject(0).getJSONObject("values").getString(key)).isEqualTo(
-                value
-            )
-            assertThat(events.getJSONObject(1).getJSONObject("values").getString(key)).isEqualTo(
-                value
-            )
+        private fun assertStringValue(events: JSONArray, key: String, value: String) {
+            for (i in 0 until events.length()) {
+                assertThat(events.getJSONObject(i).getJSONObject("values").getString(key)).isEqualTo(
+                    value
+                )
+            }
+        }
+
+        private fun assertLongValue(events: JSONArray, key: String, value: Long) {
+            for (i in 0 until events.length()) {
+                assertThat(events.getJSONObject(i).getJSONObject("values").getLong(key)).isEqualTo(
+                    value
+                )
+            }
         }
     }
 
