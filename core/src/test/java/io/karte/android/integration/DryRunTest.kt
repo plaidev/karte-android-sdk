@@ -14,7 +14,7 @@ import io.karte.android.tracking.TrackerDelegate
 import org.junit.Before
 import org.junit.Test
 
-open class DryRunTestCase : SetupTestCase() {
+abstract class DryRunTestCase : SetupTestCase() {
     @Before
     fun setup() {
         setupKarteApp(server, appKey, Config.Builder().isDryRun(true))
