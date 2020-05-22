@@ -18,6 +18,7 @@ package io.karte.android.inappmessaging.internal
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.RectF
 import android.net.Uri
@@ -26,6 +27,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
+import android.view.View
+import android.view.WindowManager
+import android.view.DisplayCutout
 import android.webkit.JavascriptInterface
 import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
@@ -45,8 +49,6 @@ import io.karte.android.inappmessaging.internal.javascript.OPEN_URL
 import io.karte.android.inappmessaging.internal.javascript.STATE_CHANGE
 import io.karte.android.inappmessaging.internal.javascript.State
 import io.karte.android.inappmessaging.internal.javascript.VISIBILITY
-import io.karte.android.tracking.CustomEventName
-import io.karte.android.tracking.Event
 import io.karte.android.tracking.MessageEventName
 import io.karte.android.tracking.Tracker
 import io.karte.android.utilities.asString
@@ -80,6 +82,8 @@ constructor(
     internal var parentView: ParentView? = null
     @VisibleForTesting
     var state = State.LOADING
+
+    private var cutout: DisplayCutout? = null
 
     init {
 
@@ -178,6 +182,28 @@ constructor(
 
         uiThreadHandler = Handler(Looper.getMainLooper())
         addJavascriptInterface(this, "NativeBridge")
+
+        addOnLayoutChangeListener(object: OnLayoutChangeListener {
+            override fun onLayoutChange(view: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    //Pより前のバージョンではcutoutが取得できないので何もしない
+                    return
+                }
+                if (!isFullScreen()) {
+                    return
+                }
+
+                val cutout = cutout ?: return
+                val scale = Resources.getSystem().displayMetrics.density
+                val safeInsetTop = cutout.safeInsetTop / scale
+                loadUrl(
+                    String.format(
+                        "javascript:window.tracker.setNativeSafeAreaInset('%f');",
+                        safeInsetTop
+                    )
+                )
+            }
+        })
     }
 
     fun resetOrDestroy() {
@@ -188,6 +214,11 @@ constructor(
         } else {
             destroy()
         }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        this.cutout = getCutout()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -359,5 +390,21 @@ constructor(
     private fun reset() {
         Logger.d(LOG_TAG, "resetTrackerJs()")
         loadUrl("javascript:window.tracker.resetPageState();")
+    }
+
+    private fun getCutout(): DisplayCutout? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            return windowManager.defaultDisplay.cutout
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            return rootWindowInsets.displayCutout
+        }
+        return null
+    }
+
+    private fun isFullScreen(): Boolean {
+        val location = IntArray(2)
+        getLocationOnScreen(location)
+        return location[1] == 0
     }
 }
