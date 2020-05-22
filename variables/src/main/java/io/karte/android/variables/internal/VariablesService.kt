@@ -107,6 +107,7 @@ internal class VariablesService : Library, ActionModule, UserModule {
     }
 
     override fun unconfigure(app: KarteApp) {
+        self = null
         app.unregister(this)
     }
     //endregion

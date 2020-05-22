@@ -52,6 +52,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
     }
 
     override fun unconfigure(app: KarteApp) {
+        self = null
         app.application.unregisterActivityLifecycleCallbacks(this)
         app.unregister(registrar)
         app.unregister(clickTracker)
@@ -66,7 +67,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
     //endregion
 
     companion object {
-        internal lateinit var self: Notifications
+        internal var self: Notifications? = null
 
         /**
          * FCM（Firebase Cloud Messaging）トークンを登録します。
@@ -77,7 +78,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
          */
         @JvmStatic
         fun registerFCMToken(token: String) {
-            self.registrar.registerFCMToken(token)
+            self?.registrar?.registerFCMToken(token)
         }
     }
 
