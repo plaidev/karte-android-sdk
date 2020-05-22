@@ -17,6 +17,7 @@ package io.karte.android.variables;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -79,6 +80,16 @@ public class Variables {
     }
 
     /**
+     * 指定された設定値に関連するキャンペーン情報を元に効果測定用のイベント（message_open）を発火します。
+     *
+     * @param variables  設定値の配列
+     * @param jsonObject イベントに紐付けるカスタムオブジェクト
+     */
+    public static void trackOpen(@NotNull List<Variable> variables, @Nullable JSONObject jsonObject) {
+        VariablesService.trackOpen(variables, jsonObject);
+    }
+
+    /**
      * 指定された設定値に関連するキャンペーン情報を元に効果測定用のイベント（message_click）を発火します。
      *
      * @param variables 設定値の配列
@@ -95,5 +106,15 @@ public class Variables {
      */
     public static void trackClick(@NotNull List<Variable> variables, @Nullable Map<String, ?> values) {
         VariablesService.trackClick(variables, values);
+    }
+
+    /**
+     * 指定された設定値に関連するキャンペーン情報を元に効果測定用のイベント（message_click）を発火します。
+     *
+     * @param variables  設定値の配列
+     * @param jsonObject イベントに紐付けるカスタムオブジェクト
+     */
+    public static void trackClick(@NotNull List<Variable> variables, @Nullable JSONObject jsonObject) {
+        VariablesService.trackClick(variables, jsonObject);
     }
 }
