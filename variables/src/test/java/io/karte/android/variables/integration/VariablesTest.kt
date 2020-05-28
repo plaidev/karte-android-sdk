@@ -87,7 +87,7 @@ abstract class VariablesTestCase : RobolectricTestCase() {
         server.shutdown()
     }
 
-    //_fetch_variablesに対する接客のレスポンスと、その後必ず来るmessage_openトラッキングへの空200レスポンスをenqueueする
+    // _fetch_variablesに対する接客のレスポンスと、その後必ず来るmessage_openトラッキングへの空200レスポンスをenqueueする
     fun enqMsgRespAndMsgOpenResp(messages: JSONArray) {
         server.enqueue(MockResponse().setBody(createMessagesResponse(messages).toString()))
         server.enqueue(MockResponse().setBody(createMessagesResponse(JSONArray()).toString()))
@@ -1129,15 +1129,15 @@ class VariablesTest {
                     )
             )
             Variables.fetch()
-            //dequeue _fetch_variables event request
+            // dequeue _fetch_variables event request
             proceedBufferedCall()
             server.takeRequest()
 
-            //dequeue message_ready event request
+            // dequeue message_ready event request
             proceedBufferedCall()
             server.takeRequest()
 
-            //enqueue response to handle message_click trackings
+            // enqueue response to handle message_click trackings
             enqMsgRespAndMsgOpenResp(JSONArray())
         }
 
@@ -1155,7 +1155,7 @@ class VariablesTest {
         fun 設定したvaluesが送信されること_Click_Map() {
             Variables.trackClick(
                 getVariables(),
-                HashMap<String, Any?>().apply { put("hoge", "fuga");put("date", dateParam) })
+                HashMap<String, Any?>().apply { put("hoge", "fuga"); put("date", dateParam) })
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
@@ -1192,7 +1192,7 @@ class VariablesTest {
         fun 設定したvaluesが送信されること_Open_Map() {
             Variables.trackOpen(
                 getVariables(),
-                HashMap<String, Any?>().apply { put("hoge", "fuga");put("date", dateParam) })
+                HashMap<String, Any?>().apply { put("hoge", "fuga"); put("date", dateParam) })
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
@@ -1250,17 +1250,15 @@ class VariablesTest {
 
         private fun assertStringValue(events: JSONArray, key: String, value: String) {
             for (i in 0 until events.length()) {
-                assertThat(events.getJSONObject(i).getJSONObject("values").getString(key)).isEqualTo(
-                    value
-                )
+                assertThat(events.getJSONObject(i).getJSONObject("values").getString(key))
+                    .isEqualTo(value)
             }
         }
 
         private fun assertLongValue(events: JSONArray, key: String, value: Long) {
             for (i in 0 until events.length()) {
-                assertThat(events.getJSONObject(i).getJSONObject("values").getLong(key)).isEqualTo(
-                    value
-                )
+                assertThat(events.getJSONObject(i).getJSONObject("values").getLong(key))
+                    .isEqualTo(value)
             }
         }
     }

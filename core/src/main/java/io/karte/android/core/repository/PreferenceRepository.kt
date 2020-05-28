@@ -28,6 +28,7 @@ internal class PreferenceRepository internal constructor(
     private val prefs =
         context.getSharedPreferences("$PREF_NAME_PREFIX$namespace$appKey", Context.MODE_PRIVATE)
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: String, default: T): T {
         return when (default) {
             is String? -> prefs.getString(key, default) as T
@@ -49,8 +50,8 @@ internal class PreferenceRepository internal constructor(
             is Float -> edit.putFloat(key, value)
             is Double -> edit.putFloat(key, value.toFloat())
             is Boolean -> edit.putBoolean(key, value)
-            else -> edit
-        }.apply()
+        }
+        edit.apply()
     }
 
     override fun remove(key: String) {

@@ -48,6 +48,6 @@ internal class PreviewParams(activity: Activity) {
         val karteOpts = toJSON() ?: return null
 
         return "${app.config.baseUrl}/overlay?app_key=${app.appKey}&_k_vid=${KarteApp.visitorId}" +
-            "&_k_app_prof=${app.appInfo?.json}&__karte_opts=${karteOpts}"
+            "&_k_app_prof=${app.appInfo?.json}&__karte_opts=$karteOpts"
     }
 }

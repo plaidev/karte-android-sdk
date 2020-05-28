@@ -104,7 +104,7 @@ interface TrackModule : Module {
      * リクエスト処理に割り込みます。
      *
      * 編集済みのリクエストを返すことで、リクエスト内容を編集することが可能です。
-     * @param[request]  リクエスト
+     * @param[request] リクエスト
      * @return 編集済みのリクエストを返します。
      */
     fun intercept(request: TrackRequest): TrackRequest

@@ -7,6 +7,8 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import io.karte.android.KarteApp
+import io.karte.android.core.logger.LogLevel
+import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.variables.Variables
 
@@ -16,9 +18,11 @@ class SampleApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
+        Logger.level = LogLevel.DEBUG
         KarteApp.setup(this, APP_KEY)
         Variables.fetch()
+        @Suppress("DEPRECATION")
+        InAppMessaging.Config.enabledWebViewCache = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(this)
         }

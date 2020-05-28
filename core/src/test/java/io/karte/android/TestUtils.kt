@@ -60,8 +60,10 @@ fun proceedBufferedCall() {
         Shadows.shadowOf(ShadowLooper.getLooperForThread(getThreadByName(THREAD_NAME)))
             .scheduler
     // Schedulerのbuffer計算バグで一度目のループで実行されないケースがあるため2回呼ぶ
-    while (scheduler.advanceToNextPostedRunnable());
-    while (scheduler.advanceToNextPostedRunnable());
+    while (scheduler.advanceToNextPostedRunnable()) {
+    }
+    while (scheduler.advanceToNextPostedRunnable()) {
+    }
     Robolectric.flushForegroundThreadScheduler()
 }
 

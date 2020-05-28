@@ -60,7 +60,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
     }
     //endregion
 
-    //region AcitivityLifecycleCallback
+    //region ActivityLifecycleCallback
     override fun onActivityResumed(activity: Activity) {
         Logger.v(LOG_TAG, "onActivityResumed $activity")
         if (Config.enabledFCMTokenResend) registrar.registerFCMToken()

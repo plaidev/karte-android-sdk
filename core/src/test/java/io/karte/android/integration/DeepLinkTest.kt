@@ -20,7 +20,7 @@ abstract class DeepLinkTestCase : TrackerTestCase() {
     @Before
     fun setup() {
         dispatcher = TrackerRequestDispatcher()
-        server.setDispatcher(dispatcher)
+        server.dispatcher = dispatcher
     }
 
     fun launchByDeepLink(uriString: String) {

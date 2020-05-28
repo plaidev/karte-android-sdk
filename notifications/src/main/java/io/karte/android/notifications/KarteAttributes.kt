@@ -56,6 +56,7 @@ data class KarteAttributes(
         sound = jsonObject?.optBoolean(KEY_SOUND, false) ?: false
     }
 
+    /** @suppress */
     override fun toString(): String {
         return "KarteAttributes{" +
             "title='" + title + '\''.toString() +

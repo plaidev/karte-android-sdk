@@ -72,7 +72,6 @@ object MessageHandler {
      */
     @JvmStatic
     fun canHandleMessage(message: RemoteMessage): Boolean {
-        if (message.data == null) return false
         return canHandleMessage(message.data)
     }
 
@@ -98,8 +97,7 @@ object MessageHandler {
      */
     @JvmStatic
     fun extractKarteAttributes(message: RemoteMessage): KarteAttributes? {
-        val data = message.data ?: return null
-        return extractKarteAttributes(data)
+        return extractKarteAttributes(message.data)
     }
 
     /**
@@ -192,24 +190,17 @@ object MessageHandler {
         Logger.d(LOG_TAG, "showNotification(): $context, attributes: $attributes")
 
         val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         if (notificationManager == null) {
             Logger.w(LOG_TAG, "Stopped to show notification because NotificationManager is null.")
             return
         }
 
-        val notificationBuilder: NotificationCompat.Builder
-        if (supportLibHasNotificationChannelMethod()) {
-            if (channelExists(attributes.channel, notificationManager)) {
-                notificationBuilder = NotificationCompat.Builder(context, attributes.channel)
-            } else {
-                createDefaultChannel(notificationManager)
-                notificationBuilder =
-                    NotificationCompat.Builder(context, DEFAULT_NOTIFICATION_CHANNEL)
-            }
+        val notificationBuilder = if (channelExists(attributes.channel, notificationManager)) {
+            NotificationCompat.Builder(context, attributes.channel)
         } else {
-
-            notificationBuilder = NotificationCompat.Builder(context)
+            createDefaultChannel(notificationManager)
+            NotificationCompat.Builder(context, DEFAULT_NOTIFICATION_CHANNEL)
         }
 
         val notification =
@@ -259,11 +250,12 @@ object MessageHandler {
             builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
         }
 
-        val bigPicture: Bitmap? = if (attributes.type == ATTACHMENT_TYPE_IMAGE && attributes.fileUrl != "") {
-            BitmapUtil.getBigPicture(attributes.fileUrl)
-        } else {
-            null
-        }
+        val bigPicture: Bitmap? =
+            if (attributes.type == ATTACHMENT_TYPE_IMAGE && attributes.fileUrl != "") {
+                BitmapUtil.getBigPicture(attributes.fileUrl)
+            } else {
+                null
+            }
         if (bigPicture != null) {
             builder.setLargeIcon(bigPicture)
             builder.setStyle(
@@ -297,17 +289,16 @@ object MessageHandler {
         data: Map<String, String>,
         defaultIntent: Intent?
     ): PendingIntent? {
-        var defaultIntent = defaultIntent
         val packageManager = context.packageManager
-        if (defaultIntent == null) {
-            // CATEGORY_INFO, CATEGORY_LAUNCHERに該当するActivityがない場合はnull
-            defaultIntent = packageManager.getLaunchIntentForPackage(context.packageName)
-        }
+        // CATEGORY_INFO, CATEGORY_LAUNCHERに該当するActivityがない場合はnull
+        val fallbackIntent =
+            defaultIntent ?: packageManager.getLaunchIntentForPackage(context.packageName)
 
-        var intent = defaultIntent
+        var intent: Intent? = null
         if (attributes.link.isNotEmpty()) {
             val uri = Uri.parse(attributes.link)
-            intent = Notifications.self?.app?.executeCommand(uri)?.filterIsInstance<Intent>()?.firstOrNull()
+            intent = Notifications.self?.app?.executeCommand(uri)?.filterIsInstance<Intent>()
+                ?.firstOrNull()
             if (intent == null) {
                 intent = Intent(Intent.ACTION_VIEW, uri)
                 if (intent.resolveActivity(packageManager) == null) {
@@ -315,10 +306,11 @@ object MessageHandler {
                         LOG_TAG,
                         "Cannot resolve specified link. Trying to use default Activity."
                     )
-                    intent = defaultIntent
+                    intent = null
                 }
             }
         }
+        intent = intent ?: fallbackIntent
 
         if (intent == null) {
             Logger.w(LOG_TAG, "No Activity to launch was found.")
@@ -335,18 +327,6 @@ object MessageHandler {
         copyInfoToIntent(data, intent)
 
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_ONE_SHOT)
-    }
-
-    private fun supportLibHasNotificationChannelMethod(): Boolean {
-        return try {
-            NotificationCompat.Builder::class.java!!.getConstructor(
-                Context::class.java,
-                String::class.java
-            )
-            true
-        } catch (e: NoSuchMethodException) {
-            false
-        }
     }
 
     private fun createDefaultChannel(notificationManager: NotificationManager) {

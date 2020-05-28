@@ -104,7 +104,9 @@ internal class PanelWindowManager {
                 val y = event.y.toInt()
                 val view = window.peekDecorView()
                 view.getLocationOnScreen(locationOnScreen)
-                if (x >= locationOnScreen[0] && x <= locationOnScreen[0] + view.width && y >= locationOnScreen[1] && y <= locationOnScreen[1] + view.height) {
+                if (x >= locationOnScreen[0] && x <= locationOnScreen[0] + view.width &&
+                    y >= locationOnScreen[1] && y <= locationOnScreen[1] + view.height
+                ) {
                     shouldDispatch = true
                 }
             }
@@ -147,7 +149,8 @@ internal class PanelWindowManager {
             if (!popupWindow.isShowing) return false
             if (popupWindow.contentView == null) return false
 
-            return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) true else popupWindow.windowLayoutType == TYPE_APPLICATION_PANEL
+            return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) true
+            else popupWindow.windowLayoutType == TYPE_APPLICATION_PANEL
         }
 
         override fun hasStaleReference(): Boolean {
@@ -169,7 +172,9 @@ internal class PanelWindowManager {
             if (popupWindow.isOutsideTouchable) {
                 shouldDispatch = true
             } else {
-                if (touchX >= locationOnScreen[0] && touchX <= locationOnScreen[0] + view.width && touchY >= locationOnScreen[1] && touchY <= locationOnScreen[1] + view.height) {
+                if (touchX >= locationOnScreen[0] && touchX <= locationOnScreen[0] + view.width &&
+                    touchY >= locationOnScreen[1] && touchY <= locationOnScreen[1] + view.height
+                ) {
                     shouldDispatch = true
                 }
             }

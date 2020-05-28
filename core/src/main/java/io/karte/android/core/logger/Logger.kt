@@ -25,6 +25,7 @@ object Logger {
     /**
      * ログレベルの取得および設定を行います。
      */
+    @JvmStatic
     var level: LogLevel = if (BuildConfig.DEBUG) LogLevel.VERBOSE else LogLevel.WARN
 
     /**
@@ -34,6 +35,7 @@ object Logger {
      * @param[throwable] 例外オブジェクト
      */
     @JvmStatic
+    @JvmOverloads
     fun v(tag: String?, message: String, throwable: Throwable? = null) {
         if (level > LogLevel.VERBOSE) return
 
@@ -51,6 +53,7 @@ object Logger {
      * @param[throwable] 例外オブジェクト
      */
     @JvmStatic
+    @JvmOverloads
     fun d(tag: String?, message: String, throwable: Throwable? = null) {
         if (level > LogLevel.DEBUG) return
 
@@ -68,6 +71,7 @@ object Logger {
      * @param[throwable] 例外オブジェクト
      */
     @JvmStatic
+    @JvmOverloads
     fun i(tag: String?, message: String, throwable: Throwable? = null) {
         if (level > LogLevel.INFO) return
 
@@ -85,6 +89,7 @@ object Logger {
      * @param[throwable] 例外オブジェクト
      */
     @JvmStatic
+    @JvmOverloads
     fun w(tag: String?, message: String, throwable: Throwable? = null) {
         if (level > LogLevel.WARN) return
 
@@ -102,6 +107,7 @@ object Logger {
      * @param[throwable] 例外オブジェクト
      */
     @JvmStatic
+    @JvmOverloads
     fun e(tag: String?, message: String, throwable: Throwable? = null) {
         if (level > LogLevel.ERROR) return
 
@@ -117,5 +123,18 @@ object Logger {
  * ログレベルを表す列挙型です。
  */
 enum class LogLevel {
-    VERBOSE, DEBUG, INFO, WARN, ERROR
+    /** VERBOSE */
+    VERBOSE,
+
+    /** DEBUG */
+    DEBUG,
+
+    /** INFO */
+    INFO,
+
+    /** WARN */
+    WARN,
+
+    /** ERROR */
+    ERROR
 }

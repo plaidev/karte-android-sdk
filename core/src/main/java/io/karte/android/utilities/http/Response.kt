@@ -15,14 +15,23 @@
 //
 package io.karte.android.utilities.http
 
+/**
+ * HTTP Response Object class.
+ * @property[code] HTTP Response code
+ * @property[headers] HTTP Response headers
+ * @property[body] Response body
+ */
 open class Response(val code: Int, val headers: Map<String, List<String>>, val body: String) {
 
+    /** is Request successful .  */
     val isSuccessful: Boolean
         get() = code in 200..299
 
+    /** Is server maintenance response.  */
     val isMaintenance: Boolean
         get() = code == 503
 
+    /** @suppress */
     override fun toString(): String {
         return "Response{" +
             "code=" + code +

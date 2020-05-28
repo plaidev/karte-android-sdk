@@ -6,6 +6,7 @@ android {
 
     defaultConfig {
         minSdkVersion 14
+        //noinspection OldTargetApi
         targetSdkVersion 29
         versionName version
 
@@ -19,6 +20,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        warningsAsErrors true
+    }
+    kotlinOptions.allWarningsAsErrors = true
 }
 
 
@@ -26,14 +31,15 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation project(path: ':core')
-    compileOnly 'androidx.appcompat:appcompat:1.1.0'
+    compileOnly 'androidx.appcompat:appcompat:1.2.0'
+    //noinspection GradleDependency
     compileOnly 'androidx.core:core-ktx:1.2.0'
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13'
     testImplementation 'androidx.test:core:1.2.0'
     testImplementation "com.google.truth:truth:1.0.1"
-    testImplementation "io.mockk:mockk:1.9.3"
+    testImplementation "io.mockk:mockk:1.10.0"
     testImplementation "org.robolectric:robolectric:4.3.1"
-    testImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.8.0'
     testImplementation project(path: ':core', configuration: 'testRuntime')
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

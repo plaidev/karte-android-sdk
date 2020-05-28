@@ -37,6 +37,7 @@ private const val VERSION_CODE_KEY = "app_version_code"
 private const val ADVERTISING_ID_KEY = "device_advertising_id"
 
 private interface Serializable {
+    /** @suppress */
     fun serialize(): JSONObject
 }
 
@@ -51,6 +52,7 @@ class AppInfo(context: Context, repository: Repository, config: Config) : Serial
 
     private val prevVersionName: String? = repository.get<String?>(VERSION_NAME_KEY, null)
     private val prevVersionCode: Int = repository.get(VERSION_CODE_KEY, -1)
+
     /**アプリケーション情報のJSONObjectです。*/
     val json: JSONObject
 
@@ -65,6 +67,7 @@ class AppInfo(context: Context, repository: Repository, config: Config) : Serial
             }
         }
         versionName = packageInfo?.versionName
+        @Suppress("DEPRECATION")
         versionCode = packageInfo?.versionCode ?: -1
 
         // write to shared preferences

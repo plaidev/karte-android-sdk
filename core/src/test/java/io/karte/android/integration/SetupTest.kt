@@ -25,8 +25,8 @@ import io.karte.android.RobolectricTestCase
 import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.core.config.Config
 import io.karte.android.eventNameTransform
-import io.karte.android.parseBody
 import io.karte.android.modules.crashreporting.CrashReporting
+import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
 import io.karte.android.tracking.Tracker
@@ -51,7 +51,7 @@ abstract class SetupTestCase : RobolectricTestCase() {
     @Before
     fun init() {
         server = MockWebServer()
-        dispatcher = TrackerRequestDispatcher().also { server.setDispatcher(it) }
+        dispatcher = TrackerRequestDispatcher().also { server.dispatcher = it }
         server.start()
     }
 
@@ -124,7 +124,8 @@ class SetupTest {
                 fun native_app_openイベントがtrackサーバに送信されること() {
                     Robolectric.buildActivity(Activity::class.java).create()
                     proceedBufferedCall()
-                    assertThat(dispatcher.trackedEvents()).comparingElementsUsing(eventNameTransform)
+                    assertThat(dispatcher.trackedEvents())
+                        .comparingElementsUsing(eventNameTransform)
                         .contains("native_app_open")
                 }
 
@@ -132,7 +133,8 @@ class SetupTest {
                 fun native_app_foregroundイベントがtrackサーバに送信されること() {
                     Robolectric.buildActivity(Activity::class.java).create().start()
                     proceedBufferedCall()
-                    assertThat(dispatcher.trackedEvents()).comparingElementsUsing(eventNameTransform)
+                    assertThat(dispatcher.trackedEvents())
+                        .comparingElementsUsing(eventNameTransform)
                         .contains("native_app_foreground")
                 }
             }
@@ -152,12 +154,13 @@ class SetupTest {
                     Robolectric.buildActivity(Activity::class.java).create()
                     Tracker.track("buy")
                     proceedBufferedCall()
-                    assertThat(dispatcher.trackedEvents()).comparingElementsUsing(eventNameTransform)
+                    assertThat(dispatcher.trackedEvents())
+                        .comparingElementsUsing(eventNameTransform)
                         .contains("native_app_open")
                     // assertThat(dispatcher.trackedEvents()).comparingElementsUsing(eventNameTransform).containsOnlyOnce("native_app_open")
-                    assertThat(dispatcher.trackedEvents().count { it.getString("event_name") == "native_app_open" }).isEqualTo(
-                        1
-                    )
+                    assertThat(dispatcher.trackedEvents()
+                        .count { it.getString("event_name") == "native_app_open" })
+                        .isEqualTo(1)
                 }
             }
         }
@@ -172,9 +175,10 @@ class SetupTest {
                         setupKarteApp(server, appKey)
                         Robolectric.buildActivity(Activity::class.java).create()
                         proceedBufferedCall()
-                        assertThat(dispatcher.trackedRequests().first().getHeader("X-KARTE-App-Key")).isEqualTo(
-                            appKey
-                        )
+                        assertThat(
+                            dispatcher.trackedRequests().first()
+                                .getHeader("X-KARTE-App-Key")
+                        ).isEqualTo(appKey)
                     }
                 }
 
@@ -215,8 +219,9 @@ class SetupTest {
                         Robolectric.buildActivity(Activity::class.java).create()
                         proceedBufferedCall()
                         val request = server.takeRequest()
-                        val actual = JSONObject(request.parseBody()).getJSONObject("app_info")
-                            .getJSONObject("system_info").getString("aaid")
+                        val actual = JSONObject(request.parseBody())
+                            .getJSONObject("app_info").getJSONObject("system_info")
+                            .getString("aaid")
                         assertThat(actual).isEqualTo(advertisingId)
                     }
 

@@ -17,8 +17,8 @@ package io.karte.android.notifications.integration
 
 import com.google.common.truth.Truth
 import io.karte.android.KarteApp
-import io.karte.android.parseBody
 import io.karte.android.integration.OptOutTestCase
+import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
 import okhttp3.mockwebserver.MockResponse
@@ -29,7 +29,7 @@ import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 
 @RunWith(Enclosed::class)
-class OptOutNotificationTest {
+class OptOutTest {
     class OptOut実行 : OptOutTestCase() {
         @Before
         fun setup() {

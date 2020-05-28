@@ -19,26 +19,34 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 
+/** [Application.ActivityLifecycleCallbacks] の空実装の抽象クラスです。*/
 abstract class ActivityLifecycleCallback : Application.ActivityLifecycleCallbacks {
 
+    /** @suppress */
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
     }
 
+    /** @suppress */
     override fun onActivityStarted(activity: Activity) {
     }
 
+    /** @suppress */
     override fun onActivityResumed(activity: Activity) {
     }
 
+    /** @suppress */
     override fun onActivityPaused(activity: Activity) {
     }
 
+    /** @suppress */
     override fun onActivityStopped(activity: Activity) {
     }
 
+    /** @suppress */
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
     }
 
+    /** @suppress */
     override fun onActivityDestroyed(activity: Activity) {
     }
 }

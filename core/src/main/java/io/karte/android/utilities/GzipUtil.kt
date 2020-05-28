@@ -47,6 +47,7 @@ private fun isGzipped(bytes: ByteArray?): Boolean {
     return if (bytes == null || bytes.size < 2) {
         false
     } else {
-        bytes[0] == GZIPInputStream.GZIP_MAGIC.toByte() && bytes[1] == (GZIPInputStream.GZIP_MAGIC shr 8).toByte()
+        bytes[0] == GZIPInputStream.GZIP_MAGIC.toByte() &&
+            bytes[1] == (GZIPInputStream.GZIP_MAGIC shr 8).toByte()
     }
 }

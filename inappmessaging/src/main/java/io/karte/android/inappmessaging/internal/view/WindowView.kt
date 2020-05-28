@@ -49,8 +49,8 @@ import java.lang.ref.WeakReference
 import java.util.ArrayList
 
 private const val LOG_TAG = "Karte.IAMView"
-private const val WINDOW_FLAGS_FOCUSED =
-    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
+private const val WINDOW_FLAGS_FOCUSED = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+    WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
 private const val WINDOW_FLAGS_UNFOCUSED = (
     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
         or WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
@@ -84,7 +84,9 @@ internal open class WindowView(
     private var focusFlag: Int = WINDOW_FLAGS_UNFOCUSED
 
     private val appSoftInputModeIsNothing: Boolean
-        get() = appWindow.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+        get() = appWindow.attributes.softInputMode and
+            WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST ==
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
 
     /** StatusBarがContentViewに被っているか。Split Screen時に上画面であること. */
     private val isStatusBarOverlaid: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -123,7 +125,7 @@ internal open class WindowView(
         val location = IntArray(2)
         contentView.getLocationOnScreen(location)
 
-        params.gravity = Gravity.LEFT or Gravity.TOP
+        params.gravity = Gravity.START or Gravity.TOP
         params.x = location[0]
         params.y = location[1]
         windowManager.addView(this, params)
@@ -234,12 +236,16 @@ internal open class WindowView(
     }
 
     private fun touchIsInClientApp(ev: MotionEvent): Boolean {
-        if (childCount == 0 || webViewDrawingBitmap == null || canvas == null || webViewDrawingBitmap!!.isRecycled) {
+        if (childCount == 0 || webViewDrawingBitmap == null || canvas == null ||
+            webViewDrawingBitmap!!.isRecycled
+        ) {
             return true
         } else {
             val touchedX = ev.x
             val touchedY = ev.y
-            if (touchedX <= 0 || touchedY <= 0 || touchedX >= webViewDrawingBitmap!!.width || touchedY >= webViewDrawingBitmap!!.height) {
+            if (touchedX <= 0 || touchedY <= 0 || touchedX >= webViewDrawingBitmap!!.width ||
+                touchedY >= webViewDrawingBitmap!!.height
+            ) {
                 return true
             } else {
                 for (knownTouchableRegion in knownTouchableRegions) {
@@ -279,7 +285,8 @@ internal open class WindowView(
             val view = viewRef.get()
             if (resultCode == RESULT_HIDDEN && view != null) {
                 val inputMethodManager =
-                    view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                    view.context.getSystemService(Context.INPUT_METHOD_SERVICE)
+                        as? InputMethodManager
                 inputMethodManager?.showSoftInput(view, 0)
             }
         }
@@ -346,7 +353,8 @@ internal open class WindowView(
 
             Logger.d(
                 LOG_TAG,
-                "onMeasure child: top:$childTop, bottom:$childBottom, height:${childBottom - childTop}"
+                "onMeasure child: top:$childTop, bottom:$childBottom," +
+                    " height:${childBottom - childTop}"
             )
             for (i in 0 until childCount)
                 getChildAt(i).measure(

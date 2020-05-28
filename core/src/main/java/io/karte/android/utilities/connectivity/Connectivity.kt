@@ -35,6 +35,7 @@ internal object Connectivity {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun isOnlineLegacy(context: Context): Boolean {
         val manager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -69,6 +70,7 @@ internal class ConnectivityObserver(private val context: Context) {
                     flush(Connectivity.isOnline(context))
                 }
             }
+            @Suppress("DEPRECATION")
             context.registerReceiver(
                 receiver,
                 IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)

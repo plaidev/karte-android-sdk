@@ -9,6 +9,8 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import io.karte.android.KarteApp;
+import io.karte.android.core.logger.LogLevel;
+import io.karte.android.core.logger.Logger;
 import io.karte.android.inappmessaging.InAppMessaging;
 import io.karte.android.variables.Variables;
 
@@ -19,6 +21,7 @@ public class SampleApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Logger.setLevel(LogLevel.DEBUG);
         KarteApp.setup(this, APP_KEY);
         InAppMessaging.Config.setEnabledWebViewCache(true);
         Variables.fetch();

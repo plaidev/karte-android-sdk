@@ -142,6 +142,7 @@ configure(subprojects.findAll { !it.name.startsWith("sample_") }) {
 
     tasks.withType(Test) {
         jacoco.includeNoLocationClasses = true
+        jacoco.excludes = ['jdk.internal.*']
     }
 
     jacoco {
@@ -182,12 +183,11 @@ dependencies {
     // ktlint will pick them up
 }
 
-
 task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
     main = "com.pinterest.ktlint.Main"
-    args "**/src/**/*.kt --editorconfig=.editorconfig"
+    args "--android", "--color", "--editorconfig=.editorconfig", "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/reports/ktlint-results.xml", "**/src/**/*.kt"
     // to generate report in checkstyle format prepend following args:
     // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
     // see https://github.com/pinterest/ktlint#usage for more
@@ -198,13 +198,17 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     description = "Fix Kotlin code style deviations."
     classpath = configurations.ktlint
     main = "com.pinterest.ktlint.Main"
-    args "-F", "src/**/*.kt --editorconfig=.editorconfig"
+    args "-F", "**/src/**/*.kt --editorconfig=.editorconfig"
 }
 
 dokka {
+    tasks.dokka.logging.captureStandardOutput LogLevel.LIFECYCLE
     subProjects = ["core", "inappmessaging", "notifications", "variables", "visualtracking"]
     outputDirectory = "${buildDir}/dokka"
     outputFormat = "html"
+    configuration {
+        reportUndocumented = true
+    }
 }
 
 task generateDocs(type: Exec, group: 'documentation') {
