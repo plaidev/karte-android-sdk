@@ -106,7 +106,6 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
     }
 
     internal fun teardown() {
-        appKey = ""
         firstActivityCreated = false
         activityCount = 0
         libraries.forEach { library ->
@@ -114,8 +113,14 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         }
         libraries.clear()
         tracker?.teardown()
-        tracker = null
+
+        appKey = ""
         config = Config.build()
+        appInfo = null
+        connectivityObserver = null
+        tracker = null
+        visitorId = null
+        optOutConfig = null
     }
 
     fun optOutTemporarily() {

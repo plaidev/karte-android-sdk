@@ -30,9 +30,11 @@ import io.karte.android.tracking.Values
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
 import io.karte.android.utilities.getLowerClassName
+import io.karte.android.utilities.toValues
 import io.karte.android.variables.BuildConfig
 import io.karte.android.variables.FetchCompletion
 import io.karte.android.variables.Variable
+import org.json.JSONObject
 
 private const val LOG_TAG = "Karte.Variables"
 private const val REPOSITORY_NAMESPACE_VARIABLES = "Variables_"
@@ -69,9 +71,19 @@ internal class VariablesService : Library, ActionModule, UserModule {
         }
 
         @JvmStatic
+        fun trackOpen(variables: List<Variable>, jsonObject: JSONObject? = null) {
+            self?.track(variables, MessageEventType.Open, jsonObject?.toValues())
+        }
+
+        @JvmStatic
         @JvmOverloads
         fun trackClick(variables: List<Variable>, values: Values? = null) {
             self?.track(variables, MessageEventType.Click, values)
+        }
+
+        @JvmStatic
+        fun trackClick(variables: List<Variable>, jsonObject: JSONObject? = null) {
+            self?.track(variables, MessageEventType.Click, jsonObject?.toValues())
         }
     }
 
@@ -107,6 +119,7 @@ internal class VariablesService : Library, ActionModule, UserModule {
     }
 
     override fun unconfigure(app: KarteApp) {
+        self = null
         app.unregister(this)
     }
     //endregion

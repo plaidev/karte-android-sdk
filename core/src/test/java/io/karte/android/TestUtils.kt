@@ -50,7 +50,7 @@ fun application(): Application {
     return ApplicationProvider.getApplicationContext()
 }
 
-fun getThreadByName(threadName: String): Thread? {
+fun getThreadByName(threadName: String = THREAD_NAME): Thread? {
     return Thread.getAllStackTraces().keys.firstOrNull { it.name == threadName }
 }
 

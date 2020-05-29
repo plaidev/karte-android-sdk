@@ -111,9 +111,9 @@ configure(subprojects.findAll { !it.name.startsWith("sample_") }) {
             licenses = ['Apache-2.0']
             vcsUrl = gitUrl + '.git'
             version {
-                name = version
+                name = project.version
                 released = new Date()
-                vcsTag = version
+                vcsTag = project.version
                 desc = releaseNote
             }
         }

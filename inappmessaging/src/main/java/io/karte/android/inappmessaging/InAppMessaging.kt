@@ -68,6 +68,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     }
 
     override fun unconfigure(app: KarteApp) {
+        self = null
         app.application.unregisterActivityLifecycleCallbacks(this)
         app.unregister(this)
 
@@ -311,8 +312,8 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
                 .split("; ")
                 .filter { !it.isBlank() && it.contains("=") }
                 .forEach {
-                        val cookieString = it.substringBefore("=") + "=; Domain=" + COOKIE_DOMAIN
-                        cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
+                    val cookieString = it.substringBefore("=") + "=; Domain=" + COOKIE_DOMAIN
+                    cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
                 }
             cookieManager.flush()
         }
@@ -338,7 +339,8 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         val action = message.getJSONObject("action")
         val campaignId = action.getString("campaign_id")
         val shortenId = action.getString("shorten_id")
-        val values = mapOf("reason" to "The display is suppressed by native_app_display_limit_mode.")
+        val values =
+            mapOf("reason" to "The display is suppressed by native_app_display_limit_mode.")
         Tracker.track(MessageEvent(MessageEventType.Suppressed, campaignId, shortenId, values))
     }
 }

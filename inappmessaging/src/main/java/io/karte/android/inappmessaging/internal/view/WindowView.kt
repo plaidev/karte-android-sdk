@@ -57,14 +57,6 @@ private const val WINDOW_FLAGS_UNFOCUSED = (
         or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
         or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
 
-private fun widthExcludedPadding(view: View): Int {
-    return view.width - view.paddingLeft - view.paddingRight
-}
-
-private fun heightExcludedPadding(view: View): Int {
-    return view.height - view.paddingTop - view.paddingBottom
-}
-
 @SuppressLint("ViewConstructor")
 @TargetApi(Build.VERSION_CODES.KITKAT)
 internal open class WindowView(
@@ -85,14 +77,12 @@ internal open class WindowView(
     private var iamViewVisibleRect = Rect()
 
     private val locationOnScreen = IntArray(2)
-    private val appDecorViewLocationOnScreen = IntArray(2)
 
     private val contentView: View
         get() = (appWindow.peekDecorView() as ViewGroup).getChildAt(0)
     private var focusFlag: Int = WINDOW_FLAGS_UNFOCUSED
 
     init {
-
         id = R.id.karte_overlay_view
         appWindow = activity.window
         windowManager = activity.windowManager
@@ -105,16 +95,16 @@ internal open class WindowView(
 
         val decorView = appWindow.peekDecorView()
             ?: throw IllegalStateException("Decor view has not yet created.")
-        val contentView = (decorView as ViewGroup).getChildAt(0)
+        val contentView = contentView
         val params = WindowManager.LayoutParams(
-            widthExcludedPadding(contentView),
-            heightExcludedPadding(contentView),
+            contentView.width,
+            contentView.height,
             WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
             focusFlag,
             PixelFormat.TRANSLUCENT
         )
 
-        if (appSoftInputModeIsNothing()) {
+        if (appSoftInputModeIsNothing) {
             // keyboard表示中に接客が配信された場合、接客のz-ordferがkeyboardより上になる。この時appWindowのsoftInputModeがSOFT_INPUT_ADJUST_NOTHINGだとkeyboardの高さを知る方法がない
             // そのためこのケースでは、hideSoftInputFromWindow後にaddViewすることでz-orderをkeyboardより下にし、再度showSoftInputする。（hideSoftInputFromWindowの結果によって元々keyboardが表示されていたかどうかの判定ができる）
             hideAndShowKeyboard()
@@ -124,8 +114,8 @@ internal open class WindowView(
         contentView.getLocationOnScreen(location)
 
         params.gravity = Gravity.LEFT or Gravity.TOP
-        params.x = location[0] + contentView.paddingLeft
-        params.y = location[1] + contentView.paddingTop
+        params.x = location[0]
+        params.y = location[1]
         windowManager.addView(this, params)
 
         logWindowSize("initialized")
@@ -186,7 +176,6 @@ internal open class WindowView(
             lastActionDownIsInClientApp = touchIsInClientApp(ev)
             setFocus(!lastActionDownIsInClientApp)
             getLocationOnScreen(locationOnScreen)
-            appWindow.peekDecorView().getLocationOnScreen(appDecorViewLocationOnScreen)
         }
 
         if (lastActionDownIsInClientApp) {
@@ -194,11 +183,7 @@ internal open class WindowView(
             copiedEvent.offsetLocation(locationOnScreen[0].toFloat(), locationOnScreen[1].toFloat())
             val dispatchedToPanel = panelWindowManager.dispatchTouch(copiedEvent)
             if (!dispatchedToPanel) {
-                copiedEvent.offsetLocation(
-                    (-appDecorViewLocationOnScreen[0]).toFloat(),
-                    (-appDecorViewLocationOnScreen[1]).toFloat()
-                )
-                appWindow.injectInputEvent(copiedEvent)
+                appWindow.injectInputEvent(MotionEvent.obtain(ev))
             }
             return false
         }
@@ -273,7 +258,7 @@ internal open class WindowView(
         ResultReceiver(handler) {
         private val viewRef: WeakReference<View> = WeakReference(view)
 
-        override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+        override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
             val view = viewRef.get()
             if (resultCode == RESULT_HIDDEN && view != null) {
                 val inputMethodManager =
@@ -291,7 +276,7 @@ internal open class WindowView(
     override fun onGlobalLayout() {
         try {
             Logger.d(LOG_TAG, "onGlobalLayout")
-            if (appSoftInputModeIsNothing()) {
+            if (appSoftInputModeIsNothing) {
                 val rect = Rect()
                 getWindowVisibleDisplayFrame(rect)
                 if (rect == iamViewVisibleRect) return
@@ -314,63 +299,101 @@ internal open class WindowView(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         try {
             val contentView = contentView
-            contentView.getWindowVisibleDisplayFrame(contentViewVisibleRect)
+            updateRectAndLocation()
+            val width = contentView.width
+            val height = contentView.height
+            Logger.d(LOG_TAG, "onMeasure window:($width,$height)")
+            syncPadding()
+            setMeasuredDimension(width, height)
 
-            if (appSoftInputModeIsNothing()) {
-                val contentViewWidthExcludedWidth = widthExcludedPadding(contentView)
-
+            val childTop: Int
+            val childBottom: Int
+            if (appSoftInputModeIsNothing) {
                 // appWindowのsoft_input_modeがadjust_nothingの場合、contentViewVisibleRectからkeyboardの高さが引かれない
                 // この場合はiamViewをcontentView(padding抜き)と同じ高さにし、webViewからkeyboardの高さを引く
-
-                getWindowVisibleDisplayFrame(iamViewVisibleRect)
-                setMeasuredDimension(
-                    contentViewWidthExcludedWidth,
-                    heightExcludedPadding(contentView)
-                )
-
                 // iamViewVisibleRect.topはiamViewのyに関わらず0を返すことがあるため、bottomからyを引く
-                getLocationOnScreen(locationOnScreen)
-                val webViewHeight = iamViewVisibleRect.bottom - locationOnScreen[1]
-                for (i in 0 until childCount)
-                    getChildAt(i).measure(
-                        MeasureSpec.makeMeasureSpec(
-                            contentViewWidthExcludedWidth,
-                            MeasureSpec.EXACTLY
-                        ), MeasureSpec.makeMeasureSpec(webViewHeight, MeasureSpec.EXACTLY)
-                    )
+                childTop = if (isStatusBarOverlaid) {
+                    top + paddingTop
+                } else {
+                    iamViewVisibleRect.top
+                }
+                childBottom = iamViewVisibleRect.bottom
             } else {
-                appWindow.peekDecorView().getLocationOnScreen(appDecorViewLocationOnScreen)
-                val height =
-                    contentViewVisibleRect.bottom - appDecorViewLocationOnScreen[1] - contentView.paddingTop
-                val contentViewWidthExcludedWidth = widthExcludedPadding(contentView)
-                setMeasuredDimension(contentViewWidthExcludedWidth, height)
-                for (i in 0 until childCount)
-                    getChildAt(i).measure(
-                        MeasureSpec.makeMeasureSpec(
-                            contentViewWidthExcludedWidth,
-                            MeasureSpec.EXACTLY
-                        ), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
-                    )
+                childTop = if (isStatusBarOverlaid) {
+                    contentView.top + contentView.paddingTop
+                } else {
+                    contentViewVisibleRect.top
+                }
+                childBottom = contentViewVisibleRect.bottom
             }
+
+            Logger.d(
+                LOG_TAG,
+                "onMeasure child: top:$childTop, bottom:$childBottom, height:${childBottom - childTop}"
+            )
+            for (i in 0 until childCount)
+                getChildAt(i).measure(
+                    MeasureSpec.makeMeasureSpec(
+                        width - paddingLeft - paddingRight,
+                        MeasureSpec.EXACTLY
+                    ),
+                    MeasureSpec.makeMeasureSpec(childBottom - childTop, MeasureSpec.EXACTLY)
+                )
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to measure", e)
         }
     }
 
-    private fun appSoftInputModeIsNothing(): Boolean {
-        return appWindow.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+    private val appSoftInputModeIsNothing: Boolean
+        get() = appWindow.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+
+    /** StatusBarがContentViewに被っているか。Split Screen時に上画面であること. */
+    private val isStatusBarOverlaid: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        (contentView.rootWindowInsets?.systemWindowInsetTop ?: -1) > 0
+    } else {
+        // API 24未満はSplitScreen未対応のため、常にstatus barがある
+        true
+    }
+
+    private fun syncPadding() {
+        setPadding(
+            contentView.paddingLeft,
+            contentView.paddingTop,
+            contentView.paddingRight,
+            contentView.paddingBottom
+        )
+    }
+
+    private fun updateRectAndLocation() {
+        getWindowVisibleDisplayFrame(iamViewVisibleRect)
+        getLocationOnScreen(locationOnScreen)
+        contentView.getWindowVisibleDisplayFrame(contentViewVisibleRect)
     }
 
     private fun logWindowSize(message: String) {
         if (!BuildConfig.DEBUG) return
 
         Logger.v(
-            LOG_TAG, message + " contentViewVisibleRect=" + contentViewVisibleRect +
-                ",\n height=" + height +
-                ",\n width=" + width +
-                ",\n locationOnScreen=(" + locationOnScreen[0] + "," + locationOnScreen[1] + ")" +
-                ",\n params=" + layoutParams +
-                ",\n padding=(" + paddingLeft + "," + paddingTop + "," + paddingRight + "," + paddingBottom + ")"
+            LOG_TAG, "$message\n" +
+                "ContentView: ${contentView.log()}\n" +
+                "IAMWindow  : ${log()}\n" +
+                "WebView    : ${if (childCount > 0) getChildAt(0).log() else ""}\n" +
+                "params=$layoutParams"
         )
     }
+}
+
+private fun IntArray.log(): String = "(${joinToString(",")})"
+private fun View.logPadding(): String = "($paddingLeft,$paddingTop,$paddingRight,$paddingBottom)"
+private fun View.logSize(): String = "($width,$height)"
+private fun View.log(): String {
+    val rect = Rect()
+    val location = IntArray(2)
+    getWindowVisibleDisplayFrame(rect)
+    getLocationOnScreen(location)
+    val insets = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        rootWindowInsets
+    } else null
+    return "$rect, location:${location.log()}, padding:${logPadding()}, size:${logSize()}\n" +
+        "\t insets:$insets"
 }
