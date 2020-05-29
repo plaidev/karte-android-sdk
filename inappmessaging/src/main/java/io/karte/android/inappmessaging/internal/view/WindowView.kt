@@ -344,8 +344,8 @@ internal open class WindowView(
         }
     }
 
-    private val appSoftInputModeIsNothing: Boolean =
-        appWindow.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+    private val appSoftInputModeIsNothing: Boolean
+        get() = appWindow.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
 
     /** StatusBarがContentViewに被っているか。Split Screen時に上画面であること. */
     private val isStatusBarOverlaid: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

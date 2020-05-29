@@ -45,6 +45,10 @@ private data class GroupingKey(
 internal const val THREAD_NAME = "io.karte.android.Tracker"
 
 internal class Dispatcher {
+    private val thread = HandlerThread(THREAD_NAME, Thread.MIN_PRIORITY).apply { start() }
+    private val handler: Handler = Handler(thread.looper)
+    private val completions = mutableMapOf<Long, TrackCompletion>()
+
     init {
         DataStore.setup(KarteApp.self.application.applicationContext, EventRecord.EventContract)
         KarteApp.self.connectivityObserver?.subscribe(::connectivity)
@@ -54,11 +58,6 @@ internal class Dispatcher {
         Logger.d(LOG_TAG, "connectivity changed: $available")
         isSuspend = !available
     }
-
-    private val thread =
-        HandlerThread(THREAD_NAME, Thread.MIN_PRIORITY).apply { start() }
-    private val handler: Handler = Handler(thread.looper)
-    private val completions = mutableMapOf<Long, TrackCompletion>()
 
     fun push(record: EventRecord, completion: TrackCompletion?) {
         Logger.d(LOG_TAG, "push event. ${record.event.eventName.value}")
