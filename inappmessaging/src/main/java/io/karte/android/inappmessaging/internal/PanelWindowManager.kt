@@ -80,12 +80,8 @@ internal class PanelWindowManager {
     }
 
     internal class WindowWrapper(windowRef: Window) : BaseWindowWrapper {
-        private val windowRef: WeakReference<Window>
+        private val windowRef: WeakReference<Window> = WeakReference(windowRef)
         private val locationOnScreen = IntArray(2)
-
-        init {
-            this.windowRef = WeakReference(windowRef)
-        }
 
         override fun hasStaleReference(): Boolean {
             return windowRef.get() == null
@@ -143,12 +139,8 @@ internal class PanelWindowManager {
     }
 
     internal class PopupWindowWrapper(popupWindow: PopupWindow) : BaseWindowWrapper {
-        private val popupWindowRef: WeakReference<PopupWindow>
+        private val popupWindowRef: WeakReference<PopupWindow> = WeakReference(popupWindow)
         private val locationOnScreen = IntArray(2)
-
-        init {
-            this.popupWindowRef = WeakReference(popupWindow)
-        }
 
         private fun isActivePanel(popupWindow: PopupWindow?): Boolean {
             if (popupWindow == null) return false
