@@ -27,7 +27,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
-import android.view.View
 import android.view.WindowManager
 import android.view.DisplayCutout
 import android.webkit.JavascriptInterface
@@ -56,6 +55,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.util.ArrayList
+import kotlin.math.roundToInt
 
 private const val LOG_TAG = "Karte.IAMWebView"
 private const val FILE_SCHEME = "file://"
@@ -83,7 +83,13 @@ constructor(
     @VisibleForTesting
     var state = State.LOADING
 
-    private var cutout: DisplayCutout? = null
+    inner class SafeAreaInsets(
+        val left: Int,
+        val top: Int,
+        val right: Int,
+        val bottom: Int
+    )
+    private var safeAreaInsets: SafeAreaInsets? = null
 
     init {
 
@@ -182,29 +188,8 @@ constructor(
 
         uiThreadHandler = Handler(Looper.getMainLooper())
         addJavascriptInterface(this, "NativeBridge")
-
-        addOnLayoutChangeListener(object: OnLayoutChangeListener {
-            override fun onLayoutChange(view: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
-                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                    //Pより前のバージョンではcutoutが取得できないので何もしない
-                    return
-                }
-                if (!isFullScreen()) {
-                    return
-                }
-
-                val cutout = cutout ?: return
-                val scale = Resources.getSystem().displayMetrics.density
-                val safeInsetTop = cutout.safeInsetTop / scale
-                loadUrl(
-                    String.format(
-                        "javascript:window.tracker.setNativeSafeAreaInset('%f');",
-                        safeInsetTop
-                    )
-                )
-            }
-        })
     }
+
 
     fun resetOrDestroy() {
         adapter = null
@@ -216,9 +201,21 @@ constructor(
         }
     }
 
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        @Suppress("DEPRECATION")
+        super.onLayout(changed, l, t, r, b)
+        //自身がスクリーンのトップに無ければcutoutが重ならないので何もしない
+        if (!isLocatedAtTopOfScreen()) {
+            return
+        }
+        val insets = safeAreaInsets ?: return
+        val safeAreaInsetTop = insets.top
+        loadUrl("javascript:window.tracker.setSafeAreaInset($safeAreaInsetTop);")
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        this.cutout = getCutout()
+        this.safeAreaInsets = getSafeInset()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -392,17 +389,29 @@ constructor(
         loadUrl("javascript:window.tracker.resetPageState();")
     }
 
-    private fun getCutout(): DisplayCutout? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            return windowManager.defaultDisplay.cutout
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            return rootWindowInsets.displayCutout
+    private fun getSafeInset(): SafeAreaInsets {
+        //Pより前のバージョンではcutoutが取得できないので何もしない
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return SafeAreaInsets(0, 0, 0, 0)
         }
-        return null
+
+        val cutout: DisplayCutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            windowManager.defaultDisplay.cutout
+        } else {
+            rootWindowInsets.displayCutout
+        } ?: return SafeAreaInsets(0, 0, 0, 0)
+
+        val scale = Resources.getSystem().displayMetrics.density
+        return SafeAreaInsets(
+            (cutout.safeInsetLeft / scale).roundToInt(),
+            (cutout.safeInsetTop / scale).roundToInt(),
+            (cutout.safeInsetRight / scale).roundToInt(),
+            (cutout.safeInsetBottom / scale).roundToInt()
+        )
     }
 
-    private fun isFullScreen(): Boolean {
+    private fun isLocatedAtTopOfScreen(): Boolean {
         val location = IntArray(2)
         getLocationOnScreen(location)
         return location[1] == 0
