@@ -83,13 +83,13 @@ constructor(
     @VisibleForTesting
     var state = State.LOADING
 
-    inner class SafeAreaInsets(
+    class SafeInsets(
         val left: Int,
         val top: Int,
         val right: Int,
         val bottom: Int
     )
-    private var safeAreaInsets: SafeAreaInsets? = null
+    private var safeInsets: SafeInsets? = null
 
     init {
 
@@ -204,18 +204,19 @@ constructor(
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         @Suppress("DEPRECATION")
         super.onLayout(changed, l, t, r, b)
-        //自身がスクリーンのトップに無ければcutoutが重ならないので何もしない
+        //自身がスクリーンのトップに無ければcutoutが重ならないのでsafeAreaInsetTopを0にする。
         if (!isLocatedAtTopOfScreen()) {
+            loadUrl("javascript:window.tracker.setSafeAreaInset(0);")
             return
         }
-        val insets = safeAreaInsets ?: return
+        val insets = safeInsets ?: return
         val safeAreaInsetTop = insets.top
         loadUrl("javascript:window.tracker.setSafeAreaInset($safeAreaInsetTop);")
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        this.safeAreaInsets = getSafeInset()
+        this.safeInsets = getSafeInsets()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -389,10 +390,10 @@ constructor(
         loadUrl("javascript:window.tracker.resetPageState();")
     }
 
-    private fun getSafeInset(): SafeAreaInsets {
+    private fun getSafeInsets(): SafeInsets? {
         //Pより前のバージョンではcutoutが取得できないので何もしない
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            return SafeAreaInsets(0, 0, 0, 0)
+            return null
         }
 
         val cutout: DisplayCutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -400,10 +401,10 @@ constructor(
             windowManager.defaultDisplay.cutout
         } else {
             rootWindowInsets.displayCutout
-        } ?: return SafeAreaInsets(0, 0, 0, 0)
+        } ?: return null
 
         val scale = Resources.getSystem().displayMetrics.density
-        return SafeAreaInsets(
+        return SafeInsets(
             (cutout.safeInsetLeft / scale).roundToInt(),
             (cutout.safeInsetTop / scale).roundToInt(),
             (cutout.safeInsetRight / scale).roundToInt(),
