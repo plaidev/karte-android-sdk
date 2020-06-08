@@ -18,8 +18,8 @@ package io.karte.android.modules.crashreporting
 import io.karte.android.BuildConfig
 import io.karte.android.KarteApp
 import io.karte.android.core.library.Library
-import io.karte.android.tracking.CustomEventName
 import io.karte.android.tracking.Event
+import io.karte.android.tracking.EventName
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.Values
 import java.io.PrintWriter
@@ -79,4 +79,6 @@ internal class CrashReporting : Thread.UncaughtExceptionHandler, Library {
     //endregion
 }
 
-internal class CrashEvent(values: Values) : Event(CustomEventName("native_app_crashed"), values)
+private class CrashEvent(values: Values) : Event(CrashEventName(), values)
+
+private class CrashEventName(override val value: String = "native_app_crashed") : EventName
