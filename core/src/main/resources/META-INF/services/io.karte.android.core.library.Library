@@ -1,2 +1,3 @@
 io.karte.android.modules.findmyself.FindMyself
 io.karte.android.modules.crashreporting.CrashReporting
+io.karte.android.modules.deeplinkevent.DeepLinkEvent

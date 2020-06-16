@@ -13,26 +13,24 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-package io.karte.android.modules.findmyself
+package io.karte.android.modules.deeplinkevent
 
 import android.content.Intent
-import android.net.Uri
 import io.karte.android.BuildConfig
 import io.karte.android.KarteApp
 import io.karte.android.core.library.DeepLinkModule
 import io.karte.android.core.library.Library
-import io.karte.android.core.logger.Logger
 import io.karte.android.tracking.Event
 import io.karte.android.tracking.EventName
 import io.karte.android.tracking.Tracker
-import io.karte.android.tracking.Values
 
-private const val LOG_TAG = "Karte.FindMySelf"
+private const val LOG_TAG = "Karte.DeepLinkEvent"
+private const val SENT_FLAG = "_krt_deep_link_event"
 
-internal class FindMyself : Library, DeepLinkModule {
+internal class DeepLinkEvent : Library, DeepLinkModule {
 
     //region Library
-    override val name: String = FindMyself::class.java.simpleName
+    override val name: String = DeepLinkEvent::class.java.simpleName
     override val version: String = BuildConfig.VERSION_NAME
     override val isPublic: Boolean = false
 
@@ -47,28 +45,17 @@ internal class FindMyself : Library, DeepLinkModule {
 
     //region DeepLinkModule
     override fun handle(intent: Intent?) {
-        val uri = intent?.data
-        if (uri == null || uri.host != "karte.io" || uri.path != "/find_myself") return
-        Logger.d(LOG_TAG, "handle $uri")
-        val values =
-            uri.queryParameterNames.associateWith { uri.getQueryParameter(it) }.filterValues { it != null } as Map<String, String>
-        if (values.isEmpty()) return
-        if (values.containsKey("sent")) {
-            Logger.d(LOG_TAG, "Event already sent.")
-            return
-        }
-        val newUri =
-            Uri.Builder().scheme(uri.scheme).authority(uri.authority).encodedQuery(uri.encodedQuery)
-                .appendQueryParameter("sent", "true").build()
-
-        Logger.d(LOG_TAG, "Sending FindMySelf event")
-        Tracker.track(FindMySelfEvent(values))
-        // override with sent flag.
-        intent.data = newUri
+        if (intent == null || intent.data == null) return
+        if (intent.hasExtra(SENT_FLAG)) return
+        Tracker.track(DeepLinkAppEvent(DeepLinkEventName.AppOpen, intent.data.toString()))
+        intent.putExtra(SENT_FLAG, true)
     }
     //endregion
 }
 
-private class FindMySelfEvent(values: Values) : Event(FindMySelfEventName(), values)
+private class DeepLinkAppEvent(eventName: DeepLinkEventName, url: String) :
+    Event(eventName, values = mapOf("url" to url))
 
-private class FindMySelfEventName(override val value: String = "native_find_myself") : EventName
+private enum class DeepLinkEventName(override val value: String) : EventName {
+    AppOpen("deep_link_app_open"),
+}
