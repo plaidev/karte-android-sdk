@@ -18,6 +18,7 @@ package io.karte.android.inappmessaging.internal
 import android.util.Base64
 import io.karte.android.core.logger.Logger
 import io.karte.android.tracking.client.TrackRequest
+import io.karte.android.utilities.map
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -83,6 +84,13 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
         }
         return false
     }
+
+    val messages: List<JSONObject>
+        @Throws(JSONException::class)
+        get() {
+            val messages = data?.optJSONArray("messages") ?: return listOf()
+            return messages.map { it }.filterIsInstance<JSONObject>()
+        }
 
     internal interface MessageAdapter {
         fun dequeue(): String?

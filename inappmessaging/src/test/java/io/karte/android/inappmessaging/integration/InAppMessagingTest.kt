@@ -37,9 +37,9 @@ import io.karte.android.createMessage
 import io.karte.android.createMessageOpen
 import io.karte.android.createMessageResponse
 import io.karte.android.createMessagesResponse
-import io.karte.android.parseBody
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.IAMWebView
+import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
 import io.karte.android.shadow.CustomShadowWebView
@@ -74,6 +74,9 @@ private const val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
 private val popupMsg1 = createMessage(shortenId = "action1", pluginType = "webpopup")
 private val popupMsg2 = createMessage(shortenId = "action2", pluginType = "webpopup")
 private val cgPopupMsg = createControlGroupMessage()
+private val limitedMsg = createMessage(shortenId = "action3", pluginType = "webpopup").apply {
+    getJSONObject("campaign").put("native_app_display_limit_mode", true)
+}
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 abstract class InAppMessagingTestCase(private val webViewCache: Boolean = false) :
@@ -120,9 +123,11 @@ abstract class InAppMessagingTestCase(private val webViewCache: Boolean = false)
                 if (eventNames.any { it == "popup2" }) {
                     messages.put(popupMsg2)
                 }
-
                 if (eventNames.any { it == "cg_popup" }) {
                     messages.put(cgPopupMsg)
+                }
+                if (eventNames.any { it == "limited" }) {
+                    messages.put(limitedMsg)
                 }
 
                 return MockResponse().setBody(createMessagesResponse(messages).toString())
@@ -435,7 +440,7 @@ class InAppMessagingTest {
         }
 
         @Test
-        fun visibility_invisibleによりoverlayが表示されること() {
+        fun visibility_visibleによりoverlayが表示されること() {
             emitInitializedCallbackFromTrackerJs()
             emitVisibledCallbackFromTrackerJs()
             assertThat(view).isNotNull()
@@ -586,6 +591,72 @@ class InAppMessagingTest {
             } else {
                 assertThat(currentShadowWebView?.wasDestroyCalled()).isTrue()
             }
+        }
+    }
+
+    class MessageSuppressedの発火(webViewCache: Boolean) : InAppMessagingTestCase(webViewCache) {
+
+        private fun assertNotSuppressed() {
+            assertThat(view).isNotNull()
+            assertThat(dispatcher.trackedEvents().filter { it.getString("event_name") == "_message_suppressed" }).isEmpty()
+        }
+
+        private fun assertSuppressed(reasonMatch: String) {
+            assertThat(view).isNull()
+            assertThat(dispatcher.trackedEvents().filter {
+                it.getString("event_name") == "_message_suppressed" &&
+                    it.getJSONObject("values").getString("reason").contains(reasonMatch)
+            }).hasSize(1)
+        }
+
+        @Test
+        fun Activity_not_found() {
+            // Activityがあればsuppressされない
+            trackPopUp1()
+            assertNotSuppressed()
+            dispatcher.clearHistory()
+
+            // ActiveなActivityがなければsuppressされる
+            activity.pause()
+            trackPopUp1()
+            assertSuppressed("Activity is not found")
+        }
+
+        @Test
+        fun suppress_mode() {
+            // デフォルト値ではsuppressされない
+            trackPopUp1()
+            assertNotSuppressed()
+            dispatcher.clearHistory()
+
+            // suppressメソッドを呼ぶとsuppressされる
+            InAppMessaging.suppress()
+            trackPopUp1()
+            assertSuppressed("suppress mode")
+            dispatcher.clearHistory()
+
+            // unsuppressメソッドを呼ぶとsuppressされない
+            InAppMessaging.unsuppress()
+            trackPopUp1()
+            assertNotSuppressed()
+        }
+
+        @Test
+        fun native_app_display_limit_mode() {
+            // native_app_display_limit_modeがonな接客は同一画面(view)ならsuppressされない
+            Tracker.track("limited", JSONObject())
+            proceedBufferedCall()
+            emitVisibledCallbackFromTrackerJs()
+            assertNotSuppressed()
+            dispatcher.clearHistory()
+
+            // 異なるviewが発火されたあとにレスポンスが来ると、suppressされる
+            Tracker.view("a_page")
+            Tracker.track("limited", JSONObject())
+            Tracker.view("another")
+            proceedBufferedCall()
+            emitVisibledCallbackFromTrackerJs()
+            assertSuppressed("native_app_display_limit_mode")
         }
     }
 }

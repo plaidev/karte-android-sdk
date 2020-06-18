@@ -58,4 +58,8 @@ open class TrackerRequestDispatcher : Dispatcher() {
         return trackedRequests().map { JSONObject(it.parseBody()) }
             .flatMap { it.getJSONArray("events").toList() }
     }
+
+    fun clearHistory() {
+        recordedRequests.clear()
+    }
 }
