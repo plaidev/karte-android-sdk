@@ -18,6 +18,7 @@ package io.karte.android.inappmessaging.internal
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.RectF
 import android.net.Uri
@@ -26,6 +27,8 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
+import android.view.WindowManager
+import android.view.DisplayCutout
 import android.webkit.JavascriptInterface
 import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
@@ -45,8 +48,6 @@ import io.karte.android.inappmessaging.internal.javascript.OPEN_URL
 import io.karte.android.inappmessaging.internal.javascript.STATE_CHANGE
 import io.karte.android.inappmessaging.internal.javascript.State
 import io.karte.android.inappmessaging.internal.javascript.VISIBILITY
-import io.karte.android.tracking.CustomEventName
-import io.karte.android.tracking.Event
 import io.karte.android.tracking.MessageEventName
 import io.karte.android.tracking.Tracker
 import io.karte.android.utilities.asString
@@ -54,6 +55,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.util.ArrayList
+import kotlin.math.roundToInt
 
 private const val LOG_TAG = "Karte.IAMWebView"
 private const val FILE_SCHEME = "file://"
@@ -80,6 +82,14 @@ constructor(
     internal var parentView: ParentView? = null
     @VisibleForTesting
     var state = State.LOADING
+
+    class SafeInsets(
+        val left: Int,
+        val top: Int,
+        val right: Int,
+        val bottom: Int
+    )
+    private var safeInsets: SafeInsets? = null
 
     init {
 
@@ -180,6 +190,7 @@ constructor(
         addJavascriptInterface(this, "NativeBridge")
     }
 
+
     fun resetOrDestroy() {
         adapter = null
         parentView = null
@@ -188,6 +199,24 @@ constructor(
         } else {
             destroy()
         }
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        @Suppress("DEPRECATION")
+        super.onLayout(changed, l, t, r, b)
+        //自身がスクリーンのトップに無ければcutoutが重ならないのでsafeAreaInsetTopを0にする。
+        if (!isLocatedAtTopOfScreen()) {
+            loadUrl("javascript:window.tracker.setSafeAreaInset(0);")
+            return
+        }
+        val insets = safeInsets ?: return
+        val safeAreaInsetTop = insets.top
+        loadUrl("javascript:window.tracker.setSafeAreaInset($safeAreaInsetTop);")
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        this.safeInsets = getSafeInsets()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -359,5 +388,33 @@ constructor(
     private fun reset() {
         Logger.d(LOG_TAG, "resetTrackerJs()")
         loadUrl("javascript:window.tracker.resetPageState();")
+    }
+
+    private fun getSafeInsets(): SafeInsets? {
+        //Pより前のバージョンではcutoutが取得できないので何もしない
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return null
+        }
+
+        val cutout: DisplayCutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            windowManager.defaultDisplay.cutout
+        } else {
+            rootWindowInsets.displayCutout
+        } ?: return null
+
+        val scale = Resources.getSystem().displayMetrics.density
+        return SafeInsets(
+            (cutout.safeInsetLeft / scale).roundToInt(),
+            (cutout.safeInsetTop / scale).roundToInt(),
+            (cutout.safeInsetRight / scale).roundToInt(),
+            (cutout.safeInsetBottom / scale).roundToInt()
+        )
+    }
+
+    private fun isLocatedAtTopOfScreen(): Boolean {
+        val location = IntArray(2)
+        getLocationOnScreen(location)
+        return location[1] == 0
     }
 }
