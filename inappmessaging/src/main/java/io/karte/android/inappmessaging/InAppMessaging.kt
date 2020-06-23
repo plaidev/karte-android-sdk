@@ -86,22 +86,32 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     //region ActionModule
     override fun receive(trackResponse: TrackResponse, trackRequest: TrackRequest) {
         uiThreadHandler.post {
-            if (isSuppressed) return@post
-            currentActiveActivity?.get()?.let { activity ->
-                try {
-                    val message = MessageModel(trackResponse.json, trackRequest)
-                    message.filter(app.pvId, ::trackMessageSuppressed)
-                    if (message.shouldLoad()) {
-                        Logger.d(
-                            LOG_TAG,
-                            "Try to add overlay to activity if not yet added. $activity"
-                        )
-                        setIAMWindow(message.shouldFocus())
-                        presenter?.addMessage(message)
+            try {
+                val message = MessageModel(trackResponse.json, trackRequest)
+                message.filter(app.pvId, ::trackMessageSuppressed)
+                if (!message.shouldLoad()) return@post
+                if (isSuppressed) {
+                    message.messages.map {
+                        trackMessageSuppressed(it, "The display is suppressed by suppress mode.")
                     }
-                } catch (e: JSONException) {
-                    Logger.d(LOG_TAG, "Failed to parse json. ", e)
+                    return@post
                 }
+                val activity = currentActiveActivity?.get()
+                if (activity == null) {
+                    message.messages.map {
+                        trackMessageSuppressed(
+                            it,
+                            "The display is suppressed because Activity is not found."
+                        )
+                    }
+                    return@post
+                }
+
+                Logger.d(LOG_TAG, "Try to add overlay to activity if not yet added. $activity")
+                setIAMWindow(message.shouldFocus())
+                presenter?.addMessage(message)
+            } catch (e: JSONException) {
+                Logger.d(LOG_TAG, "Failed to parse json. ", e)
             }
         }
     }
@@ -339,8 +349,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         val action = message.getJSONObject("action")
         val campaignId = action.getString("campaign_id")
         val shortenId = action.getString("shorten_id")
-        val values =
-            mapOf("reason" to "The display is suppressed by native_app_display_limit_mode.")
+        val values = mapOf("reason" to reason)
         Tracker.track(MessageEvent(MessageEventType.Suppressed, campaignId, shortenId, values))
     }
 }
