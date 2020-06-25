@@ -56,6 +56,15 @@ jobs:
           name: Test
           command: |
             ./gradlew --info testDebug
+      - run:
+          name: Lint
+          command: |
+            ./gradlew --stacktrace lintRelease
+            ./gradlew --stacktrace ktlint
+      - run:
+          name: Doc check
+          command: |
+            ./gradlew clean dokka  # | grep 'No documentation' && { echo 'kdoc validation failed' ; exit 1; }
 
   generate_docs:
     executor:
@@ -65,12 +74,12 @@ jobs:
       - setup_gradle
       - add_google_services
       - run:
-          name: Check Lint & Doc
+          name: Generate docs
           command: |
             if [ $EXEC_ENV = 'private' ]; then
-              ./gradlew --stacktrace lintRelease
-              ./gradlew --stacktrace ktlint
-              ./gradlew clean dokka  # | grep 'No documentation' && { echo 'kdoc validation failed' ; exit 1; }
+              git config --global user.name "${GITHUB_USER_NAME}"
+              git config --global user.email "${GITHUB_USER_EMAIL}"
+              ./gradlew generateDocs
             fi
 
   publish:
