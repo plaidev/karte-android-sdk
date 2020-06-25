@@ -240,7 +240,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             self.tracker = TrackingService()
 
             Logger.v(LOG_TAG, "load libraries")
-            val libraries = ServiceLoader.load(Library::class.java)
+            val libraries = ServiceLoader.load(Library::class.java, javaClass.classLoader)
             Logger.v(LOG_TAG, "loaded libraries: ${libraries.count()}. start configure.")
             libraries.forEach { library ->
                 register(library)
