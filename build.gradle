@@ -103,6 +103,7 @@ configure(subprojects.findAll { !it.name.startsWith("sample_") }) {
     bintray {
         user = System.getenv('BINTRAY_USER')
         key = System.getenv('BINTRAY_KEY')
+        publish = true
 
         pkg {
             repo = 'maven'
@@ -178,8 +179,8 @@ dokka {
     outputFormat = "html"
 }
 
-task generate_docs(type: Exec) {
-    dependsOn ':dokka'
+task generateDocs(type: Exec, group: 'documentation') {
+    subprojects.findAll {it.tasks.findByPath('dokka')}.each { dependsOn("${it.name}:dokka") }
     commandLine "ruby", "scripts/publish_docs.rb"
     standardOutput = new ByteArrayOutputStream()
     ext.output = {
