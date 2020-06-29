@@ -182,7 +182,7 @@ class ByteCodeTransform(private val project: Project) : Transform() {
 
             entries.filter { !entryName2Exec.containsKey(it.name) }
                 .forEach {
-                    out.putNextEntry(ZipEntry(it))
+                    out.putNextEntry(ZipEntry(it.name))
                     if (!it.isDirectory) {
                         zf.getInputStream(it).use { i -> IOUtils.copy(i, out) }
                     }
