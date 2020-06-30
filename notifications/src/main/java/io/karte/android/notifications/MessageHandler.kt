@@ -28,7 +28,6 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.RemoteMessage
@@ -251,17 +250,15 @@ object MessageHandler {
         var defaultIntent = defaultIntent
         val packageManager = context.packageManager
         if (defaultIntent == null) {
-            // CATEGORY_INFO, CATEGORY_LAUNCHERに該当するActivtyがない場合はnull
+            // CATEGORY_INFO, CATEGORY_LAUNCHERに該当するActivityがない場合はnull
             defaultIntent = packageManager.getLaunchIntentForPackage(context.packageName)
         }
 
         var intent = defaultIntent
         if (attributes.link.isNotEmpty()) {
             val uri = Uri.parse(attributes.link)
-            if (uri.scheme == "app-settings") {
-                val uriString = "package:" + context.packageName
-                intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse(uriString))
-            } else {
+            intent = Notifications.self?.app?.executeCommand(uri)?.filterIsInstance<Intent>()?.firstOrNull()
+            if (intent == null) {
                 intent = Intent(Intent.ACTION_VIEW, uri)
                 if (intent.resolveActivity(packageManager) == null) {
                     Logger.w(
