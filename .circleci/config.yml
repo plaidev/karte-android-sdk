@@ -65,6 +65,11 @@ jobs:
           name: Doc check
           command: |
             ./gradlew clean dokka  # | grep 'No documentation' && { echo 'kdoc validation failed' ; exit 1; }
+      - run:
+          name: CodeCov
+          command: |
+            ./gradlew jacocoMerge
+            bash <(curl -s https://codecov.io/bash)
 
   generate_docs:
     executor:
