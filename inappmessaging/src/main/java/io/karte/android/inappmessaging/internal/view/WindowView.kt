@@ -82,6 +82,17 @@ internal open class WindowView(
         get() = (appWindow.peekDecorView() as ViewGroup).getChildAt(0)
     private var focusFlag: Int = WINDOW_FLAGS_UNFOCUSED
 
+    private val appSoftInputModeIsNothing: Boolean
+        get() = appWindow.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+
+    /** StatusBarがContentViewに被っているか。Split Screen時に上画面であること. */
+    private val isStatusBarOverlaid: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        (contentView.rootWindowInsets?.systemWindowInsetTop ?: -1) > 0
+    } else {
+        // API 24未満はSplitScreen未対応のため、常にstatus barがある
+        true
+    }
+
     init {
         id = R.id.karte_overlay_view
         appWindow = activity.window
@@ -342,17 +353,6 @@ internal open class WindowView(
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to measure", e)
         }
-    }
-
-    private val appSoftInputModeIsNothing: Boolean
-        get() = appWindow.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
-
-    /** StatusBarがContentViewに被っているか。Split Screen時に上画面であること. */
-    private val isStatusBarOverlaid: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        (contentView.rootWindowInsets?.systemWindowInsetTop ?: -1) > 0
-    } else {
-        // API 24未満はSplitScreen未対応のため、常にstatus barがある
-        true
     }
 
     private fun syncPadding() {
