@@ -65,8 +65,8 @@ internal open class WindowView(
 ) :
     FrameLayout(activity), ViewTreeObserver.OnGlobalLayoutListener {
 
-    private val appWindow: Window
-    private val windowManager: WindowManager
+    private val appWindow: Window = activity.window
+    private val windowManager: WindowManager = activity.windowManager
 
     private var webViewDrawingBitmap: Bitmap? = null
     private var canvas: Canvas? = null
@@ -95,9 +95,6 @@ internal open class WindowView(
 
     init {
         id = R.id.karte_overlay_view
-        appWindow = activity.window
-        windowManager = activity.windowManager
-
         appWindow.peekDecorView().viewTreeObserver.addOnGlobalLayoutListener(this)
     }
 
