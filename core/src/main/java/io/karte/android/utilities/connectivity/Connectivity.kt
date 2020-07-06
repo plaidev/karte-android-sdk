@@ -55,6 +55,8 @@ internal typealias ConnectivitySubscriber = (Boolean) -> Unit
 internal class ConnectivityObserver(private val context: Context) {
     private val connectivityManager: ConnectivityManager
         get() = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private val subscribers = mutableSetOf<ConnectivitySubscriber>()
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private lateinit var callback: ConnectivityManager.NetworkCallback
     private lateinit var receiver: BroadcastReceiver
@@ -107,8 +109,6 @@ internal class ConnectivityObserver(private val context: Context) {
     private fun flush(isOnline: Boolean) {
         subscribers.forEach { it.invoke(isOnline) }
     }
-
-    private val subscribers = mutableSetOf<ConnectivitySubscriber>()
 
     fun subscribe(subscriber: ConnectivitySubscriber) {
         subscribers.add(subscriber)

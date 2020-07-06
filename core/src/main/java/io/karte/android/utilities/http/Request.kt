@@ -52,11 +52,11 @@ open class JSONRequest(
     url: String,
     method: String
 ) : Request<String>(url, method) {
+    override var body: String? = null
+
     init {
         headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_JSON
     }
-
-    override var body: String? = null
 
     @Throws(IOException::class)
     override fun writeBody(outputStream: OutputStream) {
