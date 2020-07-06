@@ -48,6 +48,12 @@ internal class Dispatcher {
     private val thread = HandlerThread(THREAD_NAME, Thread.MIN_PRIORITY).apply { start() }
     private val handler: Handler = Handler(thread.looper)
     private val completions = mutableMapOf<Long, TrackCompletion>()
+    private var isSuspend: Boolean = false
+        set(value) {
+            if (value) handler.removeCallbacks(::run)
+            else handler.postDelayed(::run, DEFAULT_DELAY_MS)
+            field = value
+        }
 
     init {
         DataStore.setup(KarteApp.self.application.applicationContext, EventRecord.EventContract)
@@ -79,13 +85,6 @@ internal class Dispatcher {
         DataStore.teardown()
         KarteApp.self.connectivityObserver?.unsubscribe(::connectivity)
     }
-
-    var isSuspend: Boolean = false
-        set(value) {
-            if (value) handler.removeCallbacks(::run)
-            else handler.postDelayed(::run, DEFAULT_DELAY_MS)
-            field = value
-        }
 
     private fun run() {
         val online = Connectivity.isOnline(KarteApp.self.application)

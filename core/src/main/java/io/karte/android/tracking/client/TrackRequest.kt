@@ -58,10 +58,6 @@ class TrackRequest(
     val pvId: String,
     private val events: List<Event>
 ) : JSONRequest(url, METHOD_POST) {
-    init {
-        headers[HEADER_APP_KEY] = KarteApp.self.appKey
-    }
-
     val json: JSONObject
         get() {
             return JSONObject()
@@ -77,6 +73,10 @@ class TrackRequest(
     override var body: String?
         get() = runCatching { json.toString() }.getOrNull()
         set(_) {}
+
+    init {
+        headers[HEADER_APP_KEY] = KarteApp.self.appKey
+    }
 
     /**
      * リクエストに指定されたイベントが含まれているかチェックする。
