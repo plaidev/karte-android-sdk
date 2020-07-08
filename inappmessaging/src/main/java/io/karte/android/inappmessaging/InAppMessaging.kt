@@ -260,8 +260,8 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         @JvmStatic
         var enabledWebViewCache = true
     }
+    internal lateinit var app: KarteApp
 
-    private lateinit var app: KarteApp
     private val uiThreadHandler: Handler = Handler(Looper.getMainLooper())
     private val panelWindowManager = PanelWindowManager()
     private val overlayBaseUrl = "https://cf-native.karte.io/v0/native"

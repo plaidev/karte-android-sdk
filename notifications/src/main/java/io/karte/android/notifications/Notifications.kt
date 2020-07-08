@@ -35,7 +35,8 @@ private const val LOG_TAG = "Karte.Notifications"
 class Notifications : Library, ActivityLifecycleCallback() {
     private lateinit var registrar: TokenRegistrar
     private val clickTracker = MessageClickTracker
-    private lateinit var app: KarteApp
+
+    internal lateinit var app: KarteApp
 
     //region Libraary
     override val name: String = getLowerClassName()

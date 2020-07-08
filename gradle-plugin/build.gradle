@@ -89,6 +89,7 @@ publishing {
 bintray {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
+    publish = true
 
     pkg {
         repo = 'maven'
@@ -97,9 +98,9 @@ bintray {
         licenses = ['Apache-2.0']
         vcsUrl = gitUrl + '.git'
         version {
-            name = version
+            name = project.version
             released = new Date()
-            vcsTag = version
+            vcsTag = project.version
             desc = 'https://developers.karte.io/docs/release-note-android-sdk'
         }
     }
