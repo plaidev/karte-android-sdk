@@ -20,6 +20,8 @@ import android.net.Uri
 import io.karte.android.KarteApp
 import io.karte.android.RobolectricTestCase
 import io.karte.android.inappmessaging.InAppMessaging
+import io.karte.android.tearDownKarteApp
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -33,6 +35,11 @@ class CommandTest: RobolectricTestCase() {
     @Before
     fun setup() {
         KarteApp.setup(application, "hoge")
+    }
+
+    @After
+    fun tearDown() {
+        tearDownKarteApp()
     }
 
     @Test
