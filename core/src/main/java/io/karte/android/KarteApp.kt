@@ -18,8 +18,10 @@ package io.karte.android
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import io.karte.android.core.command.CommandExecutor
 import io.karte.android.core.config.Config
 import io.karte.android.core.library.ActionModule
 import io.karte.android.core.library.DeepLinkModule
@@ -125,6 +127,10 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
 
     fun optOutTemporarily() {
         OptOutConfig.optOutTemporarily()
+    }
+
+    fun executeCommand(uri: Uri): List<Any?> {
+        return CommandExecutor.execute(uri)
     }
 
     //region ActivityLifecycleCallback

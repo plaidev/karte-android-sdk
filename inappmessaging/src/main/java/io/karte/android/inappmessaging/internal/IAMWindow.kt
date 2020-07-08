@@ -26,7 +26,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.ViewGroup
 import android.webkit.ConsoleMessage
 import android.webkit.JsResult
@@ -130,11 +129,11 @@ internal class IAMWindow(
     override fun openUrl(uri: Uri, withReset: Boolean) {
         Logger.d(LOG_TAG, "Opening url: $uri")
         try {
-            val intent = if (uri.scheme == "app-settings") {
-                val uriString = "package:${context.packageName}"
-                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse(uriString))
-            } else {
-                Intent(Intent.ACTION_VIEW).apply { data = uri }
+            var intent =
+                InAppMessaging.self?.app?.executeCommand(uri)?.filterIsInstance<Intent>()
+                    ?.firstOrNull()
+            if (intent == null) {
+                intent = Intent(Intent.ACTION_VIEW).apply { data = uri }
             }
             if (!withReset) {
                 (context as? Activity)?.let { InAppMessaging.self?.enablePreventRelayFlag(it) }
