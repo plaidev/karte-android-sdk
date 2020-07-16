@@ -24,7 +24,7 @@ internal typealias OnDestroyListener = () -> Unit
 internal interface Window {
     var presenter: IAMPresenter?
     val isShowing: Boolean
-    fun destroy()
+    fun destroy(isForceClose: Boolean=true)
 }
 
 internal class IAMPresenter(
@@ -55,9 +55,9 @@ internal class IAMPresenter(
         }
     }
 
-    fun destroy() {
+    fun destroy(isForceClose: Boolean=true) {
         Logger.d(LOG_TAG, "destroy")
-        window.destroy()
+        window.destroy(isForceClose)
         messageView.adapter = null
 
         onDestroyListener?.invoke()

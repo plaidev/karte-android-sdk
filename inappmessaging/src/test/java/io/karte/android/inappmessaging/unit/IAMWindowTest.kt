@@ -18,7 +18,6 @@ package io.karte.android.inappmessaging.unit
 import android.app.Activity
 import android.view.KeyEvent
 import android.view.WindowManager
-import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.IAMPresenter
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.IAMWindow
@@ -59,9 +58,9 @@ class IAMWindowTest {
         webView =
             IAMWebView(
                 activity.get().applicationContext,
-                InAppMessaging.Config.enabledWebViewCache,
                 null
             )
+        webView.hasMessage = true
         view = IAMWindow(activity.get(), PanelWindowManager(), webView)
         view.presenter = presenter
     }

@@ -23,7 +23,6 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.application
-import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.inappmessaging.internal.ParentView
@@ -83,7 +82,7 @@ class IAMWebViewTest {
     fun init() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         createKarteAppMock()
-        webView = IAMWebView(application(), InAppMessaging.Config.enabledWebViewCache) { true }
+        webView = IAMWebView(application()) { true }
         webView.adapter = adapter
         webView.parentView = parent
         shadowWebView = Shadows.shadowOf(webView)
@@ -316,20 +315,22 @@ class IAMWebViewTest {
     }
 
     @Test
-    fun 非表示時にdestroyされること_cache無効() {
-        val webView = IAMWebView(application(), false) { false }
-        webView.resetOrDestroy()
+    fun pvId更新時にhandleChangePvとresetされること() {
+        val webView = IAMWebView(application()) { false }
+        webView.parentView = parent
+        webView.handleChangePv()
         val loadedUrls = customShadowOf(webView).loadedUrls
-        assertThat(loadedUrls.size).isEqualTo(0)
-        assertThat(Shadows.shadowOf(webView).wasDestroyCalled()).isTrue()
+        assertThat(loadedUrls.size).isEqualTo(2)
+        assertThat(loadedUrls.first()).isEqualTo("javascript:window.tracker.handleChangePv();")
+        assertThat(loadedUrls.last()).isEqualTo("javascript:window.tracker.resetPageState(false);")
     }
 
     @Test
-    fun 非表示時にresetされること_cache有効() {
-        val webView = IAMWebView(application(), true) { false }
-        webView.resetOrDestroy()
+    fun 非表示時にresetされること() {
+        val webView = IAMWebView(application()) { false }
+        webView.reset(true)
         val loadedUrls = customShadowOf(webView).loadedUrls
         assertThat(loadedUrls.size).isEqualTo(1)
-        assertThat(loadedUrls.last()).isEqualTo("javascript:window.tracker.resetPageState();")
+        assertThat(loadedUrls.last()).isEqualTo("javascript:window.tracker.resetPageState(true);")
     }
 }
