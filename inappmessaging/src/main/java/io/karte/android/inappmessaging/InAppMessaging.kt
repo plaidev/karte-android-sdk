@@ -79,7 +79,6 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         delegate = null
         cachedWebView?.destroy()
         cachedWebView = null
-        Config.enabledWebViewCache = false
     }
     //endregion
 
@@ -108,6 +107,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
                 }
 
                 Logger.d(LOG_TAG, "Try to add overlay to activity if not yet added. $activity")
+                if (!windowFocusable) windowFocusable = message.shouldFocusCrossDisplayCampaign()
                 setIAMWindow(message.shouldFocus())
                 presenter?.addMessage(message)
             } catch (e: JSONException) {
@@ -120,7 +120,16 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         Logger.d(LOG_TAG, "reset pv_id. ${app.pvId} ${app.originalPvId}")
         // pvIdがある(onResumeより後ろ)場合のみdismissする
         if (app.pvId != app.originalPvId) {
-            dismiss()
+            currentActiveActivity?.get()?.window?.decorView?.post {
+                getWebView().also {
+                    if (it.hasMessage) {
+                        setIAMWindow(windowFocusable)
+                        it.handleChangePv()
+                    } else {
+                        windowFocusable = false
+                    }
+                }
+            }
         }
     }
 
@@ -156,8 +165,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     override fun onActivityResumed(activity: Activity) {
         currentActiveActivity = WeakReference(activity)
         // foregroundになった時に初めてキャッシュする.
-        if (Config.enabledWebViewCache)
-            getWebView()
+        getWebView()
     }
 
     override fun onActivityPaused(activity: Activity) {
@@ -169,7 +177,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
             intent.removeExtra(PREVENT_RELAY_TO_PRESENTER_KEY)
         }
         Logger.d(LOG_TAG, "onActivityPaused prevent_relay flag: $isPreventRelayToPresenter")
-        if (!isPreventRelayToPresenter) presenter?.destroy()
+        if (!isPreventRelayToPresenter) presenter?.destroy(false)
         currentActiveActivity = null
     }
     //endregion
@@ -258,6 +266,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
          * `true` の場合はキャッシュが有効となり、`false` の場合は無効となります。デフォルトは `true` です。
          */
         @JvmStatic
+        @Deprecated("This param is always true")
         var enabledWebViewCache = true
     }
     internal lateinit var app: KarteApp
@@ -271,6 +280,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     private var delegate: InAppMessagingDelegate? = null
 
     private var cachedWebView: IAMWebView? = null
+    private var windowFocusable: Boolean = false
 
     /*
       * WebViewを作成. キャッシュ有効時には初回はキャッシュを作成し、以後使い回す。
@@ -278,15 +288,13 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     private fun getWebView(): IAMWebView {
         cachedWebView?.let { return it }
 
-        val newWebView = IAMWebView(app.application, Config.enabledWebViewCache) { uri: Uri ->
+        cachedWebView = IAMWebView(app.application) { uri: Uri ->
             Boolean
             Logger.d(LOG_TAG, " shouldOpenURL $delegate")
             delegate?.shouldOpenURL(uri) ?: true
         }.apply { loadUrl(generateOverlayURL()) }
-        if (Config.enabledWebViewCache) {
-            cachedWebView = newWebView
-        }
-        return newWebView
+
+        return cachedWebView!!
     }
 
     private fun setIAMWindow(focusable: Boolean) {
@@ -333,7 +341,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         currentActiveActivity?.get()?.window?.decorView?.post {
             currentActiveActivity?.get()?.let { activity ->
                 val webView =
-                    IAMWebView(app.application, Config.enabledWebViewCache) { uri: Uri ->
+                    IAMWebView(app.application) { uri: Uri ->
                         Boolean
                         delegate?.shouldOpenURL(uri) ?: true
                     }.apply { params.generateUrl(app)?.let { loadUrl(it) } }
