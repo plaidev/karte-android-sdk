@@ -85,6 +85,18 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
         return false
     }
 
+    fun shouldFocusCrossDisplayCampaign(): Boolean {
+        try {
+            return messages.any {
+                it.getJSONObject("action").getBoolean("native_app_window_focusable") &&
+                    it.getJSONObject("campaign").getBoolean("native_app_cross_display_mode")
+            }
+        }  catch (e: JSONException) {
+            Logger.d(LOG_TAG, "Failed to parse json.")
+        }
+        return false
+    }
+
     val messages: List<JSONObject>
         @Throws(JSONException::class)
         get() {

@@ -18,7 +18,6 @@ class SampleApp : Application() {
         super.onCreate()
 
         KarteApp.setup(this, APP_KEY)
-        InAppMessaging.Config.enabledWebViewCache = true
         Variables.fetch()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(this)

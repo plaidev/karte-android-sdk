@@ -204,6 +204,13 @@ class ByteCodeTransform(private val project: Project) : Transform() {
 
     private fun gatherModExec(className: String?): ModificationExec? {
         val ctClass = classPool.getOrNull(className) ?: return null
+        try {
+            ctClass.classFile
+        } catch (e: RuntimeException) {
+            // META-INF.versions.9.module-info等のJarに含まれるがclassファイルがsrcに存在しないclassはスキップする
+            logger.info("Skip modification $className because class file not found. $e")
+            return null
+        }
 
         val methodModPairs = ctClass.declaredMethods
             .filter { it.modifiers and AccessFlag.ABSTRACT == 0 }

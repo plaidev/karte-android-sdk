@@ -60,7 +60,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
-import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
@@ -78,9 +77,7 @@ private val limitedMsg = createMessage(shortenId = "action3", pluginType = "webp
     getJSONObject("campaign").put("native_app_display_limit_mode", true)
 }
 
-@RunWith(ParameterizedRobolectricTestRunner::class)
-abstract class InAppMessagingTestCase(private val webViewCache: Boolean = false) :
-    RobolectricTestCase() {
+abstract class InAppMessagingTestCase : RobolectricTestCase() {
     lateinit var server: MockWebServer
     lateinit var dispatcher: TrackerRequestDispatcher
     lateinit var activity: ActivityController<Activity>
@@ -94,18 +91,6 @@ abstract class InAppMessagingTestCase(private val webViewCache: Boolean = false)
         get() = view?.getChildAt(0) as? WebView
     val shadowWebView: CustomShadowWebView?
         get() = CustomShadowWebView.current
-
-    companion object {
-        @ParameterizedRobolectricTestRunner.Parameters
-        @JvmStatic
-        fun data(): Iterable<Array<Any?>> {
-            // webViewCacheの有効・無効を両方テスト.
-            return listOf(
-                arrayOf<Any?>(true),
-                arrayOf<Any?>(false)
-            )
-        }
-    }
 
     @Before
     fun initTracker() {
@@ -137,7 +122,6 @@ abstract class InAppMessagingTestCase(private val webViewCache: Boolean = false)
         server.start()
 
         app = setupKarteApp(server, appKey)
-        InAppMessaging.Config.enabledWebViewCache = webViewCache
         activity = Robolectric.buildActivity(
             Activity::class.java,
             Intent(application, Activity::class.java)
@@ -202,7 +186,7 @@ abstract class InAppMessagingTestCase(private val webViewCache: Boolean = false)
 
 @RunWith(Enclosed::class)
 class InAppMessagingTest {
-    class IAMWebViewの初期化(webViewCache: Boolean) : InAppMessagingTestCase(webViewCache) {
+    class IAMWebViewの初期化 : InAppMessagingTestCase() {
         @Test
         fun 最初のloadで正しいurlの読み込みを行うこと() {
             trackPopUp1()
@@ -220,7 +204,7 @@ class InAppMessagingTest {
         }
     }
 
-    class レスポンスハンドリング(webViewCache: Boolean) : InAppMessagingTestCase(webViewCache) {
+    class レスポンスハンドリング : InAppMessagingTestCase() {
 
         @Test
         fun webpopup接客を含むレスポンスが来た場合はoverlayが追加されること() {
@@ -322,7 +306,7 @@ class InAppMessagingTest {
         }
     }
 
-    class ページのリセット処理(webViewCache: Boolean) : InAppMessagingTestCase(webViewCache) {
+    class ページのリセット処理 : InAppMessagingTestCase() {
 
         @Before
         fun setupOverlayAndTrackerJs() {
@@ -333,17 +317,17 @@ class InAppMessagingTest {
         }
 
         @Test
-        fun viewによりページが切り替わった時にInAppMessagingViewが破棄されること() {
+        fun viewによりページが切り替わった時はInAppMessagingViewが破棄されないこと() {
             Tracker.view("page2")
             proceedBufferedCall()
-            assertThat(view).isNull()
+            assertThat(view).isNotNull()
         }
 
         @Test
         fun ページが切り替わらなければresetPageStateが実行されないこと() {
             Tracker.track("hogehoge")
             assertThat(shadowWebView?.loadedUrls).isNotEmpty()
-            assertThat(shadowWebView?.loadedUrls).doesNotContain("javascript:window.tracker.resetPageState();")
+            assertThat(shadowWebView?.loadedUrls).doesNotContain("javascript:window.tracker.resetPageState(")
         }
 
         @Test
@@ -352,16 +336,12 @@ class InAppMessagingTest {
 
             activity.pause()
             proceedBufferedCall()
-            if (InAppMessaging.Config.enabledWebViewCache) {
-                assertThat(currentShadowWebView?.loadedUrls).contains("javascript:window.tracker.resetPageState();")
-            } else {
-                assertThat(currentShadowWebView?.wasDestroyCalled()).isTrue()
-            }
+            assertThat(currentShadowWebView?.loadedUrls).contains("javascript:window.tracker.resetPageState(false);")
             assertThat(view).isNull()
         }
     }
 
-    class バックボタンハンドリング(webViewCache: Boolean) : InAppMessagingTestCase(webViewCache) {
+    class バックボタンハンドリング : InAppMessagingTestCase() {
 
         /* Activityまで伝播するKeyEventを作る */
         private fun backButtonEvent(): KeyEvent {
@@ -402,7 +382,7 @@ class InAppMessagingTest {
         }
     }
 
-    class trackerJsからのコールバック(webViewCache: Boolean) : InAppMessagingTestCase(webViewCache) {
+    class trackerJsからのコールバック : InAppMessagingTestCase() {
 
         @Before
         fun setupOverlayAndTrackerJs() {
@@ -453,7 +433,7 @@ class InAppMessagingTest {
         }
     }
 
-    class trackerJsからのコールバック_CG(webViewCache: Boolean) : InAppMessagingTestCase(webViewCache) {
+    class trackerJsからのコールバック_CG : InAppMessagingTestCase() {
 
         @Before
         fun setupOverlayAndTrackerJs() {
@@ -470,7 +450,7 @@ class InAppMessagingTest {
         }
     }
 
-    class 読み込み失敗時の制御(webViewCache: Boolean) : InAppMessagingTestCase(webViewCache) {
+    class 読み込み失敗時の制御 : InAppMessagingTestCase() {
 
         @MockK
         private lateinit var mockReq: WebResourceRequest
@@ -559,7 +539,7 @@ class InAppMessagingTest {
         }
     }
 
-    class ビジターID更新の制御(webViewCache: Boolean) : InAppMessagingTestCase(webViewCache) {
+    class ビジターID更新の制御 : InAppMessagingTestCase() {
 
         @Before
         fun setupOverlayAndTrackerJs() {
@@ -575,26 +555,22 @@ class InAppMessagingTest {
             proceedBufferedCall()
 
             assertThat(view).isNull()
-            if (InAppMessaging.Config.enabledWebViewCache) {
-                assertThat(currentShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
-                val uri = Uri.parse(currentShadowWebView?.lastLoadedUrl)
-                assertThat(uri.queryParameterNames).isEqualTo(
-                    setOf(
-                        "app_key",
-                        "_k_vid",
-                        "_k_app_prof"
-                    )
+            assertThat(currentShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
+            val uri = Uri.parse(currentShadowWebView?.lastLoadedUrl)
+            assertThat(uri.queryParameterNames).isEqualTo(
+                setOf(
+                    "app_key",
+                    "_k_vid",
+                    "_k_app_prof"
                 )
-                assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
-                assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
-                assertThat(JSONObject(uri.getQueryParameter("_k_app_prof"))).isEqualTo(app.appInfo?.json)
-            } else {
-                assertThat(currentShadowWebView?.wasDestroyCalled()).isTrue()
-            }
+            )
+            assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
+            assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
+            assertThat(JSONObject(uri.getQueryParameter("_k_app_prof"))).isEqualTo(app.appInfo?.json)
         }
     }
 
-    class MessageSuppressedの発火(webViewCache: Boolean) : InAppMessagingTestCase(webViewCache) {
+    class MessageSuppressedの発火 : InAppMessagingTestCase() {
 
         private fun assertNotSuppressed() {
             assertThat(view).isNotNull()
@@ -602,7 +578,6 @@ class InAppMessagingTest {
         }
 
         private fun assertSuppressed(reasonMatch: String) {
-            assertThat(view).isNull()
             assertThat(dispatcher.trackedEvents().filter {
                 it.getString("event_name") == "_message_suppressed" &&
                     it.getJSONObject("values").getString("reason").contains(reasonMatch)
@@ -613,12 +588,14 @@ class InAppMessagingTest {
         fun Activity_not_found() {
             // Activityがあればsuppressされない
             trackPopUp1()
+            assertThat(view).isNotNull()
             assertNotSuppressed()
             dispatcher.clearHistory()
 
             // ActiveなActivityがなければsuppressされる
             activity.pause()
             trackPopUp1()
+            assertThat(view).isNull()
             assertSuppressed("Activity is not found")
         }
 
@@ -632,6 +609,7 @@ class InAppMessagingTest {
             // suppressメソッドを呼ぶとsuppressされる
             InAppMessaging.suppress()
             trackPopUp1()
+            assertThat(view).isNull()
             assertSuppressed("suppress mode")
             dispatcher.clearHistory()
 

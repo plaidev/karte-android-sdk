@@ -72,7 +72,6 @@ internal interface ParentView {
 internal class IAMWebView
 constructor(
     context: Context,
-    private val enabledCache: Boolean,
     private val shouldOpenURLListener: ((uri: Uri) -> Boolean)?
 ) :
     WebView(context.applicationContext), MessageModel.MessageView {
@@ -80,6 +79,8 @@ constructor(
 
     override var adapter: MessageModel.MessageAdapter? = null
     internal var parentView: ParentView? = null
+    internal var hasMessage: Boolean = false
+
     @VisibleForTesting
     var state = State.LOADING
 
@@ -190,15 +191,21 @@ constructor(
         addJavascriptInterface(this, "NativeBridge")
     }
 
+    fun handleChangePv() {
+        Logger.d(LOG_TAG, "handleChangePv()")
+        if (parentView == null) return
+        if (hasMessage) parentView?.show()
+        loadUrl("javascript:window.tracker.handleChangePv();")
+        reset(false)
+    }
 
-    fun resetOrDestroy() {
-        adapter = null
-        parentView = null
-        if (enabledCache) {
-            reset()
-        } else {
-            destroy()
+    fun reset(isForceClose: Boolean) {
+        Logger.d(LOG_TAG, "resetTrackerJs()")
+        if (isForceClose) {
+            adapter = null
+            parentView = null
         }
+        loadUrl("javascript:window.tracker.resetPageState($isForceClose);")
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -315,8 +322,10 @@ constructor(
                     val visibility = callback.data.getString("state")
                     Logger.d(LOG_TAG, "Received visibility callback: state=$visibility")
                     if ("visible" == visibility) {
+                        hasMessage = true
                         parentView?.show()
                     } else {
+                        hasMessage = false
                         parentView?.dismiss()
                     }
                 }
@@ -383,11 +392,6 @@ constructor(
         }
 
         return ArrayList()
-    }
-
-    private fun reset() {
-        Logger.d(LOG_TAG, "resetTrackerJs()")
-        loadUrl("javascript:window.tracker.resetPageState();")
     }
 
     private fun getSafeInsets(): SafeInsets? {

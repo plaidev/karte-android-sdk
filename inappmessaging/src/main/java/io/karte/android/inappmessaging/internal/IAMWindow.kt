@@ -106,14 +106,14 @@ internal class IAMWindow(
         })
     }
 
-    override fun destroy() {
+    override fun destroy(isForceClose: Boolean) {
         webView.webChromeClient = null
         webView.parentView = null
-        webView.resetOrDestroy()
         postDelayed({
             this.removeView(webView)
             dismiss()
         }, 50)
+        webView.reset(isForceClose)
     }
 
     override fun show() {
