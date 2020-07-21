@@ -73,8 +73,21 @@ object MessageHandler {
     @JvmStatic
     fun canHandleMessage(message: RemoteMessage): Boolean {
         if (message.data == null) return false
-        return message.data[KARTE_PUSH_NOTIFICATION_FLAG]?.toBoolean() ?: false ||
-            message.data[KARTE_MASS_PUSH_NOTIFICATION_FLAG]?.toBoolean() ?: false
+        return canHandleMessage(message.data)
+    }
+
+    /**
+     * KARTE経由で送信された通知メッセージであるか判定します。
+     *
+     * @param[data] [Map]
+     * @return 判定結果を返します。
+     *
+     * KARTE経由で送信された通知メッセージの場合は`true`、KARTE以外から送信された通知メッセージの場合は、`false`を返します。
+     */
+    @JvmStatic
+    fun canHandleMessage(data: Map<String, String>): Boolean {
+        return data[KARTE_PUSH_NOTIFICATION_FLAG]?.toBoolean() ?: false ||
+            data[KARTE_MASS_PUSH_NOTIFICATION_FLAG]?.toBoolean() ?: false
     }
 
     /**
@@ -86,6 +99,17 @@ object MessageHandler {
     @JvmStatic
     fun extractKarteAttributes(message: RemoteMessage): KarteAttributes? {
         val data = message.data ?: return null
+        return extractKarteAttributes(data)
+    }
+
+    /**
+     * データメッセージからSDKが自動で処理するデータを取り出し、[KarteAttributes]インスタンスを返します。
+     *
+     * @param message [Map]
+     * @return [KarteAttributes]インスタンスを返します。
+     */
+    @JvmStatic
+    fun extractKarteAttributes(data: Map<String, String>): KarteAttributes? {
         val karteAttributes = data[DATA_KARTE_ATTRIBUTES_KEY] ?: return null
         return try {
             KarteAttributes().load(JSONObject(karteAttributes))
@@ -117,14 +141,40 @@ object MessageHandler {
         if (!canHandleMessage(message)) {
             return false
         }
+        return handleMessage(context, message.data, defaultIntent)
+    }
+
+    /**
+     * KARTE経由で送信された通知メッセージ（データメッセージ）から、通知を作成します。
+     *
+     * @param[context] [Context]
+     * @param[data] [Map]
+     * @param[defaultIntent] [Intent]
+     *
+     * ディープリンクが未指定の場合や、ディープリンクに対応するアクティビティが存在しない場合に、開始するアクティビティの情報。
+     *
+     * @return 判定結果を返します。
+     *
+     * KARTE経由で送信された通知メッセージの場合は`true`、KARTE以外から送信された通知メッセージの場合は、`false`を返します。
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun handleMessage(
+        context: Context,
+        data: Map<String, String>,
+        defaultIntent: Intent? = null
+    ): Boolean {
+        if (!canHandleMessage(data)) {
+            return false
+        }
         try {
             Logger.i(
                 LOG_TAG,
-                "handleMessage() context: $context, defaultIntent: $defaultIntent, data: $message"
+                "handleMessage() context: $context, defaultIntent: $defaultIntent, data: $data"
             )
-            val karteAttributes = extractKarteAttributes(message) ?: return false
+            val karteAttributes = extractKarteAttributes(data) ?: return false
 
-            showNotification(context, karteAttributes, message.data, defaultIntent)
+            showNotification(context, karteAttributes, data, defaultIntent)
             return true
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to show notification. $e", e)
