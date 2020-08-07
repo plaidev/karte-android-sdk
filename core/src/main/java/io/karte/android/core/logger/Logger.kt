@@ -15,13 +15,15 @@
 //
 package io.karte.android.core.logger
 
-import android.util.Log
 import io.karte.android.BuildConfig
+import java.io.Flushable
 
 /**
  * ログを出力するためのクラスです。
  */
 object Logger {
+    private val appenders = listOf(ConsoleAppender(), FileAppender())
+
     /**
      * ログレベルの取得および設定を行います。
      */
@@ -37,13 +39,7 @@ object Logger {
     @JvmStatic
     @JvmOverloads
     fun v(tag: String?, message: String, throwable: Throwable? = null) {
-        if (level > LogLevel.VERBOSE) return
-
-        if (throwable != null) {
-            Log.v(tag, message)
-        } else {
-            Log.v(tag, message, throwable)
-        }
+        log(LogLevel.VERBOSE, tag, message, throwable)
     }
 
     /**
@@ -55,13 +51,7 @@ object Logger {
     @JvmStatic
     @JvmOverloads
     fun d(tag: String?, message: String, throwable: Throwable? = null) {
-        if (level > LogLevel.DEBUG) return
-
-        if (throwable != null) {
-            Log.d(tag, message)
-        } else {
-            Log.d(tag, message, throwable)
-        }
+        log(LogLevel.DEBUG, tag, message, throwable)
     }
 
     /**
@@ -73,13 +63,7 @@ object Logger {
     @JvmStatic
     @JvmOverloads
     fun i(tag: String?, message: String, throwable: Throwable? = null) {
-        if (level > LogLevel.INFO) return
-
-        if (throwable != null) {
-            Log.i(tag, message)
-        } else {
-            Log.i(tag, message, throwable)
-        }
+        log(LogLevel.INFO, tag, message, throwable)
     }
 
     /**
@@ -91,13 +75,7 @@ object Logger {
     @JvmStatic
     @JvmOverloads
     fun w(tag: String?, message: String, throwable: Throwable? = null) {
-        if (level > LogLevel.WARN) return
-
-        if (throwable != null) {
-            Log.w(tag, message)
-        } else {
-            Log.w(tag, message, throwable)
-        }
+        log(LogLevel.WARN, tag, message, throwable)
     }
 
     /**
@@ -109,13 +87,16 @@ object Logger {
     @JvmStatic
     @JvmOverloads
     fun e(tag: String?, message: String, throwable: Throwable? = null) {
-        if (level > LogLevel.ERROR) return
+        log(LogLevel.ERROR, tag, message, throwable)
+    }
 
-        if (throwable != null) {
-            Log.e(tag, message)
-        } else {
-            Log.e(tag, message, throwable)
-        }
+    private fun log(level: LogLevel, tag: String?, message: String, throwable: Throwable?) {
+        val log = LogEvent(level, tag, message, throwable)
+        appenders.forEach { it.append(log) }
+    }
+
+    internal fun flush() {
+        appenders.filterIsInstance<Flushable>().forEach { runCatching { it.flush() } }
     }
 }
 
@@ -138,3 +119,10 @@ enum class LogLevel {
     /** ERROR */
     ERROR
 }
+
+internal data class LogEvent(
+    val level: LogLevel,
+    val tag: String?,
+    val message: String,
+    val throwable: Throwable?
+)

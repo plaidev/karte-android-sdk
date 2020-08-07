@@ -39,8 +39,8 @@ object Client {
             url = URL(request.url)
             conn = url.openConnection() as HttpURLConnection
             try {
-                conn.readTimeout = 10000
-                conn.connectTimeout = 10000
+                conn.readTimeout = request.timeout
+                conn.connectTimeout = request.timeout
 
                 for ((key, value) in request.headers) {
                     conn.setRequestProperty(key, value)

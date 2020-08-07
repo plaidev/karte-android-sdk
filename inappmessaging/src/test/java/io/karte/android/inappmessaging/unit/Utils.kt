@@ -27,6 +27,7 @@ import io.karte.android.tracking.client.TrackRequest
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -54,7 +55,7 @@ internal fun createMessageControlGroup(): MessageModel {
     return MessageModel(res1, req)
 }
 
-internal fun createKarteAppMock(): KarteApp {
+internal fun mockKarteApp(): KarteApp {
     mockkObject(KarteApp.Companion)
     every { KarteApp.visitorId } returns "visitor"
 
@@ -67,4 +68,8 @@ internal fun createKarteAppMock(): KarteApp {
     every { appInfo.json } returns JSONObject().put("version_name", 1)
     every { config.baseUrl } returns "https://myurl:8080"
     return app
+}
+
+internal fun unmockKarteApp() {
+    unmockkObject(KarteApp.Companion)
 }

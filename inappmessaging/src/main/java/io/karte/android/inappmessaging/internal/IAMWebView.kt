@@ -269,7 +269,7 @@ constructor(
         while (true) {
             val message = adapter?.dequeue() ?: break
             Logger.d(LOG_TAG, "loadQueue $message")
-            loadUrl(String.format("javascript:window.tracker.handleResponseData('%s');", message))
+            loadUrl("javascript:window.tracker.handleResponseData('${message.string}');")
         }
     }
 

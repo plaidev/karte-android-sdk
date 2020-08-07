@@ -16,11 +16,18 @@
 package io.karte.android
 
 import android.app.Application
+import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Correspondence
 import io.karte.android.core.config.Config
 import io.karte.android.tracking.queue.THREAD_NAME
 import io.karte.android.utilities.gunzip
+import io.mockk.Call
+import io.mockk.MockKAnswerScope
+import io.mockk.every
+import io.mockk.mockkStatic
+import io.mockk.slot
+import io.mockk.unmockkStatic
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONArray
@@ -54,10 +61,10 @@ fun getThreadByName(threadName: String = THREAD_NAME): Thread? {
     return Thread.getAllStackTraces().keys.firstOrNull { it.name == threadName }
 }
 
-fun proceedBufferedCall() {
+fun proceedBufferedCall(thread: Thread? = null) {
     println("proceedBufferedCall")
     val scheduler =
-        Shadows.shadowOf(ShadowLooper.getLooperForThread(getThreadByName(THREAD_NAME)))
+        Shadows.shadowOf(ShadowLooper.getLooperForThread(thread ?: getThreadByName()))
             .scheduler
     // Schedulerのbuffer計算バグで一度目のループで実行されないケースがあるため2回呼ぶ
     while (scheduler.advanceToNextPostedRunnable()) {
@@ -65,6 +72,28 @@ fun proceedBufferedCall() {
     while (scheduler.advanceToNextPostedRunnable()) {
     }
     Robolectric.flushForegroundThreadScheduler()
+}
+
+fun pipeLog() {
+    mockkStatic(Log::class)
+    val tagSlot = slot<String>()
+    val msgSlot = slot<String>()
+    val ans: MockKAnswerScope<Int, Int>.(Call) -> Int =
+        { println("piped: ${tagSlot.captured} ${msgSlot.captured}"); 0 }
+    every { Log.v(capture(tagSlot), capture(msgSlot)) } answers (ans)
+    every { Log.v(capture(tagSlot), capture(msgSlot), any()) } answers (ans)
+    every { Log.d(capture(tagSlot), capture(msgSlot)) } answers (ans)
+    every { Log.d(capture(tagSlot), capture(msgSlot), any()) } answers (ans)
+    every { Log.i(capture(tagSlot), capture(msgSlot)) } answers (ans)
+    every { Log.i(capture(tagSlot), capture(msgSlot), any()) } answers (ans)
+    every { Log.w(capture(tagSlot), capture(msgSlot)) } answers (ans)
+    every { Log.w(capture(tagSlot), capture(msgSlot), any()) } answers (ans)
+    every { Log.e(capture(tagSlot), capture(msgSlot)) } answers (ans)
+    every { Log.e(capture(tagSlot), capture(msgSlot), any()) } answers (ans)
+}
+
+fun unpipeLog() {
+    unmockkStatic(Log::class)
 }
 
 fun createMessage(

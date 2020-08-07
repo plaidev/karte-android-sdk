@@ -32,6 +32,13 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
     val string: String
         get() = Base64.encodeToString(data.toString().toByteArray(), Base64.NO_WRAP)
 
+    val messages: List<JSONObject>
+        @Throws(JSONException::class)
+        get() {
+            val messages = data?.optJSONArray("messages") ?: return listOf()
+            return messages.map { it }.filterIsInstance<JSONObject>()
+        }
+
     fun filter(pvId: String, exclude: (JSONObject, String) -> Unit) {
         if (request.pvId == pvId || request.pvId == request.originalPvId) {
             // pageIdが一致 または 未定義の場合は何もしない
@@ -62,54 +69,50 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
 
     @Throws(JSONException::class)
     fun shouldLoad(): Boolean {
-        val messages = data?.optJSONArray("messages") ?: return false
-        for (i in 0 until messages.length()) {
-            if (messages.getJSONObject(i).getJSONObject("campaign")
-                    .getString("service_action_type") != "remote_config"
-            ) {
-                return true
-            }
+        return messages.any {
+            it.getJSONObject("campaign").getString("service_action_type") != "remote_config"
         }
-        return false
     }
 
     fun shouldFocus(): Boolean {
-        val messages = data?.optJSONArray("messages") ?: return false
-        for (i in 0 until messages.length()) {
-            try {
-                if (messages.getJSONObject(i).getJSONObject("action")
-                        .getBoolean("native_app_window_focusable")
-                ) {
-                    return true
-                }
-            } catch (e: JSONException) {
-                Logger.d(LOG_TAG, "Failed to parse json.")
+        return try {
+            messages.any {
+                it.getJSONObject("action").getBoolean("native_app_window_focusable")
             }
+        } catch (e: JSONException) {
+            Logger.d(LOG_TAG, "Failed to parse json.")
+            false
         }
-        return false
     }
 
     fun shouldFocusCrossDisplayCampaign(): Boolean {
-        try {
-            return messages.any {
+        return try {
+            messages.any {
                 it.getJSONObject("action").getBoolean("native_app_window_focusable") &&
                     it.getJSONObject("campaign").getBoolean("native_app_cross_display_mode")
             }
         } catch (e: JSONException) {
             Logger.d(LOG_TAG, "Failed to parse json.")
+            false
         }
-        return false
     }
 
-    val messages: List<JSONObject>
-        @Throws(JSONException::class)
-        get() {
-            val messages = data?.optJSONArray("messages") ?: return listOf()
-            return messages.map { it }.filterIsInstance<JSONObject>()
-        }
+    override fun toString(): String {
+        return "Messages: ${messages.joinToString { message ->
+            val action = message.optJSONObject("action")
+            JSONObject()
+                .put(
+                    "action", JSONObject()
+                        .put("_id", action?.optString("_id"))
+                        .put("shorten_id", action?.optString("shorten_id"))
+                )
+                .put("campaign", message.optJSONObject("campaign"))
+                .toString()
+        }}"
+    }
 
     internal interface MessageAdapter {
-        fun dequeue(): String?
+        fun dequeue(): MessageModel?
     }
 
     internal interface MessageView {

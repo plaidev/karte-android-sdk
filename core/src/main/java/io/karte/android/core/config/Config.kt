@@ -25,6 +25,10 @@ package io.karte.android.core.config
  *
  * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
  *
+ * @property[logCollectionUrl] ログ収集URLの取得・設定を行います。
+ *
+ * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
+ *
  * @property[isDryRun] ドライランの利用有無の取得・設定を行います。
  *
  * ドライランを有効にした場合、[Tracker.track][io.karte.android.tracking.Tracker.track] 等のメソッドを呼び出してもイベントの送信が行われなくなります。
@@ -44,6 +48,7 @@ package io.karte.android.core.config
  */
 data class Config private constructor(
     val baseUrl: String,
+    internal val logCollectionUrl: String,
     val isDryRun: Boolean,
     val isOptOut: Boolean,
     val enabledTrackingAaid: Boolean
@@ -55,15 +60,27 @@ data class Config private constructor(
     class Builder {
         /**[Config.baseUrl]を変更します。*/
         var baseUrl: String = "https://api.karte.io/v0/native" @JvmSynthetic set
+
+        /**[Config.logCollectionUrl]を変更します。*/
+        internal var logCollectionUrl: String =
+            "https://us-central1-production-debug-log-collector.cloudfunctions.net/nativeAppLogUrl"
+            @JvmSynthetic set
+
         /**[Config.isDryRun]を変更します。*/
         var isDryRun: Boolean = false @JvmSynthetic set
+
         /**[Config.isOptOut]を変更します。*/
         var isOptOut: Boolean = false @JvmSynthetic set
+
         /**[Config.enabledTrackingAaid]を変更します。*/
         var enabledTrackingAaid: Boolean = false @JvmSynthetic set
 
         /**[Config.baseUrl]を変更します。*/
         fun baseUrl(baseUrl: String): Builder = apply { this.baseUrl = baseUrl }
+
+        /**[Config.logCollectionUrl]を変更します。*/
+        internal fun logCollectionUrl(logCollectionUrl: String): Builder =
+            apply { this.logCollectionUrl = logCollectionUrl }
 
         /**[Config.isDryRun]を変更します。*/
         fun isDryRun(isDryRun: Boolean): Builder = apply { this.isDryRun = isDryRun }
@@ -78,6 +95,7 @@ data class Config private constructor(
         /**[Config]クラスのインスタンスを生成します。*/
         fun build(): Config = Config(
             baseUrl,
+            logCollectionUrl,
             isDryRun,
             isOptOut,
             enabledTrackingAaid
