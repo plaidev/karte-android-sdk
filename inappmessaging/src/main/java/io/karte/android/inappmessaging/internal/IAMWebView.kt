@@ -26,9 +26,9 @@ import android.net.http.SslError
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.view.DisplayCutout
 import android.view.KeyEvent
 import android.view.WindowManager
-import android.view.DisplayCutout
 import android.webkit.JavascriptInterface
 import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
@@ -90,6 +90,7 @@ constructor(
         val right: Int,
         val bottom: Int
     )
+
     private var safeInsets: SafeInsets? = null
 
     init {
@@ -194,7 +195,11 @@ constructor(
     fun handleChangePv() {
         Logger.d(LOG_TAG, "handleChangePv()")
         if (parentView == null) return
-        if (hasMessage) parentView?.show()
+        try {
+            if (hasMessage) parentView?.show()
+        } catch (e: Exception) {
+            Logger.e(LOG_TAG, "Failed to show Window.", e)
+        }
         loadUrl("javascript:window.tracker.handleChangePv();")
         reset(false)
     }

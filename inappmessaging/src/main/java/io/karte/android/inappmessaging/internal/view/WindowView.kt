@@ -67,6 +67,7 @@ internal open class WindowView(
 
     private val appWindow: Window = activity.window
     private val windowManager: WindowManager = activity.windowManager
+    private var isAttaching: Boolean = false
 
     private var webViewDrawingBitmap: Bitmap? = null
     private var canvas: Canvas? = null
@@ -99,7 +100,8 @@ internal open class WindowView(
     }
 
     open fun show() {
-        if (isAttachedToWindow) return
+        if (isAttachedToWindow || isAttaching) return
+        isAttaching = true
 
         val decorView = appWindow.peekDecorView()
             ?: throw IllegalStateException("Decor view has not yet created.")
@@ -130,10 +132,17 @@ internal open class WindowView(
     }
 
     open fun dismiss() {
+        if (!isAttachedToWindow) return
+
         if (webViewDrawingBitmap != null) {
             webViewDrawingBitmap!!.recycle()
         }
-        if (isAttachedToWindow) windowManager.removeView(this)
+        windowManager.removeView(this)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        isAttaching = false
     }
 
     fun updateTouchableRegions(touchableRegions: List<RectF>) {
