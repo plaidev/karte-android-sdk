@@ -58,6 +58,7 @@ class TrackRequest(
     val pvId: String,
     private val events: List<Event>
 ) : JSONRequest(url, METHOD_POST) {
+    /** bodyに書き込む内容を[JSONObject]として返します。 */
     val json: JSONObject
         get() {
             return JSONObject()

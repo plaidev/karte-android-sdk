@@ -27,6 +27,7 @@ class TrackResponse internal constructor(response: Response) :
     Response(response.code, response.headers, response.body) {
     /**接客サービスの一覧*/
     val messages: MutableList<JSONObject> = mutableListOf()
+    /** レスポンス内容をパースした[JSONObject] */
     val json: JSONObject? = runCatching { JSONObject(body) }.getOrNull()?.optJSONObject("response")
 
     init {

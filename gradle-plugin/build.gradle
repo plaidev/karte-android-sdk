@@ -29,6 +29,9 @@ sourceSets {
         }
     }
 }
+compileKotlin {
+    kotlinOptions.allWarningsAsErrors = true
+}
 
 dependencies {
     implementation gradleApi()

@@ -60,7 +60,7 @@ private interface Command {
     }
 }
 
-private class OpenSettingsCommand: Command {
+private class OpenSettingsCommand : Command {
     override fun execute(): Any? {
         val uriString = "package:" + KarteApp.self.application.packageName
         return Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse(uriString))
@@ -73,21 +73,21 @@ private class OpenSettingsCommand: Command {
         if (scheme != null && scheme == "app-settings") {
             return true
         }
-        if (super.validate(uri) && uri.host == "open-settings" ) {
+        if (super.validate(uri) && uri.host == "open-settings") {
             return true
         }
         return false
     }
 }
 
-private class OpenStoreCommand: Command {
+private class OpenStoreCommand : Command {
     override fun execute(): Any? {
         val uriString = "market://details?id=" + KarteApp.self.application.packageName
         return Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
     }
 
     override fun validate(uri: Uri): Boolean {
-        if (super.validate(uri) && uri.host == "open-store" ) {
+        if (super.validate(uri) && uri.host == "open-store") {
             return true
         }
         return false

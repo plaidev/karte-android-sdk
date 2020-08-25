@@ -15,18 +15,26 @@
 //
 package io.karte.android
 
+/** @suppress */
 open class KarteException : Exception {
+    /** @suppress */
     constructor() : super()
 
+    /** @suppress */
     constructor(message: String) : super(message)
 
+    /** @suppress */
     constructor(message: String, throwable: Throwable) : super(message, throwable)
 }
 
+/** @suppress */
 class KarteServerException : KarteException {
+    /** @suppress */
     constructor() : super()
 
+    /** @suppress */
     constructor(message: String) : super(message)
 
+    /** @suppress */
     constructor(message: String, throwable: Throwable) : super(message, throwable)
 }

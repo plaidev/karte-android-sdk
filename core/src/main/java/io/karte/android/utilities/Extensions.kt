@@ -25,6 +25,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.regex.Pattern
 
+/** [InputStream]を[String]にコピーします。 */
 fun InputStream.asString(): String {
     val os = ByteArrayOutputStream()
     copyTo(os, 4096)
@@ -36,6 +37,8 @@ fun InputStream.asString(): String {
 }
 
 private val ASCII_REGEX = Pattern.compile("^[\\u0020-\\u007E]+$")
+
+/** ASCII文字で構成されているかを返します。 */
 fun String.isAscii(): Boolean {
     if (this.isEmpty()) {
         return false
@@ -44,7 +47,14 @@ fun String.isAscii(): Boolean {
     return m.find()
 }
 
+/** filterValuesだけだとsmart castされないため */
+internal fun <K, V> Map<K, V?>.filterNotNull(): Map<K, V> {
+    @Suppress("UNCHECKED_CAST")
+    return filterValues { it != null } as Map<K, V>
+}
+
 //region Any
+/** クラスの小文字表現を返します。 */
 fun Any.getLowerClassName(): String = this::class.java.simpleName.toLowerCase(Locale.ROOT)
 
 private fun Any?.unwrapJson(): Any? {
@@ -69,22 +79,26 @@ private fun Any?.format(): Any? {
 //endregion
 
 //region JSONArray
+/** Performs the given action on each element. */
 fun JSONArray.forEach(operation: (Any) -> Unit) {
     repeat(length()) { index ->
         operation(get(index))
     }
 }
 
+/** Returns a list containing the results of applying the given transform function to each element in the original collection.*/
 fun JSONArray.map(transform: (Any?) -> Any?): List<Any?> {
     val list = mutableListOf<Any?>()
     forEach { list.add(transform(it)) }
     return list
 }
 
+/** Returns a List containing all key-value pairs. */
 fun JSONArray.toList(): List<Any?> {
     return map { it.unwrapJson() }
 }
 
+/** Track API向けに値をフォーマットします。 */
 fun JSONArray.format(): JSONArray {
     val array = JSONArray()
     forEach { value -> value.format()?.let { array.put(it) } }
@@ -93,10 +107,12 @@ fun JSONArray.format(): JSONArray {
 //endregion
 
 //region JSONObject
+/** Performs the given action on each element. */
 fun JSONObject.forEach(action: (String, Any?) -> Unit) {
     keys().forEach { key -> opt(key)?.let { value -> action(key, value) } }
 }
 
+/** Returns a new map containing all key-value pairs from the original map. */
 fun JSONObject.toMap(): Map<String, Any?> {
     val map = mutableMapOf<String, Any?>()
     forEach { key, value ->
@@ -105,6 +121,7 @@ fun JSONObject.toMap(): Map<String, Any?> {
     return map
 }
 
+/** Track API向けに値をフォーマットします。 */
 fun JSONObject.format(): JSONObject {
     val obj = JSONObject()
     forEach { key, value ->
@@ -113,11 +130,13 @@ fun JSONObject.format(): JSONObject {
     return obj
 }
 
+/** [Values]に変換します。 */
 fun JSONObject.toValues(): Values {
-    return toMap().filterValues { it != null } as Values
+    return toMap().filterNotNull()
 }
 //endregion
 
+/** Track API向けに値をフォーマットします。 */
 fun Values.format(): Values {
-    return mapValues { it.value.format() }.filterValues { it != null } as Values
+    return mapValues { it.value.format() }.filterNotNull()
 }

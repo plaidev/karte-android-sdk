@@ -96,6 +96,7 @@ constructor(
     init {
 
         settings.javaScriptEnabled = true
+        @Suppress("DEPRECATION")
         settings.savePassword = false
         settings.domStorageEnabled = true
         settings.databaseEnabled = true
@@ -107,6 +108,7 @@ constructor(
         isHorizontalScrollBarEnabled = false
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            @Suppress("DEPRECATION")
             settings.databasePath =
                 getContext().filesDir.path + getContext().packageName + "/databases/"
         }
@@ -177,6 +179,7 @@ constructor(
             }
 
             // mainpageの失敗時のみ呼ばれる
+            @Suppress("DEPRECATION")
             override fun onReceivedError(
                 view: WebView,
                 errorCode: Int,
@@ -216,7 +219,7 @@ constructor(
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         @Suppress("DEPRECATION")
         super.onLayout(changed, l, t, r, b)
-        //自身がスクリーンのトップに無ければcutoutが重ならないのでsafeAreaInsetTopを0にする。
+        // 自身がスクリーンのトップに無ければcutoutが重ならないのでsafeAreaInsetTopを0にする。
         if (!isLocatedAtTopOfScreen()) {
             loadUrl("javascript:window.tracker.setSafeAreaInset(0);")
             return
@@ -349,9 +352,8 @@ constructor(
         // 現在のページのエラー時には空htmlを読み込む
         if (url != null && url == urlTriedToLoad)
             loadData("<html></html>", "text/html", "utf-8")
-        if (urlTriedToLoad == null || urlTriedToLoad.contains("/native/overlay") || urlTriedToLoad.contains(
-                "native_tracker"
-            )
+        if (urlTriedToLoad == null || urlTriedToLoad.contains("/native/overlay") ||
+            urlTriedToLoad.contains("native_tracker")
         ) {
             parentView?.errorOccurred()
         }
@@ -364,14 +366,10 @@ constructor(
         if (shortenId == null || campaignId == null) return
 
         when (eventName) {
-            MessageEventName.MessageOpen.value -> InAppMessaging.delegate?.onPresented(
-                campaignId,
-                shortenId
-            )
-            MessageEventName.MessageClose.value -> InAppMessaging.delegate?.onDismissed(
-                campaignId,
-                shortenId
-            )
+            MessageEventName.MessageOpen.value ->
+                InAppMessaging.delegate?.onPresented(campaignId, shortenId)
+            MessageEventName.MessageClose.value ->
+                InAppMessaging.delegate?.onDismissed(campaignId, shortenId)
         }
     }
 
@@ -400,7 +398,7 @@ constructor(
     }
 
     private fun getSafeInsets(): SafeInsets? {
-        //Pより前のバージョンではcutoutが取得できないので何もしない
+        // Pより前のバージョンではcutoutが取得できないので何もしない
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             return null
         }

@@ -28,10 +28,10 @@ import com.google.firebase.messaging.RemoteMessage
 import io.karte.android.KarteApp
 import io.karte.android.TrackerTestCase
 import io.karte.android.assertThatNoEventOccured
-import io.karte.android.parseBody
 import io.karte.android.notifications.MessageHandler
 import io.karte.android.notifications.MessageReceiver
 import io.karte.android.notifications.registerFCMToken
+import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import okhttp3.mockwebserver.MockResponse
 import org.json.JSONObject
@@ -53,6 +53,7 @@ private fun TrackerTestCase.proceedNotification(data: HashMap<String, String>) {
     activityInfo.packageName = application.packageName
     activityInfo.name = "MainActivity"
     resolveInfo.activityInfo = activityInfo
+    @Suppress("DEPRECATION")
     Shadows.shadowOf(application.packageManager).addResolveInfoForIntent(launchIntent, resolveInfo)
 
     val builder = RemoteMessage.Builder("dummyDestination")
@@ -66,9 +67,9 @@ private fun TrackerTestCase.proceedMessage(notification: Notification) {
     val pendingIntent = notification.contentIntent
     val intent = Shadows.shadowOf(pendingIntent).savedIntent
 
-    //NOTE: このintentをbroadcastして、MessageReceiverのonReceiveが呼ばれることもテストしたいが現状では無理そう。
-    //see https://github.com/plaidev/tracker-android/pull/163#issuecomment-470797618
-    //ひとまずreceiverを無理やり生成してonReceiveを呼んでテストする。
+    // NOTE: このintentをbroadcastして、MessageReceiverのonReceiveが呼ばれることもテストしたいが現状では無理そう。
+    // see https://github.com/plaidev/tracker-android/pull/163#issuecomment-470797618
+    // ひとまずreceiverを無理やり生成してonReceiveを呼んでテストする。
     val receiver = MessageReceiver()
     receiver.onReceive(application, intent)
     proceedBufferedCall()
@@ -108,19 +109,15 @@ class PushTrackTest {
                 val event =
                     JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                 val eventValues = event.getJSONObject("values")
-                assertWithMessage("event_nameがplugin_native_app_identifyとしてtrackサーバに送信されること").that(
-                    event.getString("event_name")
-                ).isEqualTo("plugin_native_app_identify")
-                assertWithMessage("FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること").that(
-                    eventValues.getString(
-                        "fcm_token"
-                    )
-                ).isEqualTo("dummy_fcm_token")
-                assertWithMessage("通知の可否がsubscribeパラメータとしてtrackサーバに送信されること").that(
-                    eventValues.getString(
-                        "subscribe"
-                    )
-                ).isEqualTo("true")
+                assertWithMessage("event_nameがplugin_native_app_identifyとしてtrackサーバに送信されること")
+                    .that(event.getString("event_name"))
+                    .isEqualTo("plugin_native_app_identify")
+                assertWithMessage("FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること")
+                    .that(eventValues.getString("fcm_token"))
+                    .isEqualTo("dummy_fcm_token")
+                assertWithMessage("通知の可否がsubscribeパラメータとしてtrackサーバに送信されること")
+                    .that(eventValues.getString("subscribe"))
+                    .isEqualTo("true")
             }
         }
 
@@ -141,19 +138,15 @@ class PushTrackTest {
                 val event =
                     JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                 val eventValues = event.getJSONObject("values")
-                assertWithMessage("event_nameがplugin_native_app_identifyとしてtrackサーバに送信されること").that(
-                    event.getString("event_name")
-                ).isEqualTo("plugin_native_app_identify")
-                assertWithMessage("FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること").that(
-                    eventValues.getString(
-                        "fcm_token"
-                    )
-                ).isEqualTo("dummy_fcm_token")
-                assertWithMessage("通知の可否がsubscribeパラメータとしてtrackサーバに送信されること").that(
-                    eventValues.getString(
-                        "subscribe"
-                    )
-                ).isEqualTo("false")
+                assertWithMessage("event_nameがplugin_native_app_identifyとしてtrackサーバに送信されること")
+                    .that(event.getString("event_name"))
+                    .isEqualTo("plugin_native_app_identify")
+                assertWithMessage("FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること")
+                    .that(eventValues.getString("fcm_token"))
+                    .isEqualTo("dummy_fcm_token")
+                assertWithMessage("通知の可否がsubscribeパラメータとしてtrackサーバに送信されること")
+                    .that(eventValues.getString("subscribe"))
+                    .isEqualTo("false")
             }
         }
     }
@@ -208,14 +201,15 @@ class PushTrackTest {
                         val event = JSONObject(request.parseBody()).getJSONArray("events")
                             .getJSONObject(0)
                         val eventMessage = event.getJSONObject("values").getJSONObject("message")
-                        assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
+                        assertWithMessage("event_nameがtrackサーバに送信されること")
+                            .that(event.getString("event_name"))
                             .isEqualTo("message_click")
-                        assertWithMessage("キャンペーンIDがcampaign_idパラメータとしてtrackサーバに送信されること").that(
-                            eventMessage.getString("campaign_id")
-                        ).isEqualTo("dummy_campaign_id")
-                        assertWithMessage("短縮IDがshorten_idパラメータとしてtrackサーバに送信されること").that(
-                            eventMessage.getString("shorten_id")
-                        ).isEqualTo("dummy_shorten_id")
+                        assertWithMessage("キャンペーンIDがcampaign_idパラメータとしてtrackサーバに送信されること")
+                            .that(eventMessage.getString("campaign_id"))
+                            .isEqualTo("dummy_campaign_id")
+                        assertWithMessage("短縮IDがshorten_idパラメータとしてtrackサーバに送信されること")
+                            .that(eventMessage.getString("shorten_id"))
+                            .isEqualTo("dummy_shorten_id")
                     }
                 }
 
@@ -243,14 +237,15 @@ class PushTrackTest {
                         val event = JSONObject(request.parseBody()).getJSONArray("events")
                             .getJSONObject(1)
                         val eventMessage = event.getJSONObject("values").getJSONObject("message")
-                        assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
+                        assertWithMessage("event_nameがtrackサーバに送信されること")
+                            .that(event.getString("event_name"))
                             .isEqualTo("message_click")
-                        assertWithMessage("キャンペーンIDがcampaign_idパラメータとしてtrackサーバに送信されること").that(
-                            eventMessage.getString("campaign_id")
-                        ).isEqualTo("dummy_campaign_id")
-                        assertWithMessage("短縮IDがshorten_idパラメータとしてtrackサーバに送信されること").that(
-                            eventMessage.getString("shorten_id")
-                        ).isEqualTo("dummy_shorten_id")
+                        assertWithMessage("キャンペーンIDがcampaign_idパラメータとしてtrackサーバに送信されること")
+                            .that(eventMessage.getString("campaign_id"))
+                            .isEqualTo("dummy_campaign_id")
+                        assertWithMessage("短縮IDがshorten_idパラメータとしてtrackサーバに送信されること")
+                            .that(eventMessage.getString("shorten_id"))
+                            .isEqualTo("dummy_shorten_id")
                     }
                 }
 
@@ -284,21 +279,23 @@ class PushTrackTest {
                         val event = JSONObject(request.parseBody()).getJSONArray("events")
                             .getJSONObject(1)
                         val eventValues = event.getJSONObject("values")
-                        assertWithMessage("krt_user_idがuser_idパラメータとしてtrackサーバに送信されること").that(
-                            eventValues.getString("user_id")
-                        ).isEqualTo("dummy_user_id")
-                        assertWithMessage("krt_task_idがtask_idパラメータとしてtrackサーバに送信されること").that(
-                            eventValues.getString("task_id")
-                        ).isEqualTo("dummy_task_id")
-                        assertWithMessage("krt_schedule_idがschedule_idパラメータとしてtrackサーバに送信されること").that(
-                            eventValues.getString("schedule_id")
-                        ).isEqualTo("dummy_schedule_id")
-                        assertWithMessage("krt_source_user_idがsource_user_idパラメータとしてtrackサーバに送信されること").that(
-                            eventValues.getString("source_user_id")
-                        ).isEqualTo("dummy_source_user_id")
-                        assertWithMessage("krt_targetがtargetパラメータとしてtrackサーバに送信されること").that(
-                            eventValues.getString("target")
-                        ).isEqualTo("dummy_target")
+                        assertWithMessage("krt_user_idがuser_idパラメータとしてtrackサーバに送信されること")
+                            .that(eventValues.getString("user_id"))
+                            .isEqualTo("dummy_user_id")
+                        assertWithMessage("krt_task_idがtask_idパラメータとしてtrackサーバに送信されること")
+                            .that(eventValues.getString("task_id"))
+                            .isEqualTo("dummy_task_id")
+                        assertWithMessage("krt_schedule_idがschedule_idパラメータとしてtrackサーバに送信されること")
+                            .that(eventValues.getString("schedule_id"))
+                            .isEqualTo("dummy_schedule_id")
+                        assertWithMessage(
+                            "krt_source_user_idがsource_user_idパラメータとしてtrackサーバに送信されること"
+                        )
+                            .that(eventValues.getString("source_user_id"))
+                            .isEqualTo("dummy_source_user_id")
+                        assertWithMessage("krt_targetがtargetパラメータとしてtrackサーバに送信されること")
+                            .that(eventValues.getString("target"))
+                            .isEqualTo("dummy_target")
                     }
                 }
             }
@@ -355,11 +352,8 @@ class PushTrackTest {
                         val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
-                        assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと").that(
-                            event.getString(
-                                "event_name"
-                            )
-                        )
+                        assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと")
+                            .that(event.getString("event_name"))
                             .isNotEqualTo("message_click")
                     }
                 }
@@ -420,11 +414,8 @@ class PushTrackTest {
                         val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
-                        assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと").that(
-                            event.getString(
-                                "event_name"
-                            )
-                        )
+                        assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと")
+                            .that(event.getString("event_name"))
                             .isNotEqualTo("message_click")
                     }
                 }
@@ -483,11 +474,8 @@ class PushTrackTest {
                         val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
-                        assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと").that(
-                            event.getString(
-                                "event_name"
-                            )
-                        )
+                        assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと")
+                            .that(event.getString("event_name"))
                             .isNotEqualTo("message_click")
                     }
                 }
@@ -546,11 +534,8 @@ class PushTrackTest {
                         val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
-                        assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと").that(
-                            event.getString(
-                                "event_name"
-                            )
-                        )
+                        assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと")
+                            .that(event.getString("event_name"))
                             .isNotEqualTo("message_click")
                     }
                 }
@@ -589,13 +574,11 @@ class PushTrackTest {
                             .getJSONObject(0)
                         val eventValues = event.getJSONObject("values")
 
-                        assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
+                        assertWithMessage("event_nameがtrackサーバに送信されること")
+                            .that(event.getString("event_name"))
                             .isEqualTo("mass_push_click")
-                        assertWithMessage("mass_push_idがパラメータとしてtrackサーバに送信されること").that(
-                            eventValues.getString(
-                                "mass_push_id"
-                            )
-                        )
+                        assertWithMessage("mass_push_idがパラメータとしてtrackサーバに送信されること")
+                            .that(eventValues.getString("mass_push_id"))
                             .isEqualTo("dummy_mass_push_id")
                     }
                 }
@@ -622,13 +605,11 @@ class PushTrackTest {
                         val event = JSONObject(request.parseBody()).getJSONArray("events")
                             .getJSONObject(1)
                         val eventValues = event.getJSONObject("values")
-                        assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
+                        assertWithMessage("event_nameがtrackサーバに送信されること")
+                            .that(event.getString("event_name"))
                             .isEqualTo("mass_push_click")
-                        assertWithMessage("mass_push_idがパラメータとしてtrackサーバに送信されること").that(
-                            eventValues.getString(
-                                "mass_push_id"
-                            )
-                        )
+                        assertWithMessage("mass_push_idがパラメータとしてtrackサーバに送信されること")
+                            .that(eventValues.getString("mass_push_id"))
                             .isEqualTo("dummy_mass_push_id")
                     }
                 }
@@ -681,9 +662,8 @@ class PushTrackTest {
                         val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
-                        assertWithMessage("event_nameがmass_push_clickしてtrackサーバに送信されないこと").that(
-                            event.getString("event_name")
-                        )
+                        assertWithMessage("event_nameがmass_push_clickしてtrackサーバに送信されないこと")
+                            .that(event.getString("event_name"))
                             .isNotEqualTo("mass_push_click")
                     }
                 }
@@ -740,9 +720,8 @@ class PushTrackTest {
                         val events = JSONObject(request.parseBody()).getJSONArray("events")
                         val event = events.getJSONObject(0)
                         assertThat(events.length()).isEqualTo(1)
-                        assertWithMessage("event_nameがmass_push_clickしてtrackサーバに送信されないこと").that(
-                            event.getString("event_name")
-                        )
+                        assertWithMessage("event_nameがmass_push_clickしてtrackサーバに送信されないこと")
+                            .that(event.getString("event_name"))
                             .isNotEqualTo("mass_push_click")
                     }
                 }
@@ -798,16 +777,12 @@ class PushTrackTest {
                     val events = JSONObject(request.parseBody()).getJSONArray("events")
                     val event = events.getJSONObject(0)
                     assertThat(events.length()).isEqualTo(1)
-                    assertWithMessage("event_nameがmass_push_clickしてtrackサーバに送信されないこと").that(
-                        event.getString(
-                            "event_name"
-                        )
-                    ).isNotEqualTo("mass_push_click")
-                    assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと").that(
-                        event.getString(
-                            "event_name"
-                        )
-                    ).isNotEqualTo("message_click")
+                    assertWithMessage("event_nameがmass_push_clickしてtrackサーバに送信されないこと")
+                        .that(event.getString("event_name"))
+                        .isNotEqualTo("mass_push_click")
+                    assertWithMessage("event_nameがmessage_clickとしてtrackサーバに送信されないこと")
+                        .that(event.getString("event_name"))
+                        .isNotEqualTo("message_click")
                 }
             }
         }

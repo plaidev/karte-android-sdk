@@ -65,12 +65,13 @@ open class Event {
      * * [Array]
      * * [Map]
      */
-    lateinit var values: JSONObject
+    var values: JSONObject
     private val date = System.currentTimeMillis() / 1000L
     internal var isRetry = false
     val eventName: EventName
     internal val isRetryable: Boolean
 
+    /** [JSONObject] による初期化 */
     constructor(
         eventName: EventName,
         jsonObject: JSONObject? = null,
@@ -81,6 +82,7 @@ open class Event {
         this.isRetryable = isRetryable ?: true
     }
 
+    /** [Values] による初期化 */
     constructor(eventName: EventName, values: Values? = null, isRetryable: Boolean? = null) : this(
         eventName,
         values?.let { JSONObject(values.format()) },
@@ -136,7 +138,11 @@ internal class RenewVisitorIdEvent(newVisitorId: String? = null, oldVisitorId: S
         }
     )
 
-/** `message_xxx` イベント */
+/**
+ *  `message_xxx` イベント
+ *  @property[campaignId] イベント対象のcampaign_id
+ *  @property[shortenId] イベント対象のshorten_id
+ */
 class MessageEvent(
     type: MessageEventType,
     val campaignId: String,
@@ -148,6 +154,7 @@ class MessageEvent(
 
 /**各イベント名を示すインターフェースです。*/
 interface EventName {
+    /** イベント名の文字列 */
     val value: String
 }
 
@@ -182,7 +189,10 @@ enum class MessageEventName(override val value: String) : EventName {
 /**カスタムイベント名を保持するクラスです。*/
 class CustomEventName(override val value: String) : EventName
 
-/**message_xxx イベントのタイプを定義した列挙型です。*/
+/**
+ * message_xxx イベントのタイプを定義した列挙型です。
+ * @property[eventName] 対応するイベント名
+ */
 enum class MessageEventType(val eventName: EventName) {
     /** _message_ready イベント*/
     Ready(MessageEventName.MessageReady),

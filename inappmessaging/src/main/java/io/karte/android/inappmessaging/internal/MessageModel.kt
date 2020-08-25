@@ -64,7 +64,9 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
     fun shouldLoad(): Boolean {
         val messages = data?.optJSONArray("messages") ?: return false
         for (i in 0 until messages.length()) {
-            if (messages.getJSONObject(i).getJSONObject("campaign").getString("service_action_type") != "remote_config") {
+            if (messages.getJSONObject(i).getJSONObject("campaign")
+                    .getString("service_action_type") != "remote_config"
+            ) {
                 return true
             }
         }
@@ -75,7 +77,9 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
         val messages = data?.optJSONArray("messages") ?: return false
         for (i in 0 until messages.length()) {
             try {
-                if (messages.getJSONObject(i).getJSONObject("action").getBoolean("native_app_window_focusable")) {
+                if (messages.getJSONObject(i).getJSONObject("action")
+                        .getBoolean("native_app_window_focusable")
+                ) {
                     return true
                 }
             } catch (e: JSONException) {
@@ -91,7 +95,7 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
                 it.getJSONObject("action").getBoolean("native_app_window_focusable") &&
                     it.getJSONObject("campaign").getBoolean("native_app_cross_display_mode")
             }
-        }  catch (e: JSONException) {
+        } catch (e: JSONException) {
             Logger.d(LOG_TAG, "Failed to parse json.")
         }
         return false

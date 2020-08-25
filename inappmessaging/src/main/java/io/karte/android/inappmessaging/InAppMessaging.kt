@@ -188,6 +188,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
 
     companion object {
         internal var self: InAppMessaging? = null
+
         /**
          * アプリ内メッセージの表示有無を返します。
          *
@@ -196,6 +197,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         @JvmStatic
         val isPresenting: Boolean
             get() = self?.presenter?.isVisible == true
+
         /**
          * アプリ内メッセージで発生するイベント等を委譲するためのデリゲートインスタンスを取得・設定します。
          */
@@ -319,7 +321,8 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     }
 
     private fun generateOverlayURL(): String {
-        return "${overlayBaseUrl}/overlay?app_key=${app.appKey}&_k_vid=${KarteApp.visitorId}&_k_app_prof=${app.appInfo?.json}"
+        return "$overlayBaseUrl/overlay?app_key=${app.appKey}&_k_vid=${KarteApp.visitorId}" +
+            "&_k_app_prof=${app.appInfo?.json}"
     }
 
     private fun clearWebViewCookies() {

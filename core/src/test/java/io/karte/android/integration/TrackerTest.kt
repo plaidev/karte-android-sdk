@@ -84,9 +84,11 @@ class TrackerIntegrationTest {
                     .isEqualTo("hoge")
                 assertWithMessage("日付がtrackサーバに送信されること").that(eventValues.getInt("date"))
                     .isEqualTo((jsonValues.get("date") as Date).time / 1000)
-                assertWithMessage("JSONがtrackサーバに送信されること").that(eventValues.getJSONObject("json").toString())
+                assertWithMessage("JSONがtrackサーバに送信されること")
+                    .that(eventValues.getJSONObject("json").toString())
                     .isEqualTo(jsonValues.getJSONObject("json").toString())
-                assertWithMessage("JSONArrayがtrackサーバに送信されること").that(eventValues.getJSONArray("arr").toString())
+                assertWithMessage("JSONArrayがtrackサーバに送信されること")
+                    .that(eventValues.getJSONArray("arr").toString())
                     .isEqualTo(jsonValues.getJSONArray("arr").toString())
             }
         }
@@ -115,9 +117,11 @@ class TrackerIntegrationTest {
                 .isEqualTo("hoge")
             assertWithMessage("日付がtrackサーバに送信されること").that(eventValues.getInt("date"))
                 .isEqualTo((jsonValues.get("date") as Date).time / 1000)
-            assertWithMessage("JSONがtrackサーバに送信されること").that(eventValues.getJSONObject("json").toString())
+            assertWithMessage("JSONがtrackサーバに送信されること")
+                .that(eventValues.getJSONObject("json").toString())
                 .isEqualTo(jsonValues.getJSONObject("json").toString())
-            assertWithMessage("JSONArrayがtrackサーバに送信されること").that(eventValues.getJSONArray("arr").toString())
+            assertWithMessage("JSONArrayがtrackサーバに送信されること")
+                .that(eventValues.getJSONArray("arr").toString())
                 .isEqualTo(jsonValues.getJSONArray("arr").toString())
         }
     }
@@ -142,18 +146,15 @@ class TrackerIntegrationTest {
                     val event =
                         JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
-                    assertWithMessage("event_nameがviewとしてtrackサーバに送信されること").that(event.getString("event_name"))
+                    assertWithMessage("event_nameがviewとしてtrackサーバに送信されること")
+                        .that(event.getString("event_name"))
                         .isEqualTo("view")
-                    assertWithMessage("view名がview_nameパラメータとしてtrackサーバに送信されること").that(
-                        eventValues.getString(
-                            "view_name"
-                        )
-                    ).isEqualTo("test_view")
-                    assertWithMessage("タイトルがtitleパラメータとしてtrackサーバに送信されること").that(
-                        eventValues.getString(
-                            "title"
-                        )
-                    ).isEqualTo("test_view")
+                    assertWithMessage("view名がview_nameパラメータとしてtrackサーバに送信されること")
+                        .that(eventValues.getString("view_name"))
+                        .isEqualTo("test_view")
+                    assertWithMessage("タイトルがtitleパラメータとしてtrackサーバに送信されること")
+                        .that(eventValues.getString("title"))
+                        .isEqualTo("test_view")
                 }
             }
 
@@ -173,18 +174,15 @@ class TrackerIntegrationTest {
                     val event =
                         JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
-                    assertWithMessage("event_nameがviewとしてtrackサーバに送信されること").that(event.getString("event_name"))
+                    assertWithMessage("event_nameがviewとしてtrackサーバに送信されること")
+                        .that(event.getString("event_name"))
                         .isEqualTo("view")
-                    assertWithMessage("view名がview_nameパラメータとしてtrackサーバに送信されること").that(
-                        eventValues.getString(
-                            "view_name"
-                        )
-                    ).isEqualTo("test_view")
-                    assertWithMessage("タイトルがtitleパラメータとしてtrackサーバに送信されること").that(
-                        eventValues.getString(
-                            "title"
-                        )
-                    ).isEqualTo("fuga")
+                    assertWithMessage("view名がview_nameパラメータとしてtrackサーバに送信されること")
+                        .that(eventValues.getString("view_name"))
+                        .isEqualTo("test_view")
+                    assertWithMessage("タイトルがtitleパラメータとしてtrackサーバに送信されること")
+                        .that(eventValues.getString("title"))
+                        .isEqualTo("fuga")
                 }
             }
         }
@@ -208,27 +206,26 @@ class TrackerIntegrationTest {
                     val event =
                         JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
-                    assertWithMessage("event_nameがviewとしてtrackサーバに送信されること").that(event.getString("event_name"))
+                    assertWithMessage("event_nameがviewとしてtrackサーバに送信されること")
+                        .that(event.getString("event_name"))
                         .isEqualTo("view")
-                    assertWithMessage("view名がview_nameパラメータとしてtrackサーバに送信されること").that(
-                        eventValues.getString(
-                            "view_name"
-                        )
-                    ).isEqualTo("test_view")
-                    assertWithMessage("タイトルがtitleパラメータとしてtrackサーバに送信されること").that(
-                        eventValues.getString(
-                            "title"
-                        )
-                    ).isEqualTo("fuga")
+                    assertWithMessage("view名がview_nameパラメータとしてtrackサーバに送信されること")
+                        .that(eventValues.getString("view_name"))
+                        .isEqualTo("test_view")
+                    assertWithMessage("タイトルがtitleパラメータとしてtrackサーバに送信されること")
+                        .that(eventValues.getString("title"))
+                        .isEqualTo("fuga")
                     assertWithMessage("数値がtrackサーバに送信されること").that(eventValues.getInt("num"))
                         .isEqualTo(10)
                     assertWithMessage("文字列がtrackサーバに送信されること").that(eventValues.getString("str"))
                         .isEqualTo("hoge")
                     assertWithMessage("日付がtrackサーバに送信されること").that(eventValues.getInt("date"))
                         .isEqualTo((jsonValues.get("date") as Date).time / 1000)
-                    assertWithMessage("JSONがtrackサーバに送信されること").that(eventValues.getJSONObject("json").toString())
+                    assertWithMessage("JSONがtrackサーバに送信されること")
+                        .that(eventValues.getJSONObject("json").toString())
                         .isEqualTo(jsonValues.getJSONObject("json").toString())
-                    assertWithMessage("JSONArrayがtrackサーバに送信されること").that(eventValues.getJSONArray("arr").toString())
+                    assertWithMessage("JSONArrayがtrackサーバに送信されること")
+                        .that(eventValues.getJSONArray("arr").toString())
                         .isEqualTo(jsonValues.getJSONArray("arr").toString())
                 }
             }
@@ -251,27 +248,26 @@ class TrackerIntegrationTest {
                     val event =
                         JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
-                    assertWithMessage("event_nameがviewとしてtrackサーバに送信されること").that(event.getString("event_name"))
+                    assertWithMessage("event_nameがviewとしてtrackサーバに送信されること")
+                        .that(event.getString("event_name"))
                         .isEqualTo("view")
-                    assertWithMessage("view名がview_nameパラメータとしてtrackサーバに送信されること").that(
-                        eventValues.getString(
-                            "view_name"
-                        )
-                    ).isEqualTo("test_view")
-                    assertWithMessage("タイトルがtitleパラメータとしてtrackサーバに送信されること").that(
-                        eventValues.getString(
-                            "title"
-                        )
-                    ).isEqualTo("fuga")
+                    assertWithMessage("view名がview_nameパラメータとしてtrackサーバに送信されること")
+                        .that(eventValues.getString("view_name"))
+                        .isEqualTo("test_view")
+                    assertWithMessage("タイトルがtitleパラメータとしてtrackサーバに送信されること")
+                        .that(eventValues.getString("title"))
+                        .isEqualTo("fuga")
                     assertWithMessage("数値がtrackサーバに送信されること").that(eventValues.getInt("num"))
                         .isEqualTo(10)
                     assertWithMessage("文字列がtrackサーバに送信されること").that(eventValues.getString("str"))
                         .isEqualTo("hoge")
                     assertWithMessage("日付がtrackサーバに送信されること").that(eventValues.getInt("date"))
                         .isEqualTo((jsonValues.get("date") as Date).time / 1000)
-                    assertWithMessage("JSONがtrackサーバに送信されること").that(eventValues.getJSONObject("json").toString())
+                    assertWithMessage("JSONがtrackサーバに送信されること")
+                        .that(eventValues.getJSONObject("json").toString())
                         .isEqualTo(jsonValues.getJSONObject("json").toString())
-                    assertWithMessage("JSONArrayがtrackサーバに送信されること").that(eventValues.getJSONArray("arr").toString())
+                    assertWithMessage("JSONArrayがtrackサーバに送信されること")
+                        .that(eventValues.getJSONArray("arr").toString())
                         .isEqualTo(jsonValues.getJSONArray("arr").toString())
                 }
             }
@@ -293,25 +289,26 @@ class TrackerIntegrationTest {
                     val event =
                         JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
                     val eventValues = event.getJSONObject("values")
-                    assertWithMessage("event_nameがviewとしてtrackサーバに送信されること").that(event.getString("event_name"))
+                    assertWithMessage("event_nameがviewとしてtrackサーバに送信されること")
+                        .that(event.getString("event_name"))
                         .isEqualTo("view")
-                    assertWithMessage("view名がview_nameパラメータとしてtrackサーバに送信されること").that(
-                        eventValues.getString(
-                            "view_name"
-                        )
-                    ).isEqualTo("test_view")
-                    assertWithMessage("view_nameと同じ値がtitleパラメータとしてtrackサーバに送信されること").that(
-                        eventValues.getString("title")
-                    ).isEqualTo("test_view")
+                    assertWithMessage("view名がview_nameパラメータとしてtrackサーバに送信されること")
+                        .that(eventValues.getString("view_name"))
+                        .isEqualTo("test_view")
+                    assertWithMessage("view_nameと同じ値がtitleパラメータとしてtrackサーバに送信されること")
+                        .that(eventValues.getString("title"))
+                        .isEqualTo("test_view")
                     assertWithMessage("数値がtrackサーバに送信されること").that(eventValues.getInt("num"))
                         .isEqualTo(10)
                     assertWithMessage("文字列がtrackサーバに送信されること").that(eventValues.getString("str"))
                         .isEqualTo("hoge")
                     assertWithMessage("日付がtrackサーバに送信されること").that(eventValues.getInt("date"))
                         .isEqualTo((jsonValues.get("date") as Date).time / 1000)
-                    assertWithMessage("JSONがtrackサーバに送信されること").that(eventValues.getJSONObject("json").toString())
+                    assertWithMessage("JSONがtrackサーバに送信されること")
+                        .that(eventValues.getJSONObject("json").toString())
                         .isEqualTo(jsonValues.getJSONObject("json").toString())
-                    assertWithMessage("JSONArrayがtrackサーバに送信されること").that(eventValues.getJSONArray("arr").toString())
+                    assertWithMessage("JSONArrayがtrackサーバに送信されること")
+                        .that(eventValues.getJSONArray("arr").toString())
                         .isEqualTo(jsonValues.getJSONArray("arr").toString())
                 }
             }
@@ -369,7 +366,7 @@ class TrackerIntegrationTest {
         }
     }
 
-    @Ignore
+    @Ignore("仕様の見直し中のため、テストしない")
     class 画面遷移時のeventまとめ制御 : TrackerTestCase() {
         private lateinit var firstActivityController: ActivityController<Activity>
         @Before
@@ -388,7 +385,7 @@ class TrackerIntegrationTest {
             )
             firstActivityController =
                 Robolectric.buildActivity(Activity::class.java).create().start().resume()
-            //flush native_app_install and native_app_open
+            // flush native_app_install and native_app_open
             proceedBufferedCall()
             proceedBufferedCall()
             server.takeRequest()
@@ -501,60 +498,45 @@ class TrackerIntegrationTest {
             val request = server.takeRequest()
             val bodyAppInfo = JSONObject(request.parseBody()).getJSONObject("app_info")
             val bodySystemInfo = bodyAppInfo.getJSONObject("system_info")
-            assertWithMessage("バージョン番号がversion_nameパラメータとしてtrackサーバに送信されること").that(
-                bodyAppInfo.getString(
-                    "version_name"
-                )
-            ).isEqualTo("1.0.0")
-            assertWithMessage("ビルド番号がversion_codeパラメータとしてtrackサーバに送信されること").that(
-                bodyAppInfo.getString(
-                    "version_code"
-                )
-            ).isEqualTo("1")
-            assertWithMessage("SDKバージョンがkarte_sdk_versionパラメータとしてtrackサーバに送信されること").that(
-                bodyAppInfo.getString(
-                    "karte_sdk_version"
-                )
-            ).isEqualTo(BuildConfig.VERSION_NAME)
-            assertWithMessage("パッケージ名がpachage_nameパラメータとしてtrackサーバに送信されること").that(
-                bodyAppInfo.getString(
-                    "package_name"
-                )
-            ).isEqualTo(application.packageName)
+            assertWithMessage("バージョン番号がversion_nameパラメータとしてtrackサーバに送信されること")
+                .that(bodyAppInfo.getString("version_name"))
+                .isEqualTo("1.0.0")
+            assertWithMessage("ビルド番号がversion_codeパラメータとしてtrackサーバに送信されること")
+                .that(bodyAppInfo.getString("version_code"))
+                .isEqualTo("1")
+            assertWithMessage("SDKバージョンがkarte_sdk_versionパラメータとしてtrackサーバに送信されること")
+                .that(bodyAppInfo.getString("karte_sdk_version"))
+                .isEqualTo(BuildConfig.VERSION_NAME)
+            assertWithMessage("パッケージ名がpachage_nameパラメータとしてtrackサーバに送信されること")
+                .that(bodyAppInfo.getString("package_name"))
+                .isEqualTo(application.packageName)
             assertWithMessage("OS名がosパラメータとしてtrackサーバに送信されること").that(bodySystemInfo.getString("os"))
                 .isEqualTo("Android")
-            assertWithMessage("OSバージョンがos_versionパラメータとしてtrackサーバに送信されること").that(
-                bodySystemInfo.getString(
-                    "os_version"
-                )
-            ).isEqualTo("8.0.0")
-            assertWithMessage("デバイス名がdeviceパラメータとしてtrackサーバに送信されること").that(
-                bodySystemInfo.getString(
-                    "device"
-                )
-            ).isEqualTo("mario device")
-            assertWithMessage("端末ブランド名がbrandパラメータとしてtrackサーバに送信されること").that(
-                bodySystemInfo.getString(
-                    "brand"
-                )
-            ).isEqualTo("google")
-            assertWithMessage("端末モデル名がmodelパラメータとしてtrackサーバに送信されること").that(
-                bodySystemInfo.getString(
-                    "model"
-                )
-            ).isEqualTo("Nexus")
-            assertWithMessage("プロダクト名がproductパラメータとしてtrackサーバに送信されること").that(
-                bodySystemInfo.getString(
-                    "product"
-                )
-            ).isEqualTo("KARTE for APP")
-            assertWithMessage("言語がlanguageパラメータとしてtrackサーバに送信されること").that(bodySystemInfo.getString("language"))
+            assertWithMessage("OSバージョンがos_versionパラメータとしてtrackサーバに送信されること")
+                .that(bodySystemInfo.getString("os_version"))
+                .isEqualTo("8.0.0")
+            assertWithMessage("デバイス名がdeviceパラメータとしてtrackサーバに送信されること")
+                .that(bodySystemInfo.getString("device"))
+                .isEqualTo("mario device")
+            assertWithMessage("端末ブランド名がbrandパラメータとしてtrackサーバに送信されること")
+                .that(bodySystemInfo.getString("brand"))
+                .isEqualTo("google")
+            assertWithMessage("端末モデル名がmodelパラメータとしてtrackサーバに送信されること")
+                .that(bodySystemInfo.getString("model"))
+                .isEqualTo("Nexus")
+            assertWithMessage("プロダクト名がproductパラメータとしてtrackサーバに送信されること")
+                .that(bodySystemInfo.getString("product"))
+                .isEqualTo("KARTE for APP")
+            assertWithMessage("言語がlanguageパラメータとしてtrackサーバに送信されること")
+                .that(bodySystemInfo.getString("language"))
                 .isEqualTo("en-US")
 
             val screen = bodySystemInfo.getJSONObject("screen")
-            assertWithMessage("画面の幅がscreen.widthパラメータとしてtrackサーバに送信されること").that(screen.getString("width"))
+            assertWithMessage("画面の幅がscreen.widthパラメータとしてtrackサーバに送信されること")
+                .that(screen.getString("width"))
                 .isEqualTo("320")
-            assertWithMessage("画面の高さがscreen.heightパラメータとしてtrackサーバに送信されること").that(screen.getString("height"))
+            assertWithMessage("画面の高さがscreen.heightパラメータとしてtrackサーバに送信されること")
+                .that(screen.getString("height"))
                 .isEqualTo("470")
         }
     }
@@ -622,7 +604,8 @@ class TrackerIntegrationTest {
 
             val request = server.takeRequest()
             val event = JSONObject(request.parseBody()).getJSONObject("keys")
-            assertWithMessage("ビジターIDがvisitor_idパラメータとしてtrackサーバに送信されること").that(event.getString("visitor_id"))
+            assertWithMessage("ビジターIDがvisitor_idパラメータとしてtrackサーバに送信されること")
+                .that(event.getString("visitor_id"))
                 .isNotNull()
         }
     }

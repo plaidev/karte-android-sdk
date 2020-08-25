@@ -58,7 +58,8 @@ internal object AdvertisingId {
     private fun getByGms(context: Context, completion: (String) -> Unit) {
         Logger.d(
             LOG_TAG,
-            "Try to get advertising id by ${com.google.android.gms.ads.identifier.AdvertisingIdClient::class.java}"
+            "Try to get advertising id by " +
+                "${com.google.android.gms.ads.identifier.AdvertisingIdClient::class.java}"
         )
         Thread {
             try {

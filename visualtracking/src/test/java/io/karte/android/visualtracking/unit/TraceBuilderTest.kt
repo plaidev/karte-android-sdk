@@ -55,7 +55,12 @@ class TraceBuilderTest : RobolectricTestCase() {
                 "target_text" to "hoge",
                 "view" to "android.widget.LinearLayout",
                 "activity" to "android.app.Activity",
-                "action_id" to "android.widget.LinearLayout1android.widget.FrameLayout0android.widget.FrameLayout0com.android.internal.widget.ActionBarOverlayLayout0com.android.internal.policy.DecorView"
+                "action_id" to
+                    "android.widget.LinearLayout1" +
+                    "android.widget.FrameLayout0" +
+                    "android.widget.FrameLayout0" +
+                    "com.android.internal.widget.ActionBarOverlayLayout0" +
+                    "com.android.internal.policy.DecorView"
             )
         )
         assertThatJson(values).node("app_info.version_name").isString.isEqualTo("1.5.5")
@@ -114,7 +119,12 @@ class TraceBuilderTest : RobolectricTestCase() {
                 "view" to "android.widget.LinearLayout",
                 "target_text" to "hoge",
                 "activity" to "android.app.Activity",
-                "action_id" to "android.widget.LinearLayout1android.widget.FrameLayout0android.widget.FrameLayout0com.android.internal.widget.ActionBarOverlayLayout0com.android.internal.policy.DecorView"
+                "action_id" to
+                    "android.widget.LinearLayout1" +
+                    "android.widget.FrameLayout0" +
+                    "android.widget.FrameLayout0" +
+                    "com.android.internal.widget.ActionBarOverlayLayout0" +
+                    "com.android.internal.policy.DecorView"
             )
         )
         assertThatJson(values).node("app_info.version_name").isString.isEqualTo("1.5.5")

@@ -47,7 +47,8 @@ private val RobolectricTestCase.packageName: String
         return application.packageName
     }
 
-private fun RobolectricTestCase.createPackageInfo(metaDataMap: Map<String, Int> = emptyMap()): PackageInfo {
+private fun RobolectricTestCase.createPackageInfo(metaDataMap: Map<String, Int> = emptyMap()):
+    PackageInfo {
     val metaData = Bundle()
     metaDataMap.entries.forEach { metaData.putInt(it.key, it.value) }
     val applicationInfo = ApplicationInfo()
@@ -132,15 +133,16 @@ class MessageHandlerTest {
                 .build()
         }
 
+        @Suppress("DEPRECATION")
         @Before
         fun setup() {
-            //packageManagerの準備.
-            //getLaunchIntentForPackageの返却値を設定
+            // packageManagerの準備.
+            // getLaunchIntentForPackageの返却値を設定
             val mainResolvedInfo =
                 createResolvedInfo("io.karte.android.tracker.Integration.mock", "TestActivity")
             mainIntent = createIntent(Intent.ACTION_MAIN, Intent.CATEGORY_LAUNCHER, packageName)
 
-            //packageManager.queryIntentActivitiesの準備. urlが指定された場合のactivity
+            // packageManager.queryIntentActivitiesの準備. urlが指定された場合のactivity
             linkIntent = createIntent(Intent.ACTION_VIEW, link = sampleUrl)
             val linkResolvedInfo =
                 createResolvedInfo("io.karte.android.tracker.Integration.mock", "TestActivity")
@@ -152,6 +154,7 @@ class MessageHandlerTest {
             packageManager.installPackage(createPackageInfo())
         }
 
+        @Suppress("DEPRECATION")
         @After
         fun tearDown() {
             val packageManager = shadowOf(application.packageManager)
@@ -193,7 +196,7 @@ class MessageHandlerTest {
         @Test
         fun スモールアイコンが設定されている場合_通知にセットされること() {
             val packageManager = shadowOf(application.packageManager)
-            packageManager.addPackage(
+            packageManager.installPackage(
                 createPackageInfo(
                     mapOf(
                         Pair(
@@ -211,7 +214,7 @@ class MessageHandlerTest {
         @Test
         fun ラージアイコンが設定されている場合_通知にセットされること() {
             val packageManager = shadowOf(application.packageManager)
-            packageManager.addPackage(
+            packageManager.installPackage(
                 createPackageInfo(
                     mapOf(
                         Pair(
@@ -234,7 +237,10 @@ class MessageHandlerTest {
 
         @Test
         fun attchment_urlが設定されている場合_largeIconがセットされること() {
-            MessageHandler.handleMessage(application, createRemoteMessage(attachmentUrl = sampleAttachmentUrl))
+            MessageHandler.handleMessage(
+                application,
+                createRemoteMessage(attachmentUrl = sampleAttachmentUrl)
+            )
             assertThat(getNotification()!!.getLargeIcon()).isNotNull()
         }
 
@@ -243,7 +249,8 @@ class MessageHandlerTest {
             MessageHandler.handleMessage(application, createRemoteMessage())
             val contentIntent = shadowOf(getNotification()!!.contentIntent)
             assertThat(contentIntent.savedIntent.action).isEqualTo(Intent.ACTION_MAIN)
-            assertThat(contentIntent.savedIntent.extras?.get("krt_component_name")).isEqualTo("io.karte.android.core/TestActivity")
+            assertThat(contentIntent.savedIntent.extras?.get("krt_component_name"))
+                .isEqualTo("io.karte.android.core/TestActivity")
         }
 
         @Test
@@ -260,16 +267,14 @@ class MessageHandlerTest {
         fun message_click計測用の値がセットされること() {
             MessageHandler.handleMessage(application, createRemoteMessage())
             val contentIntent = shadowOf(getNotification()!!.contentIntent)
-            assertThat(contentIntent.savedIntent.extras?.getString(EXTRA_CAMPAIGN_ID)).isEqualTo(
-                sampleCampaignId
-            )
-            assertThat(contentIntent.savedIntent.extras?.getString(EXTRA_SHORTEN_ID)).isEqualTo(
-                sampleShortenId
-            )
+            assertThat(contentIntent.savedIntent.extras?.getString(EXTRA_CAMPAIGN_ID))
+                .isEqualTo(sampleCampaignId)
+            assertThat(contentIntent.savedIntent.extras?.getString(EXTRA_SHORTEN_ID))
+                .isEqualTo(sampleShortenId)
         }
 
-        //TODO: channel_id周りのテスト
-        //TODO: bigImage周りのテスト
+        // TODO: channel_id周りのテスト
+        // TODO: bigImage周りのテスト
     }
 
     @RunWith(Enclosed::class)

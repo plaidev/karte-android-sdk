@@ -47,7 +47,7 @@ class RenewVisitorIdTest {
         @Before
         fun setup() {
             dispatcher = TrackerRequestDispatcher()
-            server.setDispatcher(dispatcher)
+            server.dispatcher = dispatcher
         }
 
         @Test

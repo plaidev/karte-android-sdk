@@ -19,10 +19,16 @@ import org.json.JSONObject
 
 /** Data Transfer Object from JSON */
 interface DTO<T> {
+    /** Load from JSONObject to Object. */
     fun load(jsonObject: JSONObject?): T
 }
 
-/**アクション情報を保持するデータクラスです。*/
+/**
+ * アクション情報を保持するデータクラスです。
+ * @property[shortenId] shorten_id フィールド
+ * @property[type] type フィールド
+ * @property[content] content フィールド
+ */
 data class Action<T : DTO<T>>(
     var shortenId: String? = null,
     var type: String? = null,
@@ -35,8 +41,15 @@ data class Action<T : DTO<T>>(
     }
 }
 
-/**キャンペーン情報を保持するデータクラスです。*/
-data class Campaign(var campaignId: String? = null, var serviceActionType: String? = null) :
+/**
+ * キャンペーン情報を保持するデータクラスです。
+ * @property[campaignId] campaign_id フィールド
+ * @property[serviceActionType] service_action_type フィールド
+ */
+data class Campaign(
+    var campaignId: String? = null,
+    var serviceActionType: String? = null
+) :
     DTO<Campaign> {
     override fun load(jsonObject: JSONObject?): Campaign = apply {
         campaignId = jsonObject?.optString("_id")

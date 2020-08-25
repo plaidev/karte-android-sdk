@@ -118,7 +118,7 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
                 return MockResponse().setBody(createMessagesResponse(messages).toString())
             }
         }
-        server.setDispatcher(dispatcher)
+        server.dispatcher = dispatcher
         server.start()
 
         app = setupKarteApp(server, appKey)
@@ -127,7 +127,7 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
             Intent(application, Activity::class.java)
         ).create().resume()
 
-        //flush first native_app_install event
+        // flush first native_app_install event
         proceedBufferedCall()
         server.takeRequest()
     }
@@ -214,19 +214,16 @@ class InAppMessagingTest {
 
             assertThat(webView).isNotNull()
             assertThat(view?.visibility).isEqualTo(View.VISIBLE)
-            assertThat(shadowWebView?.lastLoadedUrl).startsWith("javascript:window.tracker.handleResponseData")
+            assertThat(shadowWebView?.lastLoadedUrl)
+                .startsWith("javascript:window.tracker.handleResponseData")
             assertThat(shadowWebView?.loadedUrls?.first()).startsWith(overlayBaseUrl)
             val uri = Uri.parse(shadowWebView?.loadedUrls?.first())
-            assertThat(uri.queryParameterNames).isEqualTo(
-                setOf(
-                    "app_key",
-                    "_k_vid",
-                    "_k_app_prof"
-                )
-            )
+            assertThat(uri.queryParameterNames)
+                .isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
             assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
-            assertThat(JSONObject(uri.getQueryParameter("_k_app_prof"))).isEqualTo(app.appInfo?.json)
+            assertThat(uri.getQueryParameter("_k_app_prof")?.let { JSONObject(it) })
+                .isEqualTo(app.appInfo?.json)
         }
 
         @Test
@@ -248,9 +245,9 @@ class InAppMessagingTest {
 
         @Test
         fun trackerJs読み込み中の場合はresponseが渡らないこと() {
-            //overlay表示
+            // overlay表示
             trackPopUp1()
-            //2度目のpopup response
+            // 2度目のpopup response
             trackPopUp1()
 
             assertThat(shadowWebView).isNotNull()
@@ -327,7 +324,8 @@ class InAppMessagingTest {
         fun ページが切り替わらなければresetPageStateが実行されないこと() {
             Tracker.track("hogehoge")
             assertThat(shadowWebView?.loadedUrls).isNotEmpty()
-            assertThat(shadowWebView?.loadedUrls).doesNotContain("javascript:window.tracker.resetPageState(")
+            assertThat(shadowWebView?.loadedUrls)
+                .doesNotContain("javascript:window.tracker.resetPageState(")
         }
 
         @Test
@@ -336,7 +334,8 @@ class InAppMessagingTest {
 
             activity.pause()
             proceedBufferedCall()
-            assertThat(currentShadowWebView?.loadedUrls).contains("javascript:window.tracker.resetPageState(false);")
+            assertThat(currentShadowWebView?.loadedUrls)
+                .contains("javascript:window.tracker.resetPageState(false);")
             assertThat(view).isNull()
         }
     }
@@ -454,12 +453,16 @@ class InAppMessagingTest {
 
         @MockK
         private lateinit var mockReq: WebResourceRequest
+
         @MockK
         private lateinit var mockError: WebResourceError
+
         @MockK
         private lateinit var mockResourceResponse: WebResourceResponse
+
         @MockK
         private lateinit var mockSslHandler: SslErrorHandler
+
         @MockK
         private lateinit var mockSslError: SslError
 
@@ -476,7 +479,7 @@ class InAppMessagingTest {
             shadowWebView?.resetLoadedUrls()
         }
 
-        //TODO: Serverが500を返すケースとかの正しい再現。
+        // TODO: Serverが500を返すケースとかの正しい再現。
         // WebViewはなぜかMockWebServerにrequestしないのでdispatcherじゃ再現できない。
         // 読み込みした後に手動でonReceivedErrorを呼び出す。
         @Test
@@ -557,16 +560,12 @@ class InAppMessagingTest {
             assertThat(view).isNull()
             assertThat(currentShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
             val uri = Uri.parse(currentShadowWebView?.lastLoadedUrl)
-            assertThat(uri.queryParameterNames).isEqualTo(
-                setOf(
-                    "app_key",
-                    "_k_vid",
-                    "_k_app_prof"
-                )
-            )
+            assertThat(uri.queryParameterNames)
+                .isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
             assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
-            assertThat(JSONObject(uri.getQueryParameter("_k_app_prof"))).isEqualTo(app.appInfo?.json)
+            assertThat(uri.getQueryParameter("_k_app_prof")?.let { JSONObject(it) })
+                .isEqualTo(app.appInfo?.json)
         }
     }
 
@@ -574,7 +573,10 @@ class InAppMessagingTest {
 
         private fun assertNotSuppressed() {
             assertThat(view).isNotNull()
-            assertThat(dispatcher.trackedEvents().filter { it.getString("event_name") == "_message_suppressed" }).isEmpty()
+            assertThat(
+                dispatcher.trackedEvents()
+                    .filter { it.getString("event_name") == "_message_suppressed" })
+                .isEmpty()
         }
 
         private fun assertSuppressed(reasonMatch: String) {

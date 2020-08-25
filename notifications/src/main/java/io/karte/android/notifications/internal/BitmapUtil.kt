@@ -46,13 +46,10 @@ internal object BitmapUtil {
         var stream: InputStream? = null
         try {
             stream = URL(url).openStream()
-            val out = ByteArrayOutputStream()
-            val buff = ByteArray(4096)
-            var n = 0
-            while (stream.read(buff).also { n = it } > 0) {
-                out.write(buff, 0, n)
+            val rawData = ByteArrayOutputStream().run {
+                stream.copyTo(this, 4096)
+                toByteArray()
             }
-            val rawData = out.toByteArray()
 
             val opts = BitmapFactory.Options()
             opts.inJustDecodeBounds = true
@@ -69,11 +66,11 @@ internal object BitmapUtil {
             val canvas = Canvas(dstBitmap!!)
             canvas.drawBitmap(srcBitmap, 0f, 0f, Paint())
         } catch (e: MalformedURLException) {
-            Logger.e(LOG_TAG, String.format("Invalid URL: %s", url), e)
+            Logger.e(LOG_TAG, "Invalid URL: $url", e)
         } catch (e: IOException) {
-            Logger.e(LOG_TAG, String.format("IOException in image download for URL: %s.", url), e)
+            Logger.e(LOG_TAG, "IOException in image download for URL: $url", e)
         } catch (e: OutOfMemoryError) {
-            Logger.e(LOG_TAG, String.format("OutOfMemoryError in image download for URL: %s.", url), e)
+            Logger.e(LOG_TAG, "OutOfMemoryError in image download for URL: $url.", e)
             dstBitmap = null
         } finally {
             closeStream(stream)

@@ -65,21 +65,22 @@ internal class Filter private constructor(
 
         private val STARTS_WITH_COMPARATOR = object : Comparator() {
             override fun compare(value1: Any?, value2: Any?): Boolean {
-                return if (value1 !is String || value2 !is String) false else value1.startsWith(
-                    value2
-                )
+                return if (value1 !is String || value2 !is String) false
+                else value1.startsWith(value2)
             }
         }
 
         private val CONTAINS_COMPARATOR = object : Comparator() {
             override fun compare(value1: Any?, value2: Any?): Boolean {
-                return if (value1 !is String || value2 !is String) false else value1.contains(value2)
+                return if (value1 !is String || value2 !is String) false
+                else value1.contains(value2)
             }
         }
 
         private val ENDS_WITH_COMPARATOR = object : Comparator() {
             override fun compare(value1: Any?, value2: Any?): Boolean {
-                return if (value1 !is String || value2 !is String) false else value1.endsWith(value2)
+                return if (value1 !is String || value2 !is String) false
+                else value1.endsWith(value2)
             }
         }
 

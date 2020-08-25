@@ -105,7 +105,7 @@ data class Variable internal constructor(
      * 設定値（整数）を返します。
      *
      * なお設定値が数値でない場合は、デフォルト値を返します。
-     * @param[default]  デフォルト値
+     * @param[default] デフォルト値
      * @return 設定値（整数）
      */
     @JvmName("getLong")

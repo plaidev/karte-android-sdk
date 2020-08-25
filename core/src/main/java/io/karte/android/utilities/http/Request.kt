@@ -24,17 +24,33 @@ import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.util.UUID
 
+/** HTTP header field `Content-Type`. */
 const val HEADER_CONTENT_TYPE = "Content-Type"
+/** HTTP header field `Content-Encoding`. */
 const val HEADER_CONTENT_ENCODING = "Content-Encoding"
-const val CONTENT_ENCODING_GZIP = "gzip"
-const val CONTENT_TYPE_TEXT = "text/plain; charset=utf-8"
-const val CONTENT_TYPE_OCTET_STREAM = "application/octet-stream"
-const val CONTENT_TYPE_JSON = "application/json"
+/** HTTP header field `X-KARTE-App-Key`. */
 const val HEADER_APP_KEY = "X-KARTE-App-Key"
+
+/** [HEADER_CONTENT_ENCODING] value `gzip`. */
+const val CONTENT_ENCODING_GZIP = "gzip"
+/** [HEADER_CONTENT_TYPE] value `text/plain`. */
+const val CONTENT_TYPE_TEXT = "text/plain; charset=utf-8"
+/** [HEADER_CONTENT_TYPE] value `application/octet-stream`. */
+const val CONTENT_TYPE_OCTET_STREAM = "application/octet-stream"
+/** [HEADER_CONTENT_TYPE] value `application/json`. */
+const val CONTENT_TYPE_JSON = "application/json"
 private const val CRLF = "\r\n"
 
+/** HTTP Request method, `POST`. */
 const val METHOD_POST = "POST"
 
+/**
+ * HTTP Request Object class.
+ * @property[url] Request url
+ * @property[method] HTTP Request method
+ * @property[headers] HTTP headers
+ * @property[body] Request body
+ */
 abstract class Request<T> internal constructor(
     val url: String,
     val method: String,
@@ -48,6 +64,7 @@ abstract class Request<T> internal constructor(
     internal abstract fun writeBody(outputStream: OutputStream)
 }
 
+/** JSON Body Request. */
 open class JSONRequest(
     url: String,
     method: String
@@ -68,6 +85,7 @@ open class JSONRequest(
     }
 }
 
+/** Multipart data request. */
 class MultipartRequest(url: String, method: String, override var body: List<Part<*>>?) :
     Request<List<MultipartRequest.Part<*>>>(url, method) {
     private val boundary: String = UUID.randomUUID().toString()
@@ -95,12 +113,19 @@ class MultipartRequest(url: String, method: String, override var body: List<Part
         dataOutputStream.close()
     }
 
+    /**
+     * Part object class
+     * @property[name] part name
+     * @property[headers] part headers
+     * @property[body] part body
+     */
     abstract class Part<T>(val name: String) {
         val headers: MutableMap<String, String> = HashMap()
         internal abstract val body: T
         internal abstract fun writeBody(outputStream: OutputStream)
     }
 
+    /** String Part object. */
     class StringPart(name: String, override val body: String) : Part<String>(name) {
         init {
             headers["Content-Disposition"] = "form-data; name=\"$name\""
@@ -116,6 +141,7 @@ class MultipartRequest(url: String, method: String, override var body: List<Part
         }
     }
 
+    /** Bitmap Part object. */
     class BitmapPart(name: String, override val body: Bitmap) : Part<Bitmap>(name) {
         init {
             headers["Content-Disposition"] = "form-data; name=\"$name\"; filename=\"$name\""

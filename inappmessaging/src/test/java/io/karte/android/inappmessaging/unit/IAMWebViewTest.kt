@@ -73,8 +73,10 @@ class IAMWebViewTest {
 
     private lateinit var webView: IAMWebView
     private lateinit var shadowWebView: ShadowWebView
+
     @MockK
     private lateinit var adapter: MessageModel.MessageAdapter
+
     @MockK
     private lateinit var parent: ParentView
 
@@ -176,7 +178,9 @@ class IAMWebViewTest {
             JSONObject().put("url", "http://sampleurl?hoge=fuga&hogehoge=fugafuga").toString()
         )
 
-        verify(exactly = 1) { parent.openUrl(Uri.parse("http://sampleurl?hoge=fuga&hogehoge=fugafuga")) }
+        verify(exactly = 1) {
+            parent.openUrl(Uri.parse("http://sampleurl?hoge=fuga&hogehoge=fugafuga"))
+        }
     }
 
     @Test
@@ -294,6 +298,7 @@ class IAMWebViewTest {
         verify(exactly = 1) { parent.errorOccurred() }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun 古いonReceivedErrorでoverlayのロードに失敗するとparentがhandleする() {
         val errorCode = 0

@@ -24,15 +24,17 @@ import org.json.JSONObject
 open class TrackerRequestDispatcher : Dispatcher() {
     private val recordedRequests = mutableListOf<RecordedRequest>()
 
-    final override fun dispatch(request: RecordedRequest?): MockResponse {
-        val path = request!!.path
+    final override fun dispatch(request: RecordedRequest): MockResponse {
         recordedRequests.add(request)
-        if (path.contains("/track")) {
-            return onTrackRequest(request)
-        } else if (path.contains("/overlay")) {
-            return MockResponse().setBody("<html></html>")
-        } else if (path.contains("/auto-track")) {
-            return MockResponse()
+
+        request.path?.let {
+            if (it.contains("/track")) {
+                return onTrackRequest(request)
+            } else if (it.contains("/overlay")) {
+                return MockResponse().setBody("<html></html>")
+            } else if (it.contains("/auto-track")) {
+                return MockResponse()
+            }
         }
         throw IllegalArgumentException("Unexpected request is coming to server.")
     }
@@ -47,11 +49,11 @@ open class TrackerRequestDispatcher : Dispatcher() {
     }
 
     fun autoTrackRequests(): List<RecordedRequest> {
-        return recordedRequests.filter { it.path.contains("/auto-track") }
+        return recordedRequests.filter { it.path?.contains("/auto-track") == true }
     }
 
     fun trackedRequests(): List<RecordedRequest> {
-        return recordedRequests.filter { it.path.contains("/track") }
+        return recordedRequests.filter { it.path?.contains("/track") == true }
     }
 
     fun trackedEvents(): List<JSONObject> {
