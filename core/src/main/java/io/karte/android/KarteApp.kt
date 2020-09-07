@@ -207,6 +207,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         Logger.v(LOG_TAG, "onActivityStopped $activity")
         if (--activityCount == 0) {
             self.tracker?.track(Event(AutoEventName.NativeAppBackground, values = null))
+            Logger.flush()
         }
     }
     //endregion

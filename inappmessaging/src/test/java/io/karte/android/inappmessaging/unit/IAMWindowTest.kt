@@ -26,6 +26,7 @@ import io.karte.android.shadow.CustomShadowWebView
 import io.karte.android.shadow.customShadowOf
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -52,7 +53,7 @@ class IAMWindowTest {
     @Before
     fun init() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        createKarteAppMock()
+        mockKarteApp()
 
         activity = Robolectric.buildActivity(Activity::class.java).create().start()
         webView =
@@ -63,6 +64,11 @@ class IAMWindowTest {
         webView.hasMessage = true
         view = IAMWindow(activity.get(), PanelWindowManager(), webView)
         view.presenter = presenter
+    }
+
+    @After
+    fun teardown() {
+        unmockKarteApp()
     }
 
     @Test

@@ -28,6 +28,7 @@ import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.slot
+import io.mockk.unmockkObject
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
@@ -58,6 +59,7 @@ class TrackerTest {
     @After
     fun tearDown() {
         KarteApp.self.teardown()
+        unmockkObject(Client, Connectivity)
     }
 
     private fun captureRequest(): CapturingSlot<Request<String>> {

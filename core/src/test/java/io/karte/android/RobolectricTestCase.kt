@@ -22,6 +22,8 @@ import io.karte.android.shadow.CustomShadowWebView
 import io.karte.android.utilities.connectivity.Connectivity
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.unmockkObject
+import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -60,5 +62,10 @@ abstract class RobolectricTestCase {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "google")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "Nexus")
         ReflectionHelpers.setStaticField(Build::class.java, "PRODUCT", "KARTE for APP")
+    }
+
+    @After
+    fun after() {
+        unmockkObject(Connectivity)
     }
 }

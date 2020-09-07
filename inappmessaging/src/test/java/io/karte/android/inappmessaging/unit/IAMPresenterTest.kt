@@ -45,6 +45,7 @@ class IAMPresenterTest {
 
     @MockK
     private lateinit var viewMock: Window
+
     @MockK
     private lateinit var webView: MessageModel.MessageView
 
@@ -81,8 +82,8 @@ class IAMPresenterTest {
 
         presenter.addMessage(createMessagePopup("campaign1"))
         presenter.addMessage(createMessagePopup("campaign2"))
-        Assert.assertEquals(createMessagePopup("campaign1").string, presenter.dequeue())
-        Assert.assertEquals(createMessagePopup("campaign2").string, presenter.dequeue())
+        Assert.assertEquals(createMessagePopup("campaign1").string, presenter.dequeue()?.string)
+        Assert.assertEquals(createMessagePopup("campaign2").string, presenter.dequeue()?.string)
         Assert.assertEquals(null, presenter.dequeue())
 
         Assert.assertNull(presenter.dequeue())

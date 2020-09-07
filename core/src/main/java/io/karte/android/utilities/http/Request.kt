@@ -26,17 +26,22 @@ import java.util.UUID
 
 /** HTTP header field `Content-Type`. */
 const val HEADER_CONTENT_TYPE = "Content-Type"
+
 /** HTTP header field `Content-Encoding`. */
 const val HEADER_CONTENT_ENCODING = "Content-Encoding"
+
 /** HTTP header field `X-KARTE-App-Key`. */
 const val HEADER_APP_KEY = "X-KARTE-App-Key"
 
 /** [HEADER_CONTENT_ENCODING] value `gzip`. */
 const val CONTENT_ENCODING_GZIP = "gzip"
+
 /** [HEADER_CONTENT_TYPE] value `text/plain`. */
 const val CONTENT_TYPE_TEXT = "text/plain; charset=utf-8"
+
 /** [HEADER_CONTENT_TYPE] value `application/octet-stream`. */
 const val CONTENT_TYPE_OCTET_STREAM = "application/octet-stream"
+
 /** [HEADER_CONTENT_TYPE] value `application/json`. */
 const val CONTENT_TYPE_JSON = "application/json"
 private const val CRLF = "\r\n"
@@ -57,6 +62,7 @@ abstract class Request<T> internal constructor(
     val headers: MutableMap<String, String> = mutableMapOf()
 ) {
     abstract var body: T?
+    internal var timeout: Int = 10000
     internal val hasBody: Boolean
         get() = body != null
 

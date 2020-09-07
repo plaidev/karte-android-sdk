@@ -42,9 +42,9 @@ internal class IAMPresenter(
         window.presenter = this
     }
 
-    override fun dequeue(): String? {
+    override fun dequeue(): MessageModel? {
         synchronized(messages) {
-            return messages.pollLast()?.string
+            return messages.pollLast()
         }
     }
 
