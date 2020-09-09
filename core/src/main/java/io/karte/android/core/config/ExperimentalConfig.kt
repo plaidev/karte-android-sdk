@@ -15,11 +15,13 @@
 //
 package io.karte.android.core.config
 
+import io.karte.android.core.config.Config as Config
+
 /**
  * SDKの設定を保持するクラスです。
  *
- * - Kotlinでは[Config.build]関数でインスタンスを生成します。
- * - Javaでは[Config.Builder.build]関数でインスタンスを生成します。
+ * - Kotlinでは[ExperimentalConfig.build]関数でインスタンスを生成します。
+ * - Javaでは[ExperimentalConfig.Builder.build]関数でインスタンスを生成します。
  *
  * @property[baseUrl] ベースURLの取得・設定を行います。
  *
@@ -45,54 +47,35 @@ package io.karte.android.core.config
  * @property[enabledTrackingAaid] AAID取得の利用有無の取得・設定を行います。
  *
  * `true` の場合はAAID取得が有効となり、`false` の場合は無効となります。デフォルトは `false` です。
+ *
+ * @property[operationMode] 動作モードの取得・設定を行います。
+ * デフォルトは [OperationMode.DEFAULT] です。
+ *
+ * **実験的なオプションであるため、通常のSDK利用においてこちらのプロパティを変更する必要はありません。**
  */
-open class Config protected constructor(
-    val baseUrl: String,
-    internal val logCollectionUrl: String,
-    val isDryRun: Boolean,
-    val isOptOut: Boolean,
-    val enabledTrackingAaid: Boolean
-) {
+class ExperimentalConfig private constructor(
+    val operationMode: OperationMode,
+    baseUrl: String,
+    logCollectionUrl: String,
+    isDryRun: Boolean,
+    isOptOut: Boolean,
+    enabledTrackingAaid: Boolean
+) : Config(baseUrl, logCollectionUrl, isDryRun, isOptOut, enabledTrackingAaid) {
+
     /**
-     * [Config]クラスの生成を行うためのクラスです。
+     * [ExperimentalConfig]クラスの生成を行うためのクラスです。
      */
-    open class Builder {
-        /**[Config.baseUrl]を変更します。*/
-        var baseUrl: String = "https://api.karte.io/v0/native" @JvmSynthetic set
+    class Builder : Config.Builder() {
+        /**[ExperimentalConfig.operationMode]を変更します。*/
+        var operationMode: OperationMode = OperationMode.DEFAULT @JvmSynthetic set
 
-        /**[Config.logCollectionUrl]を変更します。*/
-        internal var logCollectionUrl: String =
-            "https://us-central1-production-debug-log-collector.cloudfunctions.net/nativeAppLogUrl"
-            @JvmSynthetic set
+        /**[ExperimentalConfig.operationMode]を変更します。*/
+        fun operationMode(operationMode: OperationMode): Builder =
+            apply { this.operationMode = operationMode }
 
-        /**[Config.isDryRun]を変更します。*/
-        var isDryRun: Boolean = false @JvmSynthetic set
-
-        /**[Config.isOptOut]を変更します。*/
-        var isOptOut: Boolean = false @JvmSynthetic set
-
-        /**[Config.enabledTrackingAaid]を変更します。*/
-        var enabledTrackingAaid: Boolean = false @JvmSynthetic set
-
-        /**[Config.baseUrl]を変更します。*/
-        fun baseUrl(baseUrl: String): Builder = apply { this.baseUrl = baseUrl }
-
-        /**[Config.logCollectionUrl]を変更します。*/
-        internal fun logCollectionUrl(logCollectionUrl: String): Builder =
-            apply { this.logCollectionUrl = logCollectionUrl }
-
-        /**[Config.isDryRun]を変更します。*/
-        fun isDryRun(isDryRun: Boolean): Builder = apply { this.isDryRun = isDryRun }
-
-        /**[Config.isOptOut]を変更します。*/
-        fun isOptOut(isOptOut: Boolean): Builder = apply { this.isOptOut = isOptOut }
-
-        /**[Config.enabledTrackingAaid]を変更します。*/
-        fun enabledTrackingAaid(enabledTrackingAaid: Boolean): Builder =
-            apply { this.enabledTrackingAaid = enabledTrackingAaid }
-
-        /**[Config]クラスのインスタンスを生成します。*/
-        open fun build(): Config = Config(
+        /**[ExperimentalConfig]クラスのインスタンスを生成します。*/
+        override fun build(): ExperimentalConfig = ExperimentalConfig(
+            operationMode,
             baseUrl,
             logCollectionUrl,
             isDryRun,
@@ -103,10 +86,10 @@ open class Config protected constructor(
 
     companion object {
         /**
-         * [Config]クラスのインスタンスを生成します。
-         * @param[f] Configクラスの値を変更するスコープ関数です。
+         * [ExperimentalConfig]クラスのインスタンスを生成します。
+         * @param[f] ExperimentalConfigクラスの値を変更するスコープ関数です。
          */
-        fun build(f: (Builder.() -> Unit)? = null): Config {
+        fun build(f: (Builder.() -> Unit)? = null): ExperimentalConfig {
             val builder = Builder()
             f?.let { builder.it() }
             return builder.build()

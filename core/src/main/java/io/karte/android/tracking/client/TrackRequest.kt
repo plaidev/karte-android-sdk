@@ -16,6 +16,8 @@
 package io.karte.android.tracking.client
 
 import io.karte.android.KarteApp
+import io.karte.android.core.config.ExperimentalConfig
+import io.karte.android.core.config.OperationMode
 import io.karte.android.tracking.Event
 import io.karte.android.tracking.EventName
 import io.karte.android.utilities.http.HEADER_APP_KEY
@@ -30,8 +32,11 @@ internal fun requestOf(
     pvId: String,
     events: List<Event>
 ): TrackRequest {
+    val trackEndpointPath =
+        (KarteApp.self.config as? ExperimentalConfig)?.operationMode?.trackEndpointPath
+            ?: OperationMode.DEFAULT.trackEndpointPath
     return TrackRequest(
-        "${KarteApp.self.config.baseUrl}/track",
+        "${KarteApp.self.config.baseUrl}/$trackEndpointPath",
         visitorId,
         originalPvId,
         pvId,

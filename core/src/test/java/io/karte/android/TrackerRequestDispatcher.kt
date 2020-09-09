@@ -28,7 +28,7 @@ open class TrackerRequestDispatcher : Dispatcher() {
         recordedRequests.add(request)
 
         request.path?.let {
-            if (it.contains("/track")) {
+            if (it.contains("/track") || it.contains("/ingest")) {
                 return onTrackRequest(request)
             } else if (it.contains("/overlay")) {
                 return MockResponse().setBody("<html></html>")
@@ -54,6 +54,10 @@ open class TrackerRequestDispatcher : Dispatcher() {
 
     fun trackedRequests(): List<RecordedRequest> {
         return recordedRequests.filter { it.path?.contains("/track") == true }
+    }
+
+    fun ingestRequests(): List<RecordedRequest> {
+        return recordedRequests.filter { it.path?.contains("/ingest") == true }
     }
 
     fun trackedEvents(): List<JSONObject> {
