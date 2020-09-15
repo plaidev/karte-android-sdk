@@ -152,7 +152,7 @@ public final class Tracker {
      *
      * @param values Identifyイベントに紐付けるカスタムオブジェクト
      */
-    public static void identify(@NonNull Map<String, Object> values) {
+    public static void identify(@NonNull Map<String, ?> values) {
         TrackingService.identify(values, null);
     }
 
@@ -162,7 +162,7 @@ public final class Tracker {
      * @param values     Identifyイベントに紐付けるカスタムオブジェクト
      * @param completion 処理の完了を受け取るInterface
      */
-    public static void identify(@NonNull Map<String, Object> values, @Nullable TrackCompletion completion) {
+    public static void identify(@NonNull Map<String, ?> values, @Nullable TrackCompletion completion) {
         TrackingService.identify(values, completion);
     }
 

@@ -12,8 +12,10 @@ import io.karte.android.core.logger.THREAD_NAME
 import io.karte.android.pipeLog
 import io.karte.android.proceedBufferedCall
 import io.karte.android.unpipeLog
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.spyk
 import io.mockk.unmockkObject
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -39,25 +41,36 @@ val testFiles = listOf(
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [28])
-class FileAppenderTest {
-    lateinit var server: MockWebServer
-    private val fileAppender = FileAppender()
-    val appKey = "sampleappkey"
-    private val targetDate = Calendar.getInstance().apply { set(2020, 3, 10) }.time
-    private val logDir: File
-        get() = File(KarteApp.self.application.cacheDir, "io.karte.android/log")
-    private val cacheFiles: List<File>
+abstract class BaseFileAppenderTest {
+    internal val fileAppender = FileAppender()
+    protected val logDir: File
+        get() = File(application().cacheDir, "io.karte.android/log")
+    protected val cacheFiles: List<File>
         get() = logDir.listFiles()?.filter { it.isFile } ?: listOf()
 
-    private fun proceedBufferedCall() {
+    @Before
+    fun before() {
+        pipeLog()
+    }
+
+    @After
+    fun after() {
+        unpipeLog()
+    }
+
+    protected fun proceedBufferedCall() {
         Thread.getAllStackTraces().keys.filter { it.name == THREAD_NAME }
             .forEach { proceedBufferedCall(it) }
     }
+}
+
+class FileAppenderTest : BaseFileAppenderTest() {
+    lateinit var server: MockWebServer
+    val appKey = "sampleappkey"
+    private val targetDate = Calendar.getInstance().apply { set(2020, 3, 10) }.time
 
     @Before
     fun setup() {
-        pipeLog()
-
         server = MockWebServer()
         server.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
@@ -81,7 +94,6 @@ class FileAppenderTest {
     @After
     fun tearDown() {
         KarteApp.self.teardown()
-        unpipeLog()
         unmockkObject(Clock)
     }
 
@@ -118,5 +130,29 @@ class FileAppenderTest {
         assertThat(File(logDir, "2020-04-06_test.log").exists()).isFalse()
 
         testFiles.forEach { File(logDir, it).run { if (exists()) delete() } }
+    }
+}
+
+class FileAppenderWithoutAppTest : BaseFileAppenderTest() {
+    private lateinit var mock: KarteApp
+
+    @Before
+    fun setup() {
+        mock = spyk(KarteApp.self)
+        every { mock.application } throws UninitializedPropertyAccessException()
+    }
+
+    @After
+    fun tearDown() {
+        clearMocks(mock)
+    }
+
+    @Test
+    fun KarteApp_setup前はファイル書き込みをしない() {
+        assertThat(cacheFiles).isEmpty()
+        fileAppender.append(LogEvent(LogLevel.DEBUG, "Test", "test event", null))
+        fileAppender.flush()
+        proceedBufferedCall()
+        assertThat(cacheFiles).isEmpty()
     }
 }
