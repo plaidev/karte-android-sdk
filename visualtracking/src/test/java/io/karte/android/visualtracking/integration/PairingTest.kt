@@ -49,9 +49,8 @@ class PairingTest : RobolectricTestCase() {
     fun setup() {
         dispatcher = TrackerRequestDispatcher()
         server = MockWebServer()
-        server.setDispatcher(dispatcher)
+        server.dispatcher = dispatcher
         server.start()
-
 
         setupKarteApp(server, "appkey")
 
@@ -76,7 +75,8 @@ class PairingTest : RobolectricTestCase() {
     fun AutoTrackPairingActivityの起動時にペアリング開始リクエストが送信される() {
         Robolectric.buildActivity(PairingActivity::class.java, pairingActivityIntent).create()
 
-        val req = dispatcher.autoTrackRequests().find { it.path.contains("/pairing-start") }!!
+        val req =
+            dispatcher.autoTrackRequests().find { it.path?.contains("/pairing-start") == true }!!
         assertThat(req.getHeader("X-KARTE-Auto-Track-Account-Id")).isEqualTo("sampleAccountId")
         assertThat(req.getHeader("X-KARTE-App-Key")).isEqualTo("appkey")
 
@@ -91,12 +91,12 @@ class PairingTest : RobolectricTestCase() {
         Robolectric.buildActivity(PairingActivity::class.java, pairingActivityIntent).create()
         VTHook.hookAction("onClick", arrayOf())
 
-        val req = dispatcher.autoTrackRequests().find { it.path.contains("/trace") }
+        val req = dispatcher.autoTrackRequests().find { it.path?.contains("/trace") == true }
         val body = req?.body?.readUtf8()
         assertThat(req?.getHeader("X-KARTE-Auto-Track-Account-Id")).isEqualTo("sampleAccountId")
         assertThat(req?.getHeader("X-KARTE-App-Key")).isEqualTo("appkey")
 
-        //Parse multi request is difficult so assert partially.
+        // Parse multi request is difficult so assert partially.
         assertThat(body).contains("\"os\":\"android\"")
     }
 }

@@ -16,6 +16,7 @@
 package io.karte.android.visualtracking.internal
 
 import io.karte.android.core.logger.Logger
+import io.karte.android.utilities.forEach
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -55,12 +56,9 @@ internal class DefinitionList private constructor(
                 val event = JSONObject()
                     .put("event_name", eventName)
                     .put("values", JSONObject().put("_system", JSONObject().put("auto_track", 1)))
-                val fields = trigger.fields
 
-                val it = fields.keys()
-                while (it.hasNext()) {
-                    val key = it.next()
-                    event.getJSONObject("values").put(key, fields.get(key))
+                trigger.fields?.forEach { key, value ->
+                    event.getJSONObject("values").put(key, value)
                 }
                 return event
             }
@@ -100,7 +98,7 @@ internal class DefinitionList private constructor(
     }
 
     internal class Trigger @Throws(JSONException::class)
-    constructor(internal val fields: JSONObject, condition: JSONObject) {
+    constructor(internal val fields: JSONObject?, condition: JSONObject) {
         private val condition: JSONArray = condition.getJSONArray("\$and")
         private val filters = ArrayList<Filter>()
 

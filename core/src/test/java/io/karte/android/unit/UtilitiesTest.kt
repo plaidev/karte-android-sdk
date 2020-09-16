@@ -26,7 +26,7 @@ import org.robolectric.annotation.Config
 @Suppress("NonAsciiCharacters")
 @RunWith(RobolectricTestRunner::class)
 @Config(packageName = "io.karte.android.core", sdk = [24], shadows = [CustomShadowWebView::class])
-class UtilsTest {
+class UtilitiesTest {
 
     @Test
     fun countainsMultibyte() {

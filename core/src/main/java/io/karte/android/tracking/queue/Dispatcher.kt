@@ -17,6 +17,7 @@ package io.karte.android.tracking.queue
 
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Process
 import io.karte.android.KarteApp
 import io.karte.android.core.library.ActionModule
 import io.karte.android.core.library.TrackModule
@@ -45,7 +46,8 @@ private data class GroupingKey(
 internal const val THREAD_NAME = "io.karte.android.Tracker"
 
 internal class Dispatcher {
-    private val thread = HandlerThread(THREAD_NAME, Thread.MIN_PRIORITY).apply { start() }
+    private val thread =
+        HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_LOWEST).apply { start() }
     private val handler: Handler = Handler(thread.looper)
     private val completions = mutableMapOf<Long, TrackCompletion>()
     private var isSuspend: Boolean = false

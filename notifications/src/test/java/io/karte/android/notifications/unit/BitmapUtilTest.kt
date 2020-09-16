@@ -27,10 +27,10 @@ class BitmapUtilTest {
     @Test
     fun bigPictureShoudFitToScreenSize() {
         val url: URL = this.javaClass.classLoader!!.getResource("1kx1k.png")
-        var bitmap = BitmapUtil.getBigPicture(url.toString())
-        //1000x1000pxの画像を470x320に縦横共収まるように調整する。
-        //320より小さくなるまで1/2を掛けるので1000 * (1/2) ^ 2 = 250となって、縦横共250pxになる。
-        Assert.assertEquals(250, bitmap!!.height)
-        Assert.assertEquals(250, bitmap!!.width)
+        val bitmap = BitmapUtil.getBigPicture(url.toString())
+        // 1000x1000pxの画像を470x320に縦横共収まるように調整する。
+        // 320より小さくなるまで1/2を掛けるので1000 * (1/2) ^ 2 = 250となって、縦横共250pxになる。
+        Assert.assertEquals(250, bitmap?.height)
+        Assert.assertEquals(250, bitmap?.width)
     }
 }

@@ -27,8 +27,10 @@ import java.net.URL
 
 private const val LOG_TAG = "Karte.HttpClient"
 
+/** サーバにHTTPリクエストを送信するオブジェクト。 */
 object Client {
 
+    /** [Request]インスタンスの送信を実行します。 */
     @Throws(IOException::class)
     fun execute(request: Request<*>): Response {
         val url: URL
@@ -37,8 +39,8 @@ object Client {
             url = URL(request.url)
             conn = url.openConnection() as HttpURLConnection
             try {
-                conn.readTimeout = 10000
-                conn.connectTimeout = 10000
+                conn.readTimeout = request.timeout
+                conn.connectTimeout = request.timeout
 
                 for ((key, value) in request.headers) {
                     conn.setRequestProperty(key, value)
@@ -49,7 +51,7 @@ object Client {
                 if (request.hasBody) {
                     conn.doOutput = true
                     var written = false
-                    if (request is JSONRequest){
+                    if (request is JSONRequest) {
                         val tmpStream = ByteArrayOutputStream()
                         request.writeBody(tmpStream)
                         gzip(tmpStream.toString("UTF-8"))?.let {

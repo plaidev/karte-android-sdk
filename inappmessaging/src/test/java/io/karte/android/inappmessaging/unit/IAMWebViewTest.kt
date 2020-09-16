@@ -30,6 +30,7 @@ import io.karte.android.inappmessaging.internal.javascript.State
 import io.karte.android.shadow.CustomShadowWebView
 import io.karte.android.shadow.customShadowOf
 import io.karte.android.tracking.Tracker
+import io.karte.android.tracking.client.TrackRequest
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
 import io.mockk.clearMocks
@@ -67,21 +68,24 @@ class IAMWebViewTest {
         )
     }
 
-    val dummy_url = "https://dummy_url/test"
-    val overlay_url = "https://api.karte.io/v0/native/overlay"
-    val empty_data = "<html></html>"
+    private val dummyUrl = "https://dummy_url/test"
+    private val overlayUrl = "https://api.karte.io/v0/native/overlay"
+    private val emptyData = "<html></html>"
+    private val dummyMessage = MessageModel(JSONObject(), TrackRequest("", "", "", "", listOf()))
 
     private lateinit var webView: IAMWebView
     private lateinit var shadowWebView: ShadowWebView
+
     @MockK
     private lateinit var adapter: MessageModel.MessageAdapter
+
     @MockK
     private lateinit var parent: ParentView
 
     @Before
     fun init() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        createKarteAppMock()
+        mockKarteApp()
         webView = IAMWebView(application()) { true }
         webView.adapter = adapter
         webView.parentView = parent
@@ -91,6 +95,7 @@ class IAMWebViewTest {
     @After
     fun tearDown() {
         customShadowOf(webView).resetLoadedUrls()
+        unmockKarteApp()
     }
 
     @Test
@@ -119,19 +124,19 @@ class IAMWebViewTest {
         verify(exactly = 1) { adapter.dequeue() }
         clearMocks(adapter)
 
-        every { adapter.dequeue() } returnsMany listOf("test", "test", null)
+        every { adapter.dequeue() } returnsMany listOf(dummyMessage, dummyMessage, null)
         webView.notifyChanged()
         verify(exactly = 3) { adapter.dequeue() }
         val loadedUrls = customShadowOf(webView).loadedUrls
         assertThat(loadedUrls.size).isEqualTo(2)
         for (uri in loadedUrls) {
-            assertThat(uri).isEqualTo("javascript:window.tracker.handleResponseData('test');")
+            assertThat(uri).isEqualTo("javascript:window.tracker.handleResponseData('e30=');")
         }
     }
 
     @Test
     fun StateChange_initializedでadapterからデータ取得されること() {
-        every { adapter.dequeue() } returnsMany listOf("test", "test", null)
+        every { adapter.dequeue() } returnsMany listOf(dummyMessage, dummyMessage, null)
 
         // readyでなければdequeueしない。
         webView.notifyChanged()
@@ -143,7 +148,7 @@ class IAMWebViewTest {
         val loadedUrls = customShadowOf(webView).loadedUrls
         assertThat(loadedUrls.size).isEqualTo(2)
         for (uri in loadedUrls) {
-            assertThat(uri).isEqualTo("javascript:window.tracker.handleResponseData('test');")
+            assertThat(uri).isEqualTo("javascript:window.tracker.handleResponseData('e30=');")
         }
     }
 
@@ -176,7 +181,9 @@ class IAMWebViewTest {
             JSONObject().put("url", "http://sampleurl?hoge=fuga&hogehoge=fugafuga").toString()
         )
 
-        verify(exactly = 1) { parent.openUrl(Uri.parse("http://sampleurl?hoge=fuga&hogehoge=fugafuga")) }
+        verify(exactly = 1) {
+            parent.openUrl(Uri.parse("http://sampleurl?hoge=fuga&hogehoge=fugafuga"))
+        }
     }
 
     @Test
@@ -213,11 +220,11 @@ class IAMWebViewTest {
     fun backボタンの処理を行うこと() {
         val backKey = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK)
 
-        webView.loadUrl(dummy_url)
+        webView.loadUrl(dummyUrl)
         assertThat(webView.canGoBack()).isFalse()
         assertThat(webView.dispatchKeyEvent(backKey)).isFalse()
 
-        webView.loadUrl(dummy_url)
+        webView.loadUrl(dummyUrl)
         assertThat(webView.canGoBack()).isTrue()
         assertThat(webView.dispatchKeyEvent(backKey)).isTrue()
         assertThat(webView.canGoBack()).isFalse()
@@ -229,20 +236,20 @@ class IAMWebViewTest {
         val handler = mockk<SslErrorHandler>(relaxUnitFun = true)
 
         // urlが異なる時はempty_dataをloadしない
-        every { error.url } returns dummy_url
+        every { error.url } returns dummyUrl
         shadowWebView.webViewClient.onReceivedSslError(webView, handler, error)
         assertThat(shadowWebView.lastLoadData).isNull()
         verify(inverse = true) { parent.errorOccurred() }
 
         // urlが同じ時はempty_dataをload
-        webView.loadUrl(dummy_url)
-        every { error.url } returns dummy_url
+        webView.loadUrl(dummyUrl)
+        every { error.url } returns dummyUrl
         shadowWebView.webViewClient.onReceivedSslError(webView, handler, error)
-        assertThat(shadowWebView.lastLoadData.data).isEqualTo(empty_data)
+        assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
         verify(inverse = true) { parent.errorOccurred() }
 
         // urlがoverlayの時は親に伝える
-        every { error.url } returns overlay_url
+        every { error.url } returns overlayUrl
         shadowWebView.webViewClient.onReceivedSslError(webView, handler, error)
         verify(exactly = 1) { parent.errorOccurred() }
     }
@@ -252,20 +259,20 @@ class IAMWebViewTest {
         val webResourceRequest = mockk<WebResourceRequest>()
 
         // urlが異なる時はempty_dataをloadしない
-        every { webResourceRequest.url } returns Uri.parse(dummy_url)
+        every { webResourceRequest.url } returns Uri.parse(dummyUrl)
         shadowWebView.webViewClient.onReceivedHttpError(webView, webResourceRequest, null)
         assertThat(shadowWebView.lastLoadData).isNull()
         verify(inverse = true) { parent.errorOccurred() }
 
         // urlが同じ時はempty_dataをload
-        webView.loadUrl(dummy_url)
-        every { webResourceRequest.url } returns Uri.parse(dummy_url)
+        webView.loadUrl(dummyUrl)
+        every { webResourceRequest.url } returns Uri.parse(dummyUrl)
         shadowWebView.webViewClient.onReceivedHttpError(webView, webResourceRequest, null)
-        assertThat(shadowWebView.lastLoadData.data).isEqualTo(empty_data)
+        assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
         verify(inverse = true) { parent.errorOccurred() }
 
         // urlがoverlayの時は親に伝える
-        every { webResourceRequest.url } returns Uri.parse(overlay_url)
+        every { webResourceRequest.url } returns Uri.parse(overlayUrl)
         shadowWebView.webViewClient.onReceivedHttpError(webView, webResourceRequest, null)
         verify(exactly = 1) { parent.errorOccurred() }
     }
@@ -276,41 +283,42 @@ class IAMWebViewTest {
         val request = mockk<WebResourceRequest>(relaxed = true)
         val error = mockk<WebResourceError>()
         every { error.description } returns description
-        every { request.url } returns Uri.parse(dummy_url)
+        every { request.url } returns Uri.parse(dummyUrl)
         // urlが異なる時はempty_dataをloadしない
         shadowWebView.webViewClient.onReceivedError(webView, request, error)
         assertThat(shadowWebView.lastLoadData).isNull()
         verify(inverse = true) { parent.errorOccurred() }
 
         // urlが同じ時はempty_dataをload
-        webView.loadUrl(dummy_url)
+        webView.loadUrl(dummyUrl)
         shadowWebView.webViewClient.onReceivedError(webView, request, error)
-        assertThat(shadowWebView.lastLoadData.data).isEqualTo(empty_data)
+        assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
         verify(inverse = true) { parent.errorOccurred() }
 
         // urlがoverlayの時は親に伝える
-        every { request.url } returns Uri.parse(overlay_url)
+        every { request.url } returns Uri.parse(overlayUrl)
         shadowWebView.webViewClient.onReceivedError(webView, request, error)
         verify(exactly = 1) { parent.errorOccurred() }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun 古いonReceivedErrorでoverlayのロードに失敗するとparentがhandleする() {
         val errorCode = 0
         val description = "dummy description"
         // urlが異なる時はempty_dataをloadしない
-        shadowWebView.webViewClient.onReceivedError(webView, errorCode, description, dummy_url)
+        shadowWebView.webViewClient.onReceivedError(webView, errorCode, description, dummyUrl)
         assertThat(shadowWebView.lastLoadData).isNull()
         verify(inverse = true) { parent.errorOccurred() }
 
         // urlが同じ時はempty_dataをload
-        webView.loadUrl(dummy_url)
-        shadowWebView.webViewClient.onReceivedError(webView, errorCode, description, dummy_url)
-        assertThat(shadowWebView.lastLoadData.data).isEqualTo(empty_data)
+        webView.loadUrl(dummyUrl)
+        shadowWebView.webViewClient.onReceivedError(webView, errorCode, description, dummyUrl)
+        assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
         verify(inverse = true) { parent.errorOccurred() }
 
         // urlがoverlayの時は親に伝える
-        shadowWebView.webViewClient.onReceivedError(webView, errorCode, description, overlay_url)
+        shadowWebView.webViewClient.onReceivedError(webView, errorCode, description, overlayUrl)
         verify(exactly = 1) { parent.errorOccurred() }
     }
 

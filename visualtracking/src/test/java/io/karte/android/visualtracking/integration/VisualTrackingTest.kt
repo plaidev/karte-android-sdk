@@ -91,7 +91,7 @@ class VisualTrackingTest : RobolectricTestCase() {
             }
         }
         server = MockWebServer()
-        server.setDispatcher(dispatcher)
+        server.dispatcher = dispatcher
         server.start()
 
         setupKarteApp(server, "appkey", Config.Builder().enabledTrackingAaid(false))
@@ -133,10 +133,9 @@ class VisualTrackingTest : RobolectricTestCase() {
 
         assertThat(dispatcher.trackedEvents()).comparingElementsUsing(eventNameTransform)
             .contains("event1")
-        val values =
-            dispatcher.trackedEvents().find { it.getString("event_name") == "event1" }?.getJSONObject(
-                "values"
-            )!!
+        val values = dispatcher.trackedEvents()
+            .find { it.getString("event_name") == "event1" }
+            ?.getJSONObject("values")!!
         assertThatJson(values).isObject.containsAllEntriesOf(
             mapOf(
                 "field1" to "value1",

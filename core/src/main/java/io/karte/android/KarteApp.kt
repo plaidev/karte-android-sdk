@@ -60,7 +60,9 @@ private const val LOG_TAG = "KarteApp"
  * 設定を変更して初期化を行う場合は、[Config]を指定して[KarteApp.setup]を呼び出してください。
  */
 class KarteApp private constructor() : ActivityLifecycleCallback() {
+    /** [KarteApp.setup] 呼び出し時に指定した[Application]インスタンスを返します。 */
     lateinit var application: Application private set
+
     /**
      * [KarteApp.setup] 呼び出し時に指定したアプリケーションキーを返します。
      *
@@ -68,6 +70,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
      */
     var appKey: String = ""
         private set
+
     /**
      * [KarteApp.setup] 呼び出し時に指定した設定情報を返します。
      *
@@ -75,6 +78,8 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
      */
     var config: Config = Config.build()
         private set
+
+    /** アプリケーション情報を返します。 */
     var appInfo: AppInfo? = null
         private set
     internal var connectivityObserver: ConnectivityObserver? = null
@@ -87,10 +92,18 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
     private val isUnsupportedOsVersion: Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
     internal val isInitialized get() = this.appKey.isNotEmpty()
+
+    /** 現在のオリジナルページビューIDを返します。 */
     val originalPvId = generateOriginalPvId()
     internal val pvIdContainer: PvId = PvId(originalPvId)
+
+    /** 現在のページビューIDを返します。*/
     val pvId get() = pvIdContainer.value
 
+    /**
+     * モジュールを登録します。
+     * @param[module] [Module]を実装したインスタンス
+     */
     fun register(module: Module) {
         Logger.i(LOG_TAG, "Register module: ${module.javaClass.name}(${module.name})")
         if (self.modules.none { it == module }) {
@@ -98,11 +111,19 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         }
     }
 
+    /**
+     * モジュールの登録を解除します。
+     * @param[module] [Module]を実装したインスタンス
+     */
     fun unregister(module: Module) {
         Logger.i(LOG_TAG, "Unregister module: ${module.name}")
         self.modules.removeAll { it == module }
     }
 
+    /**
+     * 永続化等に使用する [Repository] インスタンスを返します。
+     * @param[namespace] 永続化の領域分割をするNamespaceを指定します。
+     */
     fun repository(namespace: String = ""): Repository {
         return PreferenceRepository(application, appKey, namespace)
     }
@@ -125,10 +146,20 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         optOutConfig = null
     }
 
+    /**
+     * 一時的（アプリの次回起動時まで）にオプトアウトします。
+     *
+     * なお初期化が行われていない状態で呼び出した場合はオプトアウトは行われません。
+     */
     fun optOutTemporarily() {
         OptOutConfig.optOutTemporarily()
     }
 
+    /**
+     * コマンドスキームを処理し、結果を返します。
+     *
+     * **SDK内部で利用するクラスであり、通常のSDK利用でこちらのクラスを利用することはありません。**
+     */
     fun executeCommand(uri: Uri): List<Any?> {
         return CommandExecutor.execute(uri)
     }
@@ -176,12 +207,14 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         Logger.v(LOG_TAG, "onActivityStopped $activity")
         if (--activityCount == 0) {
             self.tracker?.track(Event(AutoEventName.NativeAppBackground, values = null))
+            Logger.flush()
         }
     }
     //endregion
 
     companion object {
         internal val self = KarteApp()
+
         /**
          * SDKの初期化を行います。
          *
@@ -236,7 +269,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             self.application.registerActivityLifecycleCallbacks(self)
             self.connectivityObserver = ConnectivityObserver(self.application)
 
-            Logger.i(LOG_TAG, "KARTE SDK initialize. appKey=$appKey")
+            Logger.i(LOG_TAG, "KARTE SDK initialize. appKey=$appKey, config=$config")
             self.appKey = appKey
             config?.let { self.config = it.copy() }
             val repository = self.repository()
@@ -246,12 +279,14 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             self.tracker = TrackingService()
 
             Logger.v(LOG_TAG, "load libraries")
-            val libraries = ServiceLoader.load(Library::class.java, javaClass.classLoader)
-            Logger.v(LOG_TAG, "loaded libraries: ${libraries.count()}. start configure.")
-            libraries.forEach { library ->
-                register(library)
-                library.configure(self)
-            }
+            val libraries =
+                ServiceLoader.load(Library::class.java, KarteApp::class.java.classLoader)
+            libraries.forEach { register(it) }
+            Logger.v(
+                LOG_TAG, "auto loaded libraries: ${libraries.count()}, " +
+                    "all libraries: ${self.libraries.count()}. start configure."
+            )
+            self.libraries.forEach { it.configure(self) }
             self.appInfo?.updateModuleInfo()
         }
 
@@ -267,6 +302,12 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             Logger.level = level
         }
 
+        /**
+         * ライブラリを登録します。
+         *
+         * なお登録処理は `KarteApp.setup(appKey:)` を呼び出す前に行う必要があります。
+         * @param[library] [Library] を実装したインスタンス
+         */
         @JvmStatic
         fun register(library: Library) {
             Logger.i(
@@ -278,6 +319,10 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             }
         }
 
+        /**
+         * ライブラリの登録を解除します。
+         * @param[library] [Library] を実装したインスタンス
+         */
         @JvmStatic
         fun unregister(library: Library) {
             Logger.i(LOG_TAG, "Unregister library: ${library.name}")

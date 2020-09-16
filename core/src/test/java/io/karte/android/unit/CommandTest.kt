@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class CommandTest: RobolectricTestCase() {
+class CommandTest : RobolectricTestCase() {
     private val testApiKey = "aWgSxztqGSpKN0otg5w1ruUk8kTBF5vb"
 
     @Before
@@ -44,8 +44,14 @@ class CommandTest: RobolectricTestCase() {
     @Test
     fun testCommand() {
         testCommandHasValidIntent(Uri.parse("app-settings:"), "package:io.karte.android.core")
-        testCommandHasValidIntent(Uri.parse("krt-$testApiKey://open-settings?key=value"), "package:io.karte.android.core")
-        testCommandHasValidIntent(Uri.parse("krt-$testApiKey://open-store"), "market://details?id=io.karte.android.core")
+        testCommandHasValidIntent(
+            Uri.parse("krt-$testApiKey://open-settings?key=value"),
+            "package:io.karte.android.core"
+        )
+        testCommandHasValidIntent(
+            Uri.parse("krt-$testApiKey://open-store"),
+            "market://details?id=io.karte.android.core"
+        )
 
         testCommandReturnsNull(Uri.parse("invalid-scheme:"))
         testCommandReturnsNull(Uri.parse("app-settings-invalid:"))
@@ -53,13 +59,12 @@ class CommandTest: RobolectricTestCase() {
     }
 
     private fun testCommandHasValidIntent(uri: Uri, expected: String?) {
-        val intent = KarteApp?.self?.executeCommand(uri)?.filterIsInstance<Intent>()
-            ?.firstOrNull()
+        val intent = KarteApp.self.executeCommand(uri).filterIsInstance<Intent>().firstOrNull()
         Assert.assertEquals(expected, intent?.data.toString())
     }
 
     private fun testCommandReturnsNull(uri: Uri) {
-        val intent = KarteApp?.self?.executeCommand(uri)?.filterIsInstance<Intent>()?.firstOrNull()
+        val intent = KarteApp.self.executeCommand(uri).filterIsInstance<Intent>().firstOrNull()
         Assert.assertNull(intent)
     }
 }

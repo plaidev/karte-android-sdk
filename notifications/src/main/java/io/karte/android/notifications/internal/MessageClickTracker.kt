@@ -73,7 +73,8 @@ internal object MessageClickTracker : DeepLinkModule {
         if (campaignId == null || shortenId == null || eventValues.isEmpty()) return
         Logger.i(
             LOG_TAG,
-            "An Activity started by clicking karte notification. campaignId: $campaignId, shortenId: $shortenId"
+            "An Activity started by clicking karte notification." +
+                " campaignId: $campaignId, shortenId: $shortenId"
         )
         Tracker.track(MessageEvent(MessageEventType.Click, campaignId, shortenId, eventValues))
     }
@@ -82,7 +83,8 @@ internal object MessageClickTracker : DeepLinkModule {
         if (eventValues.isEmpty()) return
         Logger.i(
             LOG_TAG,
-            "An Activity started by clicking karte mass push notification. event values: $eventValues"
+            "An Activity started by clicking karte mass push notification." +
+                " event values: $eventValues"
         )
         Tracker.track(MassPushClickEvent(eventValues))
     }

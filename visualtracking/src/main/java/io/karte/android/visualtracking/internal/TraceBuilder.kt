@@ -63,10 +63,14 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
     private fun getView(actionName: String, args: Array<Any>): View? {
         // TODO: abstraction.
         when (actionName) {
-            "android.app.ListActivity#onListItemClick", "android.widget.AdapterView\$OnItemClickListener#onItemClick" -> return args[1] as View
-            "com.google.android.material.tabs.TabLayout\$OnTabSelectedListener#onTabSelected", "android.support.design.widget.TabLayout\$OnTabSelectedListener#onTabSelected" -> {
+            "android.app.ListActivity#onListItemClick",
+            "android.widget.AdapterView\$OnItemClickListener#onItemClick" ->
+                return args[1] as View
+            "com.google.android.material.tabs.TabLayout\$OnTabSelectedListener#onTabSelected",
+            "android.support.design.widget.TabLayout\$OnTabSelectedListener#onTabSelected" -> {
                 val tab = args[0] as TabLayout.Tab
-                return if (tab.getCustomView() != null) tab.getCustomView() else tab.view
+                @Suppress("INACCESSIBLE_TYPE")
+                return tab.customView ?: tab.view
             }
         }
 

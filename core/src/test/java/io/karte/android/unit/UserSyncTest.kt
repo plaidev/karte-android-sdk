@@ -25,6 +25,7 @@ import io.karte.android.core.usersync.UserSync
 import io.karte.android.shadow.customShadowOf
 import io.mockk.every
 import io.mockk.mockkConstructor
+import io.mockk.unmockkConstructor
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert
@@ -56,6 +57,7 @@ class UserSyncTest : RobolectricTestCase() {
     @After
     fun tearDown() {
         KarteApp.self.teardown()
+        unmockkConstructor(Date::class)
     }
 
     @Test

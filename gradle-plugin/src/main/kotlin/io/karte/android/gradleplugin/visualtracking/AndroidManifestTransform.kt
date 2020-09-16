@@ -1,6 +1,5 @@
 package io.karte.android.gradleplugin.visualtracking
 
-import com.sun.org.apache.xml.internal.serializer.OutputPropertiesFactory
 import io.karte.android.gradleplugin.logger
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -71,10 +70,15 @@ class AndroidManifestTransform(private val androidManifestPath: String) {
         val allSchemes = schemeDefinedInActivity + listOfNotNull(schemeDefinedAsMetaData)
 
         if (allSchemes.isEmpty()) {
-            logger.info("Not append PairingActivity to AndroidManifest $androidManifestPath because no scheme is defined.")
+            logger.info(
+                "Not append PairingActivity to AndroidManifest $androidManifestPath" +
+                    " because no scheme is defined."
+            )
             return
         }
-        logger.info("Append PairingActivity to AndroidManifest $androidManifestPath for schemes $allSchemes")
+        logger.info(
+            "Append PairingActivity to AndroidManifest $androidManifestPath for schemes $allSchemes"
+        )
 
         applicationElement.appendChild(buildPairingActivityElement(allSchemes))
     }
@@ -116,7 +120,7 @@ class AndroidManifestTransform(private val androidManifestPath: String) {
         val transformer = TransformerFactory.newInstance().newTransformer().apply {
             // Default settings. Generated Manifest can be see in build/intermediates/merged_manifests/<variant>/AndroidManifest.xml
             setOutputProperty(OutputKeys.INDENT, "yes")
-            setOutputProperty(OutputPropertiesFactory.S_KEY_INDENT_AMOUNT, "4")
+            setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4")
         }
         transformer.transform(
             DOMSource(document),

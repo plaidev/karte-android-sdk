@@ -6,8 +6,7 @@ executors:
   build:
     resource_class: medium
     docker:
-#      - image: circleci/android:api-29
-      - image: circleci/android@sha256:b6646fdf7457f61825526e7bfce364d8e533da6ceb1cdb98e371e94348ecc834
+      - image: circleci/android:api-29
     working_directory: /home/circleci/project
     environment:
       JAVA_OPTS: -Xmx6200m

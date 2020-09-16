@@ -29,7 +29,6 @@ import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.Values
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
-import io.karte.android.utilities.getLowerClassName
 import io.karte.android.utilities.toValues
 import io.karte.android.variables.BuildConfig
 import io.karte.android.variables.FetchCompletion
@@ -108,7 +107,7 @@ internal class VariablesService : Library, ActionModule, UserModule {
     }
 
     //region Libraary
-    override val name: String = getLowerClassName()
+    override val name: String = "variables"
     override val version: String = BuildConfig.VERSION_NAME
     override val isPublic: Boolean = true
 

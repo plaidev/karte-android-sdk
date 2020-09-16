@@ -26,6 +26,7 @@ import io.karte.android.tracking.Event
 import io.karte.android.tracking.EventName
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.Values
+import io.karte.android.utilities.filterNotNull
 
 private const val LOG_TAG = "Karte.FindMySelf"
 
@@ -51,7 +52,9 @@ internal class FindMyself : Library, DeepLinkModule {
         if (uri == null || uri.host != "karte.io" || uri.path != "/find_myself") return
         Logger.d(LOG_TAG, "handle $uri")
         val values =
-            uri.queryParameterNames.associateWith { uri.getQueryParameter(it) }.filterValues { it != null } as Map<String, String>
+            uri.queryParameterNames
+                .associateWith { uri.getQueryParameter(it) }
+                .filterNotNull()
         if (values.isEmpty()) return
         if (values.containsKey("sent")) {
             Logger.d(LOG_TAG, "Event already sent.")

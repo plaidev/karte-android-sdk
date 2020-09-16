@@ -55,7 +55,10 @@ private class DbHelper(context: Context) :
             "${it.key}  $type"
         }.joinToString(", ")
         Logger.d(LOG_TAG, "onCreate, $columns")
-        db.execSQL("CREATE TABLE ${contract.namespace} (${BaseColumns._ID} INTEGER PRIMARY KEY, $columns)")
+        db.execSQL(
+            "CREATE TABLE ${contract.namespace}" +
+                " (${BaseColumns._ID} INTEGER PRIMARY KEY, $columns)"
+        )
     }
 
     companion object {
@@ -139,6 +142,7 @@ internal class DataStore private constructor(context: Context) {
             query: List<Triple<String, RelationalOperator, String>>,
             order: String?
         ): List<T> {
+            @Suppress("UNCHECKED_CAST")
             val cached = instance.cache.filter { entry ->
                 query.all {
                     it.second.run(entry.value.values[it.first].toString(), it.third)

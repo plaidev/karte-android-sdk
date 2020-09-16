@@ -108,7 +108,10 @@ class ByteCodeTransform(private val project: Project) : Transform() {
             } else {
                 input.file.walkTopDown().toList()
             }
-            logger.debug("Processing ${input.name}:${input.file.canonicalPath}. Number of files ${files.size}. Output dir is ${outDir.canonicalPath}")
+            logger.debug(
+                "Processing ${input.name}:${input.file.canonicalPath}." +
+                    " Number of files ${files.size}. Output dir is ${outDir.canonicalPath}"
+            )
 
             val filePath2Exec =
                 files.fold(mutableMapOf()) { acc: MutableMap<String, ModificationExec>, cur: File ->
@@ -136,7 +139,10 @@ class ByteCodeTransform(private val project: Project) : Transform() {
                     outDir
                 ) { !filePath2Exec.containsKey(it.canonicalPath) }
             }
-            logger.debug("Processed ${input.name}:${input.file.canonicalPath}. Output dir is ${outDir.canonicalPath}")
+            logger.debug(
+                "Processed ${input.name}:${input.file.canonicalPath}." +
+                    " Output dir is ${outDir.canonicalPath}"
+            )
         }
     }
 
@@ -159,8 +165,8 @@ class ByteCodeTransform(private val project: Project) : Transform() {
 
             val zf = ZipFile(jarInput.file)
             val entries = zf.entries().toList()
-            val entryName2Exec =
-                entries.fold(mutableMapOf()) { acc: MutableMap<String, ModificationExec>, cur: ZipEntry ->
+            val entryName2Exec = entries
+                .fold(mutableMapOf()) { acc: MutableMap<String, ModificationExec>, cur: ZipEntry ->
                     acc[cur.name] = gatherModExec(classNameOrNull(cur.name)) ?: return@fold acc
                     return@fold acc
                 }
@@ -221,7 +227,10 @@ class ByteCodeTransform(private val project: Project) : Transform() {
                 val mod = modsCandidates.find {
                     val target = classPool.getOrNull(it.target.className)
                     if (target == null) {
-                        logger.debug("Skip modification ${it.name} because the class is not in classpath.")
+                        logger.debug(
+                            "Skip modification ${it.name}" +
+                                " because the class is not in classpath."
+                        )
                         return@find false
                     }
                     return@find ctClass.subtypeOf(target)
@@ -261,7 +270,8 @@ class ByteCodeTransform(private val project: Project) : Transform() {
                     method.insertBefore("$HOOK_ACTION_METHOD(\"${mod.name}\",\$args);")
                 } catch (e: CannotCompileException) {
                     throw CannotCompileException(
-                        "Failed to hook ${mod.name} for ${ctClass.name} ${method.name} ${method.signature} ",
+                        "Failed to hook ${mod.name} for" +
+                            " ${ctClass.name} ${method.name} ${method.signature} ",
                         e
                     )
                 }
