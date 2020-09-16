@@ -269,7 +269,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             self.application.registerActivityLifecycleCallbacks(self)
             self.connectivityObserver = ConnectivityObserver(self.application)
 
-            Logger.i(LOG_TAG, "KARTE SDK initialize. appKey=$appKey")
+            Logger.i(LOG_TAG, "KARTE SDK initialize. appKey=$appKey, config=$config")
             self.appKey = appKey
             config?.let { self.config = it.copy() }
             val repository = self.repository()
@@ -281,11 +281,12 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             Logger.v(LOG_TAG, "load libraries")
             val libraries =
                 ServiceLoader.load(Library::class.java, KarteApp::class.java.classLoader)
-            Logger.v(LOG_TAG, "loaded libraries: ${libraries.count()}. start configure.")
-            libraries.forEach { library ->
-                register(library)
-                library.configure(self)
-            }
+            libraries.forEach { register(it) }
+            Logger.v(
+                LOG_TAG, "auto loaded libraries: ${libraries.count()}, " +
+                    "all libraries: ${self.libraries.count()}. start configure."
+            )
+            self.libraries.forEach { it.configure(self) }
             self.appInfo?.updateModuleInfo()
         }
 

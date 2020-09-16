@@ -62,30 +62,36 @@ internal class FileAppender : Appender, Flushable {
         Handler(HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_LOWEST).apply { start() }.looper)
     private val buffer = StringBuilder()
 
-    private val logDir: File
-        get() = File(KarteApp.self.application.cacheDir, "io.karte.android/log").apply { mkdirs() }
+    private val logDir: File?
+        get() = runCatching {
+            File(KarteApp.self.application.cacheDir, "io.karte.android/log").apply { mkdirs() }
+        }.getOrNull()
 
     /**Bufferの書き込み先ファイル.*/
-    private val cacheFile: File
+    private val cacheFile: File?
         get() {
             val date = Clock.now()
             val prefix = date.asPrefix()
-            return logDir.files().filter { it.name.startsWith(prefix) }.maxBy { it.name }
-                ?: File(logDir, "${prefix}_${date.time}.log")
+            return logDir?.let { dir ->
+                dir.files().filter { it.name.startsWith(prefix) }.maxBy { it.name }
+                    ?: File(dir, "${prefix}_${date.time}.log")
+            }
         }
 
     /** upload対象ファイル. 当日分以外のファイル*/
-    private val collectingFiles: List<File>
-        get() = logDir.files().filterNot { it.name.startsWith(Clock.now().asPrefix()) }
+    private val collectingFiles: List<File>?
+        get() = logDir?.let { dir ->
+            dir.files().filterNot { it.name.startsWith(Clock.now().asPrefix()) }
+        }
 
     /** 3日より前のファイル */
-    private val garbageFiles: List<File>
+    private val garbageFiles: List<File>?
         get() {
             val prefix = Calendar.getInstance().apply {
                 time = Clock.now()
                 add(Calendar.DATE, -3)
             }.time.asPrefix()
-            return logDir.files().filter { it.name < prefix }
+            return logDir?.let { dir -> dir.files().filter { it.name < prefix } }
         }
 
     override fun append(log: LogEvent) {
@@ -106,7 +112,8 @@ internal class FileAppender : Appender, Flushable {
     }
 
     private fun write() {
-        FileOutputStream(cacheFile, true).use { outputStream ->
+        val file = cacheFile ?: return
+        FileOutputStream(file, true).use { outputStream ->
             outputStream.channel.lock().use {
                 outputStream.write(buffer.toString().toByteArray())
                 buffer.setLength(0)
@@ -116,8 +123,8 @@ internal class FileAppender : Appender, Flushable {
 
     private fun cleanup() {
         val files = garbageFiles
-        logDebug("cleanup ${files.size}")
-        files.forEach { it.delete() }
+        logDebug("cleanup ${files?.size}")
+        files?.forEach { it.delete() }
     }
 }
 
@@ -143,9 +150,9 @@ private object Layout {
 
 private object Collector {
     /** 同期的/直列にファイルをアップロードする。 */
-    fun collect(files: List<File>) {
-        logDebug("start upload ${files.size}")
-        files.forEach { file ->
+    fun collect(files: List<File>?) {
+        logDebug("start upload ${files?.size}")
+        files?.forEach { file ->
             val uploadUrl = getUploadUrl(file) ?: return@forEach
             if (uploadUrl.isEmpty()) {
                 // urlが送られてこなければアップロードしない.
