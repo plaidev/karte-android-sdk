@@ -24,7 +24,6 @@ import io.karte.android.core.logger.Logger
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
-import io.karte.android.utilities.getLowerClassName
 import io.karte.android.visualtracking.internal.DefinitionList
 import io.karte.android.visualtracking.internal.LifecycleHook
 import io.karte.android.visualtracking.internal.PairingManager
@@ -41,7 +40,7 @@ private const val HEADER_OS = "X-KARTE-Auto-Track-OS"
 
 internal class VisualTracking : Library, ActionModule, TrackModule {
     //region Library
-    override val name: String = getLowerClassName()
+    override val name: String = "visualtracking"
     override val version: String = BuildConfig.VERSION_NAME
     override val isPublic: Boolean = true
 

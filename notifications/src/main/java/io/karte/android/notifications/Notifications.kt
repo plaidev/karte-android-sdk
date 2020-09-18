@@ -25,7 +25,6 @@ import io.karte.android.tracking.Event
 import io.karte.android.tracking.EventName
 import io.karte.android.tracking.Values
 import io.karte.android.utilities.ActivityLifecycleCallback
-import io.karte.android.utilities.getLowerClassName
 
 private const val LOG_TAG = "Karte.Notifications"
 
@@ -39,7 +38,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
     internal lateinit var app: KarteApp
 
     //region Libraary
-    override val name: String = getLowerClassName()
+    override val name: String = "notifications"
     override val version: String = BuildConfig.VERSION_NAME
     override val isPublic: Boolean = true
 
