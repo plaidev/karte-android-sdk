@@ -41,7 +41,6 @@ import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
 import io.karte.android.utilities.ActivityLifecycleCallback
-import io.karte.android.utilities.getLowerClassName
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.ref.WeakReference
@@ -56,7 +55,7 @@ private const val COOKIE_DOMAIN = "karte.io"
 class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallback() {
 
     //region Library
-    override val name: String = getLowerClassName()
+    override val name: String = "inappmessaging"
     override val version: String = BuildConfig.VERSION_NAME
     override val isPublic: Boolean = true
 
@@ -271,6 +270,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         @Deprecated("This param is always true")
         var enabledWebViewCache = true
     }
+
     internal lateinit var app: KarteApp
 
     private val uiThreadHandler: Handler = Handler(Looper.getMainLooper())
