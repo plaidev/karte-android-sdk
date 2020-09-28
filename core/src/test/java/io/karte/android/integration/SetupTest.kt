@@ -24,6 +24,8 @@ import io.karte.android.KarteApp
 import io.karte.android.RobolectricTestCase
 import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.core.config.Config
+import io.karte.android.core.config.ExperimentalConfig
+import io.karte.android.core.config.OperationMode
 import io.karte.android.eventNameTransform
 import io.karte.android.modules.crashreporting.CrashReporting
 import io.karte.android.parseBody
@@ -279,6 +281,49 @@ class SetupTest {
                     fun Trackerインスタンスの実体がTrackerImplであること() {
                         setupKarteApp(server, appKey, Config.Builder().isDryRun(false))
                         assertThat(KarteApp.self.tracker).isNotNull()
+                    }
+                }
+
+                class 通常のConfigを利用している場合 : SetupTestCase() {
+                    @Test
+                    fun 解析されるendpointに対してリクエストが行われること() {
+                        setupKarteApp(server, appKey)
+                        Robolectric.buildActivity(Activity::class.java).create()
+                        proceedBufferedCall()
+                        assertThat(dispatcher.trackedRequests().first().requestUrl).isEqualTo(
+                            server.url(
+                                "/native/track"
+                            )
+                        )
+                    }
+                }
+
+                class operationModeがDEFAULTの場合 : SetupTestCase() {
+                    @Test
+                    fun モードに対応するendpointに対してリクエストが行われること() {
+                        setupKarteApp(server, appKey, ExperimentalConfig.Builder())
+                        Robolectric.buildActivity(Activity::class.java).create()
+                        proceedBufferedCall()
+                        assertThat(dispatcher.trackedRequests().first().requestUrl).isEqualTo(
+                            server.url(
+                                "/native/track"
+                            )
+                        )
+                    }
+                }
+
+                class operationModeがINGESTの場合 : SetupTestCase() {
+                    @Test
+                    fun モードに対応するendpointに対してリクエストが行われること() {
+                        setupKarteApp(server, appKey, ExperimentalConfig.Builder()
+                            .operationMode(OperationMode.INGEST))
+                        Robolectric.buildActivity(Activity::class.java).create()
+                        proceedBufferedCall()
+                        assertThat(dispatcher.ingestRequests().first().requestUrl).isEqualTo(
+                            server.url(
+                                "/native/ingest"
+                            )
+                        )
                     }
                 }
             }

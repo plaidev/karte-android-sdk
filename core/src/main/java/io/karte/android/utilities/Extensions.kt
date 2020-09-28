@@ -55,6 +55,7 @@ internal fun <K, V> Map<K, V?>.filterNotNull(): Map<K, V> {
 
 //region Any
 /** クラスの小文字表現を返します。 */
+@Deprecated("Does not return the name you expect when obfuscated", ReplaceWith(""))
 fun Any.getLowerClassName(): String = this::class.java.simpleName.toLowerCase(Locale.ROOT)
 
 private fun Any?.unwrapJson(): Any? {

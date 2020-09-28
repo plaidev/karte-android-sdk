@@ -271,7 +271,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
 
             Logger.i(LOG_TAG, "KARTE SDK initialize. appKey=$appKey, config=$config")
             self.appKey = appKey
-            config?.let { self.config = it.copy() }
+            config?.let { self.config = it }
             val repository = self.repository()
             self.appInfo = AppInfo(context, repository, self.config)
             self.visitorId = VisitorId(repository)
