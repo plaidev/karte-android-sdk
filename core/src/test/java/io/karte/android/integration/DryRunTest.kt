@@ -17,7 +17,7 @@ import org.junit.Test
 abstract class DryRunTestCase : SetupTestCase() {
     @Before
     fun setup() {
-        setupKarteApp(server, appKey, Config.Builder().isDryRun(true))
+        setupKarteApp(server, Config.Builder().isDryRun(true))
     }
 
     /**Queue用のスレッドが生成されていないか、serverにリクエストが飛んでないか確認.*/

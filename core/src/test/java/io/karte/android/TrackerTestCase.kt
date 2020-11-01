@@ -24,7 +24,6 @@ abstract class TrackerTestCase : RobolectricTestCase() {
 
     lateinit var server: MockWebServer
 
-    val appKey = "sampleappkey"
     // val advertisingId = "advertisingId"
     val body = JSONObject().put("response", JSONObject().put("huga", "hoge"))
 
@@ -33,12 +32,12 @@ abstract class TrackerTestCase : RobolectricTestCase() {
         server = MockWebServer()
         server.start()
 
-        setupKarteApp(server, appKey)
+        setupKarteApp(server)
     }
 
     @After
     fun tearDown() {
-        KarteApp.self.teardown()
+        tearDownKarteApp()
         server.shutdown()
     }
 }

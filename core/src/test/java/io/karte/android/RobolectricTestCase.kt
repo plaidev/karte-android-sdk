@@ -33,7 +33,7 @@ import org.robolectric.shadows.ShadowLog
 import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricTestRunner::class)
-@Config(packageName = "io.karte.android.core", sdk = [28], shadows = [CustomShadowWebView::class])
+@Config(sdk = [28], shadows = [CustomShadowWebView::class])
 abstract class RobolectricTestCase {
 
     val application by lazy { application() }

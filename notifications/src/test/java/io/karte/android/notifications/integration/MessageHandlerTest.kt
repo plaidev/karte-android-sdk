@@ -264,7 +264,7 @@ class MessageHandlerTest {
             assertThat(contentIntent.requestCode).isEqualTo(id)
             assertThat(contentIntent.savedIntent.action).isEqualTo(Intent.ACTION_MAIN)
             assertThat(contentIntent.savedIntent.extras?.get("krt_component_name"))
-                .isEqualTo("io.karte.android.core/TestActivity")
+                .isEqualTo("${application.packageName}/TestActivity")
         }
 
         @Test

@@ -16,9 +16,10 @@
 package io.karte.android.unit
 
 import io.karte.android.KarteApp
-import io.karte.android.application
 import io.karte.android.core.logger.LogLevel
 import io.karte.android.proceedBufferedCall
+import io.karte.android.setupKarteApp
+import io.karte.android.tearDownKarteApp
 import io.karte.android.tracking.Tracker
 import io.karte.android.utilities.connectivity.Connectivity
 import io.karte.android.utilities.http.Client
@@ -49,7 +50,7 @@ class TrackerTest {
     @Before
     fun init() {
         KarteApp.setLogLevel(LogLevel.VERBOSE)
-        KarteApp.setup(application(), "sampleappkey")
+        setupKarteApp()
 
         mockkObject(Client, Connectivity)
         every { Client.execute(any()) } returns dummyResponse
@@ -58,7 +59,7 @@ class TrackerTest {
 
     @After
     fun tearDown() {
-        KarteApp.self.teardown()
+        tearDownKarteApp()
         unmockkObject(Client, Connectivity)
     }
 

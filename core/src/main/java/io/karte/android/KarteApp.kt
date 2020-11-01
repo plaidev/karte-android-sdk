@@ -68,8 +68,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
      *
      * 初期化が行われていない場合は空文字列を返します。
      */
-    var appKey: String = ""
-        private set
+    val appKey: String get() = config.appKey
 
     /**
      * [KarteApp.setup] 呼び出し時に指定した設定情報を返します。
@@ -137,7 +136,6 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         libraries.clear()
         tracker?.teardown()
 
-        appKey = ""
         config = Config.build()
         appInfo = null
         connectivityObserver = null
@@ -231,24 +229,40 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
          */
         @JvmStatic
         @JvmOverloads
-        fun setup(
-            context: Context,
-            appKey: String,
-            config: Config? = null
-        ) {
-            if (self.appKey.isNotEmpty()) {
+        fun setup(context: Context, appKey: String, config: Config? = null) {
+            setup(context, (config ?: Config.build()).apply { this.appKey = appKey })
+        }
+
+        /**
+         * SDKの初期化を行います。
+         *
+         * 初期化オプションが未指定の場合は、デフォルト設定で初期化が行われます。
+         * 初期化オプションのデフォルト値については `Configuration` クラスを参照してください。
+         *
+         * なお初期化後に初期化オプションを変更した場合、その変更はSDKには反映されません。
+         *
+         * また既に初期化されている状態で呼び出した場合は何もしません。
+         *
+         * @param[context] [Context]
+         * @param[config] 設定
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun setup(context: Context, config: Config? = null) {
+            if (self.isInitialized) {
                 Logger.w(LOG_TAG, "APP_KEY is already exists.")
                 return
             }
-            if (appKey.isEmpty()) {
-                Logger.w(LOG_TAG, "Invalid APP_KEY is set.")
+            val configWithAppKey = Config.withAppKey(context, config)
+            if (!configWithAppKey.isValidAppKey) {
+                Logger.w(LOG_TAG, "Invalid APP_KEY is set. ${configWithAppKey.appKey}")
                 return
             }
             if (self.isUnsupportedOsVersion) {
                 Logger.i(LOG_TAG, "Initializing was canceled because os version is under 5.0.")
                 return
             }
-            if (config?.isDryRun == true) {
+            if (configWithAppKey.isDryRun) {
                 Logger.w(
                     LOG_TAG,
                     "======================================================================"
@@ -269,9 +283,8 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             self.application.registerActivityLifecycleCallbacks(self)
             self.connectivityObserver = ConnectivityObserver(self.application)
 
-            Logger.i(LOG_TAG, "KARTE SDK initialize. appKey=$appKey, config=$config")
-            self.appKey = appKey
-            config?.let { self.config = it }
+            self.config = configWithAppKey
+            Logger.i(LOG_TAG, "KARTE SDK initialize. appKey=${self.appKey}, config=$config")
             val repository = self.repository()
             self.appInfo = AppInfo(context, repository, self.config)
             self.visitorId = VisitorId(repository)

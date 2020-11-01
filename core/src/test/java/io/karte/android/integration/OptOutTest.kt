@@ -26,6 +26,7 @@ import io.karte.android.core.usersync.UserSync
 import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
+import io.karte.android.tearDownKarteApp
 import io.karte.android.tracking.Tracker
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -38,7 +39,6 @@ import org.junit.runner.RunWith
 import java.net.URLEncoder
 
 abstract class OptOutTestCase : RobolectricTestCase() {
-    val appKey = "sampleappkey"
     val body = JSONObject().put("response", JSONObject().put("huga", "hoge"))
 
     lateinit var server: MockWebServer
@@ -51,7 +51,7 @@ abstract class OptOutTestCase : RobolectricTestCase() {
 
     @After
     fun tearDown() {
-        KarteApp.self.teardown()
+        tearDownKarteApp()
         val repository = KarteApp.self.repository()
         repository.remove(PREF_KEY_OPT_OUT)
         server.shutdown()
@@ -65,7 +65,7 @@ class OptOutTest {
         class enableTrackerOptOutが有効の場合 : OptOutTestCase() {
             @Before
             fun setup() {
-                setupKarteApp(server, appKey, Config.Builder().isOptOut(true))
+                setupKarteApp(server, Config.Builder().isOptOut(true))
             }
 
             @Test
@@ -86,7 +86,7 @@ class OptOutTest {
             class OptOut実行 : OptOutTestCase() {
                 @Before
                 fun setup() {
-                    setupKarteApp(server, appKey)
+                    setupKarteApp(server)
                     server.enqueue(
                         MockResponse().setBody(body.toString()).addHeader(
                             "Content-Type",
@@ -126,7 +126,7 @@ class OptOutTest {
             class OptIn実行 : OptOutTestCase() {
                 @Before
                 fun setup() {
-                    setupKarteApp(server, appKey, Config.Builder().isOptOut(true))
+                    setupKarteApp(server, Config.Builder().isOptOut(true))
                     KarteApp.optIn()
                 }
 

@@ -40,6 +40,7 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows
 
 class PairingTest : RobolectricTestCase() {
+    private val paringAppKey = "paring_appkey_123456789012345678"
     lateinit var server: MockWebServer
     lateinit var dispatcher: TrackerRequestDispatcher
     val pairingActivityIntent =
@@ -52,7 +53,7 @@ class PairingTest : RobolectricTestCase() {
         server.dispatcher = dispatcher
         server.start()
 
-        setupKarteApp(server, "appkey")
+        setupKarteApp(server, appKey = paringAppKey)
 
         injectDirectExecutorServiceToAutoTrackModules()
 
@@ -78,7 +79,7 @@ class PairingTest : RobolectricTestCase() {
         val req =
             dispatcher.autoTrackRequests().find { it.path?.contains("/pairing-start") == true }!!
         assertThat(req.getHeader("X-KARTE-Auto-Track-Account-Id")).isEqualTo("sampleAccountId")
-        assertThat(req.getHeader("X-KARTE-App-Key")).isEqualTo("appkey")
+        assertThat(req.getHeader("X-KARTE-App-Key")).isEqualTo(paringAppKey)
 
         val body = JSONObject(req.parseBody())
         assertThatJson(body).node("os").isString.isEqualTo("android")
@@ -94,7 +95,7 @@ class PairingTest : RobolectricTestCase() {
         val req = dispatcher.autoTrackRequests().find { it.path?.contains("/trace") == true }
         val body = req?.body?.readUtf8()
         assertThat(req?.getHeader("X-KARTE-Auto-Track-Account-Id")).isEqualTo("sampleAccountId")
-        assertThat(req?.getHeader("X-KARTE-App-Key")).isEqualTo("appkey")
+        assertThat(req?.getHeader("X-KARTE-App-Key")).isEqualTo(paringAppKey)
 
         // Parse multi request is difficult so assert partially.
         assertThat(body).contains("\"os\":\"android\"")

@@ -34,10 +34,11 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.io.IOException
 
 @RunWith(RobolectricTestRunner::class)
-// @Config(packageName = "io.karte.android.core", sdk = [24], shadows = [CustomShadowWebView::class])
+@Config(sdk = [28])
 class HttpClientTest {
     lateinit var server: MockWebServer
 
