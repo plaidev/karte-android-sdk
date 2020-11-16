@@ -32,6 +32,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.Flushable
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -115,8 +116,12 @@ internal class FileAppender : Appender, Flushable {
         val file = cacheFile ?: return
         FileOutputStream(file, true).use { outputStream ->
             outputStream.channel.lock().use {
-                outputStream.write(buffer.toString().toByteArray())
-                buffer.setLength(0)
+                try {
+                    outputStream.write(buffer.toString().toByteArray())
+                    buffer.setLength(0)
+                } catch (e: IOException) {
+                    logDebug("couldn't write file: $file. Caused by $e")
+                }
             }
         }
     }
