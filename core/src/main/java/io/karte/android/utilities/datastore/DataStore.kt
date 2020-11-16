@@ -20,6 +20,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
+import android.database.sqlite.SQLiteFullException
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
 import io.karte.android.core.logger.Logger
@@ -127,6 +128,8 @@ internal class DataStore private constructor(context: Context) {
                     instance.contentValues(persistable)
                 )
             } catch (e: SQLiteException) {
+                -1L
+            } catch (e: SQLiteFullException) {
                 -1L
             }
             if (result != -1L) {
