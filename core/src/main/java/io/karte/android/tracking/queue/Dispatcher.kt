@@ -52,10 +52,11 @@ internal class Dispatcher {
     private val completions = mutableMapOf<Long, TrackCompletion>()
     private var isSuspend: Boolean = false
         set(value) {
-            if (value) handler.removeCallbacks(::run)
-            else handler.postDelayed(::run, DEFAULT_DELAY_MS)
+            if (value) handler.removeCallbacks(::dequeue)
+            else handler.postDelayed(::dequeue, DEFAULT_DELAY_MS)
             field = value
         }
+    private val rateLimit = RateLimit(handler)
 
     init {
         DataStore.setup(KarteApp.self.application.applicationContext, EventRecord.EventContract)
@@ -67,32 +68,38 @@ internal class Dispatcher {
         isSuspend = !available
     }
 
-    fun push(record: EventRecord, completion: TrackCompletion?) {
-        Logger.d(LOG_TAG, "push event. ${record.event.eventName.value}")
-        handler.post {
-            val id = DataStore.put(record)
-            completion?.let {
-                if (id == -1L) {
-                    Logger.e(LOG_TAG, "Failed to push Event to queue")
-                    completion.onComplete(false)
-                } else {
-                    completions[id] = it
-                }
-            }
-        }
-        handler.postDelayed(::run, DEFAULT_DELAY_MS)
-    }
-
     fun teardown() {
         DataStore.teardown()
         KarteApp.self.connectivityObserver?.unsubscribe(::connectivity)
     }
 
-    private fun run() {
+    fun push(record: EventRecord, completion: TrackCompletion?) {
+        Logger.d(LOG_TAG, "push event. ${record.event.eventName.value}")
+        handler.post { enqueue(record, completion) }
+        handler.postDelayed(::dequeue, DEFAULT_DELAY_MS)
+    }
+
+    private fun enqueue(record: EventRecord, completion: TrackCompletion?) {
+        val id = DataStore.put(record)
+        completion?.let {
+            if (id == -1L) {
+                Logger.e(LOG_TAG, "Failed to push Event to queue")
+                completion.onComplete(false)
+            } else {
+                completions[id] = it
+            }
+        }
+    }
+
+    private fun dequeue() {
         val online = Connectivity.isOnline(KarteApp.self.application)
         Logger.d(LOG_TAG, "connectivity: $online.")
         if (!online) {
             Logger.v(LOG_TAG, "now connectivity is offline. suspend.")
+            return
+        }
+        if (!rateLimit.canRequest) {
+            Logger.w(LOG_TAG, "Request frequency is excessive. Delay it.")
             return
         }
 
@@ -118,39 +125,58 @@ internal class Dispatcher {
         records.groupBy(
             { GroupingKey(it.visitorId, it.originalPvId, it.pvId, it.retry > 0) },
             { it })
-            .forEach { events ->
-                Logger.d(LOG_TAG, "request events: ${events.value.size}")
-                val (visitorId, originalPvId, pvId) = events.key
-                var request =
-                    requestOf(
-                        visitorId,
-                        originalPvId,
-                        pvId,
-                        events.value.map { it.event.apply { isRetry = it.retry > 0 } })
-                KarteApp.self.modules
-                    .filterIsInstance<TrackModule>()
-                    .forEach { request = it.intercept(request) }
-                try {
-                    val response = Client.execute(request)
-                    Logger.d(LOG_TAG, "response: ${response.code}")
-                    if (response.isSuccessful) {
-                        if (!events.key.isRetry) {
-                            KarteApp.self.modules.filterIsInstance<ActionModule>()
-                                .forEach { it.receive(TrackResponse(response), request) }
-                        }
-                        events.value.forEach {
-                            DataStore.delete(it)
-                            completions.remove(it.id)?.onComplete(true)
-                        }
-                    } else {
-                        Logger.e(LOG_TAG, "Failed to request. ${response.code}: '${response.body}'")
-                        queueRetry(events.value)
+            .forEach { (key, events) ->
+                Logger.d(LOG_TAG, "request events: ${events.size}")
+                // 10 events per request
+                events.chunked(10).forEach { request(key, it) }
+            }
+    }
+
+    private fun request(key: GroupingKey, events: List<EventRecord>) {
+        rateLimit.increment(events.size)
+        val (visitorId, originalPvId, pvId) = key
+        var request = requestOf(
+            visitorId,
+            originalPvId,
+            pvId,
+            events.map { it.event.apply { isRetry = it.retry > 0 } })
+        KarteApp.self.modules.filterIsInstance<TrackModule>()
+            .forEach { request = it.intercept(request) }
+        try {
+            val response = Client.execute(request)
+            Logger.d(LOG_TAG, "response: ${response.code}")
+            when {
+                response.isSuccessful -> {
+                    if (!key.isRetry) {
+                        KarteApp.self.modules.filterIsInstance<ActionModule>()
+                            .forEach { it.receive(TrackResponse(response), request) }
                     }
-                } catch (e: Exception) {
-                    Logger.e(LOG_TAG, "Failed to send request.", e)
-                    queueRetry(events.value)
+                    removeFromQueue(events, true)
+                }
+                response.code in 400..499 -> {
+                    Logger.e(
+                        LOG_TAG,
+                        "Invalid request, not retryable. ${response.code}: '${response.body}'"
+                    )
+                    removeFromQueue(events, false)
+                }
+                else -> {
+                    Logger.e(LOG_TAG, "Failed to request. ${response.code}: '${response.body}'")
+                    queueRetry(events)
                 }
             }
+        } catch (e: Exception) {
+            Logger.e(LOG_TAG, "Failed to send request.", e)
+            queueRetry(events)
+        }
+        rateLimit.decrementWithDelay(events.size, ::dequeue)
+    }
+
+    private fun removeFromQueue(events: List<EventRecord>, isSuccessful: Boolean) {
+        events.forEach {
+            DataStore.delete(it)
+            completions.remove(it.id)?.onComplete(isSuccessful)
+        }
     }
 
     private fun queueRetry(events: List<EventRecord>) {
@@ -175,6 +201,6 @@ internal class Dispatcher {
         if (minRetryCount > MAX_RETRY_COUNT) return
         val retryInterval = retryIntervalMs(minRetryCount)
         Logger.d(LOG_TAG, "Retry after $retryInterval ms. count $minRetryCount")
-        handler.postDelayed(::run, retryInterval)
+        handler.postDelayed(::dequeue, retryInterval)
     }
 }

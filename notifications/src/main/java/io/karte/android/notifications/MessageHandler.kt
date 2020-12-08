@@ -49,7 +49,7 @@ internal const val EXTRA_COMPONENT_NAME = "krt_component_name"
 private const val DATA_KARTE_ATTRIBUTES_KEY = "krt_attributes"
 private const val ATTACHMENT_TYPE_IMAGE = "image"
 
-private const val NOTIFICATION_TAG = "krt_notification_tag"
+internal const val NOTIFICATION_TAG = "krt_notification_tag"
 
 private const val DEFAULT_NOTIFICATION_CHANNEL = "krt_default_channel"
 
@@ -205,8 +205,7 @@ object MessageHandler {
 
         val notification =
             buildNotification(context, attributes, data, defaultIntent, notificationBuilder)
-        val id = (Date().time / 1000L % Integer.MAX_VALUE).toInt()
-        notificationManager.notify(NOTIFICATION_TAG, id, notification)
+        notificationManager.notify(NOTIFICATION_TAG, uniqueId(), notification)
 
         Logger.d(LOG_TAG, "Notified notification: $notification")
     }
@@ -326,7 +325,7 @@ object MessageHandler {
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         copyInfoToIntent(data, intent)
 
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_ONE_SHOT)
+        return PendingIntent.getBroadcast(context, uniqueId(), intent, PendingIntent.FLAG_ONE_SHOT)
     }
 
     private fun createDefaultChannel(notificationManager: NotificationManager) {
@@ -360,6 +359,10 @@ object MessageHandler {
             }
         }
         return exists
+    }
+
+    private fun uniqueId(): Int {
+        return (Date().time / 1000L % Integer.MAX_VALUE).toInt()
     }
 
     /**

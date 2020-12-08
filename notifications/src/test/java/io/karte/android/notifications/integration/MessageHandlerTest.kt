@@ -33,6 +33,10 @@ import io.karte.android.TrackerTestCase
 import io.karte.android.notifications.EXTRA_CAMPAIGN_ID
 import io.karte.android.notifications.EXTRA_SHORTEN_ID
 import io.karte.android.notifications.MessageHandler
+import io.karte.android.notifications.NOTIFICATION_TAG
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
@@ -41,6 +45,8 @@ import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import java.net.URL
+
+private const val NOTIFICAITON_ID = 1000
 
 private val RobolectricTestCase.packageName: String
     get() {
@@ -60,11 +66,10 @@ private fun RobolectricTestCase.createPackageInfo(metaDataMap: Map<String, Int> 
     return packageInfo
 }
 
-private fun RobolectricTestCase.getNotification(): Notification? {
+private fun RobolectricTestCase.getNotification(id: Int = NOTIFICAITON_ID): Notification? {
     val notificationManager =
         application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    val notifications = shadowOf(notificationManager).allNotifications
-    return if (notifications.size > 0) notifications[0] else null
+    return shadowOf(notificationManager).getNotification(NOTIFICATION_TAG, id)
 }
 
 private fun createIntent(
@@ -152,6 +157,9 @@ class MessageHandlerTest {
             packageManager.addResolveInfoForIntent(linkIntent, linkResolvedInfo)
 
             packageManager.installPackage(createPackageInfo())
+
+            mockkObject(MessageHandler, recordPrivateCalls = true)
+            every { MessageHandler["uniqueId"]() } returns NOTIFICAITON_ID
         }
 
         @Suppress("DEPRECATION")
@@ -162,6 +170,8 @@ class MessageHandlerTest {
 
             packageManager.removeResolveInfosForIntent(mainIntent, packageName)
             packageManager.removeResolveInfosForIntent(linkIntent, packageName)
+
+            unmockkObject(MessageHandler)
         }
 
         @Test
@@ -246,8 +256,12 @@ class MessageHandlerTest {
 
         @Test
         fun urlが指定されてない場合_launcherアクティビティがセットされること() {
+            val id = 99
+            every { MessageHandler["uniqueId"]() } returns id
             MessageHandler.handleMessage(application, createRemoteMessage())
-            val contentIntent = shadowOf(getNotification()!!.contentIntent)
+
+            val contentIntent = shadowOf(getNotification(id)!!.contentIntent)
+            assertThat(contentIntent.requestCode).isEqualTo(id)
             assertThat(contentIntent.savedIntent.action).isEqualTo(Intent.ACTION_MAIN)
             assertThat(contentIntent.savedIntent.extras?.get("krt_component_name"))
                 .isEqualTo("io.karte.android.core/TestActivity")
@@ -255,18 +269,26 @@ class MessageHandlerTest {
 
         @Test
         fun urlが指定されてない場合_引数に渡されたデフォルトのIntentがセットされること() {
+            val id = 98
+            every { MessageHandler["uniqueId"]() } returns id
             val uri = Uri.parse(sampleUrl)
             val defIntent = Intent(Intent.ACTION_VIEW, uri)
             MessageHandler.handleMessage(application, createRemoteMessage(), defIntent)
-            val contentIntent = shadowOf(getNotification()!!.contentIntent)
+
+            val contentIntent = shadowOf(getNotification(id)!!.contentIntent)
+            assertThat(contentIntent.requestCode).isEqualTo(id)
             assertThat(contentIntent.savedIntent.data).isEqualTo(uri)
             assertThat(contentIntent.savedIntent.action).isEqualTo(Intent.ACTION_VIEW)
         }
 
         @Test
         fun message_click計測用の値がセットされること() {
+            val id = 97
+            every { MessageHandler["uniqueId"]() } returns id
             MessageHandler.handleMessage(application, createRemoteMessage())
-            val contentIntent = shadowOf(getNotification()!!.contentIntent)
+
+            val contentIntent = shadowOf(getNotification(id)!!.contentIntent)
+            assertThat(contentIntent.requestCode).isEqualTo(id)
             assertThat(contentIntent.savedIntent.extras?.getString(EXTRA_CAMPAIGN_ID))
                 .isEqualTo(sampleCampaignId)
             assertThat(contentIntent.savedIntent.extras?.getString(EXTRA_SHORTEN_ID))
@@ -275,6 +297,21 @@ class MessageHandlerTest {
 
         // TODO: channel_id周りのテスト
         // TODO: bigImage周りのテスト
+
+        @Test
+        fun 複数回通知された時にrequestCodeやidが異なること() {
+            val firstId = 96
+            every { MessageHandler["uniqueId"]() } returns firstId
+            MessageHandler.handleMessage(application, createRemoteMessage())
+            val secondId = 95
+            every { MessageHandler["uniqueId"]() } returns secondId
+            MessageHandler.handleMessage(application, createRemoteMessage())
+
+            val firstContentIntent = shadowOf(getNotification(firstId)!!.contentIntent)
+            assertThat(firstContentIntent.requestCode).isEqualTo(firstId)
+            val secondContentIntent = shadowOf(getNotification(secondId)!!.contentIntent)
+            assertThat(secondContentIntent.requestCode).isEqualTo(secondId)
+        }
     }
 
     @RunWith(Enclosed::class)
