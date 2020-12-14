@@ -37,6 +37,7 @@ import io.karte.android.utilities.http.JSONRequest
 import io.karte.android.utilities.http.METHOD_POST
 import io.karte.android.utilities.http.MultipartRequest
 import io.karte.android.utilities.http.Response
+import io.karte.android.visualtracking.internal.tracing.Trace
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.ArrayList

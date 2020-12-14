@@ -13,7 +13,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-package io.karte.android.visualtracking.internal
+package io.karte.android.visualtracking.internal.tracking
 
 import io.karte.android.core.logger.Logger
 import io.karte.android.utilities.forEach
@@ -128,8 +128,7 @@ internal class DefinitionList private constructor(
         private const val LOG_TAG = "Karte.ATDefinitions"
 
         @Throws(JSONException::class)
-        internal fun buildIfNeeded(response: JSONObject): DefinitionList? {
-            val body = response.optJSONObject("auto_track_definition") ?: return null
+        internal fun buildIfNeeded(body: JSONObject): DefinitionList? {
             if (!body.has("definitions") || "not_modified" == body.optString("status")) {
                 return null
             }

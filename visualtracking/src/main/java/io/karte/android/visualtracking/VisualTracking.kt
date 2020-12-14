@@ -16,7 +16,10 @@
 package io.karte.android.visualtracking
 
 import android.app.Activity
+import android.os.Bundle
 import io.karte.android.KarteApp
+import io.karte.android.core.config.ExperimentalConfig
+import io.karte.android.core.config.OperationMode
 import io.karte.android.core.library.ActionModule
 import io.karte.android.core.library.Library
 import io.karte.android.core.library.TrackModule
@@ -24,19 +27,25 @@ import io.karte.android.core.logger.Logger
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
-import io.karte.android.visualtracking.internal.DefinitionList
+import io.karte.android.utilities.ActivityLifecycleCallback
+import io.karte.android.utilities.http.JSONRequest
 import io.karte.android.visualtracking.internal.LifecycleHook
 import io.karte.android.visualtracking.internal.PairingManager
-import io.karte.android.visualtracking.internal.Trace
-import io.karte.android.visualtracking.internal.TraceBuilder
+import io.karte.android.visualtracking.internal.tracing.Trace
+import io.karte.android.visualtracking.internal.tracing.TraceBuilder
+import io.karte.android.visualtracking.internal.tracking.DefinitionList
+import io.karte.android.visualtracking.internal.tracking.GetDefinitions
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 private const val LOG_TAG = "Karte.VT"
 
 private const val HEADER_IF_MODIFIED_SINCE = "X-KARTE-Auto-Track-If-Modified-Since"
 private const val HEADER_OS = "X-KARTE-Auto-Track-OS"
+private const val OS_ANDROID = "android"
 
 internal class VisualTracking : Library, ActionModule, TrackModule {
     //region Library
@@ -51,6 +60,16 @@ internal class VisualTracking : Library, ActionModule, TrackModule {
         pairingManager = PairingManager(app)
         app.application.registerActivityLifecycleCallbacks(lifecycleHook)
         app.register(this)
+
+        app.application.registerActivityLifecycleCallbacks(object : ActivityLifecycleCallback() {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                (app.config as? ExperimentalConfig)?.let {
+                    if (it.operationMode != OperationMode.INGEST) return@let
+                    getDefinitions()
+                }
+                app.application.unregisterActivityLifecycleCallbacks(this)
+            }
+        })
     }
 
     override fun unconfigure(app: KarteApp) {
@@ -62,15 +81,9 @@ internal class VisualTracking : Library, ActionModule, TrackModule {
 
     //region ActionModule
     override fun receive(trackResponse: TrackResponse, trackRequest: TrackRequest) {
-        try {
-            val list = DefinitionList.buildIfNeeded(trackResponse.json!!) ?: return
-            synchronized(DefinitionList::class.java) {
-                this.definitions = list
-            }
-            Logger.i(LOG_TAG, "Updated Visual Tracking settings: $definitions")
-        } catch (e: Exception) {
-            Logger.e(LOG_TAG, "Failed to parse definitions.", e)
-        }
+        val definitionList =
+            trackResponse.json?.optJSONObject("auto_track_definition") ?: return
+        updateDefinitionList(definitionList)
     }
 
     override fun reset() {
@@ -82,8 +95,7 @@ internal class VisualTracking : Library, ActionModule, TrackModule {
 
     //region TrackModule
     override fun intercept(request: TrackRequest): TrackRequest {
-        definitions?.let { request.headers[HEADER_IF_MODIFIED_SINCE] = it.lastModified.toString() }
-        request.headers[HEADER_OS] = "android"
+        setHeader(request)
         return request
     }
     //endregion
@@ -133,6 +145,36 @@ internal class VisualTracking : Library, ActionModule, TrackModule {
                 }
             }
         })
+    }
+
+    /** DefinitionList取得APIを1秒の遅延実行. リトライはしない. */
+    internal fun getDefinitions(
+        executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+    ) {
+        executor.schedule({
+            Logger.d(LOG_TAG, "getDefinitions")
+            GetDefinitions.get(app, { request -> setHeader(request) }) { result ->
+                if (result == null) return@get
+                updateDefinitionList(result)
+            }
+        }, 1, TimeUnit.SECONDS)
+    }
+
+    private fun setHeader(request: JSONRequest) {
+        definitions?.let { request.headers[HEADER_IF_MODIFIED_SINCE] = it.lastModified.toString() }
+        request.headers[HEADER_OS] = OS_ANDROID
+    }
+
+    private fun updateDefinitionList(definitionJson: JSONObject) {
+        try {
+            val list = DefinitionList.buildIfNeeded(definitionJson) ?: return
+            synchronized(DefinitionList::class.java) {
+                this.definitions = list
+            }
+            Logger.i(LOG_TAG, "Updated Visual Tracking settings: $definitions")
+        } catch (e: Exception) {
+            Logger.e(LOG_TAG, "Failed to parse definitions.", e)
+        }
     }
 
     companion object {

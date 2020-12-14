@@ -13,7 +13,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-package io.karte.android.visualtracking.internal
+package io.karte.android.visualtracking.internal.tracing
 
 import android.app.Activity
 import android.graphics.Bitmap

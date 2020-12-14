@@ -22,7 +22,6 @@ import android.net.Uri
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
 import io.karte.android.RobolectricTestCase
-import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.parseBody
 import io.karte.android.setupKarteApp
 import io.karte.android.tearDownKarteApp
@@ -41,14 +40,14 @@ import org.robolectric.Shadows
 
 class PairingTest : RobolectricTestCase() {
     private val paringAppKey = "paring_appkey_123456789012345678"
-    lateinit var server: MockWebServer
-    lateinit var dispatcher: TrackerRequestDispatcher
-    val pairingActivityIntent =
+    private lateinit var server: MockWebServer
+    private lateinit var dispatcher: VTRequestDispatcher
+    private val pairingActivityIntent =
         Intent(Intent.ACTION_VIEW, Uri.parse("example://_krtp/sampleAccountId"))
 
     @Before
     fun setup() {
-        dispatcher = TrackerRequestDispatcher()
+        dispatcher = VTRequestDispatcher()
         server = MockWebServer()
         server.dispatcher = dispatcher
         server.start()
