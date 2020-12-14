@@ -16,8 +16,8 @@
 package io.karte.android.visualtracking
 
 import io.karte.android.toJSONArray
-import io.karte.android.visualtracking.internal.DefinitionList
 import io.karte.android.visualtracking.internal.PairingManager
+import io.karte.android.visualtracking.internal.tracking.DefinitionList
 import io.mockk.every
 import io.mockk.mockk
 import org.json.JSONObject
@@ -68,7 +68,7 @@ fun autoTrackDefinition(
     vararg definitions: JSONObject,
     lastModified: Long = 0,
     status: String = "modified"
-): JSONObject? {
+): JSONObject {
     return JSONObject()
         .put("definitions", definitions.toJSONArray())
         .put("last_modified", lastModified)
@@ -76,10 +76,5 @@ fun autoTrackDefinition(
 }
 
 internal fun buildDefinitionList(vararg definitions: JSONObject): DefinitionList? {
-    return DefinitionList.buildIfNeeded(
-        JSONObject().put(
-            "auto_track_definition",
-            autoTrackDefinition(*definitions)
-        )
-    )
+    return DefinitionList.buildIfNeeded(autoTrackDefinition(*definitions))
 }

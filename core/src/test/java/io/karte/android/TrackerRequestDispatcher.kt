@@ -21,35 +21,36 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONArray
 import org.json.JSONObject
 
-open class TrackerRequestDispatcher : Dispatcher() {
-    private val recordedRequests = mutableListOf<RecordedRequest>()
+open class TrackerRequestDispatcher(
+    private val onTrack: ((RecordedRequest) -> MockResponse?)? = null
+) : Dispatcher() {
+    protected val recordedRequests = mutableListOf<RecordedRequest>()
 
     final override fun dispatch(request: RecordedRequest): MockResponse {
         recordedRequests.add(request)
 
-        request.path?.let {
-            if (it.contains("/track") || it.contains("/ingest")) {
+        request.path?.let { path ->
+            onRequest(path, request)?.let { return it }
+
+            if (path.contains("/track") || path.contains("/ingest")) {
                 return onTrackRequest(request)
-            } else if (it.contains("/overlay")) {
-                return MockResponse().setBody("<html></html>")
-            } else if (it.contains("/auto-track")) {
-                return MockResponse()
             }
         }
         throw IllegalArgumentException("Unexpected request is coming to server.")
     }
 
+    open fun onRequest(path: String, request: RecordedRequest): MockResponse? {
+        return null
+    }
+
     open fun onTrackRequest(request: RecordedRequest): MockResponse {
+        onTrack?.invoke(request)?.let { return it }
         return MockResponse().setBody(
             JSONObject().put(
                 "response",
                 JSONObject().put("messages", JSONArray())
             ).toString()
         )
-    }
-
-    fun autoTrackRequests(): List<RecordedRequest> {
-        return recordedRequests.filter { it.path?.contains("/auto-track") == true }
     }
 
     fun trackedRequests(): List<RecordedRequest> {
