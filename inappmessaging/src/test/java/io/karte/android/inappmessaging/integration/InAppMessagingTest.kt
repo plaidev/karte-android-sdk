@@ -67,7 +67,7 @@ import org.robolectric.shadows.ShadowLooper
 import org.robolectric.shadows.ShadowWindowManagerImpl
 import java.util.Base64
 
-private const val appKey = "sampleappkey"
+private const val iamAppKey = "inappmessaging_appkey_1234567890"
 private const val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
 
 private val popupMsg1 = createMessage(shortenId = "action1", pluginType = "webpopup")
@@ -121,7 +121,7 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         server.dispatcher = dispatcher
         server.start()
 
-        app = setupKarteApp(server, appKey)
+        app = setupKarteApp(server, appKey = iamAppKey)
         activity = Robolectric.buildActivity(
             Activity::class.java,
             Intent(application, Activity::class.java)
@@ -198,7 +198,7 @@ class InAppMessagingTest {
             assertThat(uri.host).isEqualTo("cf-native.karte.io")
             assertThat(uri.path).isEqualTo("/v0/native/overlay")
             assertThat(uri.queryParameterNames).isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
-            assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
+            assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
             assertThat(uri.getQueryParameter("_k_app_prof")).isEqualTo(app.appInfo?.json.toString())
         }
@@ -220,7 +220,7 @@ class InAppMessagingTest {
             val uri = Uri.parse(shadowWebView?.loadedUrls?.first())
             assertThat(uri.queryParameterNames)
                 .isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
-            assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
+            assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
             assertThat(uri.getQueryParameter("_k_app_prof")?.let { JSONObject(it) })
                 .isEqualTo(app.appInfo?.json)
@@ -562,7 +562,7 @@ class InAppMessagingTest {
             val uri = Uri.parse(currentShadowWebView?.lastLoadedUrl)
             assertThat(uri.queryParameterNames)
                 .isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
-            assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
+            assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
             assertThat(uri.getQueryParameter("_k_app_prof")?.let { JSONObject(it) })
                 .isEqualTo(app.appInfo?.json)

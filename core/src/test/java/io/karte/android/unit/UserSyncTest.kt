@@ -22,7 +22,9 @@ import android.webkit.WebView
 import io.karte.android.KarteApp
 import io.karte.android.RobolectricTestCase
 import io.karte.android.core.usersync.UserSync
+import io.karte.android.setupKarteApp
 import io.karte.android.shadow.customShadowOf
+import io.karte.android.tearDownKarteApp
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.unmockkConstructor
@@ -51,12 +53,12 @@ class UserSyncTest : RobolectricTestCase() {
         mockkConstructor(Date::class)
         every { anyConstructed<Date>().time } returns 1561971767890
 
-        KarteApp.setup(application, "hoge")
+        setupKarteApp()
     }
 
     @After
     fun tearDown() {
-        KarteApp.self.teardown()
+        tearDownKarteApp()
         unmockkConstructor(Date::class)
     }
 

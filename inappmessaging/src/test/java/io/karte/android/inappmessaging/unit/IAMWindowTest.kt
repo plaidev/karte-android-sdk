@@ -37,11 +37,7 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(
-    packageName = "io.karte.android.tracker",
-    sdk = [24],
-    shadows = [CustomShadowWebView::class]
-)
+@Config(sdk = [24], shadows = [CustomShadowWebView::class])
 class IAMWindowTest {
 
     @MockK

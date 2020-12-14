@@ -33,7 +33,7 @@ class OptOutTest {
     class OptOut実行 : OptOutTestCase() {
         @Before
         fun setup() {
-            setupKarteApp(server, appKey)
+            setupKarteApp(server)
             server.enqueue(
                 MockResponse().setBody(body.toString()).addHeader(
                     "Content-Type",

@@ -94,7 +94,7 @@ class VisualTrackingTest : RobolectricTestCase() {
         server.dispatcher = dispatcher
         server.start()
 
-        setupKarteApp(server, "appkey", Config.Builder().enabledTrackingAaid(false))
+        setupKarteApp(server, Config.Builder().enabledTrackingAaid(false))
 
         injectDirectExecutorServiceToAutoTrackModules()
     }

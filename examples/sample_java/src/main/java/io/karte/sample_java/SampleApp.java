@@ -16,13 +16,11 @@ import io.karte.android.variables.Variables;
 
 public class SampleApp extends Application {
 
-    public final static String APP_KEY = "SET_YOUR_APP_KEY";
-
     @Override
     public void onCreate() {
         super.onCreate();
         Logger.setLevel(LogLevel.DEBUG);
-        KarteApp.setup(this, APP_KEY);
+        KarteApp.setup(this);
         InAppMessaging.Config.setEnabledWebViewCache(true);
         Variables.fetch();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

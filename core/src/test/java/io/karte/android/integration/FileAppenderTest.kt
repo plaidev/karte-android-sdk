@@ -11,6 +11,7 @@ import io.karte.android.core.logger.LogLevel
 import io.karte.android.core.logger.THREAD_NAME
 import io.karte.android.pipeLog
 import io.karte.android.proceedBufferedCall
+import io.karte.android.tearDownKarteApp
 import io.karte.android.unpipeLog
 import io.mockk.clearMocks
 import io.mockk.every
@@ -66,7 +67,6 @@ abstract class BaseFileAppenderTest {
 
 class FileAppenderTest : BaseFileAppenderTest() {
     lateinit var server: MockWebServer
-    val appKey = "sampleappkey"
     private val targetDate = Calendar.getInstance().apply { set(2020, 3, 10) }.time
 
     @Before
@@ -83,7 +83,8 @@ class FileAppenderTest : BaseFileAppenderTest() {
             }
         }
         server.start()
-        KarteApp.setup(application(), appKey,
+        KarteApp.setup(
+            application(),
             Config.build { logCollectionUrl = server.url("/nativeAppLogUrl").toString() })
 
         mockkObject(Clock)
@@ -93,7 +94,7 @@ class FileAppenderTest : BaseFileAppenderTest() {
 
     @After
     fun tearDown() {
-        KarteApp.self.teardown()
+        tearDownKarteApp()
         unmockkObject(Clock)
     }
 
