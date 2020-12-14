@@ -17,9 +17,9 @@ package io.karte.android.notifications.unit
 
 import android.content.Intent
 import android.net.Uri
-import io.karte.android.KarteApp
 import io.karte.android.RobolectricTestCase
 import io.karte.android.notifications.Notifications
+import io.karte.android.setupKarteApp
 import io.karte.android.tearDownKarteApp
 import org.junit.After
 import org.junit.Assert
@@ -34,7 +34,7 @@ class CommandTest : RobolectricTestCase() {
 
     @Before
     fun setup() {
-        KarteApp.setup(application, "hoge")
+        setupKarteApp()
     }
 
     @After
@@ -44,14 +44,14 @@ class CommandTest : RobolectricTestCase() {
 
     @Test
     fun testCommand() {
-        testCommandHasValidIntent(Uri.parse("app-settings:"), "package:io.karte.android.core")
+        testCommandHasValidIntent(Uri.parse("app-settings:"), "package:${application.packageName}")
         testCommandHasValidIntent(
             Uri.parse("krt-$testApiKey://open-settings?key=value"),
-            "package:io.karte.android.core"
+            "package:${application.packageName}"
         )
         testCommandHasValidIntent(
             Uri.parse("krt-$testApiKey://open-store"),
-            "market://details?id=io.karte.android.core"
+            "market://details?id=${application.packageName}"
         )
 
         testCommandReturnsNull(Uri.parse("invalid-scheme:"))

@@ -33,11 +33,7 @@ import org.robolectric.annotation.Config
 
 @Suppress("NonAsciiCharacters")
 @RunWith(RobolectricTestRunner::class)
-@Config(
-    packageName = "io.karte.android.inappmessaging",
-    sdk = [28],
-    shadows = [CustomShadowWebView::class]
-)
+@Config(sdk = [28], shadows = [CustomShadowWebView::class])
 class IAMPresenterTest {
 
     @get:Rule

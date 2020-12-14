@@ -36,16 +36,19 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowLooper
 
+internal const val VALID_APPKEY = "sampleappkey_1234567890123456789"
+
 fun setupKarteApp(
-    server: MockWebServer,
-    appKey: String,
-    configBuilder: Config.Builder = Config.Builder()
+    server: MockWebServer? = null,
+    configBuilder: Config.Builder = Config.Builder(),
+    appKey: String = VALID_APPKEY
 ): KarteApp {
-    KarteApp.setup(
-        application(),
-        appKey,
+    val config = if (server != null) {
         configBuilder.baseUrl(server.url("/native").toString()).build()
-    )
+    } else {
+        configBuilder.build()
+    }
+    KarteApp.setup(application(), appKey, config)
     return KarteApp.self
 }
 

@@ -15,6 +15,11 @@
 //
 package io.karte.android.core.config
 
+import android.content.Context
+import io.karte.android.BuildConfig
+import io.karte.android.KarteException
+import io.karte.android.R
+
 /**
  * SDKの設定を保持するクラスです。
  *
@@ -47,6 +52,7 @@ package io.karte.android.core.config
  * `true` の場合はAAID取得が有効となり、`false` の場合は無効となります。デフォルトは `false` です。
  */
 open class Config protected constructor(
+    appKey: String,
     val baseUrl: String,
     internal val logCollectionUrl: String,
     val isDryRun: Boolean,
@@ -54,9 +60,22 @@ open class Config protected constructor(
     val enabledTrackingAaid: Boolean
 ) {
     /**
+     * @property[appKey] アプリケーションキーの取得・設定を行います。
+     *
+     * 設定ファイルから自動でロードされるアプリケーションキー以外を利用したい場合にのみ設定します。
+     */
+    var appKey: String = appKey
+        internal set
+
+    internal val isValidAppKey get() = appKey.length == 32
+
+    /**
      * [Config]クラスの生成を行うためのクラスです。
      */
     open class Builder {
+        /**[Config.appKey]を変更します。*/
+        var appKey: String = "" @JvmSynthetic set
+
         /**[Config.baseUrl]を変更します。*/
         var baseUrl: String = "https://api.karte.io/v0/native" @JvmSynthetic set
 
@@ -93,6 +112,7 @@ open class Config protected constructor(
 
         /**[Config]クラスのインスタンスを生成します。*/
         open fun build(): Config = Config(
+            appKey,
             baseUrl,
             logCollectionUrl,
             isDryRun,
@@ -110,6 +130,26 @@ open class Config protected constructor(
             val builder = Builder()
             f?.let { builder.it() }
             return builder.build()
+        }
+
+        internal fun withAppKey(context: Context, config: Config?): Config {
+            if (config != null && config.appKey.isNotEmpty()) return config
+            return (config ?: build()).apply { this.appKey = appKeyFromResource(context) }
+        }
+
+        private fun appKeyFromResource(context: Context): String {
+            val res = context.resources
+            val pkg = res.getResourcePackageName(R.id.karte_resources)
+            val id = res.getIdentifier("karte_app_key", "string", pkg)
+            return if (id == 0) {
+                if (BuildConfig.DEBUG) {
+                    throw KarteException("karte_resources.xml not found.")
+                } else {
+                    ""
+                }
+            } else {
+                res.getString(id)
+            }
         }
     }
 }

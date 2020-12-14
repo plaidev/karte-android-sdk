@@ -19,7 +19,6 @@ import android.app.Activity
 import android.content.Intent
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.RobolectricTestCase
-import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.core.config.Config
 import io.karte.android.eventNameTransform
 import io.karte.android.parseBody
@@ -27,74 +26,44 @@ import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
 import io.karte.android.tearDownKarteApp
 import io.karte.android.tracking.Tracker
-import io.karte.android.visualtracking.autoTrackDefinition
+import io.karte.android.visualtracking.VisualTracking
 import io.karte.android.visualtracking.condition
 import io.karte.android.visualtracking.definition
 import io.karte.android.visualtracking.injectDirectExecutorServiceToAutoTrackModules
 import io.karte.android.visualtracking.internal.VTHook
 import io.karte.android.visualtracking.trigger
+import io.mockk.every
+import io.mockk.mockk
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.robolectric.Robolectric
+import java.util.concurrent.ScheduledExecutorService
+
+private const val LAST_MODIFIED = 10.toLong()
+private val definition = definition(
+    "event1",
+    trigger(
+        condition("action", "\$eq", "action1"),
+        fields = JSONObject().put("field1", "value1").put("field2", "value2")
+    )
+)
 
 class VisualTrackingTest : RobolectricTestCase() {
-    lateinit var server: MockWebServer
-    lateinit var dispatcher: TrackerRequestDispatcher
-    val lastModified = 10.toLong()
+    private lateinit var server: MockWebServer
+    private lateinit var dispatcher: VTRequestDispatcher
 
     @Before
     fun setup() {
-        dispatcher = object : TrackerRequestDispatcher() {
-            override fun onTrackRequest(request: RecordedRequest): MockResponse {
-                if (request.getHeader("X-KARTE-Auto-Track-OS") == "android") {
-
-                    val since = request.getHeader("X-KARTE-Auto-Track-If-Modified-Since")
-                    if (since != null && Integer.parseInt(since) <= lastModified) {
-                        return MockResponse().setBody(
-                            JSONObject().put(
-                                "response",
-                                JSONObject()
-                            ).toString()
-                        )
-                    }
-
-                    return MockResponse().setBody(
-                        JSONObject().put(
-                            "response", JSONObject()
-                                .put(
-                                    "auto_track_definition", autoTrackDefinition(
-                                        definition(
-                                            "event1",
-                                            trigger(
-                                                condition("action", "\$eq", "action1"),
-                                                fields = JSONObject().put(
-                                                    "field1",
-                                                    "value1"
-                                                ).put("field2", "value2")
-                                            )
-                                        ),
-                                        lastModified = lastModified,
-                                        status = "modified"
-                                    )
-                                )
-                        )
-                            .toString()
-                    )
-                }
-                return super.onTrackRequest(request)
-            }
-        }
+        dispatcher = VTRequestDispatcher(definition, lastModified = LAST_MODIFIED)
         server = MockWebServer()
         server.dispatcher = dispatcher
         server.start()
 
-        setupKarteApp(server, "appkey", Config.Builder().enabledTrackingAaid(false))
+        setupKarteApp(server, Config.Builder().enabledTrackingAaid(false))
 
         injectDirectExecutorServiceToAutoTrackModules()
     }
@@ -121,11 +90,12 @@ class VisualTrackingTest : RobolectricTestCase() {
         Tracker.view("fuga")
         proceedBufferedCall()
         val req = dispatcher.trackedRequests().last()
-        assertThat(req.getHeader("X-KARTE-Auto-Track-If-Modified-Since")).isEqualTo("10")
+        assertThat(req.getHeader("X-KARTE-Auto-Track-If-Modified-Since"))
+            .isEqualTo(LAST_MODIFIED.toString())
     }
 
     @Test
-    fun 自動計測定義によりイベントが発火する() {
+    fun trackで取得した自動計測定義によりイベントが発火する() {
         Tracker.view("hoge")
         proceedBufferedCall()
         VTHook.hookAction("action1", arrayOf())
@@ -142,7 +112,33 @@ class VisualTrackingTest : RobolectricTestCase() {
                 "field2" to "value2"
             )
         )
-        val request = server.takeRequest()
+        val request = dispatcher.trackedRequests().last()
+        assertThatJson(JSONObject(request.parseBody())).node("app_info").isObject
+    }
+
+    @Test
+    fun APIで取得した自動計測定義によりイベントが発火する() {
+        val scheduledExecutorService = mockk<ScheduledExecutorService>(relaxed = true)
+        every { scheduledExecutorService.schedule(any(), any(), any()) } answers {
+            (firstArg() as Runnable).run()
+            callOriginal()
+        }
+        VisualTracking.self?.getDefinitions(scheduledExecutorService)
+        VTHook.hookAction("action1", arrayOf())
+        proceedBufferedCall()
+
+        assertThat(dispatcher.trackedEvents()).comparingElementsUsing(eventNameTransform)
+            .contains("event1")
+        val values = dispatcher.trackedEvents()
+            .find { it.getString("event_name") == "event1" }
+            ?.getJSONObject("values")!!
+        assertThatJson(values).isObject.containsAllEntriesOf(
+            mapOf(
+                "field1" to "value1",
+                "field2" to "value2"
+            )
+        )
+        val request = dispatcher.trackedRequests().last()
         assertThatJson(JSONObject(request.parseBody())).node("app_info").isObject
     }
 

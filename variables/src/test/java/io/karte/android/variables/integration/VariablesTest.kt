@@ -69,8 +69,6 @@ private fun createRemoteConfigCGMessage(
 }
 
 abstract class VariablesTestCase : RobolectricTestCase() {
-    private val appKey = "sampleappkey"
-
     lateinit var server: MockWebServer
 
     @Before
@@ -78,7 +76,7 @@ abstract class VariablesTestCase : RobolectricTestCase() {
         server = MockWebServer()
         server.start()
 
-        setupKarteApp(server, appKey)
+        setupKarteApp(server)
     }
 
     @After

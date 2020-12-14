@@ -15,8 +15,6 @@
 //
 package io.karte.android.core.config
 
-import io.karte.android.core.config.Config as Config
-
 /**
  * SDKの設定を保持するクラスです。
  *
@@ -55,12 +53,13 @@ import io.karte.android.core.config.Config as Config
  */
 class ExperimentalConfig private constructor(
     val operationMode: OperationMode,
+    appKey: String,
     baseUrl: String,
     logCollectionUrl: String,
     isDryRun: Boolean,
     isOptOut: Boolean,
     enabledTrackingAaid: Boolean
-) : Config(baseUrl, logCollectionUrl, isDryRun, isOptOut, enabledTrackingAaid) {
+) : Config(appKey, baseUrl, logCollectionUrl, isDryRun, isOptOut, enabledTrackingAaid) {
 
     /**
      * [ExperimentalConfig]クラスの生成を行うためのクラスです。
@@ -76,6 +75,7 @@ class ExperimentalConfig private constructor(
         /**[ExperimentalConfig]クラスのインスタンスを生成します。*/
         override fun build(): ExperimentalConfig = ExperimentalConfig(
             operationMode,
+            appKey,
             baseUrl,
             logCollectionUrl,
             isDryRun,

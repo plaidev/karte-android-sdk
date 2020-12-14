@@ -30,7 +30,6 @@ import android.webkit.WebView
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
 import io.karte.android.RobolectricTestCase
-import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.assertThat
 import io.karte.android.createControlGroupMessage
 import io.karte.android.createMessage
@@ -52,7 +51,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
@@ -67,7 +65,7 @@ import org.robolectric.shadows.ShadowLooper
 import org.robolectric.shadows.ShadowWindowManagerImpl
 import java.util.Base64
 
-private const val appKey = "sampleappkey"
+private const val iamAppKey = "inappmessaging_appkey_1234567890"
 private const val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
 
 private val popupMsg1 = createMessage(shortenId = "action1", pluginType = "webpopup")
@@ -79,7 +77,7 @@ private val limitedMsg = createMessage(shortenId = "action3", pluginType = "webp
 
 abstract class InAppMessagingTestCase : RobolectricTestCase() {
     lateinit var server: MockWebServer
-    lateinit var dispatcher: TrackerRequestDispatcher
+    lateinit var dispatcher: IAMRequestDispatcher
     lateinit var activity: ActivityController<Activity>
     lateinit var app: KarteApp
 
@@ -95,33 +93,31 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
     @Before
     fun initTracker() {
         server = MockWebServer()
-        dispatcher = object : TrackerRequestDispatcher() {
-            override fun onTrackRequest(request: RecordedRequest): MockResponse {
-                val body = JSONObject(request.parseBody())
-                val eventNames =
-                    body.getJSONArray("events").toList().map { it.getString("event_name") }
+        dispatcher = IAMRequestDispatcher { request ->
+            val body = JSONObject(request.parseBody())
+            val eventNames =
+                body.getJSONArray("events").toList().map { it.getString("event_name") }
 
-                val messages = JSONArray()
-                if (eventNames.any { it == "popup1" }) {
-                    messages.put(popupMsg1)
-                }
-                if (eventNames.any { it == "popup2" }) {
-                    messages.put(popupMsg2)
-                }
-                if (eventNames.any { it == "cg_popup" }) {
-                    messages.put(cgPopupMsg)
-                }
-                if (eventNames.any { it == "limited" }) {
-                    messages.put(limitedMsg)
-                }
-
-                return MockResponse().setBody(createMessagesResponse(messages).toString())
+            val messages = JSONArray()
+            if (eventNames.any { it == "popup1" }) {
+                messages.put(popupMsg1)
             }
+            if (eventNames.any { it == "popup2" }) {
+                messages.put(popupMsg2)
+            }
+            if (eventNames.any { it == "cg_popup" }) {
+                messages.put(cgPopupMsg)
+            }
+            if (eventNames.any { it == "limited" }) {
+                messages.put(limitedMsg)
+            }
+
+            MockResponse().setBody(createMessagesResponse(messages).toString())
         }
         server.dispatcher = dispatcher
         server.start()
 
-        app = setupKarteApp(server, appKey)
+        app = setupKarteApp(server, appKey = iamAppKey)
         activity = Robolectric.buildActivity(
             Activity::class.java,
             Intent(application, Activity::class.java)
@@ -198,7 +194,7 @@ class InAppMessagingTest {
             assertThat(uri.host).isEqualTo("cf-native.karte.io")
             assertThat(uri.path).isEqualTo("/v0/native/overlay")
             assertThat(uri.queryParameterNames).isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
-            assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
+            assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
             assertThat(uri.getQueryParameter("_k_app_prof")).isEqualTo(app.appInfo?.json.toString())
         }
@@ -220,7 +216,7 @@ class InAppMessagingTest {
             val uri = Uri.parse(shadowWebView?.loadedUrls?.first())
             assertThat(uri.queryParameterNames)
                 .isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
-            assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
+            assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
             assertThat(uri.getQueryParameter("_k_app_prof")?.let { JSONObject(it) })
                 .isEqualTo(app.appInfo?.json)
@@ -562,7 +558,7 @@ class InAppMessagingTest {
             val uri = Uri.parse(currentShadowWebView?.lastLoadedUrl)
             assertThat(uri.queryParameterNames)
                 .isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
-            assertThat(uri.getQueryParameter("app_key")).isEqualTo(appKey)
+            assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
             assertThat(uri.getQueryParameter("_k_app_prof")?.let { JSONObject(it) })
                 .isEqualTo(app.appInfo?.json)

@@ -23,7 +23,7 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import io.karte.android.RobolectricTestCase
-import io.karte.android.visualtracking.internal.TraceBuilder
+import io.karte.android.visualtracking.internal.tracing.TraceBuilder
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.json.JSONObject
 import org.junit.Test
