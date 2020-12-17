@@ -29,7 +29,7 @@ private const val LOG_TAG = "Karte.TokenRegistrar"
 internal class TokenRegistrar(private val context: Context) : UserModule, NotificationModule {
 
     //region Module
-    override val name: String = TokenRegistrar::class.java.simpleName
+    override val name: String = "TokenRegistrar"
     //endregion
 
     //region UserModule

@@ -30,7 +30,7 @@ private const val SENT_FLAG = "_krt_deep_link_event"
 internal class DeepLinkEvent : Library, DeepLinkModule {
 
     //region Library
-    override val name: String = DeepLinkEvent::class.java.simpleName
+    override val name: String = "DeepLinkEvent"
     override val version: String = BuildConfig.VERSION_NAME
     override val isPublic: Boolean = false
 
