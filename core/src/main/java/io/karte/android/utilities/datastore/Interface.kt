@@ -29,6 +29,7 @@ internal abstract class Persistable {
     val values: MutableMap<String, Any?> = mutableMapOf()
     abstract val contract: Contract<*>
     abstract fun onPersisted(): Map<String, Any?>
+    abstract val size: Int
 }
 
 internal interface Persister {
