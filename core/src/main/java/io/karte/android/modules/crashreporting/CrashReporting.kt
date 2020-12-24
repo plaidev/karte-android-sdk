@@ -32,7 +32,7 @@ internal class CrashReporting : Thread.UncaughtExceptionHandler, Library {
         Thread.getDefaultUncaughtExceptionHandler()
 
     //region Library
-    override val name: String = CrashReporting::class.java.simpleName
+    override val name: String = "CrashReporting"
     override val version: String = BuildConfig.VERSION_NAME
     override val isPublic: Boolean = false
 

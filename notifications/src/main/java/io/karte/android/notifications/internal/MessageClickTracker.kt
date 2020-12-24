@@ -37,7 +37,7 @@ private const val LOG_TAG = "Karte.MessageClickTracker"
 internal object MessageClickTracker : DeepLinkModule {
 
     //region DeepLinkModule
-    override val name: String = MessageClickTracker::class.java.simpleName
+    override val name: String = "MessageClickTracker"
 
     override fun handle(intent: Intent?) {
         sendMessageClickIfNeeded(intent)
