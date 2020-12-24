@@ -17,7 +17,9 @@ package io.karte.android.utilities.datastore
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.res.Resources
 import android.database.Cursor
+import android.database.sqlite.SQLiteBlobTooBigException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteFullException
@@ -26,6 +28,15 @@ import android.provider.BaseColumns
 import io.karte.android.core.logger.Logger
 
 private const val LOG_TAG = "Karte.DataStore"
+
+private fun getCursorWindowSize(): Int {
+    return runCatching {
+        Resources.getSystem().getInteger(
+            Resources.getSystem()
+                .getIdentifier("config_cursorWindowSize", "integer", "android")
+        ) * 1024
+    }.getOrNull() ?: 1024 * 1024
+}
 
 private class DbHelper(context: Context) :
     SQLiteOpenHelper(context, "krt_cache.db", null, persistableContracts.sumBy { it.version }) {
@@ -71,6 +82,7 @@ internal class DataStore private constructor(context: Context) {
     private val dbHelper = DbHelper(context)
     private val cache: MutableMap<Long, Persistable> = mutableMapOf()
     private val subscribers = mutableSetOf<Subscriber>()
+    private val windowSize = getCursorWindowSize()
 
     private fun contentValues(persistable: Persistable): ContentValues {
         val values = ContentValues()
@@ -121,6 +133,10 @@ internal class DataStore private constructor(context: Context) {
 
         // region Persister
         override fun put(persistable: Persistable): Long {
+            if (persistable.size > instance.windowSize) {
+                Logger.e(LOG_TAG, "Too big: persistable size: ${persistable.size}.")
+                return -1L
+            }
             val result = try {
                 instance.dbHelper.writableDatabase.insert(
                     persistable.contract.namespace,
@@ -166,7 +182,18 @@ internal class DataStore private constructor(context: Context) {
                 order ?: "${BaseColumns._ID} ASC"
             ).use { cursor ->
                 val persistables = mutableListOf<T>()
-                repeat(cursor.count) {
+                val count = try {
+                    cursor.count
+                } catch (e: SQLiteBlobTooBigException) {
+                    // 大きすぎるデータを保持してしまった場合はall deleteする.
+                    Logger.w(
+                        LOG_TAG,
+                        "drop table:${contract.namespace}, because too big row and cannot read."
+                    )
+                    instance.dbHelper.writableDatabase.delete(contract.namespace, null, null)
+                    0
+                }
+                repeat(count) {
                     cursor.moveToPosition(it)
                     val persistable = contract.create(cursor.columnNames.mapIndexed { index, s ->
                         if (index == -1) return@mapIndexed s to null
