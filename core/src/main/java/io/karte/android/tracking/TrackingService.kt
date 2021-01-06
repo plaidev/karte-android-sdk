@@ -25,6 +25,9 @@ import org.json.JSONObject
 
 private const val LOG_TAG = "Karte.Tracker"
 
+/** Local cap for event values is 1mb */
+private const val MAX_VALUES_SIZE = 1024 * 1024
+
 internal class TrackingService internal constructor() {
 
     private val dispatcher = Dispatcher()
@@ -47,14 +50,19 @@ internal class TrackingService internal constructor() {
         if (event.eventName == BaseEventName.View) {
             KarteApp.self.pvIdContainer.renew()
         }
-        dispatcher.push(
-            EventRecord(
+        runCatching {
+            val record = EventRecord(
                 visitorId ?: KarteApp.visitorId,
                 KarteApp.self.originalPvId,
                 KarteApp.self.pvId,
                 event
-            ), completion
-        )
+            )
+            if (record.size > MAX_VALUES_SIZE) {
+                Logger.w(LOG_TAG, "Event values too big. ${record.size}")
+                return@runCatching
+            }
+            dispatcher.push(record, completion)
+        }.onFailure { Logger.e(LOG_TAG, "Exception occurred when push event. $it") }
     }
 
     internal fun teardown() {

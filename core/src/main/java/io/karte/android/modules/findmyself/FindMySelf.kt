@@ -33,7 +33,7 @@ private const val LOG_TAG = "Karte.FindMySelf"
 internal class FindMyself : Library, DeepLinkModule {
 
     //region Library
-    override val name: String = FindMyself::class.java.simpleName
+    override val name: String = "FindMySelf"
     override val version: String = BuildConfig.VERSION_NAME
     override val isPublic: Boolean = false
 

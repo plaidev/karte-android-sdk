@@ -84,4 +84,13 @@ internal class EventRecord() : Persistable() {
             EventContract.STATE to values[EventContract.STATE] as Int
         )
     }
+
+    /** パフォーマンス優先で簡易的にlengthで計算する.
+     * マルチバイト文字列だと溢れるが許容する. */
+    override val size: Int by lazy {
+        visitorId.length +
+            originalPvId.length +
+            pvId.length +
+            (values[EventContract.EVENT] as String).length
+    }
 }

@@ -32,7 +32,7 @@ internal class CrashReporting : Thread.UncaughtExceptionHandler, Library {
         Thread.getDefaultUncaughtExceptionHandler()
 
     //region Library
-    override val name: String = CrashReporting::class.java.simpleName
+    override val name: String = "CrashReporting"
     override val version: String = BuildConfig.VERSION_NAME
     override val isPublic: Boolean = false
 
@@ -58,7 +58,7 @@ internal class CrashReporting : Thread.UncaughtExceptionHandler, Library {
                     "error_info" to mapOf<String, Any?>(
                         "message" to th.localizedMessage,
                         "reason" to th.cause.toString(),
-                        "stack_trace" to sw.toString(),
+                        "stack_trace" to sw.toString().take(30000),
                         "crash_date" to Date().time / 1000
                     )
                 )
