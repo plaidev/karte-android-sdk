@@ -13,22 +13,15 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-package io.karte.android.variables.integration
+package io.karte.android.notifications
 
-import com.google.common.truth.Truth.assertThat
-import io.karte.android.integration.DryRunTestCase
-import io.karte.android.variables.Variables
-import org.junit.Test
+import android.app.NotificationManager
+import io.karte.android.RobolectricTestCase
+import org.robolectric.Shadows
 
-class DryRunTest : DryRunTestCase() {
-    @Test
-    fun testVariables() {
-        Variables.fetch()
-        val variable = Variables.get("test")
-        assertThat(variable.isDefined).isFalse()
-
-        Variables.trackOpen(listOf(variable))
-        Variables.trackClick(listOf(variable))
-        assertDryRun()
-    }
+fun NotificationManager.setPermission(enabled: Boolean) {
+    Shadows.shadowOf(this).setNotificationsEnabled(enabled)
 }
+
+val RobolectricTestCase.manager: NotificationManager
+    get() = application.getSystemService(NotificationManager::class.java)

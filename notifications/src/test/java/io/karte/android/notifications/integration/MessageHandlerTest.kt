@@ -16,8 +16,6 @@
 package io.karte.android.notifications.integration
 
 import android.app.Notification
-import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
@@ -30,13 +28,15 @@ import com.google.common.truth.Truth.assertThat
 import com.google.firebase.messaging.RemoteMessage
 import io.karte.android.RobolectricTestCase
 import io.karte.android.TrackerTestCase
-import io.karte.android.notifications.EXTRA_CAMPAIGN_ID
-import io.karte.android.notifications.EXTRA_SHORTEN_ID
 import io.karte.android.notifications.MessageHandler
 import io.karte.android.notifications.NOTIFICATION_TAG
+import io.karte.android.notifications.internal.wrapper.KEY_CAMPAIGN_ID
+import io.karte.android.notifications.internal.wrapper.KEY_SHORTEN_ID
+import io.karte.android.notifications.manager
+import io.karte.android.notifications.uniqueId
 import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
@@ -45,6 +45,7 @@ import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import java.net.URL
+import kotlin.test.assertNotNull
 
 private const val NOTIFICAITON_ID = 1000
 
@@ -66,10 +67,14 @@ private fun RobolectricTestCase.createPackageInfo(metaDataMap: Map<String, Int> 
     return packageInfo
 }
 
-private fun RobolectricTestCase.getNotification(id: Int = NOTIFICAITON_ID): Notification? {
-    val notificationManager =
-        application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    return shadowOf(notificationManager).getNotification(NOTIFICATION_TAG, id)
+private fun RobolectricTestCase.getNotification(id: Int = NOTIFICAITON_ID): Notification {
+    val notification = shadowOf(manager).getNotification(NOTIFICATION_TAG, id)
+    assertNotNull(notification)
+    return notification
+}
+
+private fun RobolectricTestCase.assertNotShowNotification() {
+    assertThat(shadowOf(manager).size()).isEqualTo(0)
 }
 
 private fun createIntent(
@@ -112,7 +117,7 @@ class MessageHandlerTest {
         private val sampleShortenId = "shorten1"
         lateinit var mainIntent: Intent
         lateinit var linkIntent: Intent
-        private val sampleAttachmentUrl: URL = this.javaClass.classLoader!!.getResource("1kx1k.png")
+        private val sampleAttachmentUrl: URL? = this.javaClass.classLoader?.getResource("1kx1k.png")
         private fun createRemoteMessage(
             title: String = sampleTitle,
             body: String = sampleBody,
@@ -158,8 +163,8 @@ class MessageHandlerTest {
 
             packageManager.installPackage(createPackageInfo())
 
-            mockkObject(MessageHandler, recordPrivateCalls = true)
-            every { MessageHandler["uniqueId"]() } returns NOTIFICAITON_ID
+            mockkStatic("io.karte.android.notifications.MessageHandlerKt")
+            every { uniqueId() } returns NOTIFICAITON_ID
         }
 
         @Suppress("DEPRECATION")
@@ -171,7 +176,7 @@ class MessageHandlerTest {
             packageManager.removeResolveInfosForIntent(mainIntent, packageName)
             packageManager.removeResolveInfosForIntent(linkIntent, packageName)
 
-            unmockkObject(MessageHandler)
+            unmockkStatic("io.karte.android.notifications.MessageHandlerKt")
         }
 
         @Test
@@ -188,7 +193,7 @@ class MessageHandlerTest {
                 RemoteMessage.Builder("dummyToken").build()
             )
             assertThat(ret).isFalse()
-            assertThat(getNotification()).isNull()
+            assertNotShowNotification()
         }
 
         @Test
@@ -217,8 +222,8 @@ class MessageHandlerTest {
                 )
             )
             MessageHandler.handleMessage(application, createRemoteMessage())
-            assertThat(getNotification()!!.smallIcon).isNotNull()
-            assertThat(getNotification()!!.smallIcon.resId).isEqualTo(android.R.drawable.btn_minus)
+            assertThat(getNotification().smallIcon).isNotNull()
+            assertThat(getNotification().smallIcon.resId).isEqualTo(android.R.drawable.btn_minus)
         }
 
         @Test
@@ -235,14 +240,14 @@ class MessageHandlerTest {
                 )
             )
             MessageHandler.handleMessage(application, createRemoteMessage())
-            assertThat(getNotification()!!.getLargeIcon()).isNotNull()
-            assertThat(getNotification()!!.getLargeIcon().type).isEqualTo(Icon.TYPE_BITMAP)
+            assertThat(getNotification().getLargeIcon()).isNotNull()
+            assertThat(getNotification().getLargeIcon().type).isEqualTo(Icon.TYPE_BITMAP)
         }
 
         @Test
         fun ラージアイコンが設定されていない場合_通知にセットされないこと() {
             MessageHandler.handleMessage(application, createRemoteMessage())
-            assertThat(getNotification()!!.getLargeIcon()).isNull()
+            assertThat(getNotification().getLargeIcon()).isNull()
         }
 
         @Test
@@ -251,16 +256,16 @@ class MessageHandlerTest {
                 application,
                 createRemoteMessage(attachmentUrl = sampleAttachmentUrl)
             )
-            assertThat(getNotification()!!.getLargeIcon()).isNotNull()
+            assertThat(getNotification().getLargeIcon()).isNotNull()
         }
 
         @Test
         fun urlが指定されてない場合_launcherアクティビティがセットされること() {
             val id = 99
-            every { MessageHandler["uniqueId"]() } returns id
+            every { uniqueId() } returns id
             MessageHandler.handleMessage(application, createRemoteMessage())
 
-            val contentIntent = shadowOf(getNotification(id)!!.contentIntent)
+            val contentIntent = shadowOf(getNotification(id).contentIntent)
             assertThat(contentIntent.requestCode).isEqualTo(id)
             assertThat(contentIntent.savedIntent.action).isEqualTo(Intent.ACTION_MAIN)
             assertThat(contentIntent.savedIntent.extras?.get("krt_component_name"))
@@ -270,12 +275,12 @@ class MessageHandlerTest {
         @Test
         fun urlが指定されてない場合_引数に渡されたデフォルトのIntentがセットされること() {
             val id = 98
-            every { MessageHandler["uniqueId"]() } returns id
+            every { uniqueId() } returns id
             val uri = Uri.parse(sampleUrl)
             val defIntent = Intent(Intent.ACTION_VIEW, uri)
             MessageHandler.handleMessage(application, createRemoteMessage(), defIntent)
 
-            val contentIntent = shadowOf(getNotification(id)!!.contentIntent)
+            val contentIntent = shadowOf(getNotification(id).contentIntent)
             assertThat(contentIntent.requestCode).isEqualTo(id)
             assertThat(contentIntent.savedIntent.data).isEqualTo(uri)
             assertThat(contentIntent.savedIntent.action).isEqualTo(Intent.ACTION_VIEW)
@@ -284,14 +289,14 @@ class MessageHandlerTest {
         @Test
         fun message_click計測用の値がセットされること() {
             val id = 97
-            every { MessageHandler["uniqueId"]() } returns id
+            every { uniqueId() } returns id
             MessageHandler.handleMessage(application, createRemoteMessage())
 
-            val contentIntent = shadowOf(getNotification(id)!!.contentIntent)
+            val contentIntent = shadowOf(getNotification(id).contentIntent)
             assertThat(contentIntent.requestCode).isEqualTo(id)
-            assertThat(contentIntent.savedIntent.extras?.getString(EXTRA_CAMPAIGN_ID))
+            assertThat(contentIntent.savedIntent.extras?.getString(KEY_CAMPAIGN_ID))
                 .isEqualTo(sampleCampaignId)
-            assertThat(contentIntent.savedIntent.extras?.getString(EXTRA_SHORTEN_ID))
+            assertThat(contentIntent.savedIntent.extras?.getString(KEY_SHORTEN_ID))
                 .isEqualTo(sampleShortenId)
         }
 
@@ -301,15 +306,15 @@ class MessageHandlerTest {
         @Test
         fun 複数回通知された時にrequestCodeやidが異なること() {
             val firstId = 96
-            every { MessageHandler["uniqueId"]() } returns firstId
+            every { uniqueId() } returns firstId
             MessageHandler.handleMessage(application, createRemoteMessage())
             val secondId = 95
-            every { MessageHandler["uniqueId"]() } returns secondId
+            every { uniqueId() } returns secondId
             MessageHandler.handleMessage(application, createRemoteMessage())
 
-            val firstContentIntent = shadowOf(getNotification(firstId)!!.contentIntent)
+            val firstContentIntent = shadowOf(getNotification(firstId).contentIntent)
             assertThat(firstContentIntent.requestCode).isEqualTo(firstId)
-            val secondContentIntent = shadowOf(getNotification(secondId)!!.contentIntent)
+            val secondContentIntent = shadowOf(getNotification(secondId).contentIntent)
             assertThat(secondContentIntent.requestCode).isEqualTo(secondId)
         }
     }

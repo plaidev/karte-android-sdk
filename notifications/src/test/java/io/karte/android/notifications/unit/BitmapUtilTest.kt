@@ -22,13 +22,16 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.net.URL
+import kotlin.test.assertNotNull
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28])
 class BitmapUtilTest {
     @Test
-    fun bigPictureShoudFitToScreenSize() {
-        val url: URL = this.javaClass.classLoader!!.getResource("1kx1k.png")
+    fun bigPictureShouldFitToScreenSize() {
+        val classLoader = javaClass.classLoader
+        assertNotNull(classLoader)
+        val url: URL = classLoader.getResource("1kx1k.png")
         val bitmap = BitmapUtil.getBigPicture(url.toString())
         // 1000x1000pxの画像を470x320に縦横共収まるように調整する。
         // 320より小さくなるまで1/2を掛けるので1000 * (1/2) ^ 2 = 250となって、縦横共250pxになる。

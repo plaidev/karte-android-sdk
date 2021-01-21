@@ -15,22 +15,15 @@
 //
 package io.karte.android.notifications.integration
 
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.Task
 import com.google.common.truth.Truth.assertThat
-import com.google.firebase.iid.FirebaseInstanceId
-import com.google.firebase.iid.InstanceIdResult
 import io.karte.android.KarteApp
 import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.TrackerTestCase
 import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.toList
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.slot
 import org.json.JSONObject
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
@@ -48,11 +41,16 @@ class RenewVisitorIdTest {
         fun setup() {
             dispatcher = TrackerRequestDispatcher()
             server.dispatcher = dispatcher
+            mockFirebaseToken(mockedToken)
+        }
+
+        @After
+        fun teardown() {
+            unmockFirebase()
         }
 
         @Test
         fun renewVisitorId_成功した場合() {
-            makeMock()
             val oldVisitorId = KarteApp.visitorId
             KarteApp.renewVisitorId()
             val newVisitorId = KarteApp.visitorId
@@ -85,26 +83,6 @@ class RenewVisitorIdTest {
                 assertThat(subscribeEvent?.getBoolean("subscribe")).isTrue()
                 assertThat(subscribeEvent?.getString("fcm_token")).isEqualTo(mockedToken)
             }
-        }
-
-        private fun makeMock() {
-            mockkStatic(FirebaseInstanceId::class)
-            val slot = slot<OnCompleteListener<InstanceIdResult>>()
-            val instanceId = mockk<FirebaseInstanceId> {
-                every { instanceId } returns mockk {
-                    every { addOnCompleteListener(capture(slot)) } answers {
-                        val result = mockk<Task<InstanceIdResult>> {
-                            every { isSuccessful } returns true
-                            every { result } returns mockk {
-                                every { token } returns mockedToken
-                            }
-                        }
-                        slot.captured.onComplete(result)
-                        result
-                    }
-                }
-            }
-            every { FirebaseInstanceId.getInstance() } returns instanceId
         }
     }
 }
