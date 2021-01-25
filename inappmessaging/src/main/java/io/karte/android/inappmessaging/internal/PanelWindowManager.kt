@@ -89,10 +89,10 @@ internal class PanelWindowManager {
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         override fun dispatchTouch(event: MotionEvent): Boolean {
-            val window = windowRef.get()
+            val window = windowRef.get() ?: return false
             if (!isActivePanel(window)) return false
 
-            val params = window!!.attributes
+            val params = window.attributes
             if (params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE != 0)
                 return false
 
@@ -123,11 +123,11 @@ internal class PanelWindowManager {
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         override fun dispatchTouchForce(event: MotionEvent) {
-            val window = windowRef.get()
+            val window = windowRef.get() ?: return
             if (!isActivePanel(window)) return
 
             event.offsetLocation((-locationOnScreen[0]).toFloat(), (-locationOnScreen[1]).toFloat())
-            window!!.injectInputEvent(event)
+            window.injectInputEvent(event)
         }
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -158,8 +158,8 @@ internal class PanelWindowManager {
         }
 
         override fun dispatchTouch(event: MotionEvent): Boolean {
-            val popupWindow = popupWindowRef.get()
-            if (!(isActivePanel(popupWindow) && popupWindow!!.isTouchable)) {
+            val popupWindow = popupWindowRef.get() ?: return false
+            if (!(isActivePanel(popupWindow) && popupWindow.isTouchable)) {
                 return false
             }
 
@@ -193,7 +193,7 @@ internal class PanelWindowManager {
 
         override fun dispatchTouchForce(event: MotionEvent) {
             val popupWindow = popupWindowRef.get()
-            if (!(isActivePanel(popupWindow) && popupWindow!!.isTouchable)) {
+            if (!(isActivePanel(popupWindow) && popupWindow?.isTouchable == true)) {
                 return
             }
 
