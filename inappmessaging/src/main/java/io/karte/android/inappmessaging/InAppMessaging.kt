@@ -16,6 +16,7 @@
 package io.karte.android.inappmessaging
 
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -120,7 +121,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         // pvIdがある(onResumeより後ろ)場合のみdismissする
         if (app.pvId != app.originalPvId) {
             currentActiveActivity?.get()?.window?.decorView?.post {
-                getWebView().also {
+                getWebView()?.also {
                     if (it.hasMessage) {
                         setIAMWindow(windowFocusable)
                         it.handleChangePv()
@@ -287,37 +288,39 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     /*
       * WebViewを作成. キャッシュ有効時には初回はキャッシュを作成し、以後使い回す。
       */
-    private fun getWebView(): IAMWebView {
+    private fun getWebView(url: String = generateOverlayURL()): IAMWebView? {
         cachedWebView?.let { return it }
 
-        cachedWebView = IAMWebView(app.application) { uri: Uri ->
-            Boolean
-            Logger.d(LOG_TAG, " shouldOpenURL $delegate")
-            delegate?.shouldOpenURL(uri) ?: true
-        }.apply { loadUrl(generateOverlayURL()) }
+        try {
+            cachedWebView = IAMWebView(app.application) { uri: Uri ->
+                Boolean
+                Logger.d(LOG_TAG, " shouldOpenURL $delegate")
+                delegate?.shouldOpenURL(uri) ?: true
+            }.apply { loadUrl(url) }
+        } catch (e: PackageManager.NameNotFoundException) {
+            // WebViewアップデート中に初期化すると例外発生する可能性がある
+            // NOTE: https://stackoverflow.com/questions/29575313/namenotfoundexception-webview
+            // 4系,5.0系に多いが、その他でも発生しうる。
+            Logger.e(LOG_TAG, "Failed to construct IAMWebView, because WebView is updating.", e)
+        } catch (t: Throwable) {
+            // 7系等入っているWebViewによってWebKit側のExceptionになってしまうのでThrowableでキャッチする
+            // https://stackoverflow.com/questions/46278681/android-webkit-webviewfactorymissingwebviewpackageexception-from-android-7-0
+            Logger.e(LOG_TAG, "Failed to construct IAMWebView", t)
+        }
 
-        return cachedWebView!!
+        return cachedWebView
     }
 
     private fun setIAMWindow(focusable: Boolean) {
-        try {
-            // IAMWindow内でWebViewを初期化する際に稀に例外が発生することがあるので対策する
-            //
-            // NOTE: https://stackoverflow.com/questions/29575313/namenotfoundexception-webview
-            // 4系,5.0系のosのバグで、頻度は低い。
-            // System WebViewをアップデートした直後に発生する場合があるが再現も難しい。
-            if (presenter == null) {
-                Logger.d(LOG_TAG, "Adding IAMWindow to Activity. $currentActiveActivity")
-                val webView = getWebView()
-                currentActiveActivity?.get()?.let { activity ->
-                    val window = IAMWindow(activity, panelWindowManager, webView)
-                    window.setFocus(focusable)
-                    presenter = IAMPresenter(window, webView) { presenter = null }
-                }
-            }
-        } catch (t: Throwable) {
-            Logger.e(LOG_TAG, "Failed to construct IAMWindow", t)
-        }
+        if (presenter != null) return
+
+        val activity = currentActiveActivity?.get() ?: return
+        val webView = getWebView() ?: return
+        Logger.d(LOG_TAG, "Setting IAMWindow to activity. $currentActiveActivity")
+        presenter = IAMPresenter(
+            IAMWindow(activity, panelWindowManager, webView).apply { setFocus(focusable) },
+            webView
+        ) { presenter = null }
     }
 
     private fun generateOverlayURL(): String {
@@ -342,17 +345,13 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
 
     private fun showPreview(params: PreviewParams) {
         currentActiveActivity?.get()?.window?.decorView?.post {
-            currentActiveActivity?.get()?.let { activity ->
-                val webView =
-                    IAMWebView(app.application) { uri: Uri ->
-                        Boolean
-                        delegate?.shouldOpenURL(uri) ?: true
-                    }.apply { params.generateUrl(app)?.let { loadUrl(it) } }
-                presenter = IAMPresenter(
-                    IAMWindow(activity, panelWindowManager, webView),
-                    webView
-                ) { presenter = null }
-            }
+            val activity = currentActiveActivity?.get() ?: return@post
+            val url = params.generateUrl(app) ?: return@post
+            val webView = getWebView(url) ?: return@post
+            presenter = IAMPresenter(
+                IAMWindow(activity, panelWindowManager, webView),
+                webView
+            ) { presenter = null }
         }
     }
 

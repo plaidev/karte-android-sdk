@@ -18,6 +18,7 @@ package io.karte.android.inappmessaging.internal
 import android.util.Base64
 import io.karte.android.core.logger.Logger
 import io.karte.android.tracking.client.TrackRequest
+import io.karte.android.utilities.forEach
 import io.karte.android.utilities.map
 import org.json.JSONArray
 import org.json.JSONException
@@ -49,8 +50,8 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
             val messages = data?.optJSONArray("messages") ?: return
 
             val modifiedMessages = ArrayList<JSONObject>()
-            for (i in 0 until messages.length()) {
-                val message = messages.getJSONObject(i)
+            messages.forEach {
+                val message = it as? JSONObject ?: return@forEach
                 val campaign = message.getJSONObject("campaign")
 
                 val displayLimitMode = campaign.optBoolean("native_app_display_limit_mode", false)
