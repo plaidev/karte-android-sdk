@@ -47,7 +47,7 @@ private const val HEADER_IF_MODIFIED_SINCE = "X-KARTE-Auto-Track-If-Modified-Sin
 private const val HEADER_OS = "X-KARTE-Auto-Track-OS"
 private const val OS_ANDROID = "android"
 
-internal class VisualTracking : Library, ActionModule, TrackModule {
+class VisualTracking : Library, ActionModule, TrackModule {
     //region Library
     override val name: String = "visualtracking"
     override val version: String = BuildConfig.VERSION_NAME
@@ -119,6 +119,12 @@ internal class VisualTracking : Library, ActionModule, TrackModule {
         handleTrace(traceBuilder.buildTrace(name, args))
     }
 
+    @Throws(JSONException::class)
+    internal fun handleAction(action: Action) {
+        Logger.d(LOG_TAG, "Start handling action. action=$action")
+        handleTrace(traceBuilder.buildTrace(action))
+    }
+
     private fun handleTrace(trace: Trace) {
         pairingManager.sendTraceIfInPairing(trace)
 
@@ -179,5 +185,28 @@ internal class VisualTracking : Library, ActionModule, TrackModule {
 
     companion object {
         internal var self: VisualTracking? = null
+
+        /**
+         * 操作ログをハンドルします。
+         *
+         * 操作ログはペアリング時のみ送信されます。
+         * イベント発火条件定義に操作ログがマッチした際にビジュアルイベントが送信されます。
+         *
+         * @param action アクションを表現する型
+         */
+        @JvmStatic
+        fun handle(action: Action) {
+            try {
+                Logger.d(LOG_TAG, "handle action=$action")
+                val instance = self
+                if (instance == null) {
+                    Logger.e(LOG_TAG, "Tried to handle action but VisualTracking is not enabled.")
+                    return
+                }
+                instance.handleAction(action)
+            } catch (e: Exception) {
+                Logger.e(LOG_TAG, "Failed to handle action.", e)
+            }
+        }
     }
 }

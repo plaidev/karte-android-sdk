@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
     <issue id="GradleDependency" severity="informational" />
+
+    <!--  Kotlin Interoperability  -->
+    <issue id="KotlinPropertyAccess" severity="warning"/>
+    <issue id="LambdaLast" severity="warning"/>
+    <issue id="NoHardKeywords" severity="warning"/>
+    <issue id="UnknownNullness" severity="warning"/>
 </lint>

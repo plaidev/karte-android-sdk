@@ -23,6 +23,7 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import io.karte.android.RobolectricTestCase
+import io.karte.android.visualtracking.BasicAction
 import io.karte.android.visualtracking.internal.tracing.TraceBuilder
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.json.JSONObject
@@ -101,6 +102,21 @@ class TraceBuilderTest : RobolectricTestCase() {
             )
         )
         assertThatJson(values).isObject.doesNotContainKeys("view", "target_text")
+        assertThatJson(values).node("app_info.version_name").isString.isEqualTo("1.5.5")
+    }
+
+    @Test
+    fun actionIdを指定してtraceを生成() {
+        val action = BasicAction("touch", "actionId", "target_text")
+        val values = traceBuilder.buildTrace(action).values
+        assertThatJson(values).isObject.containsAllEntriesOf(
+            mapOf(
+                "action_id" to "actionId",
+                "target_text" to "target_text",
+                "action" to "touch"
+            )
+        )
+        assertThatJson(values).isObject.doesNotContainKeys("view", "activity")
         assertThatJson(values).node("app_info.version_name").isString.isEqualTo("1.5.5")
     }
 

@@ -24,18 +24,29 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
+import io.karte.android.visualtracking.ImageProvider
 import org.json.JSONObject
 
 internal typealias BitmapCallback = (bitmap: Bitmap?) -> Unit
 
 @UiThread
-internal class Trace internal constructor(val view: View?, val values: JSONObject) {
+internal class Trace internal constructor(
+    private val view: View?,
+    val values: JSONObject,
+    private val imageProvider: ImageProvider? = null
+) {
 
     internal fun getBitmapIfNeeded(callback: BitmapCallback) {
+        if (imageProvider != null) {
+            callback.invoke(imageProvider.image())
+            return
+        }
+
         if (view == null) {
             callback.invoke(null)
             return
         }
+
         if (view.width == 0 || view.height == 0) {
             view.viewTreeObserver.addOnGlobalLayoutListener(object :
                 ViewTreeObserver.OnGlobalLayoutListener {
