@@ -21,20 +21,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             val data = remoteMessage.data
             val title = data["subject"]
             val body = data["text"]
-            sendNotification(title, body, data.get("android_channel_id"), data)
+            sendNotification(title, body, data.get("android_channel_id"))
         }
     }
 
     private fun sendNotification(
         title: String?,
         body: String?,
-        channel: String?,
-        data: Map<String, String>
+        channel: String?
     ) {
 
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        MessageHandler.copyInfoToIntent(data, intent)
 
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,

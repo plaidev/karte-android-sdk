@@ -29,15 +29,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Map<String, String> data = remoteMessage.getData();
             String title = data.get("subject");
             String body = data.get("text");
-            sendNotification(title, body, data.get("android_channel_id"), data);
+            sendNotification(title, body, data.get("android_channel_id"));
         }
     }
 
-    protected void sendNotification(String title, String body, String channel, Map<String, String> data) {
+    protected void sendNotification(String title, String body, String channel) {
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        MessageHandler.copyInfoToIntent(data, intent);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);

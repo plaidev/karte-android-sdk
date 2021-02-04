@@ -19,11 +19,8 @@ import android.app.Activity
 import io.karte.android.KarteApp
 import io.karte.android.core.library.Library
 import io.karte.android.core.logger.Logger
-import io.karte.android.notifications.internal.MessageClickTracker
 import io.karte.android.notifications.internal.TokenRegistrar
-import io.karte.android.tracking.Event
-import io.karte.android.tracking.EventName
-import io.karte.android.tracking.Values
+import io.karte.android.notifications.internal.track.ClickTracker
 import io.karte.android.utilities.ActivityLifecycleCallback
 
 private const val LOG_TAG = "Karte.Notifications"
@@ -33,7 +30,7 @@ private const val LOG_TAG = "Karte.Notifications"
  */
 class Notifications : Library, ActivityLifecycleCallback() {
     private lateinit var registrar: TokenRegistrar
-    private val clickTracker = MessageClickTracker
+    private val clickTracker = ClickTracker
 
     internal lateinit var app: KarteApp
 
@@ -92,21 +89,6 @@ class Notifications : Library, ActivityLifecycleCallback() {
         @JvmStatic
         var enabledFCMTokenResend = true
     }
-}
-
-internal class MassPushClickEvent(values: Values) :
-    Event(PushEventName.MassPushClick, values)
-
-internal class PluginNativeAppIdentifyEvent(subscribe: Boolean, token: String? = null) :
-    Event(
-        PushEventName.PluginNativeAppIdentify,
-        values = mutableMapOf<String, Any>("subscribe" to subscribe).apply {
-            if (token != null) this["fcm_token"] = token
-        })
-
-private enum class PushEventName(override val value: String) : EventName {
-    MassPushClick("mass_push_click"),
-    PluginNativeAppIdentify("plugin_native_app_identify"),
 }
 
 /**
