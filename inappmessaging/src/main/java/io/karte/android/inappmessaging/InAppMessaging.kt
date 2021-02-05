@@ -142,7 +142,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     override fun renewVisitorId(current: String, previous: String?) {
         uiThreadHandler.post {
             presenter?.destroy()
-            cachedWebView?.loadUrl(generateOverlayURL())
+            getWebView(generateOverlayURL())
             clearWebViewCookies()
         }
     }
@@ -157,6 +157,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         val previewParams = PreviewParams(activity)
         // 接客プレビューの場合はイベントを送信しない。
         if (previewParams.shouldShowPreview()) {
+            Logger.i(LOG_TAG, "Enter preview mode. ${previewParams.generateUrl(app)}")
             app.optOutTemporarily()
             showPreview(previewParams)
         }
@@ -288,15 +289,20 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     /*
       * WebViewを作成. キャッシュ有効時には初回はキャッシュを作成し、以後使い回す。
       */
-    private fun getWebView(url: String = generateOverlayURL()): IAMWebView? {
-        cachedWebView?.let { return it }
+    private fun getWebView(url: String? = null): IAMWebView? {
+        cachedWebView?.let {
+            // urlが指定されている場合、読み込み済みのものと異なればcacheを使用しない
+            if (url == null || url == it.url)
+                return it
+        }
+        Logger.d(LOG_TAG, "WebView recreate")
 
         try {
             cachedWebView = IAMWebView(app.application) { uri: Uri ->
                 Boolean
                 Logger.d(LOG_TAG, " shouldOpenURL $delegate")
                 delegate?.shouldOpenURL(uri) ?: true
-            }.apply { loadUrl(url) }
+            }.apply { loadUrl(url ?: generateOverlayURL()) }
         } catch (e: PackageManager.NameNotFoundException) {
             // WebViewアップデート中に初期化すると例外発生する可能性がある
             // NOTE: https://stackoverflow.com/questions/29575313/namenotfoundexception-webview
