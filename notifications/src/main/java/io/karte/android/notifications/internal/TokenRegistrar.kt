@@ -21,10 +21,9 @@ import com.google.firebase.iid.FirebaseInstanceId
 import io.karte.android.core.library.NotificationModule
 import io.karte.android.core.library.UserModule
 import io.karte.android.core.logger.Logger
-import io.karte.android.notifications.PluginNativeAppIdentifyEvent
 import io.karte.android.tracking.Tracker
 
-private const val LOG_TAG = "Karte.TokenRegistrar"
+private const val LOG_TAG = "Karte.Notifications.TokenRegistrar"
 
 internal class TokenRegistrar(private val context: Context) : UserModule, NotificationModule {
 

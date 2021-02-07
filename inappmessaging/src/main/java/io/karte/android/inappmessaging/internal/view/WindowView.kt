@@ -136,9 +136,7 @@ internal open class WindowView(
     open fun dismiss() {
         if (!isAttachedToWindow) return
 
-        if (webViewDrawingBitmap != null) {
-            webViewDrawingBitmap!!.recycle()
-        }
+        webViewDrawingBitmap?.recycle()
         windowManager.removeView(this)
     }
 
@@ -166,28 +164,32 @@ internal open class WindowView(
             // e.g. Arrows f-01 Fullscreen keyboard make these params as 0
             return
         }
-        if (webViewDrawingBitmap != null && !webViewDrawingBitmap!!.isRecycled) {
-            if (webViewDrawingBitmap!!.width == width && webViewDrawingBitmap!!.height == height) {
-                // 既にOverlayViewと同じサイズで利用可能なbitmapがあれば何もしなくて良い。
-                return
-            } else {
-                // bitmapはあるがサイズが正しくない場合はrecycleし、新しいサイズのbitmapを作り直す。
-                webViewDrawingBitmap!!.recycle()
+        webViewDrawingBitmap?.let {
+            if (!it.isRecycled) {
+                if (it.width == width && it.height == height) {
+                    // 既にOverlayViewと同じサイズで利用可能なbitmapがあれば何もしなくて良い。
+                    return
+                } else {
+                    // bitmapはあるがサイズが正しくない場合はrecycleし、新しいサイズのbitmapを作り直す。
+                    it.recycle()
+                }
             }
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // https://stackoverflow.com/questions/9247369/alpha-8-bitmaps-and-getpixel
-            webViewDrawingBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            webViewDrawingBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        } else {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             Logger.e(
                 LOG_TAG,
-                "Tried to create bitmap but " + Build.VERSION.SDK_INT + " is not supported."
+                "Tried to create bitmap but ${Build.VERSION.SDK_INT} is not supported."
             )
             return
         }
-        canvas = Canvas(webViewDrawingBitmap!!)
+        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // https://stackoverflow.com/questions/9247369/alpha-8-bitmaps-and-getpixel
+            Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
+        } else {
+            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        }
+        canvas = Canvas(bitmap)
+        webViewDrawingBitmap = bitmap
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
@@ -236,29 +238,28 @@ internal open class WindowView(
     }
 
     private fun touchIsInClientApp(ev: MotionEvent): Boolean {
-        if (childCount == 0 || webViewDrawingBitmap == null || canvas == null ||
-            webViewDrawingBitmap!!.isRecycled
+        if (childCount == 0 || canvas == null ||
+            webViewDrawingBitmap == null || webViewDrawingBitmap?.isRecycled == true
         ) {
             return true
-        } else {
-            val touchedX = ev.x
-            val touchedY = ev.y
-            if (touchedX <= 0 || touchedY <= 0 || touchedX >= webViewDrawingBitmap!!.width ||
-                touchedY >= webViewDrawingBitmap!!.height
-            ) {
-                return true
-            } else {
-                for (knownTouchableRegion in knownTouchableRegions) {
-                    if (knownTouchableRegion.contains(touchedX, touchedY)) return false
-                }
-                // There might be dirty bitmap cache (e.g. when dragging chat icon) so clear with transparent color.	      webViewDrawingBitmap.eraseColor(Color.TRANSPARENT);
-                webViewDrawingBitmap!!.eraseColor(Color.TRANSPARENT)
-                draw(canvas)
-
-                // If transparent, pass to app. Otherwise, pass to WebView.
-                return webViewDrawingBitmap!!.getPixel(touchedX.toInt(), touchedY.toInt()) == 0
-            }
         }
+
+        val touchedX = ev.x
+        val touchedY = ev.y
+        val width = webViewDrawingBitmap?.width ?: 0
+        val height = webViewDrawingBitmap?.height ?: 0
+        if (touchedX <= 0 || touchedY <= 0 || touchedX >= width || touchedY >= height) return true
+
+        knownTouchableRegions.forEach {
+            if (it.contains(touchedX, touchedY)) return false
+        }
+        // There might be dirty bitmap cache (e.g. when dragging chat icon) so clear with transparent color.
+        webViewDrawingBitmap?.eraseColor(Color.TRANSPARENT)
+        draw(canvas)
+
+        // If transparent, pass to app. Otherwise, pass to WebView.
+        val pixel = webViewDrawingBitmap?.getPixel(touchedX.toInt(), touchedY.toInt()) ?: 0
+        return pixel == 0
     }
 
     private fun hideAndShowKeyboard() {

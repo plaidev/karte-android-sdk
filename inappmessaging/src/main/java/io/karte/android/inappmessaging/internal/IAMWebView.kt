@@ -51,6 +51,7 @@ import io.karte.android.inappmessaging.internal.javascript.VISIBILITY
 import io.karte.android.tracking.MessageEventName
 import io.karte.android.tracking.Tracker
 import io.karte.android.utilities.asString
+import io.karte.android.utilities.toList
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
@@ -377,19 +378,14 @@ constructor(
         try {
             val density = resources.displayMetrics.density
 
-            val regions = ArrayList<RectF>()
-            for (i in 0 until regionsJson.length()) {
-                val rect = regionsJson.getJSONObject(i)
-                regions.add(
-                    RectF(
-                        (density * rect.getDouble("left")).toFloat(),
-                        (density * rect.getDouble("top")).toFloat(),
-                        (density * rect.getDouble("right")).toFloat(),
-                        (density * rect.getDouble("bottom")).toFloat()
-                    )
+            return regionsJson.toList().filterIsInstance<JSONObject>().map { rect ->
+                RectF(
+                    (density * rect.getDouble("left")).toFloat(),
+                    (density * rect.getDouble("top")).toFloat(),
+                    (density * rect.getDouble("right")).toFloat(),
+                    (density * rect.getDouble("bottom")).toFloat()
                 )
             }
-            return regions
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to update touchable regions.", e)
         }

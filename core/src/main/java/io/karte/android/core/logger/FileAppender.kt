@@ -107,7 +107,13 @@ internal class FileAppender : Appender, Flushable {
     override fun flush() {
         handler.post {
             write()
-            Collector.collect(collectingFiles)
+            try {
+                Collector.collect(collectingFiles)
+            } catch (e: OutOfMemoryError) {
+                Logger.e(LOG_TAG, "OutOfMemoryError occurred: ${e.message}", e)
+            } catch (e: Exception) {
+                Logger.e(LOG_TAG, "Error occurred: ${e.message}", e)
+            }
             cleanup()
         }
     }

@@ -182,8 +182,24 @@ internal class DataStore private constructor(context: Context) {
                 order ?: "${BaseColumns._ID} ASC"
             ).use { cursor ->
                 val persistables = mutableListOf<T>()
-                val count = try {
-                    cursor.count
+                try {
+                    repeat(cursor.count) {
+                        cursor.moveToPosition(it)
+                        val persistable =
+                            contract.create(cursor.columnNames.mapIndexed { index, s ->
+                                if (index == -1) return@mapIndexed s to null
+                                when (contract.columns[s]) {
+                                    Cursor.FIELD_TYPE_INTEGER -> s to cursor.getInt(index)
+                                    Cursor.FIELD_TYPE_STRING -> s to cursor.getString(index)
+                                    Cursor.FIELD_TYPE_FLOAT -> s to cursor.getDouble(index)
+                                    Cursor.FIELD_TYPE_BLOB -> s to cursor.getBlob(index)
+                                    else -> s to null
+                                }
+                            }.toMap())
+                        persistable.id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))
+                        persistables.add(persistable)
+                        instance.cache[persistable.id] = persistable
+                    }
                 } catch (e: SQLiteBlobTooBigException) {
                     // 大きすぎるデータを保持してしまった場合はall deleteする.
                     Logger.w(
@@ -191,23 +207,9 @@ internal class DataStore private constructor(context: Context) {
                         "drop table:${contract.namespace}, because too big row and cannot read."
                     )
                     instance.dbHelper.writableDatabase.delete(contract.namespace, null, null)
-                    0
-                }
-                repeat(count) {
-                    cursor.moveToPosition(it)
-                    val persistable = contract.create(cursor.columnNames.mapIndexed { index, s ->
-                        if (index == -1) return@mapIndexed s to null
-                        when (contract.columns[s]) {
-                            Cursor.FIELD_TYPE_INTEGER -> s to cursor.getInt(index)
-                            Cursor.FIELD_TYPE_STRING -> s to cursor.getString(index)
-                            Cursor.FIELD_TYPE_FLOAT -> s to cursor.getDouble(index)
-                            Cursor.FIELD_TYPE_BLOB -> s to cursor.getBlob(index)
-                            else -> s to null
-                        }
-                    }.toMap())
-                    persistable.id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))
-                    persistables.add(persistable)
-                    instance.cache[persistable.id] = persistable
+                } catch (e: Exception) {
+                    // for catch CursorWindowAllocationException
+                    Logger.e(LOG_TAG, "Error occurred: ${e.message}", e)
                 }
                 return persistables
             }

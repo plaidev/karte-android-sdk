@@ -42,7 +42,6 @@ internal object BitmapUtil {
      * @return The bitmap downloaded from URL.
      */
     private fun getBitmapFromURL(url: String, maxWidth: Int, maxHeight: Int): Bitmap? {
-        var dstBitmap: Bitmap? = null
         var stream: InputStream? = null
         try {
             stream = URL(url).openStream()
@@ -61,21 +60,21 @@ internal object BitmapUtil {
                 BitmapFactory.decodeByteArray(rawData, 0, rawData.size, opts)
 
             // Nexus5でGIF画像が表示されない問題に対するワークアラウンド (再レンダリングすると表示される)
-            dstBitmap =
+            val bitmap =
                 Bitmap.createBitmap(srcBitmap.width, srcBitmap.height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(dstBitmap!!)
+            val canvas = Canvas(bitmap)
             canvas.drawBitmap(srcBitmap, 0f, 0f, Paint())
+            return bitmap
         } catch (e: MalformedURLException) {
             Logger.e(LOG_TAG, "Invalid URL: $url", e)
         } catch (e: IOException) {
             Logger.e(LOG_TAG, "IOException in image download for URL: $url", e)
         } catch (e: OutOfMemoryError) {
             Logger.e(LOG_TAG, "OutOfMemoryError in image download for URL: $url.", e)
-            dstBitmap = null
         } finally {
             closeStream(stream)
         }
-        return dstBitmap
+        return null
     }
 
     /**

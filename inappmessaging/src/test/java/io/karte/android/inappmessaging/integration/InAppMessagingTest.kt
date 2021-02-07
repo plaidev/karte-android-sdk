@@ -17,6 +17,7 @@ package io.karte.android.inappmessaging.integration
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.net.http.SslError
 import android.view.KeyEvent
@@ -49,6 +50,8 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.unmockkConstructor
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONArray
@@ -169,14 +172,14 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
     protected fun responsesPassedToJs(): List<JSONObject> {
         val handleResponseDataHead = "javascript:window.tracker.handleResponseData('"
         val handleResponseDataTail = "');"
-        val filtered = shadowWebView!!.loadedUrls.filter { it.startsWith(handleResponseDataHead) }
-        val encodedStr = filtered.map {
+        val filtered = shadowWebView?.loadedUrls?.filter { it.startsWith(handleResponseDataHead) }
+        val encodedStr = filtered?.map {
             it.substring(
                 handleResponseDataHead.length,
                 it.length - handleResponseDataTail.length
             )
         }
-        return encodedStr.map { JSONObject(String(Base64.getDecoder().decode(it))) }
+        return encodedStr?.map { JSONObject(String(Base64.getDecoder().decode(it))) } ?: listOf()
     }
 }
 
@@ -197,6 +200,31 @@ class InAppMessagingTest {
             assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
             assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
             assertThat(uri.getQueryParameter("_k_app_prof")).isEqualTo(app.appInfo?.json.toString())
+        }
+    }
+
+    class IAMWebViewの初期化失敗 : RobolectricTestCase() {
+        @Before
+        fun setup() {
+            mockkConstructor(IAMWebView::class)
+            every {
+                anyConstructed<IAMWebView>().loadUrl(any())
+            } throws PackageManager.NameNotFoundException()
+            setupKarteApp(appKey = iamAppKey)
+        }
+
+        @After
+        fun teardown() {
+            unmockkConstructor(IAMWebView::class)
+            tearDownKarteApp()
+        }
+
+        @Test
+        fun クラッシュしないこと() {
+            Robolectric.buildActivity(
+                Activity::class.java,
+                Intent(application, Activity::class.java)
+            ).create().resume()
         }
     }
 
@@ -548,14 +576,18 @@ class InAppMessagingTest {
         }
 
         @Test
-        fun trackerのrenewVisitorIdが呼ばれた場合はInAppMessagingViewが破棄され新しいVidでTrackerJsが読まれる() {
+        fun trackerのrenewVisitorIdが呼ばれた場合はWindowとWebViewが破棄され新しいVidでTrackerJsが読まれる() {
             val currentShadowWebView = shadowWebView
             KarteApp.renewVisitorId()
             proceedBufferedCall()
 
             assertThat(view).isNull()
-            assertThat(currentShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
-            val uri = Uri.parse(currentShadowWebView?.lastLoadedUrl)
+            assertThat(currentShadowWebView?.lastLoadedUrl)
+                .startsWith("javascript:window.tracker.resetPageState(")
+
+            val newShadowWebView = shadowWebView
+            assertThat(newShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
+            val uri = Uri.parse(newShadowWebView?.lastLoadedUrl)
             assertThat(uri.queryParameterNames)
                 .isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
             assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)

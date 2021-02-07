@@ -125,7 +125,7 @@ class IAMWebViewTest {
         verify(exactly = 3) { adapter.dequeue() }
         val loadedUrls = customShadowOf(webView).loadedUrls
         assertThat(loadedUrls.size).isEqualTo(2)
-        for (uri in loadedUrls) {
+        loadedUrls.forEach { uri ->
             assertThat(uri).isEqualTo("javascript:window.tracker.handleResponseData('e30=');")
         }
     }
@@ -143,7 +143,7 @@ class IAMWebViewTest {
         verify(exactly = 3) { adapter.dequeue() }
         val loadedUrls = customShadowOf(webView).loadedUrls
         assertThat(loadedUrls.size).isEqualTo(2)
-        for (uri in loadedUrls) {
+        loadedUrls.forEach { uri ->
             assertThat(uri).isEqualTo("javascript:window.tracker.handleResponseData('e30=');")
         }
     }

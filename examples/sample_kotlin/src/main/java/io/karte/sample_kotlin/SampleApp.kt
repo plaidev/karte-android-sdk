@@ -9,7 +9,6 @@ import androidx.annotation.RequiresApi
 import io.karte.android.KarteApp
 import io.karte.android.core.logger.LogLevel
 import io.karte.android.core.logger.Logger
-import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.variables.Variables
 
 private const val APP_KEY = "SET_YOUR_APP_KEY"
@@ -21,8 +20,6 @@ class SampleApp : Application() {
         Logger.level = LogLevel.DEBUG
         KarteApp.setup(this, APP_KEY)
         Variables.fetch()
-        @Suppress("DEPRECATION")
-        InAppMessaging.Config.enabledWebViewCache = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(this)
         }

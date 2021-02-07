@@ -16,13 +16,15 @@
 package io.karte.android.notifications
 
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import io.karte.android.core.logger.Logger
-import io.karte.android.notifications.internal.MessageClickTracker
+import io.karte.android.notifications.internal.track.ClickTracker
+import io.karte.android.notifications.internal.track.IgnoreTracker
+import io.karte.android.notifications.internal.wrapper.EventType
+import io.karte.android.notifications.internal.wrapper.IntentWrapper
 
 private const val LOG_TAG = "Karte.MessageReceiver"
 
@@ -31,16 +33,15 @@ internal class MessageReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         Logger.d(LOG_TAG, "Received notification click. Intent=$intent")
-        MessageClickTracker.sendMessageClickIfNeeded(intent)
 
-        val componentName = intent.getStringExtra(EXTRA_COMPONENT_NAME)
-        intent.removeExtra(EXTRA_COMPONENT_NAME)
-        if (componentName != null) {
-            intent.component = ComponentName.unflattenFromString(componentName)
+        val wrapper = IntentWrapper(intent)
+        if (wrapper.eventType == EventType.MESSAGE_IGNORE) {
+            IgnoreTracker.sendIfNeeded(wrapper)
+            return
         } else {
-            intent.component = null
+            ClickTracker.sendIfNeeded(wrapper)
         }
-
-        context.startActivity(intent)
+        wrapper.popComponentName()
+        context.startActivity(wrapper.intent)
     }
 }
