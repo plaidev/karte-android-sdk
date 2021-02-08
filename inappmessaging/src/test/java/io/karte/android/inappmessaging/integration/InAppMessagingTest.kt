@@ -576,14 +576,18 @@ class InAppMessagingTest {
         }
 
         @Test
-        fun trackerのrenewVisitorIdが呼ばれた場合はInAppMessagingViewが破棄され新しいVidでTrackerJsが読まれる() {
+        fun trackerのrenewVisitorIdが呼ばれた場合はWindowとWebViewが破棄され新しいVidでTrackerJsが読まれる() {
             val currentShadowWebView = shadowWebView
             KarteApp.renewVisitorId()
             proceedBufferedCall()
 
             assertThat(view).isNull()
-            assertThat(currentShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
-            val uri = Uri.parse(currentShadowWebView?.lastLoadedUrl)
+            assertThat(currentShadowWebView?.lastLoadedUrl)
+                .startsWith("javascript:window.tracker.resetPageState(")
+
+            val newShadowWebView = shadowWebView
+            assertThat(newShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
+            val uri = Uri.parse(newShadowWebView?.lastLoadedUrl)
             assertThat(uri.queryParameterNames)
                 .isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
             assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
