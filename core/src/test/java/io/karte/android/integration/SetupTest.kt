@@ -27,6 +27,7 @@ import io.karte.android.VALID_APPKEY
 import io.karte.android.core.config.Config
 import io.karte.android.core.config.ExperimentalConfig
 import io.karte.android.core.config.OperationMode
+import io.karte.android.core.library.LibraryConfig
 import io.karte.android.eventNameTransform
 import io.karte.android.modules.crashreporting.CrashReporting
 import io.karte.android.parseBody
@@ -327,6 +328,16 @@ class SetupTest {
             proceedBufferedCall()
             assertThat(dispatcher.ingestRequests().first().requestUrl)
                 .isEqualTo(server.url("/native/ingest"))
+        }
+
+        class TestLibraryConfig(val enableTest: Boolean) : LibraryConfig
+
+        @Test
+        fun libraryConfigsに任意のConfigを追加() {
+            setup(Config.Builder().libraryConfigs(TestLibraryConfig(true)))
+            val testConfig = KarteApp.self.libraryConfig(TestLibraryConfig::class.java)
+            assertThat(testConfig).isNotNull()
+            assertThat(testConfig?.enableTest).isTrue()
         }
     }
 
