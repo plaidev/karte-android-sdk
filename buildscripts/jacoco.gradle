@@ -1,0 +1,17 @@
+apply plugin: "jacoco"
+
+jacoco {
+    toolVersion = "0.8.5"
+}
+
+task jacocoMerge(
+        type: JacocoMerge,
+        group: "verification",
+        dependsOn: ["core:jacocoTestReport", "inappmessaging:jacocoTestReport", "notifications:jacocoTestReport", "variables:jacocoTestReport", "visualtracking:jacocoTestReport"]
+) {
+    gradle.afterProject { project, _ ->
+        if (project.rootProject != project && project.plugins.hasPlugin('jacoco')) {
+            executionData "${project.buildDir}/jacoco/testDebugUnitTest.exec"
+        }
+    }
+}

@@ -8,12 +8,14 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+        // for upload maven repo
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+        // for apply karte plugin to example project
         classpath 'io.karte.android:karte-gradle-plugin'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
     }
 }
 
@@ -21,6 +23,7 @@ plugins {
     id 'org.jetbrains.dokka' version '0.10.1'
     id 'com.jfrog.bintray' version '1.8.5'
     id 'maven-publish'
+    id 'io.codearte.nexus-staging' version '0.22.0'
 }
 
 allprojects {
@@ -32,211 +35,36 @@ allprojects {
 configure(subprojects.findAll { !it.name.startsWith("sample_") }) {
     println "configure libraries: ${project.name}"
 
-    apply plugin: 'org.jetbrains.dokka'
-    apply plugin: 'com.jfrog.bintray'
-    apply plugin: 'maven-publish'
-
-    group 'io.karte.android'
-    version project.file('version').getText('UTF-8').trim()
-    def gitUrl = 'https://github.com/plaidev/karte-android-sdk'
-    def pomConfig = {
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution 'repo'
-            }
-        }
-        developers {
-            developer {
-                id "kartetaro"
-                name "Taro Karte"
-                email "dev.share@plaid.co.jp"
-            }
-        }
-        scm {
-            connection 'scm:git:git://github.com/plaidev/karte-android-sdk.git'
-            developerConnection 'scm:git:ssh://github.com/plaidev/karte-android-sdk.git'
-            url gitUrl
-        }
-    }
-    def releaseNote = 'https://developers.karte.io/docs/release-note-android-sdk'
-
-    task sourcesJar(type: Jar) {
-        from "${projectDir}/src/main/java"
-        classifier = 'sources'
+    apply from: '../buildscripts/projectDokka.gradle'
+    task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+        outputFormat = 'javadoc'
+        outputDirectory = "$buildDir/javadoc"
     }
 
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact sourcesJar
-                artifact source: file("${project.buildDir}/outputs/aar/${project.name}-release.aar")
-                groupId group
-                artifactId project.name
-                version version
-
-                versionMapping {
-                    usage('java-implementation') {
-                        fromResolutionOf('runtimeClasspath')
-                    }
-                }
-
-                pom.withXml {
-                    def root = asNode()
-                    root.appendNode('description', "${project.name} module for KARTE SDK")
-                    def dependencies = root.appendNode("dependencies")
-                    configurations.implementation.dependencies.each {
-                        if (it.group == null || it.name == null || it.version == null || it.name == "unspecified") return
-                        def node = dependencies.appendNode("dependency")
-                        node.appendNode("groupId", it.group)
-                        node.appendNode("artifactId", it.name)
-                        node.appendNode("version", it.version)
-                    }
-                    root.children().last() + pomConfig
-                }
-            }
-        }
+    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+        classifier = 'javadoc'
+        from "$buildDir/javadoc"
     }
+
+    apply from: '../buildscripts/projectJacoco.gradle'
+
+    apply from: '../buildscripts/projectMaven.gradle'
+    apply from: '../buildscripts/projectMavenAndroid.gradle'
+    apply from: '../buildscripts/projectBintray.gradle'
+    apply from: '../buildscripts/projectSonatype.gradle'
     publishMavenPublicationToMavenLocal.dependsOn "assembleRelease"
-
-    bintray {
-        user = System.getenv('BINTRAY_USER')
-        key = System.getenv('BINTRAY_KEY')
-        publish = true
-
-        pkg {
-            repo = 'maven'
-            name = "$group:${project.name}"
-            userOrg = 'plaidev'
-            licenses = ['Apache-2.0']
-            vcsUrl = gitUrl + '.git'
-            version {
-                name = project.version
-                released = new Date()
-                vcsTag = project.version
-                desc = releaseNote
-            }
-        }
-        publications = ['maven']
-    }
-
-    dokka {
-        Set<ProjectDependency> deps =
-                project.configurations.collectMany {
-                    it.allDependencies
-                }.findAll {
-                    it instanceof ProjectDependency
-                }
-
-        configuration {
-            deps.collect { p ->
-                sourceRoot {
-                    path = "${p.getDependencyProject().projectDir.toString()}/src/main/java"
-                }
-            }
-        }
-    }
-
-    apply plugin: "jacoco"
-
-    tasks.withType(Test) {
-        jacoco.includeNoLocationClasses = true
-        jacoco.excludes = ['jdk.internal.*']
-    }
-
-    jacoco {
-        toolVersion = "0.8.5"
-    }
-
-    task jacocoTestReport(
-            type: JacocoReport,
-            dependsOn: "testDebugUnitTest",
-            group: "verification"
-    ) {
-        reports {
-            xml.enabled = true
-            html.enabled = true
-        }
-        getSourceDirectories().from = "${projectDir}/src/main/java"
-        getClassDirectories().from = files(
-                fileTree(dir: "${buildDir}/tmp/kotlin-classes/debug"),
-                fileTree(dir: "${buildDir}/intermediates/javac/debug/classes/"))
-
-        getExecutionData().from = "${buildDir}/jacoco/testDebugUnitTest.exec"
-    }
-
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-configurations {
-    ktlint
-}
+apply from: 'buildscripts/ktlint.gradle'
+apply from: 'buildscripts/dokka.gradle'
+apply from: 'buildscripts/jacoco.gradle'
 
-dependencies {
-    ktlint "com.pinterest:ktlint:0.36.0"
-    // additional 3rd party ruleset(s) can be specified here
-    // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and
-    // ktlint will pick them up
-}
-
-task ktlint(type: JavaExec, group: "verification") {
-    description = "Check Kotlin code style."
-    classpath = configurations.ktlint
-    main = "com.pinterest.ktlint.Main"
-    args "--android", "--color", "--editorconfig=.editorconfig", "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/reports/ktlint-results.xml", "**/src/**/*.kt"
-    // to generate report in checkstyle format prepend following args:
-    // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
-    // see https://github.com/pinterest/ktlint#usage for more
-}
-//check.dependsOn ktlint
-
-task ktlintFormat(type: JavaExec, group: "formatting") {
-    description = "Fix Kotlin code style deviations."
-    classpath = configurations.ktlint
-    main = "com.pinterest.ktlint.Main"
-    args "-F", "**/src/**/*.kt --editorconfig=.editorconfig"
-}
-
-dokka {
-    tasks.dokka.logging.captureStandardOutput LogLevel.LIFECYCLE
-    subProjects = ["core", "inappmessaging", "notifications", "variables", "visualtracking"]
-    outputDirectory = "${buildDir}/dokka"
-    outputFormat = "html"
-    configuration {
-        reportUndocumented = true
-    }
-}
-
-task generateDocs(type: Exec, group: 'documentation') {
-    subprojects.findAll {it.tasks.findByPath('dokka')}.each { dependsOn("${it.name}:dokka") }
-    commandLine "ruby", "scripts/publish_docs.rb"
-    standardOutput = new ByteArrayOutputStream()
-    ext.output = {
-        return standardOutput.toString()
-    }
-    doLast {
-        println(standardOutput.toString())
-    }
-}
-
-apply plugin: "jacoco"
-
-jacoco {
-    toolVersion = "0.8.5"
-}
-
-task jacocoMerge(
-        type: JacocoMerge,
-        group: "verification",
-        dependsOn: ["core:jacocoTestReport", "inappmessaging:jacocoTestReport", "notifications:jacocoTestReport", "variables:jacocoTestReport", "visualtracking:jacocoTestReport"]
-) {
-    gradle.afterProject { project, _ ->
-        if (project.rootProject != project && project.plugins.hasPlugin('jacoco')) {
-            executionData "${project.buildDir}/jacoco/testDebugUnitTest.exec"
-        }
-    }
+nexusStaging {
+    packageGroup ='io.karte.android'
+    username = ossrhUsername
+    password = ossrhPassword
 }

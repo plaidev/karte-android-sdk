@@ -1,0 +1,18 @@
+apply plugin: 'org.jetbrains.dokka'
+
+dokka {
+    Set<ProjectDependency> deps =
+            project.configurations.collectMany {
+                it.allDependencies
+            }.findAll {
+                it instanceof ProjectDependency
+            }
+
+    configuration {
+        deps.collect { p ->
+            sourceRoot {
+                path = "${p.getDependencyProject().projectDir.toString()}/src/main/java"
+            }
+        }
+    }
+}
