@@ -22,6 +22,7 @@ import android.view.ViewParent
 import android.widget.TextView
 import androidx.annotation.UiThread
 import com.google.android.material.tabs.TabLayout
+import io.karte.android.visualtracking.Action
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -54,6 +55,16 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
             .put("activity", activity.javaClass.name)
 
         return Trace(getContentView(activity), values)
+    }
+
+    @Throws(JSONException::class)
+    fun buildTrace(action: Action): Trace {
+        val values = JSONObject()
+            .put("app_info", this.appInfo)
+            .put("action", action.action)
+            .putOpt("target_text", action.targetText)
+            .putOpt("action_id", action.actionId)
+        return Trace(null, values, action.imageProvider)
     }
 
     private fun getContentView(activity: Activity): View {

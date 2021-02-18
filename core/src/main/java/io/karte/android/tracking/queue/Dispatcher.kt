@@ -80,6 +80,15 @@ internal class Dispatcher {
     }
 
     private fun enqueue(record: EventRecord, completion: TrackCompletion?) {
+        if (!record.event.isRetryable && !Connectivity.isOnline(KarteApp.self.application)) {
+            Logger.w(
+                LOG_TAG,
+                "Failed to push Event to queue because unretryable event was detected while offline"
+            )
+            completion?.onComplete(false)
+            return
+        }
+
         val id = DataStore.put(record)
         completion?.let {
             if (id == -1L) {

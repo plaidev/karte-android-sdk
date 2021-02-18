@@ -18,6 +18,10 @@ package io.karte.android.visualtracking.integration
 import android.content.ComponentName
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.net.Uri
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
@@ -25,7 +29,10 @@ import io.karte.android.RobolectricTestCase
 import io.karte.android.parseBody
 import io.karte.android.setupKarteApp
 import io.karte.android.tearDownKarteApp
+import io.karte.android.visualtracking.BasicAction
+import io.karte.android.visualtracking.ImageProvider
 import io.karte.android.visualtracking.PairingActivity
+import io.karte.android.visualtracking.VisualTracking
 import io.karte.android.visualtracking.injectDirectExecutorServiceToAutoTrackModules
 import io.karte.android.visualtracking.integration.mock.TestActivity
 import io.karte.android.visualtracking.internal.VTHook
@@ -98,5 +105,56 @@ class PairingTest : RobolectricTestCase() {
 
         // Parse multi request is difficult so assert partially.
         assertThat(body).contains("\"os\":\"android\"")
+    }
+
+    @Test
+    fun 手動でビジュアルトラッキングを処理したときにtraceが送信される() {
+        Robolectric.buildActivity(PairingActivity::class.java, pairingActivityIntent).create()
+        val action = BasicAction("touch", "favorite_tapped", "item_detail_screen_favorite_1")
+        VisualTracking.handle(action)
+        val req = dispatcher.autoTrackRequests().find { it.path?.contains("/trace") == true }
+        val body = req?.body?.readUtf8()
+        assertThat(req?.getHeader("X-KARTE-Auto-Track-Account-Id")).isEqualTo("sampleAccountId")
+        assertThat(req?.getHeader("X-KARTE-App-Key")).isEqualTo(paringAppKey)
+
+        // Parse multi request is difficult so assert partially.
+        assertThat(body).contains("\"os\":\"android\"")
+        assertThat(body).doesNotContain("Content-Type: application/octet-stream")
+    }
+
+    @Test
+    fun 手動でビジュアルトラッキングを処理したときに画像付きのtraceが送信される() {
+        Robolectric.buildActivity(PairingActivity::class.java, pairingActivityIntent).create()
+        val imageProvider = ImageProvider {
+            val bitmap = Bitmap.createBitmap(
+                100,
+                100,
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            val paint = Paint()
+            paint.color = Color.RED
+            canvas.drawRect(0f, 0f, 100f, 100f, paint)
+            bitmap
+        }
+
+        val action = BasicAction(
+            "touch",
+            "item_detail_screen_favorite_button_1",
+            "favorite button tapped",
+            imageProvider
+        )
+
+        VisualTracking.handle(action)
+
+        val req = dispatcher.autoTrackRequests().find { it.path?.contains("/trace") == true }
+        val body = req?.body?.readUtf8()
+
+        assertThat(req?.getHeader("X-KARTE-Auto-Track-Account-Id")).isEqualTo("sampleAccountId")
+        assertThat(req?.getHeader("X-KARTE-App-Key")).isEqualTo(paringAppKey)
+
+        // Parse multi request is difficult so assert partially.
+        assertThat(body).contains("\"os\":\"android\"")
+        assertThat(body).contains("Content-Type: application/octet-stream")
     }
 }
