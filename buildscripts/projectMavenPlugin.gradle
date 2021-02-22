@@ -1,0 +1,31 @@
+task sourcesJar(type: Jar) {
+    classifier = "sources"
+    from sourceSets.main.java.srcDirs
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+project.ext {
+    makePublication = { maven ->
+        maven.from components.java
+        maven.artifact sourcesJar
+
+        maven.pom.withXml {
+            def root = asNode()
+            root.appendNode('description', "${project.name} module for KARTE SDK")
+            root.children().last() + pomConfig
+        }
+    }
+    makeDeployerPom = { pom ->
+        pom.withXml {
+            def root = asNode()
+            root.appendNode('name', "KARTE SDK ${project.name}")
+            root.appendNode('description', "${project.name} module for KARTE Android SDK")
+            root.appendNode('url', gitUrl)
+            root.children().last() + pomConfig
+        }
+    }
+}

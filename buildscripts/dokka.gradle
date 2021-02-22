@@ -1,0 +1,21 @@
+dokka {
+    tasks.dokka.logging.captureStandardOutput LogLevel.LIFECYCLE
+    subProjects = ["core", "inappmessaging", "notifications", "variables", "visualtracking"]
+    outputDirectory = "${buildDir}/dokka"
+    outputFormat = "html"
+    configuration {
+        reportUndocumented = true
+    }
+}
+
+task generateDocs(type: Exec, group: 'documentation') {
+    subprojects.findAll { it.tasks.findByPath('dokka') }.each { dependsOn("${it.name}:dokka") }
+    commandLine "ruby", "scripts/publish_docs.rb"
+    standardOutput = new ByteArrayOutputStream()
+    ext.output = {
+        return standardOutput.toString()
+    }
+    doLast {
+        println(standardOutput.toString())
+    }
+}
