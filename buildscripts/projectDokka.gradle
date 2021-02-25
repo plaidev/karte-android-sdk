@@ -1,18 +1,54 @@
 apply plugin: 'org.jetbrains.dokka'
 
-dokka {
-    Set<ProjectDependency> deps =
-            project.configurations.collectMany {
-                it.allDependencies
-            }.findAll {
-                it instanceof ProjectDependency
-            }
+task javadocJar(type: Jar, dependsOn: 'dokkaJavadoc', group: 'documentation') {
+    classifier = 'javadoc'
+    from "$buildDir/dokka/javadoc"
+}
 
-    configuration {
-        deps.collect { p ->
-            sourceRoot {
-                path = "${p.getDependencyProject().projectDir.toString()}/src/main/java"
+afterEvaluate {
+    dokkaHtml {
+//        failOnWarning.set(true)
+        dokkaSourceSets {
+            named("main") {
+                includeNonPublic.set(false)
+                skipDeprecated.set(false)
+                reportUndocumented.set(true)
+                skipEmptyPackages.set(true)
+                includes.from("$rootDir/build/dokka/Module.md")
+                externalDocumentationLink {
+                    url.set(new URL("https://plaidev.github.io/karte-sdk-docs/android/core/latest/core/"))
+                    packageListUrl.set(new URL("https://plaidev.github.io/karte-sdk-docs/android/core/latest/core/package-list"))
+                }
             }
         }
+        def dir = "$rootDir/buildscripts/dokka"
+        def configJson = """
+            {
+                "customStyleSheets":["${file("$dir/logo-styles.css")}","${file("$dir/custom-style-to-add.css")}"],
+                "customAssets":["${file("$dir/logo-icon.svg")}"]
+            }""".stripIndent().trim()
+        pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": configJson])
+    }
+    dokkaHtml.dependsOn rootProject.dokkaModuleMd
+
+    dokkaHtml.doLast {
+        file("$buildDir/dokka/html/index.html").write(
+                """
+        <!DOCTYPE HTML>
+        <html lang="en-US">
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="refresh" content="0; url=$project.name/index.html">
+                <script type="text/javascript">
+                    window.location.href = "$project.name/index.html"
+                </script>
+                <title>Documentation</title>
+            </head>
+            <body>
+                If you are not redirected automatically, follow <a href="$project.name/index.html">this link</a>.
+            </body>
+        </html>
+                """.stripIndent().trim()
+        )
     }
 }

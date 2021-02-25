@@ -1,0 +1,13 @@
+apply plugin: 'io.codearte.nexus-staging'
+
+def getPropOrDefault(name, defaultValue = "") {
+    if (project.ext.has(name))
+        return project.ext.get(name)
+    return defaultValue
+}
+
+nexusStaging {
+    packageGroup = 'io.karte.android'
+    username = getPropOrDefault("ossrhUsername")
+    password = getPropOrDefault("ossrhPassword")
+}

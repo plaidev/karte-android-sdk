@@ -1,8 +1,8 @@
 <a href="https://karte.io"><img src="https://karte.io/assets/images/common/logo_black.svg" width="270" height="80"></img></a>
 
-[![CircleCI](https://circleci.com/gh/plaidev/karte-android-dev/tree/develop.svg?style=shield&circle-token=457a44e0e78580b5e8fff6047b938959148cabf7)](https://circleci.com/gh/plaidev/karte-android-dev/tree/develop)
+[![CircleCI](https://circleci.com/gh/plaidev/karte-android-dev/tree/develop.svg?style=shield&circle-token=457a44e0e78580b5e8fff6047b938959148cabf7&a=.svg)](https://circleci.com/gh/plaidev/karte-android-dev/tree/develop)
 [![codecov](https://codecov.io/gh/plaidev/karte-android-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/plaidev/karte-android-sdk)
-[![License](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/plaidev/karte-android-sdk/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/plaidev/karte-android-sdk/blob/master/LICENSE)
 
 KARTE is a real-time user analytics & action tool.
 This repository holds the source code for the Android version of KARTE SDK.
