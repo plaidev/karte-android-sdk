@@ -73,7 +73,7 @@ jobs:
       - run:
           name: Doc check
           command: |
-            ./gradlew clean dokka  # | grep 'No documentation' && { echo 'kdoc validation failed' ; exit 1; }
+            ./gradlew dokkaHtml
       - run:
           name: CodeCov
           command: |

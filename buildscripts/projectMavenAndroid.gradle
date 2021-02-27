@@ -6,7 +6,7 @@ task sourcesJar(type: Jar) {
 project.ext {
     makePublication = { maven ->
         maven.artifact sourcesJar
-//        maven.artifact javadocJar
+        maven.artifact javadocJar
         maven.artifact source: file("${project.buildDir}/outputs/aar/${project.name}-release.aar")
 
         maven.versionMapping {

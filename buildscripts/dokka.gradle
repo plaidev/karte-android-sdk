@@ -1,15 +1,14 @@
-dokka {
-    tasks.dokka.logging.captureStandardOutput LogLevel.LIFECYCLE
-    subProjects = ["core", "inappmessaging", "notifications", "variables", "visualtracking"]
-    outputDirectory = "${buildDir}/dokka"
-    outputFormat = "html"
-    configuration {
-        reportUndocumented = true
-    }
+import org.apache.tools.ant.filters.ReplaceTokens
+
+task dokkaModuleMd(type: Copy, group: 'documentation') {
+    from 'buildscripts/dokka/Module.md'
+    into 'build/dokka'
+    filter(ReplaceTokens, tokens: [README: file("$rootDir/README.md").readLines('UTF-8').drop(2).join("\n")])
+    filteringCharset = 'UTF-8'
 }
 
 task generateDocs(type: Exec, group: 'documentation') {
-    subprojects.findAll { it.tasks.findByPath('dokka') }.each { dependsOn("${it.name}:dokka") }
+    subprojects.findAll { it.tasks.findByPath('dokka') }.each { dependsOn("${it.name}:dokkaHtml") }
     commandLine "ruby", "scripts/publish_docs.rb"
     standardOutput = new ByteArrayOutputStream()
     ext.output = {
