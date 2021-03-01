@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.InAppMessagingDelegate
 import io.karte.android.tracking.Tracker
+import io.karte.android.visualtracking.VisualTracking
+import io.karte.android.visualtracking.VisualTrackingDelegate
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.ArrayList
 import java.util.HashMap
@@ -24,6 +26,12 @@ class MainActivity : AppCompatActivity() {
             override fun shouldOpenURL(url: Uri): Boolean {
                 Log.i(TAG, "shouldOpenURL $url")
                 return super.shouldOpenURL(url)
+            }
+        }
+
+        VisualTracking.delegate = object : VisualTrackingDelegate() {
+            override fun onDevicePairingStatusUpdated(isPaired: Boolean) {
+                Log.i(TAG, "isPaired $isPaired")
             }
         }
     }

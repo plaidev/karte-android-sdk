@@ -106,6 +106,7 @@ class VisualTracking : Library, ActionModule, TrackModule {
     private lateinit var traceBuilder: TraceBuilder
     internal lateinit var pairingManager: PairingManager
     private var definitions: DefinitionList? = null
+    private var delegate: VisualTrackingDelegate? = null
 
     @Throws(JSONException::class)
     internal fun handleLifecycle(name: String, activity: Activity) {
@@ -185,6 +186,25 @@ class VisualTracking : Library, ActionModule, TrackModule {
 
     companion object {
         internal var self: VisualTracking? = null
+
+        /**
+         * ビジュアルトラッキングで発生するイベント等を委譲するためのデリゲートインスタンスを取得・設定します。
+         */
+        @JvmStatic
+        var delegate: VisualTrackingDelegate?
+            get() = self?.delegate
+            set(value) {
+                self?.delegate = value
+            }
+
+        /**
+         * ペアリング状態を取得します。
+         *
+         * 端末がペアリングされていればtrue、それ以外はfalseを返します。
+         */
+        @JvmStatic
+        val isPaired: Boolean
+            get() = self?.pairingManager?.isPaired ?: false
 
         /**
          * 操作ログをハンドルします。
