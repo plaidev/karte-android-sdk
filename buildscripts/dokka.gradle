@@ -8,7 +8,6 @@ task dokkaModuleMd(type: Copy, group: 'documentation') {
 }
 
 task generateDocs(type: Exec, group: 'documentation') {
-    subprojects.findAll { it.tasks.findByPath('dokka') }.each { dependsOn("${it.name}:dokkaHtml") }
     commandLine "ruby", "scripts/publish_docs.rb"
     standardOutput = new ByteArrayOutputStream()
     ext.output = {

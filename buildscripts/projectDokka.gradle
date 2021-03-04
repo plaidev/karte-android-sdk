@@ -30,6 +30,7 @@ afterEvaluate {
         pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": configJson])
     }
     dokkaHtml.dependsOn rootProject.dokkaModuleMd
+    rootProject.generateDocs.dependsOn dokkaHtml
 
     dokkaHtml.doLast {
         file("$buildDir/dokka/html/index.html").write(
