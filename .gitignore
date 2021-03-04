@@ -87,3 +87,5 @@ lint/tmp/
 
 # macOS
 .DS_Store
+
+secret-keys.gpg

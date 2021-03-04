@@ -33,6 +33,7 @@ import io.karte.android.visualtracking.BasicAction
 import io.karte.android.visualtracking.ImageProvider
 import io.karte.android.visualtracking.PairingActivity
 import io.karte.android.visualtracking.VisualTracking
+import io.karte.android.visualtracking.VisualTrackingDelegate
 import io.karte.android.visualtracking.injectDirectExecutorServiceToAutoTrackModules
 import io.karte.android.visualtracking.integration.mock.TestActivity
 import io.karte.android.visualtracking.internal.VTHook
@@ -156,5 +157,22 @@ class PairingTest : RobolectricTestCase() {
         // Parse multi request is difficult so assert partially.
         assertThat(body).contains("\"os\":\"android\"")
         assertThat(body).contains("Content-Type: application/octet-stream")
+    }
+
+    @Test
+    fun ペアリング状態が変更された際に通知される() {
+        var paired = false
+        VisualTracking.delegate = object : VisualTrackingDelegate() {
+            override fun onDevicePairingStatusUpdated(isPaired: Boolean) {
+                paired = isPaired
+            }
+        }
+        assertThat(VisualTracking.isPaired).isFalse()
+        assertThat(paired).isFalse()
+
+        Robolectric.buildActivity(PairingActivity::class.java, pairingActivityIntent).create()
+
+        assertThat(VisualTracking.isPaired).isTrue()
+        assertThat(paired).isTrue()
     }
 }

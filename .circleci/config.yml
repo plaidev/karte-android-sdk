@@ -22,7 +22,16 @@ commands:
       - restore_cache:
           name: Restoring build gradle cache
           key: jars-{{ checksum "build.gradle" }}-{{ checksum "core/build.gradle" }}-{{ checksum "core/version" }}-{{ checksum "inappmessaging/build.gradle" }}-{{ checksum "inappmessaging/version" }}-{{ checksum "notifications/build.gradle" }}-{{ checksum "notifications/version" }}-{{ checksum "variables/build.gradle" }}-{{ checksum "variables/version" }}-{{ checksum "visualtracking/build.gradle" }}-{{ checksum "visualtracking/version" }}-{{ checksum "examples/sample_java/build.gradle" }}-{{ checksum "examples/sample_kotlin/build.gradle" }}-{{ checksum "gradle-plugin/build.gradle" }}
-
+      - run:
+          name: Decrypt properties
+          # encrypt to update(OpenSSL 1.1.1):
+          # openssl aes-256-cbc -e -md sha512 -pbkdf2 -iter 100000 -salt -in buildscripts/gradle.properties -out buildscripts/encrypted.properties -k $ENCRYPT_KEY
+          command: |
+            mkdir -p ~/.gradle
+            openssl aes-256-cbc -d -md sha512 -pbkdf2 -iter 100000 -salt -in buildscripts/encrypted.properties -k $ENCRYPT_KEY >> ~/.gradle/gradle.properties
+      - run:
+          name: Decrypt GPG key
+          command: echo "$GPG_KEY" | base64 -d > secret-keys.gpg
       - run:
           name: Download Dependencies
           command: ./gradlew androidDependencies
@@ -64,7 +73,7 @@ jobs:
       - run:
           name: Doc check
           command: |
-            ./gradlew clean dokka  # | grep 'No documentation' && { echo 'kdoc validation failed' ; exit 1; }
+            ./gradlew dokkaHtml
       - run:
           name: CodeCov
           command: |

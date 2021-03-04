@@ -12,8 +12,6 @@ buildscript {
 }
 
 apply plugin: 'kotlin'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'maven-publish'
 
 repositories {
     mavenCentral()
@@ -40,72 +38,9 @@ dependencies {
     compileOnly 'com.android.tools.build:gradle:3.5.0'
 }
 
-group 'io.karte.android'
-version project.file('version').getText('UTF-8').trim()
-def moduleName = 'gradle-plugin'
-def gitUrl = 'https://github.com/plaidev/karte-android-sdk'
-def pomConfig = {
-    licenses {
-        license {
-            name 'The Apache Software License, Version 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-            distribution 'repo'
-        }
-    }
-    developers {
-        developer {
-            id "kartetaro"
-            name "Taro Karte"
-            email "dev.share@plaid.co.jp"
-        }
-    }
-    scm {
-        connection 'scm:git:git://github.com/plaidev/karte-android-sdk.git'
-        developerConnection 'scm:git:ssh://github.com/plaidev/karte-android-sdk.git'
-        url gitUrl
-    }
-}
+println "configure plugin: $project.name"
 
-task sourcesJar(type: Jar) {
-    classifier = "sources"
-    from sourceSets.main.java.srcDirs
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId group
-            artifactId moduleName
-            version version
-            from components.java
-            artifact sourcesJar
-
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('description', "${moduleName} module for KARTE SDK")
-                root.children().last() + pomConfig
-            }
-        }
-    }
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publish = true
-
-    pkg {
-        repo = 'maven'
-        name = "$group:$moduleName"
-        userOrg = 'plaidev'
-        licenses = ['Apache-2.0']
-        vcsUrl = gitUrl + '.git'
-        version {
-            name = project.version
-            released = new Date()
-            vcsTag = project.version
-            desc = 'https://developers.karte.io/docs/release-note-android-sdk'
-        }
-    }
-    publications = ['maven']
-}
+apply from: '../buildscripts/projectMaven.gradle'
+apply from: '../buildscripts/projectMavenPlugin.gradle'
+apply from: '../buildscripts/projectBintray.gradle'
+apply from: '../buildscripts/projectSonatype.gradle'

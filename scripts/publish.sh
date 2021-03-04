@@ -59,11 +59,14 @@ function publish() {
     local TARGET=`echo $MODULE | sed -e "s/\/version//"`
     if [ $TARGET = "gradle-plugin" ]; then
       ./gradlew -p gradle-plugin/ bintrayUpload
+      ./gradlew -p gradle-plugin/ uploadArchives
     else
       ./gradlew $TARGET:assembleRelease
       ./gradlew $TARGET:bintrayUpload
+      ./gradlew $TARGET:uploadArchives
     fi
   done
+  ./gradlew closeAndReleaseRepository
 }
 
 ##################################################

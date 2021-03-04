@@ -1,0 +1,34 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+def getPropOrDefault(name, defaultValue = "") {
+    if (project.ext.has(name))
+        return project.ext.get(name)
+    return defaultValue
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+signing {
+    sign configurations.archives
+}
+archivesBaseName = project.name
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            def username = getPropOrDefault("ossrhUsername")
+            def password = getPropOrDefault("ossrhPassword")
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: username, password: password)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: username, password: password)
+            }
+            project.makeDeployerPom(pom)
+        }
+    }
+}

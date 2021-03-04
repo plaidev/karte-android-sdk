@@ -37,6 +37,7 @@ import io.karte.android.utilities.http.JSONRequest
 import io.karte.android.utilities.http.METHOD_POST
 import io.karte.android.utilities.http.MultipartRequest
 import io.karte.android.utilities.http.Response
+import io.karte.android.visualtracking.VisualTracking
 import io.karte.android.visualtracking.internal.tracing.Trace
 import org.json.JSONException
 import org.json.JSONObject
@@ -60,13 +61,13 @@ internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCall
     private val traceSendExecutor = Executors.newCachedThreadPool()
     private val pollingExecutor = Executors.newScheduledThreadPool(1)
     private var pairingAccountId: String? = null
-    private val isInPairing: Boolean
+    internal val isPaired: Boolean
         get() = pairingAccountId != null
 
     fun startPairing(accountId: String, context: Context) {
         app.application.registerActivityLifecycleCallbacks(this)
 
-        if (isInPairing) return
+        if (isPaired) return
 
         pollingExecutor.execute {
             try {
@@ -101,7 +102,7 @@ internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCall
     private fun startHeartBeat(accountId: String) {
         pollingExecutor.schedule(object : Runnable {
             override fun run() {
-                if (!isInPairing) return
+                if (!isPaired) return
                 try {
                     val url = app.config.baseUrl + ENDPOINT_PAIRING_HEARTBEAT
 
@@ -118,14 +119,14 @@ internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCall
                     Logger.e(LOG_TAG, "Failed to heartbeat.", e)
                 }
 
-                if (isInPairing) pollingExecutor.schedule(this, 5, TimeUnit.SECONDS)
+                if (isPaired) pollingExecutor.schedule(this, 5, TimeUnit.SECONDS)
             }
         }, 5, TimeUnit.SECONDS)
     }
 
     @UiThread
     internal fun sendTraceIfInPairing(trace: Trace) {
-        if (!isInPairing) return
+        if (!isPaired) return
         val traceValues = trace.values
         trace.getBitmapIfNeeded { bitmap ->
             sendTraceInternal(traceValues, bitmap)
@@ -197,6 +198,7 @@ internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCall
 
     private fun setPairingAccountId(pairingAccountId: String?) {
         this.pairingAccountId = pairingAccountId
+        VisualTracking.delegate?.onDevicePairingStatusUpdated(isPaired)
     }
 
     override fun onActivityStarted(activity: Activity) {
