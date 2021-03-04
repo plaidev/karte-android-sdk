@@ -19,6 +19,8 @@ import java.util.Map;
 import io.karte.android.inappmessaging.InAppMessaging;
 import io.karte.android.inappmessaging.InAppMessagingDelegate;
 import io.karte.android.tracking.Tracker;
+import io.karte.android.visualtracking.VisualTracking;
+import io.karte.android.visualtracking.VisualTrackingDelegate;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -37,6 +39,13 @@ public class MainActivity extends AppCompatActivity {
             public boolean shouldOpenURL(@NonNull Uri url) {
                 Log.i(TAG, "shouldOpenURL " + url);
                 return super.shouldOpenURL(url);
+            }
+        });
+
+        VisualTracking.setDelegate(new VisualTrackingDelegate() {
+            @Override
+            public void onDevicePairingStatusUpdated(boolean isPaired) {
+                Log.i(TAG, "isPaired " + isPaired);
             }
         });
     }
