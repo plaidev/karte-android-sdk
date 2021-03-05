@@ -80,11 +80,6 @@ cd ../
 # Commands
 ##################################################
 
-if [[ $EXEC_ENV == public ]]; then
-  echo "This execution environment is public"
-  exit 0
-fi
-
 git config --global user.name "${GITHUB_USER_NAME}"
 git config --global user.email "${GITHUB_USER_EMAIL}"
 

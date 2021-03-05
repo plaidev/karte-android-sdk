@@ -23,16 +23,6 @@ commands:
           name: Restoring build gradle cache
           key: jars-{{ checksum "build.gradle" }}-{{ checksum "core/build.gradle" }}-{{ checksum "core/version" }}-{{ checksum "inappmessaging/build.gradle" }}-{{ checksum "inappmessaging/version" }}-{{ checksum "notifications/build.gradle" }}-{{ checksum "notifications/version" }}-{{ checksum "variables/build.gradle" }}-{{ checksum "variables/version" }}-{{ checksum "visualtracking/build.gradle" }}-{{ checksum "visualtracking/version" }}-{{ checksum "examples/sample_java/build.gradle" }}-{{ checksum "examples/sample_kotlin/build.gradle" }}-{{ checksum "gradle-plugin/build.gradle" }}
       - run:
-          name: Decrypt properties
-          # encrypt to update(OpenSSL 1.1.1):
-          # openssl aes-256-cbc -e -md sha512 -pbkdf2 -iter 100000 -salt -in buildscripts/gradle.properties -out buildscripts/encrypted.properties -k $ENCRYPT_KEY
-          command: |
-            mkdir -p ~/.gradle
-            openssl aes-256-cbc -d -md sha512 -pbkdf2 -iter 100000 -salt -in buildscripts/encrypted.properties -k $ENCRYPT_KEY >> ~/.gradle/gradle.properties
-      - run:
-          name: Decrypt GPG key
-          command: echo "$GPG_KEY" | base64 -d > secret-keys.gpg
-      - run:
           name: Download Dependencies
           command: ./gradlew androidDependencies
       - save_cache:
@@ -44,14 +34,13 @@ commands:
   add_google_services:
     steps:
       - run:
-          name: Build modules
+          name: Write dummy google-services.json
           command: |
             echo '{"project_info":{"project_number":"xxx","project_id":"xxx"},"client":[{"client_info":{"mobilesdk_app_id":"xxx","android_client_info":{"package_name":"io.karte.tracker_sample"}},"api_key":[{"current_key":"xxx"}]}]}' > examples/sample_java/google-services.json
             cp examples/sample_java/google-services.json examples/sample_kotlin/google-services.json
-            ./gradlew --stacktrace assemble
       - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
+          name: Build modules
+          command: ./gradlew --stacktrace assembleDebug assembleRelease
 
 jobs:
   test:
@@ -63,8 +52,7 @@ jobs:
       - add_google_services
       - run:
           name: Test
-          command: |
-            ./gradlew --info testDebug
+          command: ./gradlew --info testDebug
       - run:
           name: Lint
           command: |
@@ -72,8 +60,7 @@ jobs:
             ./gradlew --stacktrace ktlint
       - run:
           name: Doc check
-          command: |
-            ./gradlew dokkaHtml
+          command: ./gradlew dokkaHtml
       - run:
           name: CodeCov
           command: |
@@ -87,13 +74,10 @@ jobs:
       - checkout
       - run:
           name: Request Ui Test
-          command: |
-            if [ $EXEC_ENV = 'private' ]; then
-              curl -u ${CIRCLECI_KEY} \
+          command: curl -u ${CIRCLECI_KEY} \
                     -d build_parameters[CIRCLE_JOB]=e2e-test \
                     -d build_parameters[RELEASE_BRANCH]=${CIRCLE_BRANCH} \
                     ${UI_TEST_ENDPOINT}
-            fi
 
   generate_docs:
     executor:
@@ -101,15 +85,12 @@ jobs:
     steps:
       - checkout
       - setup_gradle
-      - add_google_services
       - run:
           name: Generate docs
           command: |
-            if [ $EXEC_ENV = 'private' ]; then
-              git config --global user.name "${GITHUB_USER_NAME}"
-              git config --global user.email "${GITHUB_USER_EMAIL}"
-              ./gradlew generateDocs
-            fi
+            git config --global user.name "${GITHUB_USER_NAME}"
+            git config --global user.email "${GITHUB_USER_EMAIL}"
+            ./gradlew generateDocs
 
   publish:
     executor:
@@ -118,12 +99,29 @@ jobs:
       - checkout
       - setup_gradle
       - run:
+          name: Decrypt properties
+          # encrypt to update(OpenSSL 1.1.1):
+          # openssl aes-256-cbc -e -md sha512 -pbkdf2 -iter 100000 -salt -in buildscripts/gradle.properties -out buildscripts/encrypted.properties -k $ENCRYPT_KEY
+          command: |
+            mkdir -p ~/.gradle
+            openssl aes-256-cbc -d -md sha512 -pbkdf2 -iter 100000 -salt -in buildscripts/encrypted.properties -k $ENCRYPT_KEY >> ~/.gradle/gradle.properties
+      - run:
+          name: Decrypt GPG key
+          command: echo "$GPG_KEY" | base64 -d > secret-keys.gpg
+      - run:
           name: Publish
           command: bash ./scripts/publish.sh
 
 workflows:
   version: 2
+  build_and_test:
+    when: # Execute only public repository
+      equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
+    jobs:
+      - test
   build_and_deploy:
+    unless: # Don't execute public repository
+      equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
     jobs:
       - test
       - ui_test:
