@@ -74,10 +74,11 @@ jobs:
       - checkout
       - run:
           name: Request Ui Test
-          command: curl -u ${CIRCLECI_KEY} \
-                    -d build_parameters[CIRCLE_JOB]=e2e-test \
-                    -d build_parameters[RELEASE_BRANCH]=${CIRCLE_BRANCH} \
-                    ${UI_TEST_ENDPOINT}
+          command: |
+            curl -u ${CIRCLECI_KEY} \
+                -d build_parameters[CIRCLE_JOB]=e2e-test \
+                -d build_parameters[RELEASE_BRANCH]=${CIRCLE_BRANCH} \
+                ${UI_TEST_ENDPOINT}
 
   generate_docs:
     executor:
