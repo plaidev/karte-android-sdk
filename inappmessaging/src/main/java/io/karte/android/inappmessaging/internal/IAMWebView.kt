@@ -205,7 +205,6 @@ constructor(
             Logger.e(LOG_TAG, "Failed to show Window.", e)
         }
         loadUrl("javascript:window.tracker.handleChangePv();")
-        reset(false)
     }
 
     fun reset(isForceClose: Boolean) {

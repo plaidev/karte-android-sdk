@@ -125,8 +125,10 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
                     if (it.hasMessage) {
                         setIAMWindow(windowFocusable)
                         it.handleChangePv()
+                        it.reset(false)
                     } else {
                         windowFocusable = false
+                        dismiss()
                     }
                 }
             }

@@ -324,9 +324,8 @@ class IAMWebViewTest {
         webView.parentView = parent
         webView.handleChangePv()
         val loadedUrls = customShadowOf(webView).loadedUrls
-        assertThat(loadedUrls.size).isEqualTo(2)
+        assertThat(loadedUrls.size).isEqualTo(1)
         assertThat(loadedUrls.first()).isEqualTo("javascript:window.tracker.handleChangePv();")
-        assertThat(loadedUrls.last()).isEqualTo("javascript:window.tracker.resetPageState(false);")
     }
 
     @Test
