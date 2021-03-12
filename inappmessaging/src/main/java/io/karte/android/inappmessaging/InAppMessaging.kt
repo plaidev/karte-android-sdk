@@ -127,6 +127,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
                         it.handleChangePv()
                         it.reset(false)
                     } else {
+                        Logger.d(LOG_TAG, "Dismiss by reset pv_id")
                         windowFocusable = false
                         dismiss()
                     }
@@ -356,6 +357,8 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
             val activity = currentActiveActivity?.get() ?: return@post
             val url = params.generateUrl(app) ?: return@post
             val webView = getWebView(url) ?: return@post
+            // dismissされないため. 本来はTracker.jsサイドで処理する？
+            webView.hasMessage = true
             presenter = IAMPresenter(
                 IAMWindow(activity, panelWindowManager, webView),
                 webView
