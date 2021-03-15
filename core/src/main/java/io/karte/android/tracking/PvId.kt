@@ -38,8 +38,8 @@ internal class PvId(initVal: String? = null) : IdContainer {
     }
 
     override fun renew(): String {
-        KarteApp.self.modules.filterIsInstance<ActionModule>().forEach { it.reset() }
         _value = super.renew()
+        KarteApp.self.modules.filterIsInstance<ActionModule>().forEach { it.reset() }
         return value
     }
 

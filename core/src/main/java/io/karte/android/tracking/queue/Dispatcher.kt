@@ -113,23 +113,27 @@ internal class Dispatcher {
         }
 
         val records: MutableList<EventRecord> = mutableListOf()
-        DataStore.transaction().use { tx ->
-            records.addAll(
-                tx.read(
-                    EventRecord.EventContract,
-                    listOf(
-                        Triple(
-                            EventRecord.EventContract.STATE,
-                            RelationalOperator.Unequal,
-                            EventRecord.State.Requesting.ordinal.toString()
+        runCatching {
+            DataStore.transaction().use { tx ->
+                records.addAll(
+                    tx.read(
+                        EventRecord.EventContract,
+                        listOf(
+                            Triple(
+                                EventRecord.EventContract.STATE,
+                                RelationalOperator.Unequal,
+                                EventRecord.State.Requesting.ordinal.toString()
+                            )
                         )
                     )
+                        .map {
+                            it.also { tx.update(it.apply { state = EventRecord.State.Requesting }) }
+                        }
                 )
-                    .map {
-                        it.also { tx.update(it.apply { state = EventRecord.State.Requesting }) }
-                    }
-            )
-            tx.success()
+                tx.success()
+            }
+        }.onFailure {
+            Logger.e(LOG_TAG, "Failed to read event record: ${it.message}", it)
         }
         records.groupBy(
             { GroupingKey(it.visitorId, it.originalPvId, it.pvId, it.retry > 0) },

@@ -24,6 +24,8 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import androidx.annotation.RequiresApi
 
 internal object Connectivity {
@@ -57,12 +59,17 @@ internal class ConnectivityObserver(private val context: Context) {
     private val connectivityManager: ConnectivityManager
         get() = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private val subscribers = mutableSetOf<ConnectivitySubscriber>()
+    private val mainHandler = Handler(context.mainLooper)
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private lateinit var callback: ConnectivityManager.NetworkCallback
     private lateinit var receiver: BroadcastReceiver
 
     init {
+        runCatching { start() }
+    }
+
+    private fun start() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             receiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
@@ -109,14 +116,22 @@ internal class ConnectivityObserver(private val context: Context) {
     }
 
     private fun flush(isOnline: Boolean) {
-        subscribers.forEach { it.invoke(isOnline) }
+        runOnMainThread { subscribers.forEach { it.invoke(isOnline) } }
     }
 
     fun subscribe(subscriber: ConnectivitySubscriber) {
-        subscribers.add(subscriber)
+        runOnMainThread { subscribers.add(subscriber) }
     }
 
     fun unsubscribe(subscriber: ConnectivitySubscriber) {
-        subscribers.remove(subscriber)
+        runOnMainThread { subscribers.remove(subscriber) }
+    }
+
+    private fun runOnMainThread(function: () -> Unit) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            function.invoke()
+        } else {
+            mainHandler.post(function)
+        }
     }
 }
