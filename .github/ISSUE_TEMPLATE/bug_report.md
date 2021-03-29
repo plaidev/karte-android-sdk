@@ -26,14 +26,34 @@ Please fill in as much of the template below as you can.
 3.
 4.
 
-## Context (Environment)
+## SDK Version
+
+<!--- Please fill in all the SDK versions -->
+
+- core x.x.x
+- inappmessaging x.x.x
+- notifications x.x.x
+- variables x.x.x
+- visualtracking x.x.x
+- Karte Gradle Plugin x.x.x
+## Android Version
+
+<!--- Please indicate the Android version that reproduces the problem, such as Android 5.0 or higher -->
+## Build Environment
+
+- Android Studio Version x.x.x
+- Gradle Version x.x.x
+- Android Gradle Plugin Version x.x.x
+
+## Context Details
 <!--- How has this issue affected you? What are you trying to accomplish? -->
 <!--- Providing context helps us come up with a solution that is most useful in the real world -->
 
 <!--- Provide a general summary of the issue in the Title above -->
 
-## Detailed Description
-<!--- Provide a detailed description of the change or addition you are proposing -->
+## Logs
+
+<!---Please attach the log of the SDK. (Be careful not to include any sensitive information.) -->
 
 ## Possible Implementation
 <!--- Not obligatory, but suggest an idea for implementing addition or change -->
