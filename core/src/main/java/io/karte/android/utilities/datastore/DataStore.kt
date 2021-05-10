@@ -225,13 +225,19 @@ internal class DataStore private constructor(context: Context) {
         }
 
         override fun update(persistable: Persistable): Int {
-            instance.cache[persistable.id] = persistable
-            return instance.dbHelper.writableDatabase.update(
-                persistable.contract.namespace,
-                instance.contentValues(persistable),
-                "${BaseColumns._ID} = ?",
-                arrayOf(persistable.id.toString())
-            )
+            try {
+                val result = instance.dbHelper.writableDatabase.update(
+                    persistable.contract.namespace,
+                    instance.contentValues(persistable),
+                    "${BaseColumns._ID} = ?",
+                    arrayOf(persistable.id.toString())
+                )
+                instance.cache[persistable.id] = persistable
+                return result
+            } catch (e: SQLiteException) {
+            } catch (e: SQLiteFullException) {
+            }
+            return 0
         }
 
         fun subscribe(subscriber: Subscriber) {
