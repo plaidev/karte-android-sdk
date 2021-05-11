@@ -4,31 +4,6 @@ task sourcesJar(type: Jar) {
 }
 
 project.ext {
-    makePublication = { maven ->
-        maven.artifact sourcesJar
-        maven.artifact javadocJar
-        maven.artifact source: file("${project.buildDir}/outputs/aar/${project.name}-release.aar")
-
-        maven.versionMapping {
-            usage('java-implementation') {
-                fromResolutionOf('runtimeClasspath')
-            }
-        }
-
-        maven.pom.withXml {
-            def root = asNode()
-            root.appendNode('description', "${project.name} module for KARTE SDK")
-            def dependencies = root.appendNode("dependencies")
-            configurations.implementation.dependencies.each {
-                if (it.group == null || it.name == null || it.version == null || it.name == "unspecified") return
-                def node = dependencies.appendNode("dependency")
-                node.appendNode("groupId", it.group)
-                node.appendNode("artifactId", it.name)
-                node.appendNode("version", it.version)
-            }
-            root.children().last() + pomConfig
-        }
-    }
     makeDeployerPom = { pom ->
         pom.withXml {
             def root = asNode()

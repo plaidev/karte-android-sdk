@@ -9,16 +9,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 project.ext {
-    makePublication = { maven ->
-        maven.from components.java
-        maven.artifact sourcesJar
-
-        maven.pom.withXml {
-            def root = asNode()
-            root.appendNode('description', "${project.name} module for KARTE SDK")
-            root.children().last() + pomConfig
-        }
-    }
     makeDeployerPom = { pom ->
         pom.withXml {
             def root = asNode()
