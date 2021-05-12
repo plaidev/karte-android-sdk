@@ -7,7 +7,6 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
     }
 }
 
@@ -42,5 +41,4 @@ println "configure plugin: $project.name"
 
 apply from: '../buildscripts/projectMaven.gradle'
 apply from: '../buildscripts/projectMavenPlugin.gradle'
-apply from: '../buildscripts/projectBintray.gradle'
 apply from: '../buildscripts/projectSonatype.gradle'
