@@ -26,6 +26,7 @@ import io.karte.android.core.config.Config
 import io.karte.android.core.library.ActionModule
 import io.karte.android.core.library.DeepLinkModule
 import io.karte.android.core.library.Library
+import io.karte.android.core.library.LibraryConfig
 import io.karte.android.core.library.Module
 import io.karte.android.core.library.NotificationModule
 import io.karte.android.core.logger.LogLevel
@@ -77,6 +78,18 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
      */
     var config: Config = Config.build()
         private set
+
+    /**
+     * 指定したクラスのライブラリ設定を返します。
+     *
+     * - 該当クラスが存在しない場合、`null`を返します。
+     * - 該当クラスが複数存在する場合、最初の設定のみを返します。
+     *
+     * **サブモジュールと連携するために用意している機能であり、通常利用で使用することはありません。**
+     */
+    fun <R : LibraryConfig> libraryConfig(clazz: Class<R>): R? {
+        return config.libraryConfigs.filterIsInstance(clazz).firstOrNull()
+    }
 
     /** アプリケーション情報を返します。 */
     var appInfo: AppInfo? = null
