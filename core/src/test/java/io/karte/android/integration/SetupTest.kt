@@ -30,6 +30,7 @@ import io.karte.android.core.config.OperationMode
 import io.karte.android.core.library.LibraryConfig
 import io.karte.android.eventNameTransform
 import io.karte.android.modules.crashreporting.CrashReporting
+import io.karte.android.modules.crashreporting.CrashReportingConfig
 import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
@@ -173,12 +174,31 @@ class SetupTest {
 
     class CrashReportingが設定される : SetupTestCase() {
         @Test
-        fun UncaughtExceptionHandlerがセットされてること() {
+        fun デフォルトではUncaughtExceptionHandlerがセットされること() {
             setupKarteApp(server, appKey = setupAppKey)
             assertThat(Thread.getDefaultUncaughtExceptionHandler()).isNotNull()
             assertThat(Thread.getDefaultUncaughtExceptionHandler()).isInstanceOf(
                 CrashReporting::class.java
             )
+        }
+
+        @Test
+        fun 設定をオン時にはUncaughtExceptionHandlerがセットされること() {
+            val configBuilder = Config.Builder()
+                .libraryConfigs(CrashReportingConfig.build { enabledTracking = true })
+            setupKarteApp(server, configBuilder, setupAppKey)
+            assertThat(Thread.getDefaultUncaughtExceptionHandler()).isNotNull()
+            assertThat(Thread.getDefaultUncaughtExceptionHandler()).isInstanceOf(
+                CrashReporting::class.java
+            )
+        }
+
+        @Test
+        fun 設定をオフ時にはUncaughtExceptionHandlerがセットされないこと() {
+            val configBuilder = Config.Builder()
+                .libraryConfigs(CrashReportingConfig.build { enabledTracking = false })
+            setupKarteApp(server, configBuilder, setupAppKey)
+            assertThat(Thread.getDefaultUncaughtExceptionHandler()).isNull()
         }
     }
 

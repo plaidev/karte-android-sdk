@@ -16,4 +16,9 @@
 
 package io.karte.android.core.library
 
+/**
+ * ライブラリの設定を表すタイプです。
+ *
+ * **サブモジュールと連携するために用意している機能であり、通常利用で使用することはありません。**
+ */
 interface LibraryConfig
