@@ -37,6 +37,7 @@ internal class CrashReporting : Thread.UncaughtExceptionHandler, Library {
     override val isPublic: Boolean = false
 
     override fun configure(app: KarteApp) {
+        if (app.libraryConfig(CrashReportingConfig::class.java)?.enabledTracking == false) return
         Thread.setDefaultUncaughtExceptionHandler(this)
     }
 

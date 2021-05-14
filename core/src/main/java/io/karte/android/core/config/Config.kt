@@ -52,7 +52,7 @@ import io.karte.android.core.library.LibraryConfig
  *
  * `true` の場合はAAID取得が有効となり、`false` の場合は無効となります。デフォルトは `false` です。
  *
- * @property[libraryConfigs] サブモジュールごとの設定の取得・設定を行います。
+ * @property[libraryConfigs] ライブラリの設定の取得・設定を行います。
  *
  * デフォルトは空配列です。
  */
