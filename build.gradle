@@ -12,7 +12,6 @@ buildscript {
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:1.4.20"
 
         // for upload maven repo
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0"
 
@@ -36,9 +35,7 @@ configure(subprojects.findAll { !it.name.startsWith("sample_") }) {
 
     apply from: '../buildscripts/projectMaven.gradle'
     apply from: '../buildscripts/projectMavenAndroid.gradle'
-    apply from: '../buildscripts/projectBintray.gradle'
     apply from: '../buildscripts/projectSonatype.gradle'
-    publishMavenPublicationToMavenLocal.dependsOn "assembleRelease"
 }
 
 task clean(type: Delete) {

@@ -33,6 +33,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
     private val clickTracker = ClickTracker
 
     internal lateinit var app: KarteApp
+    private var config: NotificationsConfig? = null
 
     //region Libraary
     override val name: String = "notifications"
@@ -42,6 +43,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
     override fun configure(app: KarteApp) {
         self = this
         this.app = app
+        config = app.libraryConfig(NotificationsConfig::class.java)
         app.application.registerActivityLifecycleCallbacks(this)
         registrar = TokenRegistrar(app.application)
         app.register(registrar)
@@ -59,9 +61,13 @@ class Notifications : Library, ActivityLifecycleCallback() {
     //region ActivityLifecycleCallback
     override fun onActivityResumed(activity: Activity) {
         Logger.v(LOG_TAG, "onActivityResumed $activity")
-        if (Config.enabledFCMTokenResend) registrar.registerFCMToken()
+        if (enabledFCMTokenResend) registrar.registerFCMToken()
     }
     //endregion
+
+    private val enabledFCMTokenResend: Boolean
+        @Suppress("DEPRECATION")
+        get() = config?.enabledFCMTokenResend ?: Config.enabledFCMTokenResend
 
     companion object {
         internal var self: Notifications? = null
@@ -80,6 +86,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
     }
 
     /**Notificationsモジュールの設定を保持するクラスです。*/
+    @Deprecated("Renamed. Use 'NotificationsConfig'.")
     object Config {
         /**
          * FCMTokenの自動送信の有無の取得・設定を行います。

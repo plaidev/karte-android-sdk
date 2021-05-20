@@ -27,8 +27,10 @@ import io.karte.android.VALID_APPKEY
 import io.karte.android.core.config.Config
 import io.karte.android.core.config.ExperimentalConfig
 import io.karte.android.core.config.OperationMode
+import io.karte.android.core.library.LibraryConfig
 import io.karte.android.eventNameTransform
 import io.karte.android.modules.crashreporting.CrashReporting
+import io.karte.android.modules.crashreporting.CrashReportingConfig
 import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
@@ -172,12 +174,31 @@ class SetupTest {
 
     class CrashReportingが設定される : SetupTestCase() {
         @Test
-        fun UncaughtExceptionHandlerがセットされてること() {
+        fun デフォルトではUncaughtExceptionHandlerがセットされること() {
             setupKarteApp(server, appKey = setupAppKey)
             assertThat(Thread.getDefaultUncaughtExceptionHandler()).isNotNull()
             assertThat(Thread.getDefaultUncaughtExceptionHandler()).isInstanceOf(
                 CrashReporting::class.java
             )
+        }
+
+        @Test
+        fun 設定をオン時にはUncaughtExceptionHandlerがセットされること() {
+            val configBuilder = Config.Builder()
+                .libraryConfigs(CrashReportingConfig.build { enabledTracking = true })
+            setupKarteApp(server, configBuilder, setupAppKey)
+            assertThat(Thread.getDefaultUncaughtExceptionHandler()).isNotNull()
+            assertThat(Thread.getDefaultUncaughtExceptionHandler()).isInstanceOf(
+                CrashReporting::class.java
+            )
+        }
+
+        @Test
+        fun 設定をオフ時にはUncaughtExceptionHandlerがセットされないこと() {
+            val configBuilder = Config.Builder()
+                .libraryConfigs(CrashReportingConfig.build { enabledTracking = false })
+            setupKarteApp(server, configBuilder, setupAppKey)
+            assertThat(Thread.getDefaultUncaughtExceptionHandler()).isNull()
         }
     }
 
@@ -327,6 +348,16 @@ class SetupTest {
             proceedBufferedCall()
             assertThat(dispatcher.ingestRequests().first().requestUrl)
                 .isEqualTo(server.url("/native/ingest"))
+        }
+
+        class TestLibraryConfig(val enableTest: Boolean) : LibraryConfig
+
+        @Test
+        fun libraryConfigsに任意のConfigを追加() {
+            setup(Config.Builder().libraryConfigs(TestLibraryConfig(true)))
+            val testConfig = KarteApp.self.libraryConfig(TestLibraryConfig::class.java)
+            assertThat(testConfig).isNotNull()
+            assertThat(testConfig?.enableTest).isTrue()
         }
     }
 

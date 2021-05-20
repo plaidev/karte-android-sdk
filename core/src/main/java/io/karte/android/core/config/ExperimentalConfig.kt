@@ -15,36 +15,13 @@
 //
 package io.karte.android.core.config
 
+import io.karte.android.core.library.LibraryConfig
+
 /**
  * SDKの設定を保持するクラスです。
  *
  * - Kotlinでは[ExperimentalConfig.build]関数でインスタンスを生成します。
  * - Javaでは[ExperimentalConfig.Builder.build]関数でインスタンスを生成します。
- *
- * @property[baseUrl] ベースURLの取得・設定を行います。
- *
- * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
- *
- * @property[logCollectionUrl] ログ収集URLの取得・設定を行います。
- *
- * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
- *
- * @property[isDryRun] ドライランの利用有無の取得・設定を行います。
- *
- * ドライランを有効にした場合、[Tracker.track][io.karte.android.tracking.Tracker.track] 等のメソッドを呼び出してもイベントの送信が行われなくなります。
- *
- * `true` の場合はドライランが有効となり、`false` の場合は無効となります。デフォルトは `false` です。
- *
- * @property[isOptOut] オプトアウトの利用有無の取得・設定を行います。
- *
- * なお本設定を有効とした場合であっても、明示的に [KarteApp.optIn][io.karte.android.KarteApp.optIn] を呼び出した場合はオプトイン状態で動作します。
- * 本設定はあくまでも、オプトインまたはオプトアウトの表明を行っていない状態での動作設定を決めるものになります。
- *
- * `true` の場合はデフォルトでオプトアウトが有効となり、`false` の場合は無効となります。デフォルトは `false` です。
- *
- * @property[enabledTrackingAaid] AAID取得の利用有無の取得・設定を行います。
- *
- * `true` の場合はAAID取得が有効となり、`false` の場合は無効となります。デフォルトは `false` です。
  *
  * @property[operationMode] 動作モードの取得・設定を行います。
  * デフォルトは [OperationMode.DEFAULT] です。
@@ -58,12 +35,19 @@ class ExperimentalConfig private constructor(
     logCollectionUrl: String,
     isDryRun: Boolean,
     isOptOut: Boolean,
-    enabledTrackingAaid: Boolean
-) : Config(appKey, baseUrl, logCollectionUrl, isDryRun, isOptOut, enabledTrackingAaid) {
+    enabledTrackingAaid: Boolean,
+    libraryConfigs: List<LibraryConfig>
+) : Config(
+    appKey,
+    baseUrl,
+    logCollectionUrl,
+    isDryRun,
+    isOptOut,
+    enabledTrackingAaid,
+    libraryConfigs
+) {
 
-    /**
-     * [ExperimentalConfig]クラスの生成を行うためのクラスです。
-     */
+    /** [ExperimentalConfig]クラスの生成を行うためのクラスです。 */
     class Builder : Config.Builder() {
         /**[ExperimentalConfig.operationMode]を変更します。*/
         var operationMode: OperationMode = OperationMode.DEFAULT @JvmSynthetic set
@@ -80,7 +64,8 @@ class ExperimentalConfig private constructor(
             logCollectionUrl,
             isDryRun,
             isOptOut,
-            enabledTrackingAaid
+            enabledTrackingAaid,
+            libraryConfigs
         )
     }
 

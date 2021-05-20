@@ -19,6 +19,7 @@ import android.content.Context
 import io.karte.android.BuildConfig
 import io.karte.android.KarteException
 import io.karte.android.R
+import io.karte.android.core.library.LibraryConfig
 
 /**
  * SDKの設定を保持するクラスです。
@@ -50,6 +51,10 @@ import io.karte.android.R
  * @property[enabledTrackingAaid] AAID取得の利用有無の取得・設定を行います。
  *
  * `true` の場合はAAID取得が有効となり、`false` の場合は無効となります。デフォルトは `false` です。
+ *
+ * @property[libraryConfigs] ライブラリの設定の取得・設定を行います。
+ *
+ * デフォルトは空配列です。
  */
 open class Config protected constructor(
     appKey: String,
@@ -57,7 +62,8 @@ open class Config protected constructor(
     internal val logCollectionUrl: String,
     val isDryRun: Boolean,
     val isOptOut: Boolean,
-    val enabledTrackingAaid: Boolean
+    val enabledTrackingAaid: Boolean,
+    val libraryConfigs: List<LibraryConfig>
 ) {
     /**
      * @property[appKey] アプリケーションキーの取得・設定を行います。
@@ -69,9 +75,7 @@ open class Config protected constructor(
 
     internal val isValidAppKey get() = appKey.length == 32
 
-    /**
-     * [Config]クラスの生成を行うためのクラスです。
-     */
+    /** [Config]クラスの生成を行うためのクラスです。 */
     open class Builder {
         /**[Config.appKey]を変更します。*/
         var appKey: String = "" @JvmSynthetic set
@@ -93,6 +97,9 @@ open class Config protected constructor(
         /**[Config.enabledTrackingAaid]を変更します。*/
         var enabledTrackingAaid: Boolean = false @JvmSynthetic set
 
+        /**[Config.libraryConfigs]を変更します。*/
+        var libraryConfigs: List<LibraryConfig> = listOf() @JvmSynthetic set
+
         /**[Config.baseUrl]を変更します。*/
         fun baseUrl(baseUrl: String): Builder = apply { this.baseUrl = baseUrl }
 
@@ -110,6 +117,14 @@ open class Config protected constructor(
         fun enabledTrackingAaid(enabledTrackingAaid: Boolean): Builder =
             apply { this.enabledTrackingAaid = enabledTrackingAaid }
 
+        /**[Config.libraryConfigs]を変更します。*/
+        fun libraryConfigs(libraryConfigs: List<LibraryConfig>): Builder =
+            apply { this.libraryConfigs = libraryConfigs }
+
+        /**[Config.libraryConfigs]を変更します。*/
+        fun libraryConfigs(vararg libraryConfigs: LibraryConfig): Builder =
+            apply { this.libraryConfigs = libraryConfigs.toList() }
+
         /**[Config]クラスのインスタンスを生成します。*/
         open fun build(): Config = Config(
             appKey,
@@ -117,7 +132,8 @@ open class Config protected constructor(
             logCollectionUrl,
             isDryRun,
             isOptOut,
-            enabledTrackingAaid
+            enabledTrackingAaid,
+            libraryConfigs
         )
     }
 
