@@ -120,10 +120,12 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
         Logger.d(LOG_TAG, "reset pv_id. ${app.pvId} ${app.originalPvId}")
         // pvIdがある(onResumeより後ろ)場合のみdismissする
         if (app.pvId != app.originalPvId) {
-            currentActiveActivity?.get()?.window?.decorView?.post {
+            uiThreadHandler.post {
                 getWebView()?.also {
                     if (it.hasMessage) {
-                        setIAMWindow(windowFocusable)
+                        if(currentActiveActivity != null){
+                            setIAMWindow(windowFocusable)
+                        }
                         it.handleChangePv()
                         it.reset(false)
                     } else {
