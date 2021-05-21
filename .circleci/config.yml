@@ -65,8 +65,9 @@ jobs:
           name: CodeCov
           command: |
             ./gradlew jacocoMerge
-            bash <(curl -s https://codecov.io/bash)
-
+            curl -s https://codecov.io/bash > codecov
+            VERSION=$(grep '^VERSION=\"[0-9\.]*\"' codecov | awk -F '"' '{print $2}')
+            shasum -c --ignore-missing <(curl -s https://raw.githubusercontent.com/codecov/codecov-bash/${VERSION}/SHA256SUM)
   ui_test:
     executor:
       name: build
