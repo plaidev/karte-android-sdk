@@ -108,6 +108,8 @@ jobs:
             openssl aes-256-cbc -d -md sha512 -pbkdf2 -iter 100000 -salt -in buildscripts/encrypted.properties -k $ENCRYPT_KEY >> ~/.gradle/gradle.properties
       - run:
           name: Decrypt GPG key
+          # export gpg private key:
+          # gpg --export-secret-keys <key_id> | base64 | pbcopy
           command: echo "$GPG_KEY" | base64 -d > secret-keys.gpg
       - run:
           name: Publish
