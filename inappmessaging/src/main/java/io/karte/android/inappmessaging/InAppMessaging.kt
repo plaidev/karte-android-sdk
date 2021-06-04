@@ -123,7 +123,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
             uiThreadHandler.post {
                 getWebView()?.also {
                     if (it.hasMessage) {
-                        if(currentActiveActivity != null){
+                        if (currentActiveActivity != null) {
                             setIAMWindow(windowFocusable)
                         }
                         it.handleChangePv()
