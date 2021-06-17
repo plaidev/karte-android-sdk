@@ -198,13 +198,13 @@ constructor(
 
     fun handleChangePv() {
         Logger.d(LOG_TAG, "handleChangePv()")
+        loadUrl("javascript:window.tracker.handleChangePv();")
         if (parentView == null) return
         try {
             if (hasMessage) parentView?.show()
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to show Window.", e)
         }
-        loadUrl("javascript:window.tracker.handleChangePv();")
     }
 
     fun reset(isForceClose: Boolean) {

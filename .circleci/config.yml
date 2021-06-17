@@ -65,8 +65,9 @@ jobs:
           name: CodeCov
           command: |
             ./gradlew jacocoMerge
-            bash <(curl -s https://codecov.io/bash)
-
+            curl -s https://codecov.io/bash > codecov
+            VERSION=$(grep '^VERSION=\"[0-9\.]*\"' codecov | awk -F '"' '{print $2}')
+            shasum -c --ignore-missing <(curl -s https://raw.githubusercontent.com/codecov/codecov-bash/${VERSION}/SHA256SUM)
   ui_test:
     executor:
       name: build
@@ -108,6 +109,8 @@ jobs:
             openssl aes-256-cbc -d -md sha512 -pbkdf2 -iter 100000 -salt -in buildscripts/encrypted.properties -k $ENCRYPT_KEY >> ~/.gradle/gradle.properties
       - run:
           name: Decrypt GPG key
+          # export gpg private key:
+          # gpg --export-secret-keys <key_id> | base64 | pbcopy
           command: echo "$GPG_KEY" | base64 -d > secret-keys.gpg
       - run:
           name: Publish
