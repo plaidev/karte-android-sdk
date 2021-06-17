@@ -9,6 +9,7 @@ import io.karte.android.gradleplugin.visualtracking.ByteCodeTransform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
@@ -38,6 +39,7 @@ class KartePlugin : Plugin<Project> {
                         (task as ManifestProcessorTask).manifestOutputDirectoryCompat()
                     val manifestPaths = manifestDirFiles.filter { it.name == "AndroidManifest.xml" }
                         .map { it.absolutePath }
+                    assert(manifestPaths.isEmpty())
                     manifestPaths.forEach {
                         AndroidManifestTransform(
                             it
@@ -55,7 +57,6 @@ class KartePlugin : Plugin<Project> {
      * Using deprecated method will print noisy warning at app build time.
      * @Suppress("DEPRECATION") annotation just suppress warning at plugin compile time.
      */
-
     private fun BaseVariantOutput.processManifestCompat(): ManifestProcessorTask {
         return try {
             processManifestProvider.get()
@@ -67,20 +68,29 @@ class KartePlugin : Plugin<Project> {
     }
 
     private fun ManifestProcessorTask.manifestOutputDirectoryCompat(): Set<File> {
-        return try {
-            manifestOutputDirectory.get().asFileTree.files
-        } catch (e: NoSuchMethodError) {
-            val dir = javaClass.getMethod("getManifestOutputDirectory").invoke(this)
-            if (dir is Provider<*>) {
-                // less than 3.5.0.
-                (dir.get() as Directory).asFileTree.files
-            } else if (dir is File) {
-                // less than 3.3.0.
+        val methods = javaClass.methods
+        // [4.1.0, 4.2.1]
+        methods.firstOrNull { it.name == "getMultiApkManifestOutputDirectory" }?.let {
+            val dir: DirectoryProperty = it.invoke(this) as DirectoryProperty
+            return dir.asFileTree.files
+        }
+        // (, 4.1.0)
+        methods.firstOrNull { it.name == "getManifestOutputDirectory" }?.let {
+            val dir = it.invoke(this)
+            return when (dir) {
+                // [3.5.0, 4.1.0)
+                is DirectoryProperty -> dir.get().asFileTree.files
+                // [3.3.0, 3.5.0)
+                is Provider<*> -> (dir.get() as Directory).asFileTree.files
+                // [3.1.0, 3.3.0)
                 // Greater than or equal to 3.3.0, there isn't even a deprecated method of getManifestOutputDirectory returning File.
-                dir.walkTopDown().toSet()
-            } else {
-                throw e
+                is File -> dir.walkTopDown().toSet()
+                // (, 3.1.0)
+                else -> throw NoSuchMethodError(
+                    "Not found expected return type method: getManifestOutputDirectory."
+                )
             }
         }
+        throw NoSuchMethodError("getMultiApkManifestOutputDirectory or getManifestOutputDirectory.")
     }
 }
