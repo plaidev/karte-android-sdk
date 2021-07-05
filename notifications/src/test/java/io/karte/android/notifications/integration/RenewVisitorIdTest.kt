@@ -19,8 +19,8 @@ import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
 import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.TrackerTestCase
+import io.karte.android.notifications.proceedBufferedThreads
 import io.karte.android.parseBody
-import io.karte.android.proceedBufferedCall
 import io.karte.android.toList
 import org.json.JSONObject
 import org.junit.After
@@ -41,12 +41,12 @@ class RenewVisitorIdTest {
         fun setup() {
             dispatcher = TrackerRequestDispatcher()
             server.dispatcher = dispatcher
-            mockFirebaseToken(mockedToken)
+            mockFirebaseInstanceId(mockedToken)
         }
 
         @After
         fun teardown() {
-            unmockFirebase()
+            unmockFirebaseInstanceId()
         }
 
         @Test
@@ -54,7 +54,7 @@ class RenewVisitorIdTest {
             val oldVisitorId = KarteApp.visitorId
             KarteApp.renewVisitorId()
             val newVisitorId = KarteApp.visitorId
-            proceedBufferedCall()
+            proceedBufferedThreads()
 
             val requestEvents = dispatcher.trackedRequests().groupBy({
                 JSONObject(it.parseBody()).getJSONObject("keys").getString("visitor_id")

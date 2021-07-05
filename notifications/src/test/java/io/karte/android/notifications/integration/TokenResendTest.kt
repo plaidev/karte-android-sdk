@@ -23,7 +23,7 @@ import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.core.config.Config
 import io.karte.android.notifications.Notifications
 import io.karte.android.notifications.NotificationsConfig
-import io.karte.android.proceedBufferedCall
+import io.karte.android.notifications.proceedBufferedThreads
 import io.karte.android.setupKarteApp
 import io.karte.android.tearDownKarteApp
 import okhttp3.mockwebserver.MockWebServer
@@ -31,8 +31,8 @@ import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
+import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 
 abstract class NotificationSetupTestCase : RobolectricTestCase() {
@@ -44,14 +44,12 @@ abstract class NotificationSetupTestCase : RobolectricTestCase() {
         server = MockWebServer()
         server.dispatcher = dispatcher
         server.start()
-        mockFirebaseToken("test")
     }
 
     @After
     fun tearDown() {
         tearDownKarteApp()
         server.shutdown()
-        unmockFirebase()
     }
 
     fun pluginIdentifyEvents(): List<JSONObject> {
@@ -64,57 +62,101 @@ abstract class NotificationSetupTestCase : RobolectricTestCase() {
     }
 }
 
-@RunWith(Enclosed::class)
-class TokenResendTest {
-    class デフォルト設定の場合 : NotificationSetupTestCase() {
-        @Test
-        fun onResumeでplugin_native_app_identifyイベントがtrackサーバに送信されること() {
-            setupKarteApp(server)
-            Robolectric.buildActivity(Activity::class.java).create().resume()
-            proceedBufferedCall()
-
-            assertThat(pluginIdentifyEvents()).hasSize(1)
-            assertThat(pluginIdentifyEvent()?.getJSONObject("values")?.getString("fcm_token"))
-                .isEqualTo("test")
-
-            // 2回目はtokenが変更されなければ呼ばれない
-            Robolectric.buildActivity(Activity::class.java).create().resume()
-            proceedBufferedCall()
-            assertThat(pluginIdentifyEvents()).hasSize(1)
-
-            // tokenが更新されれば再送信する
-            mockFirebaseToken("test2")
-            Robolectric.buildActivity(Activity::class.java).create().resume()
-            proceedBufferedCall()
-            assertThat(pluginIdentifyEvents()).hasSize(2)
-            assertThat(pluginIdentifyEvent()?.getJSONObject("values")?.getString("fcm_token"))
-                .isEqualTo("test2")
+@RunWith(ParameterizedRobolectricTestRunner::class)
+class TokenResendTest(private val pattern: MockPattern) : NotificationSetupTestCase() {
+    enum class MockPattern { INSTANCE_ID, MESSAGING, NONE }
+    companion object {
+        @JvmStatic
+        @ParameterizedRobolectricTestRunner.Parameters(name = "{index}: {0}")
+        fun data(): List<Any> {
+            return listOf(
+                arrayOf(MockPattern.INSTANCE_ID),
+                arrayOf(MockPattern.MESSAGING),
+                arrayOf(MockPattern.NONE)
+            )
         }
     }
 
-    class DeprecatedなConfig設定 : NotificationSetupTestCase() {
-        @Test
-        fun onResumeでplugin_native_app_identifyイベントがtrackサーバに送信されないこと() {
-            @Suppress("DEPRECATION")
-            Notifications.Config.enabledFCMTokenResend = false
-            setupKarteApp(server)
-            Robolectric.buildActivity(Activity::class.java).create().resume()
-            proceedBufferedCall()
-
-            assertThat(pluginIdentifyEvents()).hasSize(0)
+    private fun mockToken(token: String) {
+        when (pattern) {
+            MockPattern.INSTANCE_ID -> mockFirebaseInstanceId(token)
+            MockPattern.MESSAGING -> mockFirebaseMessaging(token)
+            MockPattern.NONE -> {
+            }
         }
     }
 
-    class LibraryConfig設定 : NotificationSetupTestCase() {
-        @Test
-        fun onResumeでplugin_native_app_identifyイベントがtrackサーバに送信されないこと() {
-            val notificationsConfig = NotificationsConfig.build { enabledFCMTokenResend = false }
-            val configBuilder = Config.Builder().libraryConfigs(notificationsConfig)
-            setupKarteApp(server, configBuilder)
-            Robolectric.buildActivity(Activity::class.java).create().resume()
-            proceedBufferedCall()
-
-            assertThat(pluginIdentifyEvents()).hasSize(0)
+    private fun unmockToken() {
+        when (pattern) {
+            MockPattern.INSTANCE_ID -> unmockFirebaseInstanceId()
+            MockPattern.MESSAGING -> unmockFirebaseMessaging()
+            MockPattern.NONE -> {
+            }
         }
+    }
+
+    @Before
+    fun setup() {
+        mockToken("test")
+    }
+
+    @After
+    fun teardown() {
+        unmockToken()
+    }
+
+    @Test
+    fun デフォルト_onResumeでplugin_native_app_identifyイベントがtrackサーバに送信されること() {
+        setupKarteApp(server)
+        Robolectric.buildActivity(Activity::class.java).create().resume()
+        proceedBufferedThreads()
+
+        if (pattern == MockPattern.NONE) {
+            // mockしなければ送信されない
+            assertThat(pluginIdentifyEvents()).hasSize(0)
+            return
+        }
+
+        assertThat(pluginIdentifyEvents()).hasSize(1)
+        assertThat(pluginIdentifyEvent()?.getJSONObject("values")?.getString("fcm_token"))
+            .isEqualTo("test")
+
+        // 2回目はtokenが変更されなければ呼ばれない
+        Robolectric.buildActivity(Activity::class.java).create().resume()
+        proceedBufferedThreads()
+        assertThat(pluginIdentifyEvents()).hasSize(1)
+
+        // tokenが更新されれば再送信する
+        mockToken("test2")
+        Robolectric.buildActivity(Activity::class.java).create().resume()
+        proceedBufferedThreads()
+        assertThat(pluginIdentifyEvents()).hasSize(2)
+        assertThat(pluginIdentifyEvent()?.getJSONObject("values")?.getString("fcm_token"))
+            .isEqualTo("test2")
+    }
+
+    @Test
+    fun DeprecatedConfig_onResumeでplugin_native_app_identifyイベントがtrackサーバに送信されないこと() {
+        @Suppress("DEPRECATION")
+        Notifications.Config.enabledFCMTokenResend = false
+        setupKarteApp(server)
+        Robolectric.buildActivity(Activity::class.java).create().resume()
+        proceedBufferedThreads()
+
+        assertThat(pluginIdentifyEvents()).hasSize(0)
+
+        @Suppress("DEPRECATION")
+        Notifications.Config.enabledFCMTokenResend = true
+    }
+
+    @Test
+    fun LibraryConfig_onResumeでplugin_native_app_identifyイベントがtrackサーバに送信されないこと() {
+        val notificationsConfig = NotificationsConfig.build { enabledFCMTokenResend = false }
+        val configBuilder = Config.Builder().libraryConfigs(notificationsConfig)
+        setupKarteApp(server, configBuilder)
+        Robolectric.buildActivity(Activity::class.java).create().resume()
+        proceedBufferedThreads()
+
+        assertThat(pluginIdentifyEvents()).hasSize(0)
     }
 }
