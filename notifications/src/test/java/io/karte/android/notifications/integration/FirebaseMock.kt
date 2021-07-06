@@ -19,16 +19,17 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.iid.InstanceIdResult
+import com.google.firebase.messaging.FirebaseMessaging
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkStatic
 
-fun mockFirebaseToken(mockedToken: String?) {
+fun mockFirebaseInstanceId(mockedToken: String?) {
     mockkStatic(FirebaseInstanceId::class)
     val slot = slot<OnCompleteListener<InstanceIdResult>>()
-    val instanceId = mockk<FirebaseInstanceId> {
+    val mockedInstance = mockk<FirebaseInstanceId> {
         every { instanceId } returns mockk {
             every { addOnCompleteListener(capture(slot)) } answers {
                 val result: Task<InstanceIdResult> = if (mockedToken != null) {
@@ -46,9 +47,35 @@ fun mockFirebaseToken(mockedToken: String?) {
             }
         }
     }
-    every { FirebaseInstanceId.getInstance() } returns instanceId
+    every { FirebaseInstanceId.getInstance() } returns mockedInstance
 }
 
-fun unmockFirebase() {
+fun unmockFirebaseInstanceId() {
     unmockkStatic(FirebaseInstanceId::class)
+}
+
+fun mockFirebaseMessaging(mockedToken: String?) {
+    mockkStatic(FirebaseMessaging::class)
+    val slot = slot<OnCompleteListener<String>>()
+    val mockedInstance = mockk<FirebaseMessaging> {
+        every { token } returns mockk {
+            every { addOnCompleteListener(capture(slot)) } answers {
+                val result: Task<String> = if (mockedToken != null) {
+                    mockk {
+                        every { isSuccessful } returns true
+                        every { result } returns mockedToken
+                    }
+                } else {
+                    mockk { every { isSuccessful } returns false }
+                }
+                slot.captured.onComplete(result)
+                result
+            }
+        }
+    }
+    every { FirebaseMessaging.getInstance() } returns mockedInstance
+}
+
+fun unmockFirebaseMessaging() {
+    unmockkStatic(FirebaseMessaging::class)
 }
