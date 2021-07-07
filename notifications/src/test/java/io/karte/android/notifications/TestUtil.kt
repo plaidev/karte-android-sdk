@@ -17,6 +17,9 @@ package io.karte.android.notifications
 
 import android.app.NotificationManager
 import io.karte.android.RobolectricTestCase
+import io.karte.android.getThreadByName
+import io.karte.android.notifications.internal.THREAD_NAME
+import io.karte.android.proceedBufferedCall
 import org.robolectric.Shadows
 
 fun NotificationManager.setPermission(enabled: Boolean) {
@@ -25,3 +28,8 @@ fun NotificationManager.setPermission(enabled: Boolean) {
 
 val RobolectricTestCase.manager: NotificationManager
     get() = application.getSystemService(NotificationManager::class.java)
+
+fun proceedBufferedThreads() {
+    getThreadByName(THREAD_NAME)?.join()
+    proceedBufferedCall()
+}

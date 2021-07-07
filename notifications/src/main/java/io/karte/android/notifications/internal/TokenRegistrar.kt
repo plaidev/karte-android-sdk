@@ -18,12 +18,15 @@ package io.karte.android.notifications.internal
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 import io.karte.android.core.library.NotificationModule
 import io.karte.android.core.library.UserModule
 import io.karte.android.core.logger.Logger
 import io.karte.android.tracking.Tracker
+import kotlin.concurrent.thread
 
 private const val LOG_TAG = "Karte.Notifications.TokenRegistrar"
+internal const val THREAD_NAME = "io.karte.android.notifications.TokenRegistrar"
 
 internal class TokenRegistrar(private val context: Context) : UserModule, NotificationModule {
 
@@ -50,9 +53,7 @@ internal class TokenRegistrar(private val context: Context) : UserModule, Notifi
 
     fun registerFCMToken(token: String? = null) {
         if (token == null) {
-            getToken { _token ->
-                registerFCMTokenInternal(_token)
-            }
+            thread(name = THREAD_NAME) { getToken { _token -> registerFCMTokenInternal(_token) } }
         } else {
             registerFCMTokenInternal(token)
         }
@@ -82,29 +83,56 @@ internal class TokenRegistrar(private val context: Context) : UserModule, Notifi
         }
 
     private fun getToken(completion: ((token: String) -> Unit)? = null) {
-        try {
-            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    Logger.d(LOG_TAG, "Failed to find FCM Token\n ${task.exception?.message}")
-                    return@addOnCompleteListener
-                }
-
-                // Get new Instance ID token
-                task.result?.token?.let {
-
-                    Logger.d(
-                        LOG_TAG,
-                        "FCM Token found by using FirebaseInstanceId.getInstanceId. $it"
-                    )
-                    completion?.invoke(it)
-                }
+        runCatching { getTokenByFirebaseInstanceId(completion) }
+            .onSuccess { return }
+            .onFailure {
+                Logger.w(
+                    LOG_TAG,
+                    logMessage("FirebaseInstanceId.getInstanceId", "Failed to get", it.message)
+                )
             }
-//        val token = FirebaseInstanceId.getInstance().getToken()
-//        Logger.v(LOG_TAG, "FCM token found by using FirebaseInstanceId.getToken. $token")
-        } catch (e: Exception) {
-            Logger.e(LOG_TAG, "Failed to find FCM Token\n ${e.message}")
+        runCatching { getTokenByFirebaseMessaging(completion) }
+            .onSuccess { return }
+            .onFailure {
+                Logger.w(
+                    LOG_TAG,
+                    logMessage("FirebaseMessaging.getToken", "Failed to get", it.message)
+                )
+            }
+        Logger.e(LOG_TAG, "Failed to get FCM Token using both methods.")
+    }
+
+    private fun getTokenByFirebaseInstanceId(completion: ((token: String) -> Unit)? = null) {
+        val methodName = "FirebaseInstanceId.getInstanceId"
+        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Logger.d(LOG_TAG, logMessage(methodName, "Could not get", task.exception?.message))
+                return@addOnCompleteListener
+            }
+            // Get new Instance ID token
+            task.result?.token?.let {
+                Logger.d(LOG_TAG, logMessage(methodName, "Got"))
+                completion?.invoke(it)
+            }
         }
     }
+
+    private fun getTokenByFirebaseMessaging(completion: ((token: String) -> Unit)? = null) {
+        val methodName = "FirebaseMessaging.getToken"
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Logger.d(LOG_TAG, logMessage(methodName, "Could not get", task.exception?.message))
+                return@addOnCompleteListener
+            }
+            task.result?.let {
+                Logger.d(LOG_TAG, logMessage(methodName, "Got"))
+                completion?.invoke(it)
+            }
+        }
+    }
+
+    private fun logMessage(methodName: String, result: String, addition: String? = null): String =
+        "$result FCM token using [$methodName].${addition?.let { "\n$addition" } ?: ""}"
 
     private fun isChanged(token: String): Boolean {
         if (this.token != token) return true
