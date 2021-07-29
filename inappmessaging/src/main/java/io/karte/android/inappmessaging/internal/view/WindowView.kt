@@ -19,6 +19,8 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -95,6 +97,13 @@ internal open class WindowView(
         // API 24未満はSplitScreen未対応のため、常にstatus barがある
         true
     }
+
+    private val isActivityNotRenewedOnRotate: Boolean = runCatching {
+        (activity.packageManager.getActivityInfo(
+            activity.componentName,
+            PackageManager.GET_META_DATA
+        ).configChanges and ActivityInfo.CONFIG_ORIENTATION) == ActivityInfo.CONFIG_ORIENTATION
+    }.getOrDefault(false)
 
     init {
         id = R.id.karte_overlay_view
@@ -304,12 +313,26 @@ internal open class WindowView(
             if (appSoftInputModeIsNothing) {
                 val rect = Rect()
                 getWindowVisibleDisplayFrame(rect)
-                if (rect == iamViewVisibleRect) return
+                if (rect == iamViewVisibleRect) {
+                    // 画面回転時にActivityが再生成されない場合はrequestLayoutを呼ぶ
+                    // この処理が無いとUnityで回転時にレイアウトが崩れることがある
+                    if (isActivityNotRenewedOnRotate) {
+                        requestLayout()
+                    }
+                    return
+                }
                 iamViewVisibleRect = rect
             } else {
                 val rect = Rect()
                 contentView.getWindowVisibleDisplayFrame(rect)
-                if (rect == contentViewVisibleRect) return
+                if (rect == contentViewVisibleRect) {
+                    // 画面回転時にActivityが再生成されない場合はrequestLayoutを呼ぶ
+                    // この処理が無いとUnityで回転時にレイアウトが崩れることがある
+                    if (isActivityNotRenewedOnRotate) {
+                        requestLayout()
+                    }
+                    return
+                }
                 contentViewVisibleRect = rect
             }
 
