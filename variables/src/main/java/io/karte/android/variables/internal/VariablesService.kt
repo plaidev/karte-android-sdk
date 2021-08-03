@@ -108,7 +108,7 @@ internal class VariablesService : Library, ActionModule, UserModule {
 
     //region Libraary
     override val name: String = "variables"
-    override val version: String = BuildConfig.VERSION_NAME
+    override val version: String = BuildConfig.LIB_VERSION
     override val isPublic: Boolean = true
 
     override fun configure(app: KarteApp) {
