@@ -111,9 +111,20 @@ internal open class WindowView(
     }
 
     open fun show() {
-        if (isAttachedToWindow || isAttaching) return
-        isAttaching = true
+        appWindow.peekDecorView().post {
+            if (isAttachedToWindow || isAttaching) return@post
+            try {
+                isAttaching = true
+                showInternal()
+            } catch (e: Exception) {
+                isAttaching = false
+                windowManager.removeView(this)
+                throw e
+            }
+        }
+    }
 
+    private fun showInternal() {
         val decorView = appWindow.peekDecorView()
             ?: throw IllegalStateException("Decor view has not yet created.")
         val contentView = contentView
