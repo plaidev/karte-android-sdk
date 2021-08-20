@@ -27,6 +27,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
+import io.karte.android.core.logger.Logger
+
+private const val LOG_TAG = "Karte.Connectivity"
 
 internal object Connectivity {
     fun isOnline(context: Context): Boolean {
@@ -46,10 +49,13 @@ internal object Connectivity {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun isOnlineNow(context: Context): Boolean {
-        val manager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return manager.getNetworkCapabilities(manager.activeNetwork)
-            ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ?: false
+        val manager = context.getSystemService(ConnectivityManager::class.java)
+        return runCatching {
+            manager.getNetworkCapabilities(manager.activeNetwork)
+                ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        }.onFailure { e ->
+            Logger.e(LOG_TAG, "Failed to get the NetworkCapabilities", e)
+        }.getOrNull() ?: false
     }
 }
 
