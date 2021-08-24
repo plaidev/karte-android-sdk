@@ -45,7 +45,7 @@ private interface Serializable {
 class AppInfo(context: Context, repository: Repository, config: Config) : Serializable {
     private val versionName: String?
     private val versionCode: Int?
-    private val karteSdkVersion = BuildConfig.VERSION_NAME
+    private val karteSdkVersion = BuildConfig.LIB_VERSION
     private val systemInfo = SystemInfo(config.enabledTrackingAaid, Screen(context))
     private val moduleInfo = ModuleInfo()
     private val packageName = context.packageName
@@ -144,7 +144,7 @@ private class ModuleInfo : Serializable {
         KarteApp.self.libraries.filter { it.isPublic }.forEach {
             modules.put(it.name, it.version)
         }
-        modules.put("core", BuildConfig.VERSION_NAME)
+        modules.put("core", BuildConfig.LIB_VERSION)
         return modules
     }
 }

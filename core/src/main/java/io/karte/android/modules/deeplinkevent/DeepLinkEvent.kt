@@ -31,7 +31,7 @@ internal class DeepLinkEvent : Library, DeepLinkModule {
 
     //region Library
     override val name: String = "DeepLinkEvent"
-    override val version: String = BuildConfig.VERSION_NAME
+    override val version: String = BuildConfig.LIB_VERSION
     override val isPublic: Boolean = false
 
     override fun configure(app: KarteApp) {
