@@ -224,7 +224,14 @@ internal open class WindowView(
             copiedEvent.offsetLocation(locationOnScreen[0].toFloat(), locationOnScreen[1].toFloat())
             val dispatchedToPanel = panelWindowManager.dispatchTouch(copiedEvent)
             if (!dispatchedToPanel) {
-                appWindow.injectInputEvent(MotionEvent.obtain(ev))
+                // contentViewとWindowViewは同じ座標にある想定だが、フルスクリーンモードによっては座標が変わる場合があるため、ズレを補正しておく
+                val contentViewLocation = IntArray(2)
+                contentView.getLocationOnScreen(contentViewLocation)
+                val offsetX = (locationOnScreen[0] - contentViewLocation[0]).toFloat()
+                val offsetY = (locationOnScreen[1] - contentViewLocation[1]).toFloat()
+                val eventOnAppWindow = MotionEvent.obtain(ev)
+                eventOnAppWindow.offsetLocation(offsetX, offsetY)
+                appWindow.injectInputEvent(eventOnAppWindow)
             }
             return false
         }
