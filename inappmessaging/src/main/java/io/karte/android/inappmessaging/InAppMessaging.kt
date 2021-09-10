@@ -57,7 +57,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
 
     //region Library
     override val name: String = "inappmessaging"
-    override val version: String = BuildConfig.VERSION_NAME
+    override val version: String = BuildConfig.LIB_VERSION
     override val isPublic: Boolean = true
 
     override fun configure(app: KarteApp) {

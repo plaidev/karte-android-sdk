@@ -34,7 +34,7 @@ internal class FindMyself : Library, DeepLinkModule {
 
     //region Library
     override val name: String = "FindMySelf"
-    override val version: String = BuildConfig.VERSION_NAME
+    override val version: String = BuildConfig.LIB_VERSION
     override val isPublic: Boolean = false
 
     override fun configure(app: KarteApp) {

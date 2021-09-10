@@ -37,7 +37,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
 
     //region Libraary
     override val name: String = "notifications"
-    override val version: String = BuildConfig.VERSION_NAME
+    override val version: String = BuildConfig.LIB_VERSION
     override val isPublic: Boolean = true
 
     override fun configure(app: KarteApp) {

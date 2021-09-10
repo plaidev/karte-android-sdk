@@ -506,7 +506,7 @@ class TrackerIntegrationTest {
                 .isEqualTo("1")
             assertWithMessage("SDKバージョンがkarte_sdk_versionパラメータとしてtrackサーバに送信されること")
                 .that(bodyAppInfo.getString("karte_sdk_version"))
-                .isEqualTo(BuildConfig.VERSION_NAME)
+                .isEqualTo(BuildConfig.LIB_VERSION)
             assertWithMessage("パッケージ名がpachage_nameパラメータとしてtrackサーバに送信されること")
                 .that(bodyAppInfo.getString("package_name"))
                 .isEqualTo(application.packageName)
