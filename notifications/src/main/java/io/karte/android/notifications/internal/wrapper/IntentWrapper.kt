@@ -41,9 +41,9 @@ internal enum class EventType(val value: String) {
 }
 
 internal class IntentWrapper(val intent: Intent) {
-    val isValid = intent.extras != null
     private val targetPushFlag = intent.getStringExtra(EXTRA_TARGET_PUSH_FLAG)
     private val massPushFlag = intent.getStringExtra(EXTRA_MASS_PUSH_FLAG)
+    val isValid = targetPushFlag != null || massPushFlag != null
     val eventType = EventType.of(intent.getStringExtra(EXTRA_EVENT_TYPE))
     val eventValues = valuesOf(intent.getStringExtra(EXTRA_EVENT_VALUES))
     val campaignId: String? = intent.getStringExtra(EXTRA_CAMPAIGN_ID)
