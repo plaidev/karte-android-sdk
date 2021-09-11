@@ -96,7 +96,7 @@ private val MODIFICATION_LIST_ANDROID_X = listOf(
 
 private val ALL_MODIFICATION_LIST = MODIFICATION_LIST_ANDROID_FRAMEWORK +
     MODIFICATION_LIST_SUPPORT_LIB + MODIFICATION_LIST_ANDROID_X
-val METHOD_SIG_TO_MOD_LIST = ALL_MODIFICATION_LIST
+val METHOD_SIG_TO_MOD_LIST: Map<String, List<Modification>> = ALL_MODIFICATION_LIST
     .fold(mutableMapOf<String, MutableList<Modification>>()) { acc, modification ->
         val sig = modification.target.methodSignature
         val sigStr =
@@ -108,3 +108,6 @@ val METHOD_SIG_TO_MOD_LIST = ALL_MODIFICATION_LIST
         }
         return@fold acc
     }
+
+val MODIFICATION_EXCLUDE_PACKAGE_CORE = "io.karte.android.core"
+val MODIFICATION_EXCLUDE_PACKAGE_VISUALTRACKING = "io.karte.android.visualtracking"

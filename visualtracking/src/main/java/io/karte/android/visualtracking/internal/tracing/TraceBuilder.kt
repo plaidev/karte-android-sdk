@@ -23,6 +23,7 @@ import android.widget.TextView
 import androidx.annotation.UiThread
 import com.google.android.material.tabs.TabLayout
 import io.karte.android.visualtracking.Action
+import io.karte.android.visualtracking.internal.HookTargetMethodFromDynamicInvoke
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -73,24 +74,24 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
 
     private fun getView(actionName: String, args: Array<Any>): View? {
         // TODO: abstraction.
-        when (actionName) {
+        return when (actionName) {
             "android.app.ListActivity#onListItemClick",
             "android.widget.AdapterView\$OnItemClickListener#onItemClick" ->
-                return args[1] as View
+                args[1] as View
             "com.google.android.material.tabs.TabLayout\$OnTabSelectedListener#onTabSelected",
             "android.support.design.widget.TabLayout\$OnTabSelectedListener#onTabSelected" -> {
                 val tab = args[0] as TabLayout.Tab
                 @Suppress("INACCESSIBLE_TYPE")
-                return tab.customView ?: tab.view
+                tab.customView ?: tab.view
             }
-        }
-
-        for (arg in args) {
-            if (arg is View) {
-                return arg
+            HookTargetMethodFromDynamicInvoke.VIEW_CLICK.actionName -> {
+                args.lastOrNull { it is View } as? View
             }
+            HookTargetMethodFromDynamicInvoke.ADAPTER_VIEW_ITEM_CLICK.actionName -> {
+                args.lastOrNull { it is View } as? View
+            }
+            else -> args.firstOrNull { it is View } as? View
         }
-        return null
     }
 
     private fun getActivity(view: View): Activity? {

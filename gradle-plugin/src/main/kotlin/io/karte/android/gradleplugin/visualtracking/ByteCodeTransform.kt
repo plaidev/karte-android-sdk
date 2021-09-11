@@ -209,7 +209,11 @@ class ByteCodeTransform(private val project: Project) : Transform() {
     }
 
     private fun gatherModExec(className: String?): ModificationExec? {
+        className ?: return null
+        if (className.startsWith(MODIFICATION_EXCLUDE_PACKAGE_CORE)) return null
+        if (className.startsWith(MODIFICATION_EXCLUDE_PACKAGE_VISUALTRACKING)) return null
         val ctClass = classPool.getOrNull(className) ?: return null
+
         try {
             ctClass.classFile
         } catch (e: RuntimeException) {
@@ -218,36 +222,60 @@ class ByteCodeTransform(private val project: Project) : Transform() {
             return null
         }
 
-        val methodModPairs = ctClass.declaredMethods
-            .filter { it.modifiers and AccessFlag.ABSTRACT == 0 }
-            .mapNotNull { method ->
-                val modsCandidates = METHOD_SIG_TO_MOD_LIST[method.name + method.signature]
-                    ?: return@mapNotNull null
+        val modificationOperation = mutableListOf<ModificationExec.Operation>()
 
-                val mod = modsCandidates.find {
-                    val target = classPool.getOrNull(it.target.className)
-                    if (target == null) {
-                        logger.debug(
-                            "Skip modification ${it.name}" +
-                                " because the class is not in classpath."
-                        )
-                        return@find false
-                    }
-                    return@find ctClass.subtypeOf(target)
-                } ?: return@mapNotNull null
-                return@mapNotNull Pair(method, mod)
+        ctClass.declaredMethods
+            .filter { it.modifiers and AccessFlag.ABSTRACT == 0 }
+            .forEach { method ->
+                if (ModificationLambdaSpecification.isSatisfied(method)) {
+                    modificationOperation.add(ModificationExec.Operation.Lambda(method))
+                } else {
+                    val modifications = METHOD_SIG_TO_MOD_LIST[method.name + method.signature]
+                    modifications ?: return@forEach
+
+                    val modification = modifications
+                        .firstOrNull {
+                            val target = classPool.getOrNull(it.target.className)
+                            if (target == null) {
+                                logger.debug(
+                                    "Skip modification ${it.name}" +
+                                        " because the class is not in classpath."
+                                )
+                            }
+                            return@firstOrNull target?.let(ctClass::subtypeOf) ?: false
+                        }
+                    modification ?: return@forEach
+                    modificationOperation
+                        .add(ModificationExec.Operation.CallbackMethod(method, modification.name))
+                }
             }
-        if (methodModPairs.isEmpty()) return null
+
+        if (modificationOperation.isEmpty()) return null
+
         return ModificationExec(
             ctClass,
-            methodModPairs
+            modificationOperation
         )
     }
 
     class ModificationExec(
         private val ctClass: CtClass,
-        private val operations: List<Pair<CtMethod, Modification>>
+        private val operations: List<Operation>
     ) {
+
+        sealed class Operation {
+            abstract val ctMethod: CtMethod
+
+            data class CallbackMethod(
+                override val ctMethod: CtMethod,
+                val name: String
+            ) : Operation()
+
+            data class Lambda(
+                override val ctMethod: CtMethod
+            ) : Operation()
+        }
+
         fun exec(): ByteArray {
             execInternal()
             val ret = ctClass.toBytecode()
@@ -263,15 +291,23 @@ class ByteCodeTransform(private val project: Project) : Transform() {
 
         private fun execInternal() {
             ctClass.defrost()
-            operations.forEach {
-                val (method, mod) = it
-                logger.debug("Hook ${ctClass.name} ${method.name} ${method.signature} ${mod.name}")
+            operations.forEach { operation ->
+                val ctMethod = operation.ctMethod
+                logger.debug("Hook ${ctClass.name} ${ctMethod.signature}")
                 try {
-                    method.insertBefore("$HOOK_ACTION_METHOD(\"${mod.name}\",\$args);")
+                    when (operation) {
+                        is Operation.CallbackMethod -> {
+                            val name = operation.name
+                            ctMethod.insertBefore("$HOOK_ACTION_METHOD(\"$name\",\$args);")
+                        }
+                        is Operation.Lambda -> {
+                            ctMethod.insertBefore("$HOOK_DYNAMIC_INVOKE_METHOD(\$args);")
+                        }
+                    }
                 } catch (e: CannotCompileException) {
                     throw CannotCompileException(
-                        "Failed to hook ${mod.name} for" +
-                            " ${ctClass.name} ${method.name} ${method.signature} ",
+                        "Failed to hook for" +
+                            " ${ctClass.name} ${ctMethod.signature} ",
                         e
                     )
                 }
