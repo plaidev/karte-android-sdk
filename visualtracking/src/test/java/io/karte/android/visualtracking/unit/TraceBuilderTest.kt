@@ -24,6 +24,7 @@ import android.widget.ListView
 import android.widget.TextView
 import io.karte.android.RobolectricTestCase
 import io.karte.android.visualtracking.BasicAction
+import io.karte.android.visualtracking.internal.HookTargetMethodFromDynamicInvoke
 import io.karte.android.visualtracking.internal.tracing.TraceBuilder
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.json.JSONObject
@@ -132,6 +133,58 @@ class TraceBuilderTest : RobolectricTestCase() {
         assertThatJson(values).isObject.containsAllEntriesOf(
             mapOf(
                 "action" to "android.app.ListActivity#onListItemClick",
+                "view" to "android.widget.LinearLayout",
+                "target_text" to "hoge",
+                "activity" to "android.app.Activity",
+                "action_id" to
+                    "android.widget.LinearLayout1" +
+                    "android.widget.FrameLayout0" +
+                    "android.widget.FrameLayout0" +
+                    "com.android.internal.widget.ActionBarOverlayLayout0" +
+                    "com.android.internal.policy.DecorView"
+            )
+        )
+        assertThatJson(values).node("app_info.version_name").isString.isEqualTo("1.5.5")
+    }
+
+    @Test
+    fun dynamicinvokeでトリガーされるViewクリックアクションは引数末尾のviewが使われる() {
+        val activity = Robolectric.buildActivity(Activity::class.java).get()
+        val layout = createLinearLayoutWithText(activity, "hoge")
+        val values = traceBuilder.buildTrace(
+            HookTargetMethodFromDynamicInvoke.VIEW_CLICK.actionName, args = arrayOf(
+                ListView(activity), View(activity), View(activity), layout, "string"
+            )
+        ).values
+        assertThatJson(values).isObject.containsAllEntriesOf(
+            mapOf(
+                "action" to "android.view.View#performClick",
+                "view" to "android.widget.LinearLayout",
+                "target_text" to "hoge",
+                "activity" to "android.app.Activity",
+                "action_id" to
+                    "android.widget.LinearLayout1" +
+                    "android.widget.FrameLayout0" +
+                    "android.widget.FrameLayout0" +
+                    "com.android.internal.widget.ActionBarOverlayLayout0" +
+                    "com.android.internal.policy.DecorView"
+            )
+        )
+        assertThatJson(values).node("app_info.version_name").isString.isEqualTo("1.5.5")
+    }
+
+    @Test
+    fun dynamicinvokeでトリガーされるItemクリックアクションは引数末尾のviewが使われる() {
+        val activity = Robolectric.buildActivity(Activity::class.java).get()
+        val layout = createLinearLayoutWithText(activity, "hoge")
+        val values = traceBuilder.buildTrace(
+            HookTargetMethodFromDynamicInvoke.ADAPTER_VIEW_ITEM_CLICK.actionName, args = arrayOf(
+                ListView(activity), View(activity), View(activity), layout, "string"
+            )
+        ).values
+        assertThatJson(values).isObject.containsAllEntriesOf(
+            mapOf(
+                "action" to "android.widget.AdapterView#performItemClick",
                 "view" to "android.widget.LinearLayout",
                 "target_text" to "hoge",
                 "activity" to "android.app.Activity",

@@ -19,18 +19,40 @@ import io.karte.android.core.logger.Logger
 import io.karte.android.visualtracking.VisualTracking
 
 internal object VTHook {
-    private val LOG_TAG = "Karte.VTHook"
+    private const val LOG_TAG = "Karte.VTHook"
 
     @JvmStatic
     fun hookAction(name: String, args: Array<Any>) {
         try {
-            Logger.d(LOG_TAG, "hookAction name=$name, args=$args")
+            Logger.d(LOG_TAG, "hookAction name=$name, " +
+                "args=${args.joinToString(transform = Any::toString)}")
             val instance = VisualTracking.self
             if (instance == null) {
                 Logger.e(LOG_TAG, "Tried to hook action but VisualTracking is not enabled.")
                 return
             }
             instance.handleAction(name, args)
+        } catch (e: Exception) {
+            Logger.e(LOG_TAG, "Failed to handle action.", e)
+        }
+    }
+
+    @JvmStatic
+    fun hookDynamicInvoke(args: Array<Any>) {
+        Logger.d(LOG_TAG, "hookDynamicInvoke")
+        try {
+            val throwable = Throwable()
+            val method = throwable.stackTrace
+                .asSequence()
+                .mapNotNull { HookTargetMethodFromDynamicInvoke.from(it) }
+                .firstOrNull()
+
+            if (method == null) {
+                Logger.d(LOG_TAG, "Hook target no found in stack trace.")
+                return
+            }
+
+            hookAction(method.actionName, args)
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to handle action.", e)
         }
