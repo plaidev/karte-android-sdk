@@ -91,6 +91,7 @@ class AndroidManifestTransform(private val androidManifestPath: String) {
                 PAIRING_ACTIVITY
             )
             setAttribute("$androidNsPrefix:label", "Start Karte Pairing")
+            setAttribute("$androidNsPrefix:exported", "true")
         }
 
         schemes.map { scheme ->
