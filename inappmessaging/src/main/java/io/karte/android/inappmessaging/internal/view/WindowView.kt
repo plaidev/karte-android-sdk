@@ -80,6 +80,7 @@ internal open class WindowView(
     private var iamViewVisibleRect = Rect()
 
     private val locationOnScreen = IntArray(2)
+    private val contentViewLocationOnScreen = IntArray(2)
 
     private val contentView: View
         get() = (appWindow.peekDecorView() as ViewGroup).getChildAt(0)
@@ -381,7 +382,7 @@ internal open class WindowView(
                 childTop = if (isStatusBarOverlaid) {
                     top + paddingTop
                 } else {
-                    iamViewVisibleRect.top
+                    locationOnScreen[1]
                 }
                 childBottom = iamViewVisibleRect.bottom
             } else {
@@ -398,13 +399,18 @@ internal open class WindowView(
                 "onMeasure child: top:$childTop, bottom:$childBottom," +
                     " height:${childBottom - childTop}"
             )
+
+            // フルスクリーンでcutout modeがSHORT_EDGESの場合にIAMWindowとcontentViewの位置に差ができて、その分だけ接客が画面下に見切れてしまうため差の分だけheightを低くする。
+            contentView.getLocationOnScreen(contentViewLocationOnScreen)
+            val gapY = locationOnScreen[1] - contentViewLocationOnScreen[1]
+
             for (i in 0 until childCount)
                 getChildAt(i).measure(
                     MeasureSpec.makeMeasureSpec(
                         width - paddingLeft - paddingRight,
                         MeasureSpec.EXACTLY
                     ),
-                    MeasureSpec.makeMeasureSpec(childBottom - childTop, MeasureSpec.EXACTLY)
+                    MeasureSpec.makeMeasureSpec(childBottom - childTop - gapY, MeasureSpec.EXACTLY)
                 )
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to measure", e)
