@@ -14,16 +14,10 @@
 //  limitations under the License.
 //
 
-package io.karte.android.notifications.internal.wrapper
+package io.karte.android.notifications.internal.track
 
-import io.karte.android.tracking.Values
+import io.karte.android.notifications.internal.wrapper.MessageWrapper
 
-internal interface MessageWrapper {
-    val isValid: Boolean
-    val isTargetPush: Boolean
-    val isMassPush: Boolean
-    val campaignId: String?
-    val shortenId: String?
-    val eventValues: Values
-    fun clean()
+internal interface MessageTracker {
+    fun sendIfNeeded(wrapper: MessageWrapper?)
 }

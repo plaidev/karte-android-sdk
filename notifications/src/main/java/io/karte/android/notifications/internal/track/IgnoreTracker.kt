@@ -17,15 +17,15 @@ package io.karte.android.notifications.internal.track
 
 import io.karte.android.core.logger.Logger
 import io.karte.android.notifications.internal.MessageIgnoredEvent
-import io.karte.android.notifications.internal.wrapper.IntentWrapper
+import io.karte.android.notifications.internal.wrapper.MessageWrapper
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.Values
 
 private const val LOG_TAG = "Karte.Notifications.IgnoreTracker"
 
-internal object IgnoreTracker {
+internal object IgnoreTracker : MessageTracker {
 
-    fun sendIfNeeded(wrapper: IntentWrapper?) {
+    override fun sendIfNeeded(wrapper: MessageWrapper?) {
         Logger.d(LOG_TAG, "sendIfNeeded")
         if (wrapper?.isValid != true) return
         try {

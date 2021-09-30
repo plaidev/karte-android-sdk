@@ -22,8 +22,9 @@ import com.google.common.truth.Truth.assertThat
 import io.karte.android.RobolectricTestCase
 import io.karte.android.notifications.MessageReceiver
 import io.karte.android.notifications.internal.wrapper.EventType
+import io.karte.android.notifications.internal.wrapper.IntentProcessor
 import io.karte.android.notifications.internal.wrapper.IntentWrapper
-import io.karte.android.notifications.internal.wrapper.MessageWrapper
+import io.karte.android.notifications.internal.wrapper.RemoteMessageWrapper
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -60,7 +61,7 @@ class IntentWrapperTest : RobolectricTestCase() {
 
     @Test
     fun Intentをwrapすること() {
-        val message = MessageWrapper(
+        val message = RemoteMessageWrapper(
             mapOf(
                 "krt_push_notification" to "true",
                 "krt_campaign_id" to "sampleCampaignId",
@@ -68,8 +69,8 @@ class IntentWrapperTest : RobolectricTestCase() {
                 "krt_event_values" to "{\"test\":\"aaa\"}"
             )
         )
-        val intent = IntentWrapper
-            .wrapIntent(application, message, EventType.MESSAGE_CLICK, Intent("test_action"))
+        val intent = Intent("test_action")
+        IntentProcessor.forClick(application, message, intent)
         val wrapper = IntentWrapper(intent)
 
         assertThat(wrapper).isNotNull()
@@ -84,7 +85,7 @@ class IntentWrapperTest : RobolectricTestCase() {
 
     @Test
     fun wrapしたIntentを編集すること() {
-        val message = MessageWrapper(
+        val message = RemoteMessageWrapper(
             mapOf(
                 "krt_push_notification" to "true",
                 "krt_campaign_id" to "sampleCampaignId",
@@ -93,9 +94,8 @@ class IntentWrapperTest : RobolectricTestCase() {
             )
         )
         val orgIntent = Intent(application, Activity::class.java)
-        val intent = IntentWrapper
-            .wrapIntent(application, message, EventType.MESSAGE_CLICK, orgIntent)
-        val wrapper = IntentWrapper(intent)
+        IntentProcessor.forClick(application, message, orgIntent)
+        val wrapper = IntentWrapper(orgIntent)
 
         assertThat(wrapper.intent.component)
             .isEqualTo(ComponentName(application, MessageReceiver::class.java))

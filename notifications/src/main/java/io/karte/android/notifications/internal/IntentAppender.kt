@@ -16,15 +16,13 @@
 package io.karte.android.notifications.internal
 
 import android.app.Notification
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import io.karte.android.core.logger.Logger
 import io.karte.android.notifications.Notifications
-import io.karte.android.notifications.internal.wrapper.EventType
-import io.karte.android.notifications.internal.wrapper.IntentWrapper
-import io.karte.android.notifications.internal.wrapper.MessageWrapper
+import io.karte.android.notifications.internal.wrapper.IntentProcessor
+import io.karte.android.notifications.internal.wrapper.RemoteMessageWrapper
 
 private const val LOG_TAG = "Karte.Notification.Intent"
 
@@ -46,7 +44,7 @@ internal object IntentAppender {
                 if (intent.resolveActivity(packageManager) == null) {
                     Logger.w(
                         LOG_TAG,
-                        "Cannot resolve specified link. Trying to use default Activity."
+                        "Cannot resolve specified link. Trying to use default Activity. : $uri"
                     )
                     intent = null
                 }
@@ -64,17 +62,13 @@ internal object IntentAppender {
         notification: Notification,
         context: Context,
         uniqueId: Int,
-        message: MessageWrapper,
+        message: RemoteMessageWrapper,
         defaultIntent: Intent?
     ) {
         val intent = makeClickIntent(context, message.attributes?.link ?: "", defaultIntent)
-        val clickIntent =
-            IntentWrapper.wrapIntent(context, message, EventType.MESSAGE_CLICK, intent)
-        val deleteIntent = IntentWrapper.wrapIntent(context, message, EventType.MESSAGE_IGNORE)
-
         notification.contentIntent =
-            PendingIntent.getBroadcast(context, uniqueId, clickIntent, PendingIntent.FLAG_ONE_SHOT)
+            IntentProcessor.forClick(context, message, intent).pendingIntent(uniqueId)
         notification.deleteIntent =
-            PendingIntent.getBroadcast(context, uniqueId, deleteIntent, PendingIntent.FLAG_ONE_SHOT)
+            IntentProcessor.forIgnore(context, message).pendingIntent(uniqueId)
     }
 }

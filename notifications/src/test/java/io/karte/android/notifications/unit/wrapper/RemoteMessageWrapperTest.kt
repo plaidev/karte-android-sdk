@@ -17,20 +17,20 @@ package io.karte.android.notifications.unit.wrapper
 
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.RobolectricTestCase
-import io.karte.android.notifications.internal.wrapper.MessageWrapper
+import io.karte.android.notifications.internal.wrapper.RemoteMessageWrapper
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class MessageWrapperTest : RobolectricTestCase() {
+class RemoteMessageWrapperTest : RobolectricTestCase() {
 
     @Test
     fun karteの通知でないこと() {
         val data = mapOf<String, String>()
-        val wrapper = MessageWrapper(data)
+        val wrapper = RemoteMessageWrapper(data)
         assertThat(wrapper).isNotNull()
-        assertThat(wrapper.isKartePush).isFalse()
+        assertThat(wrapper.isValid).isFalse()
     }
 
     @Test
@@ -39,17 +39,17 @@ class MessageWrapperTest : RobolectricTestCase() {
             "krt_push_notification" to "true",
             "krt_campaign_id" to "sampleCampaignId",
             "krt_shorten_id" to "sampleShortenId",
-            "krt_event_values" to "sampleEventValues",
+            "krt_event_values" to "{\"test\":\"aaa\"}",
             "krt_attributes" to "{\"title\":\"title\",\"body\":\"body\"}"
         )
-        val wrapper = MessageWrapper(data)
+        val wrapper = RemoteMessageWrapper(data)
         assertThat(wrapper).isNotNull()
-        assertThat(wrapper.isKartePush).isTrue()
+        assertThat(wrapper.isValid).isTrue()
         assertThat(wrapper.isTargetPush).isTrue()
         assertThat(wrapper.isMassPush).isFalse()
         assertThat(wrapper.campaignId).isEqualTo("sampleCampaignId")
         assertThat(wrapper.shortenId).isEqualTo("sampleShortenId")
-        assertThat(wrapper.eventValues).isEqualTo("sampleEventValues")
+        assertThat(wrapper.eventValues).containsEntry("test", "aaa")
         assertThat(wrapper.attributes).isNotNull()
         assertThat(wrapper.attributes?.title).isEqualTo("title")
         assertThat(wrapper.attributes?.body).isEqualTo("body")
@@ -58,9 +58,9 @@ class MessageWrapperTest : RobolectricTestCase() {
     @Test
     fun mass_pushのパラメータをパースすること() {
         val data = mapOf("krt_mass_push_notification" to "true")
-        val wrapper = MessageWrapper(data)
+        val wrapper = RemoteMessageWrapper(data)
         assertThat(wrapper).isNotNull()
-        assertThat(wrapper.isKartePush).isTrue()
+        assertThat(wrapper.isValid).isTrue()
         assertThat(wrapper.isTargetPush).isFalse()
         assertThat(wrapper.isMassPush).isTrue()
     }

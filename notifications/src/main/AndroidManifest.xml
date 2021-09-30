@@ -1,7 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.karte.android.notifications">
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+    </queries>
+
     <application>
         <receiver android:name="io.karte.android.notifications.MessageReceiver" />
+        <activity android:name=".MessageReceiveActivity" />
     </application>
 </manifest>

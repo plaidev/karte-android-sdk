@@ -26,9 +26,8 @@ import io.karte.android.notifications.internal.ChannelUtil
 import io.karte.android.notifications.internal.IntentAppender
 import io.karte.android.notifications.internal.NotificationBuilder
 import io.karte.android.notifications.internal.track.ReachedTracker
-import io.karte.android.notifications.internal.wrapper.EventType
-import io.karte.android.notifications.internal.wrapper.IntentWrapper
-import io.karte.android.notifications.internal.wrapper.MessageWrapper
+import io.karte.android.notifications.internal.wrapper.IntentProcessor
+import io.karte.android.notifications.internal.wrapper.RemoteMessageWrapper
 import java.util.Date
 
 private const val LOG_TAG = "Karte.MessageHandler"
@@ -43,7 +42,7 @@ internal fun uniqueId(): Int {
  * KARTEから送信された通知メッセージを処理する機能を提供するクラスです。
  */
 class MessageHandler private constructor(val context: Context, val data: Map<String, String>) {
-    private val wrapper = MessageWrapper(data)
+    private val wrapper = RemoteMessageWrapper(data)
     private val manager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
     private val uniqueId = uniqueId()
@@ -97,7 +96,7 @@ class MessageHandler private constructor(val context: Context, val data: Map<Str
          */
         @JvmStatic
         fun canHandleMessage(data: Map<String, String>): Boolean {
-            return MessageWrapper(data).isKartePush
+            return RemoteMessageWrapper(data).isValid
         }
 
         /**
@@ -119,7 +118,7 @@ class MessageHandler private constructor(val context: Context, val data: Map<Str
          */
         @JvmStatic
         fun extractKarteAttributes(data: Map<String, String>): KarteAttributes? {
-            return MessageWrapper(data).attributes
+            return RemoteMessageWrapper(data).attributes
         }
 
         /**
@@ -261,7 +260,7 @@ class MessageHandler private constructor(val context: Context, val data: Map<Str
             Logger.d(LOG_TAG, "copyInfoToIntent() data: $data, intent: $intent")
             if (data == null) return
             val context = Notifications.self?.app?.application ?: return
-            IntentWrapper.wrapIntent(context, MessageWrapper(data), EventType.MESSAGE_CLICK, intent)
+            IntentProcessor.forClick(context, RemoteMessageWrapper(data), intent)
         }
     }
 }
