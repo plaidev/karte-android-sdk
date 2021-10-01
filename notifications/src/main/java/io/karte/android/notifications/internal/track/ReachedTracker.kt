@@ -20,21 +20,20 @@ import io.karte.android.notifications.internal.MessageReachedEvent
 import io.karte.android.notifications.internal.wrapper.MessageWrapper
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.Values
-import io.karte.android.tracking.valuesOf
 
 private const val LOG_TAG = "Karte.Notifications.ReachedTracker"
 
-internal object ReachedTracker {
+internal object ReachedTracker : MessageTracker {
 
-    fun sendIfNeeded(wrapper: MessageWrapper?) {
+    override fun sendIfNeeded(wrapper: MessageWrapper?) {
         Logger.d(LOG_TAG, "sendIfNeeded")
-        if (wrapper?.attributes == null) return
+        if (wrapper?.isValid != true) return
         try {
             when {
                 wrapper.isTargetPush -> trackTargetPush(
                     wrapper.campaignId,
                     wrapper.shortenId,
-                    valuesOf(wrapper.eventValues)
+                    wrapper.eventValues
                 )
             }
         } catch (e: Exception) {

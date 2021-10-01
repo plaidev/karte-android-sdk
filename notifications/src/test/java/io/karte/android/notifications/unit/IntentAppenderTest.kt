@@ -20,7 +20,7 @@ import android.content.Intent
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.RobolectricTestCase
 import io.karte.android.notifications.internal.IntentAppender
-import io.karte.android.notifications.internal.wrapper.MessageWrapper
+import io.karte.android.notifications.internal.wrapper.RemoteMessageWrapper
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -39,7 +39,7 @@ class IntentAppenderTest : RobolectricTestCase() {
             notification,
             application,
             0,
-            MessageWrapper(mapOf()),
+            RemoteMessageWrapper(mapOf()),
             Intent(Intent.ACTION_VIEW)
         )
 

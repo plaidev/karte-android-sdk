@@ -20,6 +20,7 @@ import io.karte.android.core.library.DeepLinkModule
 import io.karte.android.core.logger.Logger
 import io.karte.android.notifications.internal.MassPushClickEvent
 import io.karte.android.notifications.internal.wrapper.IntentWrapper
+import io.karte.android.notifications.internal.wrapper.MessageWrapper
 import io.karte.android.tracking.MessageEvent
 import io.karte.android.tracking.MessageEventType
 import io.karte.android.tracking.Tracker
@@ -27,7 +28,7 @@ import io.karte.android.tracking.Values
 
 private const val LOG_TAG = "Karte.Notifications.ClickTracker"
 
-internal object ClickTracker : DeepLinkModule {
+internal object ClickTracker : DeepLinkModule, MessageTracker {
 
     //region DeepLinkModule
     override val name: String = "NotificationsClickTracker"
@@ -38,7 +39,7 @@ internal object ClickTracker : DeepLinkModule {
     }
     //endregion
 
-    fun sendIfNeeded(wrapper: IntentWrapper?) {
+    override fun sendIfNeeded(wrapper: MessageWrapper?) {
         Logger.d(LOG_TAG, "sendIfNeeded")
         if (wrapper?.isValid != true) return
         try {
