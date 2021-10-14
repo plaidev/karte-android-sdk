@@ -37,7 +37,7 @@ import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
-import org.json.JSONObject
+import okhttp3.mockwebserver.SocketPolicy
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -91,7 +91,7 @@ class FileAppenderTest : BaseFileAppenderTest() {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 return when (request.path) {
                     "/nativeAppLogUrl" -> {
-                        MockResponse().setResponseCode(500).setBody(JSONObject().toString())
+                        MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START)
                     }
                     else -> MockResponse().setResponseCode(400)
                 }

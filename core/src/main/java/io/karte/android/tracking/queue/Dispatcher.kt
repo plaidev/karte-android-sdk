@@ -33,7 +33,7 @@ import io.karte.android.utilities.http.Client
 import kotlin.math.min
 
 private const val LOG_TAG = "Karte.Dispatcher"
-private const val MAX_RETRY_COUNT = 6
+private const val MAX_RETRY_COUNT = 3
 private const val DEFAULT_DELAY_MS = 500L
 
 private data class GroupingKey(
@@ -57,6 +57,7 @@ internal class Dispatcher {
             field = value
         }
     private val rateLimit = RateLimit(handler)
+    private val retryCircuitBreaker = CircuitBreaker()
 
     init {
         DataStore.setup(KarteApp.self.application.applicationContext, EventRecord.EventContract)
@@ -135,7 +136,9 @@ internal class Dispatcher {
         }.onFailure {
             Logger.e(LOG_TAG, "Failed to read event record: ${it.message}", it)
         }
-        records.groupBy(
+        records
+            .filter { retryCircuitBreaker.canRequest || it.retry == 0 }
+            .groupBy(
             { GroupingKey(it.visitorId, it.originalPvId, it.pvId, it.retry > 0) },
             { it })
             .forEach { (key, events) ->
@@ -164,6 +167,8 @@ internal class Dispatcher {
                         KarteApp.self.modules.filterIsInstance<ActionModule>()
                             .forEach { it.receive(TrackResponse(response), request) }
                     }
+                    retryCircuitBreaker.reset()
+
                     removeFromQueue(events, true)
                 }
                 response.code in 400..499 -> {
@@ -175,12 +180,12 @@ internal class Dispatcher {
                 }
                 else -> {
                     Logger.e(LOG_TAG, "Failed to request. ${response.code}: '${response.body}'")
-                    queueRetry(events)
+                    handleFailure(events)
                 }
             }
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to send request.", e)
-            queueRetry(events)
+            handleFailure(events)
         }
         rateLimit.decrementWithDelay(events.size, ::dequeue)
     }
@@ -192,7 +197,9 @@ internal class Dispatcher {
         }
     }
 
-    private fun queueRetry(events: List<EventRecord>) {
+    private fun handleFailure(events: List<EventRecord>) {
+        retryCircuitBreaker.recordFailure()
+
         var minRetryCount = MAX_RETRY_COUNT
         events.forEach {
             val nextRetryCount = it.retry + 1

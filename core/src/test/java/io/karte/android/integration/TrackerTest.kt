@@ -317,7 +317,7 @@ class TrackerIntegrationTest {
 
     @RunWith(ParameterizedRobolectricTestRunner::class)
     class 再送(private val retryCount: Int) : TrackerTestCase() {
-        private val maxRetryCount = 6
+        private val maxRetryCount = 3
 
         companion object {
 
@@ -341,7 +341,16 @@ class TrackerIntegrationTest {
             )
         }
 
-        private fun enqueueFailedResponse() {
+        private fun enqueueFailedRetryableResponse() {
+            server.enqueue(
+                MockResponse().setBody(body.toString()).setResponseCode(500).addHeader(
+                    "Content-Type",
+                    "text/html; charset=utf-8"
+                )
+            )
+        }
+
+        private fun enqueueFailedUnretryableResponse() {
             server.enqueue(
                 MockResponse().setBody(body.toString()).setResponseCode(400).addHeader(
                     "Content-Type",
@@ -353,16 +362,63 @@ class TrackerIntegrationTest {
         @Test
         fun リトライ上限まで再送されること() {
             repeat(retryCount) {
-                enqueueFailedResponse()
+                enqueueFailedRetryableResponse()
             }
             enqueueSuccessResponse()
             Tracker.view("test")
             proceedBufferedCall()
 
             // 成功まで or 上限まで の小さい回数と一致
-            val expectedRetryCount = min(retryCount + 1, maxRetryCount + 1)
+            val expectedRetryCount = min(retryCount + 1, maxRetryCount)
             println("requestCount: $retryCount, ${server.requestCount} $expectedRetryCount")
             assertThat(server.requestCount).isEqualTo(expectedRetryCount)
+        }
+
+        @Test
+        fun ステータスコードが400番台の場合は再送されないこと() {
+            enqueueFailedUnretryableResponse()
+            Tracker.view("test")
+            proceedBufferedCall()
+
+            println("requestCount: $retryCount, ${server.requestCount}")
+            assertThat(server.requestCount).isEqualTo(1)
+        }
+    }
+
+    class 再送の制限() : TrackerTestCase() {
+        private val maxRetryCount = 3
+
+        private fun enqueueSuccessResponse() {
+            server.enqueue(
+                MockResponse().setBody(body.toString()).addHeader(
+                    "Content-Type",
+                    "text/html; charset=utf-8"
+                )
+            )
+        }
+
+        private fun enqueueFailedResponse() {
+            server.enqueue(
+                MockResponse().setBody(body.toString()).setResponseCode(500).addHeader(
+                    "Content-Type",
+                    "text/html; charset=utf-8"
+                )
+            )
+        }
+
+        @Test
+        fun リトライ上限を超えたらしばらく再送しないこと() {
+            repeat(10) {
+                enqueueFailedResponse()
+            }
+            enqueueSuccessResponse()
+            Tracker.view("test")
+            proceedBufferedCall()
+            Tracker.view("test")
+            proceedBufferedCall()
+
+            println("requestCount: ${server.requestCount} $maxRetryCount")
+            assertThat(server.requestCount).isEqualTo(maxRetryCount + 1)
         }
     }
 
