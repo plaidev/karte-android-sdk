@@ -66,6 +66,12 @@ object Client {
                 }
 
                 conn.connect()
+                if (conn.responseCode > 299) {
+                    Logger.e(LOG_TAG, "Error response!")
+                    conn.errorStream.use {
+                        return Response(conn.responseCode, conn.headerFields, it.asString())
+                    }
+                }
                 BufferedInputStream(conn.inputStream).use {
                     return Response(conn.responseCode, conn.headerFields, it.asString())
                 }
@@ -77,6 +83,7 @@ object Client {
                 }
             } catch (e: IOException) {
                 Logger.e(LOG_TAG, "Failed to send request.", e)
+
                 throw e
             } finally {
                 conn.disconnect()

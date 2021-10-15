@@ -83,6 +83,7 @@ abstract class BaseFileAppenderTest {
 class FileAppenderTest : BaseFileAppenderTest() {
     lateinit var server: MockWebServer
     private val targetDate = Calendar.getInstance().apply { set(2020, 3, 10) }.time
+    private var isMockResponseFailure = false
 
     @Before
     fun setup() {
@@ -91,7 +92,9 @@ class FileAppenderTest : BaseFileAppenderTest() {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 return when (request.path) {
                     "/nativeAppLogUrl" -> {
-                        MockResponse().setResponseCode(500).setBody(JSONObject().toString())
+                        val response = MockResponse().setBody(JSONObject().toString())
+                        if (isMockResponseFailure) response.setResponseCode(500)
+                        return response
                     }
                     else -> MockResponse().setResponseCode(400)
                 }
@@ -109,6 +112,8 @@ class FileAppenderTest : BaseFileAppenderTest() {
 
     @After
     fun tearDown() {
+        isMockResponseFailure = false
+        cacheFiles.forEach { it.delete() }
         tearDownKarteApp()
         unmockkObject(Clock)
     }
@@ -128,7 +133,29 @@ class FileAppenderTest : BaseFileAppenderTest() {
     }
 
     @Test
-    fun 一定時間過去のファイルのみ削除される() {
+    fun アップロードを試行したファイルは削除される() {
+        isMockResponseFailure = false
+        fileAppender.append(LogEvent(LogLevel.DEBUG, "Test", "test event", null))
+        fileAppender.flush()
+        proceedBufferedCall()
+        // 当日のファイルはアップロードされない
+        assertThat(logDir.list()).hasLength(1)
+        assertThat(server.requestCount).isEqualTo(0)
+
+        testFiles.forEach { File(logDir, it).writeText("test") }
+        assertThat(logDir.list()).hasLength(6)
+        fileAppender.flush()
+        proceedBufferedCall()
+
+        // アップロード試行は当日分以外行われる
+        assertThat(server.requestCount).isEqualTo(5)
+        // 試行が成功(upload urlの取得が成功)したファイルは削除される
+        assertThat(logDir.list()).hasLength(1)
+    }
+
+    @Test
+    fun アップロード失敗時には一定時間過去のファイルのみ削除される() {
+        isMockResponseFailure = true
         fileAppender.append(LogEvent(LogLevel.DEBUG, "Test", "test event", null))
         fileAppender.flush()
         proceedBufferedCall()
@@ -144,8 +171,6 @@ class FileAppenderTest : BaseFileAppenderTest() {
         // 一つのファイルのみ削除される
         assertThat(logDir.list()).hasLength(5)
         assertThat(File(logDir, "2020-04-06_test.log").exists()).isFalse()
-
-        testFiles.forEach { File(logDir, it).run { if (exists()) delete() } }
     }
 }
 

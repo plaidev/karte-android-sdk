@@ -99,7 +99,7 @@ class HttpClientTest {
         Client.execute(JSONRequest(url, METHOD_POST).apply { body = "mybody" })
     }
 
-    @Test(expected = IOException::class)
+    @Test()
     fun httpErrorAtPostRequestReturnResponseContainsError() {
         server.enqueue(
             MockResponse()
@@ -113,8 +113,8 @@ class HttpClientTest {
         Assert.assertEquals(400, response.code)
         Assert.assertEquals("No file", response.body)
         Assert.assertEquals(
-            hashMapOf("Content-Type" to "text/html; charset=utf-8"),
-            response.headers
+            listOf("text/html; charset=utf-8"),
+            response.headers["Content-Type"]
         )
         Assert.assertFalse(response.isSuccessful)
     }

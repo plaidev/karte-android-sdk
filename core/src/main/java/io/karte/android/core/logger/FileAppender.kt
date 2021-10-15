@@ -186,13 +186,16 @@ private object Collector {
                     .put("local_date", file.name.split("_").first())
                     .toString()
             }
-        return runCatching {
+        val result = runCatching {
             val response = Client.execute(request)
-            JSONObject(response.body).optString("url")
-        }.getOrElse {
+            return if (!response.isSuccessful) {
+                logDebug("request was failed: $response")
+                null
+            } else JSONObject(response.body).optString("url")
+        }.onFailure {
             logDebug("request was failed: $it")
-            return null
         }
+        return result.getOrNull()
     }
 
     private fun uploadLog(file: File, url: String): Boolean {
