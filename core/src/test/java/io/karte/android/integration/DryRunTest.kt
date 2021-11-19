@@ -26,6 +26,7 @@ import io.karte.android.setupKarteApp
 import io.karte.android.tracking.Event
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.TrackerDelegate
+import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
 
@@ -62,9 +63,10 @@ class DryRunTest : DryRunTestCase() {
                 return event
             }
         })
-        Tracker.identify(mapOf("user_id" to "dummy"))
+        Tracker.identify("dummy")
         Tracker.view("test")
         Tracker.track("test")
+        Tracker.attribute(JSONObject())
 
         assertDryRun()
     }

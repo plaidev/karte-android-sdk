@@ -84,9 +84,8 @@ public class MainActivity extends AppCompatActivity {
         final String user_id = editText.getText().toString();
         if (user_id.length() > 0) {
             Map<String, Object> values = new HashMap<>();
-            values.put("user_id", user_id);
             values.put("is_app_user", true);
-            Tracker.identify(values);
+            Tracker.identify(user_id, values);
         } else {
             Log.w(TAG, "no user_id");
         }
