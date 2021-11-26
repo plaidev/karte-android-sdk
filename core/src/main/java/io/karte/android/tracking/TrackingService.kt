@@ -45,6 +45,18 @@ internal class TrackingService internal constructor() {
                 "Multi-byte character in event name is deprecated: Event=${inEvent.eventName.value}"
             )
 
+        if (inEvent.isDeprecatedEventName)
+            Logger.w(
+                LOG_TAG,
+                "[^a-z0-9_] or starting with _ in event name is deprecated: Event=${inEvent.eventName.value}"
+            )
+
+        if (inEvent.isDeprecatedEventFieldName)
+            Logger.w(
+                LOG_TAG,
+                "Contains dots(.) or stating with $ or ${inEvent.INVALID_FIELD_NAMES} in event field name is deprecated: EventName=${inEvent.eventName.value},FieldName=${inEvent.values}"
+            )
+
         Logger.d(LOG_TAG, "track")
         val event = delegate?.intercept(inEvent) ?: inEvent
         if (event.eventName == BaseEventName.View) {
@@ -87,13 +99,35 @@ internal class TrackingService internal constructor() {
         }
 
         @JvmStatic
+        @Deprecated("UserId is required parameter", ReplaceWith(""))
         fun identify(values: Values, completion: TrackCompletion? = null) {
-            track(IdentifyEvent(values), completion = completion)
+            track("identify", values, completion = completion)
         }
 
         @JvmStatic
+        @Deprecated("UserId is required parameter", ReplaceWith(""))
         fun identify(jsonObject: JSONObject, completion: TrackCompletion? = null) {
-            identify(jsonObject.toValues(), completion)
+            track("identify", jsonObject, completion = completion)
+        }
+
+        @JvmStatic
+        fun identify(userId: String, values: Values?, completion: TrackCompletion? = null) {
+            track(IdentifyEvent(userId, values), completion = completion)
+        }
+
+        @JvmStatic
+        fun identify(userId: String, jsonObject: JSONObject?, completion: TrackCompletion? = null) {
+            identify(userId, jsonObject?.toValues(), completion)
+        }
+
+        @JvmStatic
+        fun attribute(values: Values?, completion: TrackCompletion? = null) {
+            track(AttributeEvent(values), completion = completion)
+        }
+
+        @JvmStatic
+        fun attribute(jsonObject: JSONObject?, completion: TrackCompletion? = null) {
+            attribute(jsonObject?.toValues(), completion)
         }
 
         @JvmStatic

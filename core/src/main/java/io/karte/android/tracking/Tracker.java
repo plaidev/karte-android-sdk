@@ -151,7 +151,9 @@ public final class Tracker {
      * Identifyイベントの送信を行います。
      *
      * @param values Identifyイベントに紐付けるカスタムオブジェクト
+     * @deprecated userIdが必須になりました {@link #identify(String, Map)}
      */
+    @Deprecated
     public static void identify(@NonNull Map<String, ?> values) {
         TrackingService.identify(values, null);
     }
@@ -161,7 +163,9 @@ public final class Tracker {
      *
      * @param values     Identifyイベントに紐付けるカスタムオブジェクト
      * @param completion 処理の完了を受け取るInterface
+     * @deprecated userIdが必須になりました {@link #identify(String, Map, TrackCompletion)}
      */
+    @Deprecated
     public static void identify(@NonNull Map<String, ?> values, @Nullable TrackCompletion completion) {
         TrackingService.identify(values, completion);
     }
@@ -170,7 +174,9 @@ public final class Tracker {
      * Identifyイベントの送信を行います。
      *
      * @param jsonObject Identifyイベントに紐付けるカスタムオブジェクト
+     * @deprecated userIdが必須になりました {@link #identify(String, JSONObject)}
      */
+    @Deprecated
     public static void identify(@NonNull JSONObject jsonObject) {
         TrackingService.identify(jsonObject, null);
     }
@@ -180,9 +186,100 @@ public final class Tracker {
      *
      * @param jsonObject Identifyイベントに紐付けるカスタムオブジェクト
      * @param completion 処理の完了を受け取るInterface
+     * @deprecated userIdが必須になりました {@link #identify(String, JSONObject, TrackCompletion)}
      */
+    @Deprecated
     public static void identify(@NonNull JSONObject jsonObject, @Nullable TrackCompletion completion) {
         TrackingService.identify(jsonObject, completion);
+    }
+
+    /**
+     * Identifyイベントの送信を行います。
+     *
+     * @param userId ユーザーを識別する一意なID
+     */
+    public static void identify(@NonNull String userId) {
+        TrackingService.identify(userId, (Map<String, ?>) null, null);
+    }
+
+    /**
+     * Identifyイベントの送信を行います。
+     *
+     * @param userId ユーザーを識別する一意なID
+     * @param values Identifyイベントに紐付けるカスタムオブジェクト
+     */
+    public static void identify(@NonNull String userId, @Nullable Map<String, ?> values) {
+        TrackingService.identify(userId, values, null);
+    }
+
+    /**
+     * Identifyイベントの送信を行います。
+     *
+     * @param userId     ユーザーを識別する一意なID
+     * @param values     Identifyイベントに紐付けるカスタムオブジェクト
+     * @param completion 処理の完了を受け取るInterface
+     */
+    public static void identify(@NonNull String userId, @Nullable Map<String, ?> values, @Nullable TrackCompletion completion) {
+        TrackingService.identify(userId, values, completion);
+    }
+
+    /**
+     * Identifyイベントの送信を行います。
+     *
+     * @param userId     ユーザーを識別する一意なID
+     * @param jsonObject Identifyイベントに紐付けるカスタムオブジェクト
+     */
+    public static void identify(@NonNull String userId, @Nullable JSONObject jsonObject) {
+        TrackingService.identify(userId, jsonObject, null);
+    }
+
+    /**
+     * Identifyイベントの送信を行います。
+     *
+     * @param userId     ユーザーを識別する一意なID
+     * @param jsonObject Identifyイベントに紐付けるカスタムオブジェクト
+     * @param completion 処理の完了を受け取るInterface
+     */
+    public static void identify(@NonNull String userId, @Nullable JSONObject jsonObject, @Nullable TrackCompletion completion) {
+        TrackingService.identify(userId, jsonObject, completion);
+    }
+
+    /**
+     * Attributeイベントの送信を行います。
+     *
+     * @param values Attributeイベントに紐付けるカスタムオブジェクト
+     */
+    public static void attribute(@Nullable Map<String, ?> values) {
+        TrackingService.attribute(values, null);
+    }
+
+    /**
+     * Attributeイベントの送信を行います。
+     *
+     * @param values     Attributeイベントに紐付けるカスタムオブジェクト
+     * @param completion 処理の完了を受け取るInterface
+     */
+    public static void attribute(@Nullable Map<String, ?> values, @Nullable TrackCompletion completion) {
+        TrackingService.attribute(values, completion);
+    }
+
+    /**
+     * Attributeイベントの送信を行います。
+     *
+     * @param jsonObject Attributeイベントに紐付けるカスタムオブジェクト
+     */
+    public static void attribute(@Nullable JSONObject jsonObject) {
+        TrackingService.attribute(jsonObject, null);
+    }
+
+    /**
+     * Attributeイベントの送信を行います。
+     *
+     * @param jsonObject Attributeイベントに紐付けるカスタムオブジェクト
+     * @param completion 処理の完了を受け取るInterface
+     */
+    public static void attribute(@Nullable JSONObject jsonObject, @Nullable TrackCompletion completion) {
+        TrackingService.attribute(jsonObject, completion);
     }
 
     /**

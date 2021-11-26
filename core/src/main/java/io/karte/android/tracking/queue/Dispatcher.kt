@@ -89,6 +89,14 @@ internal class Dispatcher {
             completion?.onComplete(false)
             return
         }
+        if (record.event.isInvalidEventFieldValue) {
+            Logger.w(
+                LOG_TAG,
+                "Failed to push Event to queue because view_name or user_id is empty: EventName=${record.event.eventName.value},FieldName=${record.event.values}"
+            )
+            completion?.onComplete(false)
+            return
+        }
 
         val id = DataStore.put(record)
         completion?.let {

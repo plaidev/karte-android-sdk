@@ -16,8 +16,10 @@
 package io.karte.android.tracking
 
 import io.karte.android.utilities.format
+import io.karte.android.utilities.toMap
 import io.karte.android.utilities.toValues
 import org.json.JSONObject
+import java.util.regex.Pattern
 
 /** イベントに追加できるカスタムオブジェクトの型を示すエイリアスです。 */
 typealias Values = Map<String, Any>
@@ -70,6 +72,9 @@ open class Event {
     internal var isRetry = false
     val eventName: EventName
     internal val isRetryable: Boolean
+    internal val isDeprecatedEventName: Boolean
+    internal val isDeprecatedEventFieldName: Boolean
+    internal val isInvalidEventFieldValue: Boolean
 
     /** [JSONObject] による初期化 */
     constructor(
@@ -80,6 +85,9 @@ open class Event {
         this.eventName = eventName
         this.values = jsonObject?.format() ?: JSONObject()
         this.isRetryable = isRetryable ?: true
+        this.isDeprecatedEventName = validateEventName(eventName.value)
+        this.isDeprecatedEventFieldName = validateEventFieldName(values)
+        this.isInvalidEventFieldValue = validateEventFieldValue(eventName.value, values)
     }
 
     /** [Values] による初期化 */
@@ -111,10 +119,69 @@ open class Event {
             }.getOrNull()
         }
     }
+
+    private val EVENT_NAME_REGEX = Pattern.compile("[^a-z0-9_]")
+
+    /** 非推奨なイベント名が含まれるかを返します。 */
+    private fun validateEventName(eventName: String): Boolean {
+        if (eventName.isEmpty()) {
+            return false
+        }
+        when (eventName) {
+            MessageEventName.MessageReady.value, MessageEventName.MessageSuppressed.value, "_fetch_variables" -> {
+                return false
+            }
+        }
+        val m = EVENT_NAME_REGEX.matcher(eventName)
+        return m.find() || eventName.startsWith("_")
+    }
+
+    internal val INVALID_FIELD_NAMES = listOf("_source", "_system", "any", "avg", "cache", "count", "count_sets", "date", "f_t", "first", "keys", "l_t", "last", "lrus", "max", "min", "o", "prev", "sets", "size", "span", "sum", "type", "v")
+
+    /** 非推奨なフィールド名が含まれるかを返します。 */
+    private fun validateEventFieldName(values: JSONObject): Boolean {
+        if (values.length() == 0) {
+            return false
+        }
+        val result = values.toMap().any {
+            it.key.startsWith("$") || it.key.contains(".") || INVALID_FIELD_NAMES.contains(it.key)
+        }
+        return result
+    }
+
+    /** 無効な値が含まれるかを返します。 */
+    private fun validateEventFieldValue(eventName: String, values: JSONObject): Boolean {
+        if (values.length() == 0) {
+            return false
+        }
+
+        when (eventName) {
+            BaseEventName.View.value -> {
+                val viewName = values.optString("view_name")
+                if (viewName.isEmpty()) {
+                    return true
+                }
+            }
+            BaseEventName.Identify.value -> {
+                val userId = values.optString("user_id")
+                if (userId.isEmpty()) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
 }
 
 /** `identify` イベント */
-internal class IdentifyEvent(values: Values? = null) : Event(BaseEventName.Identify, values)
+internal class IdentifyEvent(
+    userId: String,
+    values: Values? = null
+) : Event(
+    BaseEventName.Identify, valuesOf(values) {
+        this["user_id"] = userId
+    }
+)
 
 /** `view` イベント */
 internal class ViewEvent(
@@ -128,6 +195,9 @@ internal class ViewEvent(
         this.getOrPut("title", { title ?: viewName })
         if (!this.contains("view_id") && viewId != null) this["view_id"] = viewId
     })
+
+/** `attribute` イベント */
+internal class AttributeEvent(values: Values? = null) : Event(BaseEventName.Attribute, values)
 
 /** `native_app_renew_visitor_id` イベント */
 internal class RenewVisitorIdEvent(newVisitorId: String? = null, oldVisitorId: String? = null) :
@@ -161,6 +231,7 @@ interface EventName {
 internal enum class BaseEventName(override val value: String) : EventName {
     View("view"),
     Identify("identify"),
+    Attribute("attribute")
 }
 
 internal enum class AutoEventName(override val value: String) : EventName {
