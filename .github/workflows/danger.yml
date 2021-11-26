@@ -1,0 +1,29 @@
+name: "Pull Request Review"
+on:
+  pull_request:
+    branches:
+      - 'develop'
+      - 'master'
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: write
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+          bundler-cache: true
+      - name: Setup danger
+        run: gem install danger
+      - name: Git fetch
+        run: git fetch -t
+      - name: Run danger
+        run: danger
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
