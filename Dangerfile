@@ -4,24 +4,47 @@ $diff_files = (git.added_files + git.modified_files + git.deleted_files)
 $modules = ["core", "inappmessaging", "notifications", "variables", "visualtracking", "gradle-plugin"]
 $formatted_tags = git.tags.map { |tag| tag.strip }
 
-def vup_check(vup_type)    
-    format_str = "Version number should be bumped. Run this command:\n`ruby scripts/bump_version.rb %<type>s -t %<module>s`"
+$is_develop_pr = github.branch_for_base == "develop" && github.branch_for_head.start_with?("feature/")
+$is_hotfix_pr = (github.branch_for_base == "master" || github.branch_for_base == "develop") && github.branch_for_head.start_with?("hotfix/")
+
+# 
+# Check Version
+# 
+# gitのtagから最新バージョンを返却する
+def get_lastest_release_version(module_name)
+    prefix = "#{module_name}-"
+    $formatted_tags.select { |tag| tag =~ /^#{prefix}([0-9]+\.){1}[0-9]+(\.[0-9]+)$/ }
+            .map { |tag| tag.delete(prefix) }
+            .sort_by { |tag| Gem::Version.new(tag) }
+            .last
+end
+# バージョン文字列をバンプアップする
+def bump_version(base_version)
+    versions = base_version.split('.')
+    if $is_develop_pr
+        versions[1] = (versions[1].to_i + 1).to_s
+        versions[2] = "0"
+    elsif $is_hotfix_pr
+        versions[2] = (versions[2].to_i + 1).to_s
+    end
+    versions.join('.')
+end
+
+if ($is_develop_pr || $is_hotfix_pr)
     $modules.each { |module_name|
         if !$diff_files.include?("#{module_name}/**")
             next
         end
-        
-        version = File.read(File.join("#{module_name}", 'version'))
-        if !$formatted_tags.include?("#{module_name}-#{version}")
-            next
+    
+        last_release_version = get_lastest_release_version(module_name)
+        next_version = bump_version(last_release_version)
+        current_version = File.read(File.join("#{module_name}", 'version'))
+        if Gem::Version.new(next_version) > Gem::Version.new(current_version)
+            warn format(
+                "Version number should be bumped. Run this command:\n`ruby scripts/bump_version.rb set-version -t %<module>s -n %<version>s`", 
+                module: "#{module_name}",
+                version: next_version
+            )
         end
-
-        warn format(format_str, type: vup_type, module: module_name)
     }
-end
-
-if github.branch_for_base == "develop" && github.branch_for_head.start_with?("feature/")
-    vup_check("minor")
-elsif github.branch_for_base == "master" && github.branch_for_head.start_with?("hotfix/")
-    vup_check("patch")
 end
