@@ -48,3 +48,12 @@ if ($is_develop_pr || $is_hotfix_pr)
         end
     }
 end
+
+#
+# Check CHANGELOG.md modification
+#
+if ($is_develop_pr || $is_hotfix_pr)
+    if !git.modified_files.include?("CHANGELOG.md")
+        warn "Please update CHANGELOG.md"
+    end    
+end
