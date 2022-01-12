@@ -17,13 +17,12 @@ package io.karte.android.visualtracking.internal.tracing
 
 import android.app.Activity
 import android.view.View
-import android.view.ViewGroup
-import android.view.ViewParent
-import android.widget.TextView
 import androidx.annotation.UiThread
 import com.google.android.material.tabs.TabLayout
 import io.karte.android.visualtracking.Action
 import io.karte.android.visualtracking.internal.HookTargetMethodFromDynamicInvoke
+import io.karte.android.visualtracking.internal.getActionId
+import io.karte.android.visualtracking.internal.getTargetText
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -96,53 +95,5 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
 
     private fun getActivity(view: View): Activity? {
         return if (view.context is Activity) view.context as Activity else null
-    }
-
-    private fun getTargetText(view: View): String? {
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                val text = getTargetText(view.getChildAt(i))
-                if (text != null) return text
-            }
-        }
-        if (view is TextView) {
-            val text = view.text
-            if (text != null) {
-                return text.toString()
-            }
-        }
-        return null
-    }
-
-    private fun getActionId(view: View?): String? {
-        if (view == null) return null
-
-        var target = view
-        val sb = StringBuilder()
-
-        while (target != null) {
-            sb.append(target.javaClass.name)
-            val parent = target.parent
-
-            if (parent is ViewGroup) {
-                var i = 0
-                while (i < parent.childCount) {
-                    val v = parent.getChildAt(i)
-                    if (v === target)
-                        sb.append(i)
-                    i++
-                }
-            }
-
-            target = when (parent) {
-                is View -> parent
-                is ViewParent -> {
-                    sb.append(parent.javaClass.name)
-                    null
-                }
-                else -> null
-            }
-        }
-        return sb.toString()
     }
 }

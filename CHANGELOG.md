@@ -6,8 +6,15 @@
 | inappmessaging | アプリ内メッセージ機能を提供します。 | 2.11.0 |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.8.0 |
 | variables | 設定値配信機能を提供します。 | 2.2.0 |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.5.0 |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.6.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.4.0 |
+
+# Releases - 2022.1.12
+
+### VisualTracking 2.6.0
+** 🎉 FEATURE**
+- 動的なフィールドの付与に対応しました。
+  - 動的フィールドについては[こちら](https://support.karte.io/post/7JbUVotDwZMvl6h3HL9Zt7#6-0)を参考ください。
 
 # Releases - 2021.11.26
 
