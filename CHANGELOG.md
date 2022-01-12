@@ -387,7 +387,7 @@
 <div style="display:none;">
 テンプレ
 
-# Releases - xxxx.xx.xx
+# Releases - 2022.01.12
 
 ### Core 2.0.0
 ** 🎉FEATURE**
