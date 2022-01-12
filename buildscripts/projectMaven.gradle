@@ -19,7 +19,7 @@ project.ext {
             }
         }
         scm {
-            connection 'scm:git:git://github.com/plaidev/karte-android-sdk.git'
+            connection 'scm:git:https://github.com/plaidev/karte-android-sdk.git'
             developerConnection 'scm:git:ssh://github.com/plaidev/karte-android-sdk.git'
             url gitUrl
         }
