@@ -16,31 +16,22 @@
 package io.karte.android.visualtracking.unit
 
 import android.app.Activity
-import android.content.Context
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.ListView
-import android.widget.TextView
 import io.karte.android.RobolectricTestCase
 import io.karte.android.visualtracking.BasicAction
+import io.karte.android.visualtracking.createLinearLayoutWithText
 import io.karte.android.visualtracking.internal.HookTargetMethodFromDynamicInvoke
+import io.karte.android.visualtracking.internal.getActionId
+import io.karte.android.visualtracking.internal.getTargetText
 import io.karte.android.visualtracking.internal.tracing.TraceBuilder
+import io.karte.android.visualtracking.internal.viewFrom
+import io.karte.android.visualtracking.internal.viewPathIndices
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.json.JSONObject
+import org.junit.Assert
 import org.junit.Test
 import org.robolectric.Robolectric
-
-private fun createLinearLayoutWithText(context: Context, text: String): View {
-    val contentView = FrameLayout(context)
-    val layout = LinearLayout(context).apply {
-        addView(TextView(context).apply { this.text = text })
-        contentView.addView(View(context))
-        contentView.addView(this)
-    }
-    if (context is Activity) context.setContentView(contentView)
-    return layout
-}
 
 class TraceBuilderTest : RobolectricTestCase() {
     private val appInfo = JSONObject().put("version_name", "1.5.5")
@@ -66,6 +57,18 @@ class TraceBuilderTest : RobolectricTestCase() {
             )
         )
         assertThatJson(values).node("app_info.version_name").isString.isEqualTo("1.5.5")
+    }
+
+    @Test
+    fun viewPathからのview生成とtargetText取得() {
+        val activity = Robolectric.buildActivity(Activity::class.java).get()
+        val layout = createLinearLayoutWithText(activity, "hoge")
+        val actionId = getActionId(layout)
+        val viewPath = viewPathIndices(actionId)
+        val view = viewFrom(viewPath, activity.window)
+        val targetText = getTargetText(view!!)
+        Assert.assertEquals(targetText, "hoge")
+        Assert.assertEquals(actionId, getActionId(view))
     }
 
     @Test
@@ -119,6 +122,26 @@ class TraceBuilderTest : RobolectricTestCase() {
         )
         assertThatJson(values).isObject.doesNotContainKeys("view", "activity")
         assertThatJson(values).node("app_info.version_name").isString.isEqualTo("1.5.5")
+    }
+
+    @Test
+    fun actionIdからview階層のpathを示すindex配列を生成() {
+        val simpleActionId = "View0View11View2View1"
+        val action = BasicAction("touch", simpleActionId, "target_text")
+        val viewPathIndices = viewPathIndices(action.actionId)
+        Assert.assertArrayEquals(viewPathIndices, intArrayOf(1, 2, 11, 0))
+
+        val complexActionId = "android.widget.LinearLayout7android.widget.ListView5" +
+            "android.widget.LinearLayout1android.widget.LinearLayout0androidx.appcompat.widget.ContentFrameLayout1" +
+            "androidx.appcompat.widget.FitWindowsLinearLayout0android.widget.FrameLayout1android.widget.LinearLayout0" +
+            "com.android.internal.policy.DecorViewandroid.view.ViewRootImpl"
+        val action2 = BasicAction("touch", complexActionId, "target_text")
+        val viewPathIndices2 = viewPathIndices(action2.actionId)
+        Assert.assertArrayEquals(viewPathIndices2, intArrayOf(0, 1, 0, 1, 0, 1, 5, 7))
+
+        val action3 = BasicAction("touch", null, null)
+        val viewPathIndices3 = viewPathIndices(action3.actionId)
+        Assert.assertEquals(viewPathIndices3, null)
     }
 
     @Test

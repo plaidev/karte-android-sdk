@@ -37,6 +37,7 @@ import io.karte.android.visualtracking.internal.tracking.DefinitionList
 import io.karte.android.visualtracking.internal.tracking.GetDefinitions
 import org.json.JSONException
 import org.json.JSONObject
+import java.lang.ref.WeakReference
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -52,6 +53,7 @@ class VisualTracking : Library, ActionModule, TrackModule {
     override val name: String = "visualtracking"
     override val version: String = BuildConfig.LIB_VERSION
     override val isPublic: Boolean = true
+    private var currentActiveActivity: WeakReference<Activity>? = null
 
     override fun configure(app: KarteApp) {
         this.app = app
@@ -67,7 +69,16 @@ class VisualTracking : Library, ActionModule, TrackModule {
                     if (it.operationMode != OperationMode.INGEST) return@let
                     getDefinitions()
                 }
+                currentActiveActivity = WeakReference(activity)
                 app.application.unregisterActivityLifecycleCallbacks(this)
+            }
+
+            override fun onActivityResumed(activity: Activity) {
+                currentActiveActivity = WeakReference(activity)
+            }
+
+            override fun onActivityPaused(activity: Activity) {
+                currentActiveActivity = null
             }
         })
     }
@@ -137,7 +148,7 @@ class VisualTracking : Library, ActionModule, TrackModule {
             val events: List<JSONObject>
             try {
                 synchronized(DefinitionList::class.java) {
-                    events = definitions!!.traceToEvents(traceValues)
+                    events = definitions!!.traceToEvents(traceValues, currentActiveActivity?.get()?.window)
                 }
             } catch (e: Exception) {
                 Logger.w(LOG_TAG, "Failed to check VT event.", e)

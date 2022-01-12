@@ -162,7 +162,7 @@ class DefinitionListTest {
         }
     }
 
-    class field : RobolectricTestCase() {
+    class 静的フィールド : RobolectricTestCase() {
         @Test
         fun 設定したフィールドが付加される() {
 

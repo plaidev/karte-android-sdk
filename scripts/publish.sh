@@ -65,6 +65,9 @@ function publish() {
     fi
   done
   ./gradlew closeAndReleaseRepository
+
+  # Publish release node
+  ruby scripts/publish_changelog.rb
 }
 
 ##################################################

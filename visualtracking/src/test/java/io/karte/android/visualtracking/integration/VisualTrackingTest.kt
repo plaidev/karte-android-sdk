@@ -28,6 +28,7 @@ import io.karte.android.tearDownKarteApp
 import io.karte.android.tracking.Tracker
 import io.karte.android.visualtracking.VisualTracking
 import io.karte.android.visualtracking.condition
+import io.karte.android.visualtracking.createLinearLayoutWithText
 import io.karte.android.visualtracking.definition
 import io.karte.android.visualtracking.injectDirectExecutorServiceToAutoTrackModules
 import io.karte.android.visualtracking.internal.VTHook
@@ -36,6 +37,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import okhttp3.mockwebserver.MockWebServer
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
@@ -48,7 +50,20 @@ private val definition = definition(
     "event1",
     trigger(
         condition("action", "\$eq", "action1"),
-        fields = JSONObject().put("field1", "value1").put("field2", "value2")
+        fields = JSONObject().put("field1", "value1").put("field2", "value2"),
+        dynamicFields = JSONArray().put(
+            JSONObject()
+                .put("type", "target_text")
+                .put("name", "dynamic_field1")
+                .put(
+                    "action_id",
+                    "android.widget.LinearLayout1" +
+                        "android.widget.FrameLayout0" +
+                        "android.widget.FrameLayout0" +
+                        "com.android.internal.widget.ActionBarOverlayLayout0" +
+                        "com.android.internal.policy.DecorView"
+                )
+        )
     )
 )
 
@@ -92,6 +107,32 @@ class VisualTrackingTest : RobolectricTestCase() {
         val req = dispatcher.trackedRequests().last()
         assertThat(req.getHeader("X-KARTE-Auto-Track-If-Modified-Since"))
             .isEqualTo(LAST_MODIFIED.toString())
+    }
+
+    @Test
+    fun trackで取得した自動計測定義により動的フィールドを含むイベントが発火する() {
+        val activity = Robolectric.buildActivity(Activity::class.java, Intent(application, Activity::class.java))
+            .create().resume().get()
+        Tracker.view("hoge")
+        proceedBufferedCall()
+        val layout = createLinearLayoutWithText(activity, "hoge")
+        VTHook.hookAction("action1", arrayOf(layout))
+        proceedBufferedCall()
+
+        assertThat(dispatcher.trackedEvents()).comparingElementsUsing(eventNameTransform)
+            .contains("event1")
+        val values = dispatcher.trackedEvents()
+            .find { it.getString("event_name") == "event1" }
+            ?.getJSONObject("values")!!
+        assertThatJson(values).isObject.containsAllEntriesOf(
+            mapOf(
+                "field1" to "value1",
+                "field2" to "value2",
+                "dynamic_field1" to "hoge"
+            )
+        )
+        val request = dispatcher.trackedRequests().last()
+        assertThatJson(JSONObject(request.parseBody())).node("app_info").isObject
     }
 
     @Test

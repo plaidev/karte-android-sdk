@@ -15,8 +15,13 @@
 //
 package io.karte.android.visualtracking.internal.tracking
 
+import android.view.Window
 import io.karte.android.core.logger.Logger
 import io.karte.android.utilities.forEach
+import io.karte.android.visualtracking.internal.getActionId
+import io.karte.android.visualtracking.internal.getTargetText
+import io.karte.android.visualtracking.internal.viewFrom
+import io.karte.android.visualtracking.internal.viewPathIndices
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -28,10 +33,10 @@ internal class DefinitionList private constructor(
 ) {
 
     @Throws(JSONException::class)
-    internal fun traceToEvents(trace: JSONObject): List<JSONObject> {
+    internal fun traceToEvents(trace: JSONObject, window: Window? = null): List<JSONObject> {
         val ret = ArrayList<JSONObject>()
         for (definition in this.definitions) {
-            val event = definition.eventForTrace(trace)
+            val event = definition.eventForTrace(trace, window)
             if (event != null) {
                 ret.add(event)
             }
@@ -49,7 +54,7 @@ internal class DefinitionList private constructor(
     internal class Definition(private val eventName: String, private val triggers: List<Trigger>) {
 
         @Throws(JSONException::class)
-        fun eventForTrace(trace: JSONObject): JSONObject? {
+        fun eventForTrace(trace: JSONObject, window: Window?): JSONObject? {
             for (trigger in triggers) {
                 if (!trigger.filter(trace)) continue
 
@@ -58,6 +63,9 @@ internal class DefinitionList private constructor(
                     .put("values", JSONObject().put("_system", JSONObject().put("auto_track", 1)))
 
                 trigger.fields?.forEach { key, value ->
+                    event.getJSONObject("values").put(key, value)
+                }
+                trigger.dynamicValues(window)?.forEach { key, value ->
                     event.getJSONObject("values").put(key, value)
                 }
                 return event
@@ -85,7 +93,8 @@ internal class DefinitionList private constructor(
                         triggers.add(
                             Trigger(
                                 json.optJSONObject("fields"),
-                                json.getJSONObject("condition")
+                                json.getJSONObject("condition"),
+                                json.optJSONArray("dynamic_fields")
                             )
                         )
                     } catch (e: Exception) {
@@ -98,7 +107,7 @@ internal class DefinitionList private constructor(
     }
 
     internal class Trigger @Throws(JSONException::class)
-    constructor(internal val fields: JSONObject?, condition: JSONObject) {
+    constructor(internal val fields: JSONObject?, condition: JSONObject, private val dynamicFields: JSONArray?) {
         private val condition: JSONArray = condition.getJSONArray("\$and")
         private val filters = ArrayList<Filter>()
 
@@ -116,10 +125,31 @@ internal class DefinitionList private constructor(
             return true
         }
 
+        fun dynamicValues(window: Window?): JSONObject? {
+            if (dynamicFields == null || dynamicFields.length() == 0 || window == null) return null
+
+            var result = JSONObject()
+            dynamicFields.forEach { df ->
+                if (df !is JSONObject) return@forEach
+                val dfActionId = df.optString("action_id")
+                val name = df.optString("name")
+                if (dfActionId.isEmpty() || name.isEmpty()) return@forEach
+
+                val viewPath = viewPathIndices(dfActionId)
+                val view = viewFrom(viewPath, window)
+                if (dfActionId == getActionId(view) && view != null) {
+                    val targetText = getTargetText(view)
+                    result.put(name, targetText)
+                }
+            }
+            return result
+        }
+
         override fun toString(): String {
             return "Trigger{" +
                 "fields=" + fields +
                 ", condition=" + condition +
+                ", dynamic_fields=" + dynamicFields +
                 '}'.toString()
         }
     }
