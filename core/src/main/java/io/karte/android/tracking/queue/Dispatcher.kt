@@ -22,6 +22,7 @@ import io.karte.android.KarteApp
 import io.karte.android.core.library.ActionModule
 import io.karte.android.core.library.TrackModule
 import io.karte.android.core.logger.Logger
+import io.karte.android.tracking.EventValidator
 import io.karte.android.tracking.TrackCompletion
 import io.karte.android.tracking.client.TrackResponse
 import io.karte.android.tracking.client.requestOf
@@ -89,11 +90,9 @@ internal class Dispatcher {
             completion?.onComplete(false)
             return
         }
-        if (record.event.isInvalidEventFieldValue) {
-            Logger.w(
-                LOG_TAG,
-                "Failed to push Event to queue because view_name or user_id is empty: EventName=${record.event.eventName.value},FieldName=${record.event.values}"
-            )
+        val eventInvalidMessages = EventValidator.getInvalidMessages(record.event)
+        if (eventInvalidMessages.isNotEmpty()) {
+            eventInvalidMessages.forEach { Logger.w(LOG_TAG, it) }
             completion?.onComplete(false)
             return
         }
@@ -147,8 +146,8 @@ internal class Dispatcher {
         records
             .filter { retryCircuitBreaker.canRequest || it.retry == 0 }
             .groupBy(
-            { GroupingKey(it.visitorId, it.originalPvId, it.pvId, it.retry > 0) },
-            { it })
+                { GroupingKey(it.visitorId, it.originalPvId, it.pvId, it.retry > 0) },
+                { it })
             .forEach { (key, events) ->
                 Logger.d(LOG_TAG, "request events: ${events.size}")
                 // 10 events per request
