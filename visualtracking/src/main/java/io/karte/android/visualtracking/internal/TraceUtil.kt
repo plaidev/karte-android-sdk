@@ -27,7 +27,10 @@ private val NUM_MATCHER = "[0-9]+".toRegex()
  * actionIdからView階層のパスを示すindex配列を返す。（例: View1View0からは、[0,1]が返される）
  */
 internal fun viewPathIndices(actionId: String?): IntArray? {
-    return actionId?.let { id -> NUM_MATCHER.findAll(id).mapNotNull { it.value.toIntOrNull() }.toList().reversed().toIntArray() }
+    return actionId?.let { id ->
+        NUM_MATCHER.findAll(id).mapNotNull { it.value.toIntOrNull() }
+            .toList().reversed().toIntArray()
+    }
 }
 
 /**

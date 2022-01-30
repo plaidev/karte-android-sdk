@@ -111,7 +111,8 @@ class VisualTrackingTest : RobolectricTestCase() {
 
     @Test
     fun trackで取得した自動計測定義により動的フィールドを含むイベントが発火する() {
-        val activity = Robolectric.buildActivity(Activity::class.java, Intent(application, Activity::class.java))
+        val activity = Robolectric
+            .buildActivity(Activity::class.java, Intent(application, Activity::class.java))
             .create().resume().get()
         Tracker.view("hoge")
         proceedBufferedCall()
