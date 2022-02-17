@@ -43,7 +43,7 @@ internal class TrackingService internal constructor() {
 
         Logger.d(LOG_TAG, "track")
         val event = delegate?.intercept(inEvent) ?: inEvent
-        if (event.eventName == BaseEventName.View) {
+        if (event.eventName.value == BaseEventName.View.value) {
             KarteApp.self.pvIdContainer.renew()
         }
         runCatching {
