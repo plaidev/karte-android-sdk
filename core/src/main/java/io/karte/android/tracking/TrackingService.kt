@@ -41,6 +41,18 @@ internal class TrackingService internal constructor() {
         EventValidator.getDeprecatedMessages(inEvent)
             .forEach { Logger.w(LOG_TAG, it) }
 
+        if (inEvent.isDeprecatedEventName)
+            Logger.w(
+                LOG_TAG,
+                "[^a-z0-9_] or starting with _ in event name is deprecated: Event=${inEvent.eventName.value}"
+            )
+
+        if (inEvent.isDeprecatedEventFieldName)
+            Logger.w(
+                LOG_TAG,
+                "Contains dots(.) or stating with $ or ${inEvent.INVALID_FIELD_NAMES} in event field name is deprecated: EventName=${inEvent.eventName.value},FieldName=${inEvent.values}"
+            )
+
         Logger.d(LOG_TAG, "track")
         val event = delegate?.intercept(inEvent) ?: inEvent
         if (event.eventName.value == BaseEventName.View.value) {
