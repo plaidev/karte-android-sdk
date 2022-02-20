@@ -131,9 +131,13 @@ class TraceBuilderTest : RobolectricTestCase() {
         val viewPathIndices = viewPathIndices(action.actionId)
         Assert.assertArrayEquals(viewPathIndices, intArrayOf(1, 2, 11, 0))
 
-        val complexActionId = "android.widget.LinearLayout7android.widget.ListView5" +
-            "android.widget.LinearLayout1android.widget.LinearLayout0androidx.appcompat.widget.ContentFrameLayout1" +
-            "androidx.appcompat.widget.FitWindowsLinearLayout0android.widget.FrameLayout1android.widget.LinearLayout0" +
+        val complexActionId = "android.widget.LinearLayout7" +
+            "android.widget.ListView5" +
+            "android.widget.LinearLayout1" +
+            "android.widget.LinearLayout0" +
+            "androidx.appcompat.widget.ContentFrameLayout1" +
+            "androidx.appcompat.widget.FitWindowsLinearLayout0" +
+            "android.widget.FrameLayout1android.widget.LinearLayout0" +
             "com.android.internal.policy.DecorViewandroid.view.ViewRootImpl"
         val action2 = BasicAction("touch", complexActionId, "target_text")
         val viewPathIndices2 = viewPathIndices(action2.actionId)

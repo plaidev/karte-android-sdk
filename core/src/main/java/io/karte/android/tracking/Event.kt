@@ -247,12 +247,16 @@ internal enum class AutoEventName(override val value: String) : EventName {
 enum class MessageEventName(override val value: String) : EventName {
     /** _message_ready イベント*/
     MessageReady("_message_ready"),
+
     /** message_open イベント*/
     MessageOpen("message_open"),
+
     /** message_close イベント*/
     MessageClose("message_close"),
+
     /** message_click イベント*/
     MessageClick("message_click"),
+
     /** _message_suppressed イベント */
     MessageSuppressed("_message_suppressed"),
 }
@@ -267,12 +271,16 @@ class CustomEventName(override val value: String) : EventName
 enum class MessageEventType(val eventName: EventName) {
     /** _message_ready イベント*/
     Ready(MessageEventName.MessageReady),
+
     /** message_open イベント*/
     Open(MessageEventName.MessageOpen),
+
     /** message_close イベント*/
     Close(MessageEventName.MessageClose),
+
     /** message_click イベント*/
     Click(MessageEventName.MessageClick),
+
     /** _message_suppressed イベント */
     Suppressed(MessageEventName.MessageSuppressed),
 }

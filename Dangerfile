@@ -37,6 +37,11 @@ if ($is_develop_pr || $is_hotfix_pr)
         end
     
         last_release_version = get_lastest_release_version(module_name)
+        if last_release_version.nil?
+            warn "#{module_name} release history not found.\nIgnore this warning if you add a new module."
+            next
+        end
+        
         next_version = bump_version(last_release_version)
         current_version = File.read(File.join("#{module_name}", 'version'))
         if Gem::Version.new(next_version) > Gem::Version.new(current_version)

@@ -19,7 +19,6 @@ import io.karte.android.KarteApp
 import io.karte.android.core.logger.Logger
 import io.karte.android.tracking.queue.Dispatcher
 import io.karte.android.tracking.queue.EventRecord
-import io.karte.android.utilities.isAscii
 import io.karte.android.utilities.toValues
 import org.json.JSONObject
 
@@ -39,11 +38,8 @@ internal class TrackingService internal constructor() {
         completion: TrackCompletion? = null
     ) {
         if (KarteApp.isOptOut) return
-        if (!inEvent.eventName.value.isAscii())
-            Logger.w(
-                LOG_TAG,
-                "Multi-byte character in event name is deprecated: Event=${inEvent.eventName.value}"
-            )
+        EventValidator.getDeprecatedMessages(inEvent)
+            .forEach { Logger.w(LOG_TAG, it) }
 
         if (inEvent.isDeprecatedEventName)
             Logger.w(
@@ -59,7 +55,7 @@ internal class TrackingService internal constructor() {
 
         Logger.d(LOG_TAG, "track")
         val event = delegate?.intercept(inEvent) ?: inEvent
-        if (event.eventName == BaseEventName.View) {
+        if (event.eventName.value == BaseEventName.View.value) {
             KarteApp.self.pvIdContainer.renew()
         }
         runCatching {

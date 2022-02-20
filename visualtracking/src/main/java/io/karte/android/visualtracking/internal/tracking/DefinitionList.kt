@@ -107,7 +107,11 @@ internal class DefinitionList private constructor(
     }
 
     internal class Trigger @Throws(JSONException::class)
-    constructor(internal val fields: JSONObject?, condition: JSONObject, private val dynamicFields: JSONArray?) {
+    constructor(
+        internal val fields: JSONObject?,
+        condition: JSONObject,
+        private val dynamicFields: JSONArray?
+    ) {
         private val condition: JSONArray = condition.getJSONArray("\$and")
         private val filters = ArrayList<Filter>()
 

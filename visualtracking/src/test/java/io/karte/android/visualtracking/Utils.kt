@@ -74,8 +74,15 @@ fun andCondition(vararg conditions: JSONObject): JSONObject {
     return JSONObject().put("\$and", conditions.toJSONArray())
 }
 
-fun trigger(vararg conditions: JSONObject, fields: JSONObject? = JSONObject(), dynamicFields: JSONArray? = JSONArray()): JSONObject {
-    return JSONObject().put("condition", andCondition(*conditions)).put("fields", fields).put("dynamic_fields", dynamicFields)
+fun trigger(
+    vararg conditions: JSONObject,
+    fields: JSONObject? = JSONObject(),
+    dynamicFields: JSONArray? = JSONArray()
+): JSONObject {
+    return JSONObject()
+        .put("condition", andCondition(*conditions))
+        .put("fields", fields)
+        .put("dynamic_fields", dynamicFields)
 }
 
 fun definition(eventName: String, vararg triggers: JSONObject): JSONObject {

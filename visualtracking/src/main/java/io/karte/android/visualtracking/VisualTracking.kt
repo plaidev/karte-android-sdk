@@ -148,7 +148,10 @@ class VisualTracking : Library, ActionModule, TrackModule {
             val events: List<JSONObject>
             try {
                 synchronized(DefinitionList::class.java) {
-                    events = definitions!!.traceToEvents(traceValues, currentActiveActivity?.get()?.window)
+                    events = definitions!!.traceToEvents(
+                        traceValues,
+                        currentActiveActivity?.get()?.window
+                    )
                 }
             } catch (e: Exception) {
                 Logger.w(LOG_TAG, "Failed to check VT event.", e)
