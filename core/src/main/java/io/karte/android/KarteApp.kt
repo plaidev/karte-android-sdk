@@ -18,6 +18,7 @@ package io.karte.android
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -175,6 +176,11 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         return CommandExecutor.execute(uri)
     }
 
+    private fun handleDeeplink(intent: Intent) {
+        self.modules.filterIsInstance<DeepLinkModule>()
+            .forEach { it.handle(intent) }
+    }
+
     //region ActivityLifecycleCallback
     private var firstActivityCreated = false
     private var activityCount = 0
@@ -187,8 +193,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             self.tracker?.track(Event(AutoEventName.NativeAppOpen, values = null))
             firstActivityCreated = true
         }
-        self.modules.filterIsInstance<DeepLinkModule>()
-            .forEach { it.handle(activity.intent) }
+        handleDeeplink(activity.intent)
     }
 
     override fun onActivityStarted(activity: Activity) {
@@ -196,8 +201,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         if (++activityCount == 1) {
             self.tracker?.track(Event(AutoEventName.NativeAppForeground, values = null))
         }
-        self.modules.filterIsInstance<DeepLinkModule>()
-            .forEach { it.handle(activity.intent) }
+        handleDeeplink(activity.intent)
     }
 
     override fun onActivityResumed(activity: Activity) {
@@ -412,6 +416,18 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         @JvmStatic
         fun renewVisitorId() {
             self.visitorId?.renew()
+        }
+
+        /**
+         * 渡されたintentを使用してKARTEのDeeplink処理を行います。
+         *
+         * launchModeにsingleTopなどを利用していて、[Activity.onNewIntent]にて渡される新しいintentで、KARTEのdeeplink処理を行いたい場合に呼び出してください。
+         *
+         * @param[intent] [Activity.onNewIntent]等で新しく渡された[Intent]
+         */
+        @JvmStatic
+        fun onNewIntent(intent: Intent?) {
+            intent?.let { self.handleDeeplink(it) }
         }
     }
 }

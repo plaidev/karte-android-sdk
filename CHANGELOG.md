@@ -2,12 +2,19 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
-| core | イベントトラッキング機能を提供します。 | 2.15.0 |
+| core | イベントトラッキング機能を提供します。 | 2.16.0 |
 | inappmessaging | アプリ内メッセージ機能を提供します。 | 2.11.0 |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.8.0 |
 | variables | 設定値配信機能を提供します。 | 2.2.0 |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.6.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.4.0 |
+
+# Releases - 2022.03.31
+
+### Core 2.16.0
+** 🎉 FEATURE**
+- launchModeがsingleTopなど、再開時にintentが更新されないActivityでもKARTE SDKのDeeplink処理を行うためのAPIを追加しました。
+   - 詳細は[こちら](https://developers.karte.io/docs/appendix-relaunch-activity-android-sdk-v2)を確認してください。
 
 # Releases - 2022.02.21
 
