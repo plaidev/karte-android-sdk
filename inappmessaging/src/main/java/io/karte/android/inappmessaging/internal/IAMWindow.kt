@@ -23,8 +23,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.app.DialogFragment
-import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -35,6 +33,7 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import androidx.fragment.app.FragmentActivity
+import io.karte.android.KarteApp
 import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.view.WindowView
@@ -129,21 +128,10 @@ internal class IAMWindow(
     }
 
     override fun openUrl(uri: Uri, withReset: Boolean) {
-        Logger.d(LOG_TAG, "Opening url: $uri")
-        try {
-            var intent =
-                InAppMessaging.self?.app?.executeCommand(uri)?.filterIsInstance<Intent>()
-                    ?.firstOrNull()
-            if (intent == null) {
-                intent = Intent(Intent.ACTION_VIEW).apply { data = uri }
-            }
-            if (!withReset) {
-                (context as? Activity)?.let { InAppMessaging.self?.enablePreventRelayFlag(it) }
-            }
-            context.startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            Logger.e(LOG_TAG, "Failed to open url.", e)
+        if (!withReset) {
+            (context as? Activity)?.let { InAppMessaging.self?.enablePreventRelayFlag(it) }
         }
+        KarteApp.openUrl(uri, context)
     }
 
     override fun errorOccurred() {

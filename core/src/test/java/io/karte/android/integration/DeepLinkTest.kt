@@ -18,6 +18,7 @@ package io.karte.android.integration
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
 import io.karte.android.TrackerRequestDispatcher
@@ -30,6 +31,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.robolectric.Robolectric
+import org.robolectric.Shadows
 import org.robolectric.android.controller.ActivityController
 
 class NewIntentActivity : Activity() {
@@ -253,5 +255,40 @@ class DeepLinkEventTest : DeepLinkTestCase() {
         proceedBufferedCall()
 
         assertNoEvent()
+    }
+}
+
+class OpenUrl処理 : TrackerTestCase() {
+    @Test
+    fun KarteがハンドルしないURLの場合そのURLでIntentが投げられること() {
+        val activity = Robolectric.buildActivity(Activity::class.java).create().get()
+        KarteApp.openUrl(Uri.parse("test://hoge"), activity)
+
+        val nextActivity = Shadows.shadowOf(application).nextStartedActivity
+        assertThat(nextActivity).isNotNull()
+        assertThat(nextActivity.action).isEqualTo(Intent.ACTION_VIEW)
+        assertThat(nextActivity.dataString).isEqualTo("test://hoge")
+    }
+
+    @Test
+    fun hostがopensettingsの場合アプリ設定のIntentが投げられること() {
+        val activity = Robolectric.buildActivity(Activity::class.java).create().get()
+        KarteApp.openUrl(Uri.parse("krt-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx://open-settings"), activity)
+
+        val nextActivity = Shadows.shadowOf(application).nextStartedActivity
+        assertThat(nextActivity).isNotNull()
+        assertThat(nextActivity.action).isEqualTo(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        assertThat(nextActivity.dataString).startsWith("package:")
+    }
+
+    @Test
+    fun hostがopenstoreの場合ストアのIntentが投げられること() {
+        val activity = Robolectric.buildActivity(Activity::class.java).create().get()
+        KarteApp.openUrl(Uri.parse("krt-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx://open-store"), activity)
+
+        val nextActivity = Shadows.shadowOf(application).nextStartedActivity
+        assertThat(nextActivity).isNotNull()
+        assertThat(nextActivity.action).isEqualTo(Intent.ACTION_VIEW)
+        assertThat(nextActivity.dataString).startsWith("market:")
     }
 }
