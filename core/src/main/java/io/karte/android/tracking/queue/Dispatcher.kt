@@ -93,8 +93,6 @@ internal class Dispatcher {
         val eventInvalidMessages = EventValidator.getInvalidMessages(record.event)
         if (eventInvalidMessages.isNotEmpty()) {
             eventInvalidMessages.forEach { Logger.w(LOG_TAG, it) }
-            completion?.onComplete(false)
-            return
         }
 
         val id = DataStore.put(record)

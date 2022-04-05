@@ -77,7 +77,7 @@ internal object EventValidator {
         val messages = mutableListOf<String>()
         if (validateEventFieldValue(event.eventName.value, event.values))
             messages.add(
-                "Failed to push Event to queue because view_name or user_id is empty:" +
+                "view_name or user_id is empty:" +
                     " EventName=${event.eventName.value},FieldName=${event.values}"
             )
         return messages

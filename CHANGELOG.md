@@ -2,12 +2,28 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
-| core | イベントトラッキング機能を提供します。 | 2.16.0 |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.11.0 |
+| core | イベントトラッキング機能を提供します。 | 2.17.0 |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.12.0 |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.8.0 |
 | variables | 設定値配信機能を提供します。 | 2.2.0 |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.6.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.4.0 |
+
+# Releases - 2022.04.05
+
+### Core 2.17.0
+** 🎉 FEATURE**
+- KARTE SDKでURLを開くためのAPIを追加しました。このAPIはSDK内部での利用を想定しており、通常のSDK利用で使用することはありません。
+
+** 🔨 CHANGED**
+- identifyイベントのuser_idとviewイベントのview_nameに空文字が指定された場合でも警告の出力のみでイベントが送信されるよう挙動を変更しました。
+   - 尚、user_id無しで送信されたidentifyのフィールドがKARTE上で永続化されるかどうかは[ユーザーデータ管理](https://support.karte.io/post/6Uu930PTyQBc6SVAOEOTYp)プラグインの利用状況に依存します。
+   - user_id無しでユーザーに紐づく個人情報以外のフィールドをイベントに付与したい場合は[attribute関数](https://plaidev.github.io/karte-sdk-docs/android/core/latest/core/io.karte.android.tracking/-tracker/index.html#%5Bio.karte.android.tracking%2FTracker%2Fattribute%2F%23java.util.Map%3Cjava.lang.String%2C%3F%3E%2FPointingToDeclaration%2F%2C+io.karte.android.tracking%2FTracker%2Fattribute%2F%23org.json.JSONObject%2FPointingToDeclaration%2F%2C+io.karte.android.tracking%2FTracker%2Fattribute%2F%23java.util.Map%3Cjava.lang.String%2C%3F%3E%23io.karte.android.tracking.TrackCompletion%2FPointingToDeclaration%2F%2C+io.karte.android.tracking%2FTracker%2Fattribute%2F%23org.json.JSONObject%23io.karte.android.tracking.TrackCompletion%2FPointingToDeclaration%2F%5D%2FFunctions%2F96193845)を使用してください。
+
+### InAppMessaging 2.12.0
+** 🔨 CHANGED**
+- Core 2.17.0で追加されたAPIを利用するように内部処理を修正しました。
+  - 挙動の変更はありません。
 
 # Releases - 2022.03.31
 

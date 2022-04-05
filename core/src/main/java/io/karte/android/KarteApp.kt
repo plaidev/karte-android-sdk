@@ -17,6 +17,7 @@ package io.karte.android
 
 import android.app.Activity
 import android.app.Application
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -428,6 +429,34 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         @JvmStatic
         fun onNewIntent(intent: Intent?) {
             intent?.let { self.handleDeeplink(it) }
+        }
+
+        /**
+         * URLを開きます。
+         * **SDK内部で利用するために用意している機能であり、通常利用で使用することはありません。**
+         *
+         * @param [uri] 対象のURI
+         * @param [context] [Context]
+         */
+        @JvmStatic
+        fun openUrl(uri: Uri, context: Context?): Boolean {
+            try {
+                var intent =
+                    self.executeCommand(uri).filterIsInstance<Intent>().firstOrNull()
+                if (intent == null) {
+                    intent = Intent(Intent.ACTION_VIEW).apply { data = uri }
+                }
+                if (context != null) {
+                    context.startActivity(intent)
+                } else {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    self.application.startActivity(intent)
+                }
+            } catch (e: ActivityNotFoundException) {
+                Logger.e(LOG_TAG, "Failed to open url.", e)
+                return false
+            }
+            return true
         }
     }
 }
