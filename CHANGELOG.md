@@ -15,6 +15,11 @@
 ** 🎉 FEATURE**
 - KARTE SDKでURLを開くためのAPIを追加しました。このAPIはSDK内部での利用を想定しており、通常のSDK利用で使用することはありません。
 
+** 🔨 CHANGED**
+- identifyイベントのuser_idとviewイベントのview_nameに空文字が指定された場合でも警告の出力のみでイベントが送信されるよう挙動を変更しました。
+   - 尚、user_id無しで送信されたidentifyのフィールドがKARTE上で永続化されるかどうかは[ユーザーデータ管理](https://support.karte.io/post/6Uu930PTyQBc6SVAOEOTYp)プラグインの利用状況に依存します。
+   - user_id無しでユーザーに紐づく個人情報以外のフィールドをイベントに付与したい場合は[attribute関数](https://plaidev.github.io/karte-sdk-docs/android/core/latest/core/io.karte.android.tracking/-tracker/index.html#%5Bio.karte.android.tracking%2FTracker%2Fattribute%2F%23java.util.Map%3Cjava.lang.String%2C%3F%3E%2FPointingToDeclaration%2F%2C+io.karte.android.tracking%2FTracker%2Fattribute%2F%23org.json.JSONObject%2FPointingToDeclaration%2F%2C+io.karte.android.tracking%2FTracker%2Fattribute%2F%23java.util.Map%3Cjava.lang.String%2C%3F%3E%23io.karte.android.tracking.TrackCompletion%2FPointingToDeclaration%2F%2C+io.karte.android.tracking%2FTracker%2Fattribute%2F%23org.json.JSONObject%23io.karte.android.tracking.TrackCompletion%2FPointingToDeclaration%2F%5D%2FFunctions%2F96193845)を使用してください。
+
 ### InAppMessaging 2.12.0
 ** 🔨 CHANGED**
 - Core 2.17.0で追加されたAPIを利用するように内部処理を修正しました。

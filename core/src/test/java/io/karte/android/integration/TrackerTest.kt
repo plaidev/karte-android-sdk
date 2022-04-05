@@ -21,7 +21,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import io.karte.android.BuildConfig
 import io.karte.android.KarteApp
 import io.karte.android.TrackerTestCase
-import io.karte.android.assertThatNoEventOccured
 import io.karte.android.eventNameTransform
 import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
@@ -40,6 +39,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
 import java.util.Date
+import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
 private fun createJsonValues(): JSONObject {
@@ -134,16 +134,146 @@ class TrackerIntegrationTest {
 
         class user_idに空文字を設定した場合 : TrackerTestCase() {
             @Test
-            fun identifyイベントがサーバに送信されないこと() {
+            fun identifyイベントがサーバに送信されること() {
+                val jsonValues = createJsonValues()
                 server.enqueue(
                     MockResponse().setBody(body.toString()).addHeader(
                         "Content-Type",
                         "text/html; charset=utf-8"
                     )
                 )
-                Tracker.identify("", JSONObject())
+                Tracker.identify("", jsonValues.toValues())
                 proceedBufferedCall()
-                server.assertThatNoEventOccured()
+
+                val request = server.takeRequest()
+                val event = JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
+                val eventValues = event.getJSONObject("values")
+                assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
+                    .isEqualTo("identify")
+                assertWithMessage("数値がtrackサーバに送信されること").that(eventValues.getInt("num"))
+                    .isEqualTo(10)
+                assertWithMessage("文字列がtrackサーバに送信されること").that(eventValues.getString("str"))
+                    .isEqualTo("hoge")
+                assertWithMessage("user_idが空のままtrackサーバに送信されること").that(eventValues.getString("user_id"))
+                    .isEqualTo("")
+                assertWithMessage("日付がtrackサーバに送信されること").that(eventValues.getInt("date"))
+                    .isEqualTo((jsonValues.get("date") as Date).time / 1000)
+                assertWithMessage("JSONがtrackサーバに送信されること")
+                    .that(eventValues.getJSONObject("json").toString())
+                    .isEqualTo(jsonValues.getJSONObject("json").toString())
+                assertWithMessage("JSONArrayがtrackサーバに送信されること")
+                    .that(eventValues.getJSONArray("arr").toString())
+                    .isEqualTo(jsonValues.getJSONArray("arr").toString())
+            }
+        }
+    }
+
+    @RunWith(Enclosed::class)
+    @Suppress("DEPRECATION")
+    class deprecatedなidentifyイベント {
+        class user_idを設定した場合 : TrackerTestCase() {
+            @Test
+            fun identifyイベントがサーバに送信されること() {
+                val jsonValues = createJsonValues().put("user_id", "test_user")
+                server.enqueue(
+                    MockResponse().setBody(body.toString()).addHeader(
+                        "Content-Type",
+                        "text/html; charset=utf-8"
+                    )
+                )
+                Tracker.identify(jsonValues.toValues())
+                proceedBufferedCall()
+
+                val request = server.takeRequest()
+                val event = JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
+                val eventValues = event.getJSONObject("values")
+                assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
+                    .isEqualTo("identify")
+                assertWithMessage("数値がtrackサーバに送信されること").that(eventValues.getInt("num"))
+                    .isEqualTo(10)
+                assertWithMessage("文字列がtrackサーバに送信されること").that(eventValues.getString("str"))
+                    .isEqualTo("hoge")
+                assertWithMessage("user_idがtrackサーバに送信されること").that(eventValues.getString("user_id"))
+                    .isEqualTo("test_user")
+                assertWithMessage("日付がtrackサーバに送信されること").that(eventValues.getInt("date"))
+                    .isEqualTo((jsonValues.get("date") as Date).time / 1000)
+                assertWithMessage("JSONがtrackサーバに送信されること")
+                    .that(eventValues.getJSONObject("json").toString())
+                    .isEqualTo(jsonValues.getJSONObject("json").toString())
+                assertWithMessage("JSONArrayがtrackサーバに送信されること")
+                    .that(eventValues.getJSONArray("arr").toString())
+                    .isEqualTo(jsonValues.getJSONArray("arr").toString())
+            }
+        }
+
+        class user_idに空文字を設定した場合 : TrackerTestCase() {
+            @Test
+            fun identifyイベントがサーバに送信されること() {
+                val jsonValues = createJsonValues().put("user_id", "")
+                server.enqueue(
+                    MockResponse().setBody(body.toString()).addHeader(
+                        "Content-Type",
+                        "text/html; charset=utf-8"
+                    )
+                )
+                Tracker.identify(jsonValues.toValues())
+                proceedBufferedCall()
+
+                val request = server.takeRequest(3, TimeUnit.SECONDS)
+                assertThat(request).isNotNull()
+                val event = JSONObject(request!!.parseBody()).getJSONArray("events").getJSONObject(0)
+                val eventValues = event.getJSONObject("values")
+                assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
+                    .isEqualTo("identify")
+                assertWithMessage("数値がtrackサーバに送信されること").that(eventValues.getInt("num"))
+                    .isEqualTo(10)
+                assertWithMessage("文字列がtrackサーバに送信されること").that(eventValues.getString("str"))
+                    .isEqualTo("hoge")
+                assertWithMessage("user_idが空のままtrackサーバに送信されること").that(eventValues.getString("user_id"))
+                    .isEqualTo("")
+                assertWithMessage("日付がtrackサーバに送信されること").that(eventValues.getInt("date"))
+                    .isEqualTo((jsonValues.get("date") as Date).time / 1000)
+                assertWithMessage("JSONがtrackサーバに送信されること")
+                    .that(eventValues.getJSONObject("json").toString())
+                    .isEqualTo(jsonValues.getJSONObject("json").toString())
+                assertWithMessage("JSONArrayがtrackサーバに送信されること")
+                    .that(eventValues.getJSONArray("arr").toString())
+                    .isEqualTo(jsonValues.getJSONArray("arr").toString())
+            }
+        }
+
+        class user_id未設定な場合 : TrackerTestCase() {
+            @Test
+            fun identifyイベントがサーバに送信されること() {
+                val jsonValues = createJsonValues()
+                server.enqueue(
+                    MockResponse().setBody(body.toString()).addHeader(
+                        "Content-Type",
+                        "text/html; charset=utf-8"
+                    )
+                )
+                Tracker.identify(jsonValues.toValues())
+                proceedBufferedCall()
+
+                val request = server.takeRequest(3, TimeUnit.SECONDS)
+                assertThat(request).isNotNull()
+                val event = JSONObject(request!!.parseBody()).getJSONArray("events").getJSONObject(0)
+                val eventValues = event.getJSONObject("values")
+                assertWithMessage("event_nameがtrackサーバに送信されること").that(event.getString("event_name"))
+                    .isEqualTo("identify")
+                assertWithMessage("数値がtrackサーバに送信されること").that(eventValues.getInt("num"))
+                    .isEqualTo(10)
+                assertWithMessage("文字列がtrackサーバに送信されること").that(eventValues.getString("str"))
+                    .isEqualTo("hoge")
+                assertWithMessage("user_idがkey自体存在しないこと").that(eventValues.has("user_id")).isFalse()
+                assertWithMessage("日付がtrackサーバに送信されること").that(eventValues.getInt("date"))
+                    .isEqualTo((jsonValues.get("date") as Date).time / 1000)
+                assertWithMessage("JSONがtrackサーバに送信されること")
+                    .that(eventValues.getJSONObject("json").toString())
+                    .isEqualTo(jsonValues.getJSONObject("json").toString())
+                assertWithMessage("JSONArrayがtrackサーバに送信されること")
+                    .that(eventValues.getJSONArray("arr").toString())
+                    .isEqualTo(jsonValues.getJSONArray("arr").toString())
             }
         }
     }
@@ -182,9 +312,9 @@ class TrackerIntegrationTest {
 
     @RunWith(Enclosed::class)
     class viewイベント {
-        class view_namに空文字を設定した場合 : TrackerTestCase() {
+        class view_nameに空文字を設定した場合 : TrackerTestCase() {
             @Test
-            fun viewイベントがサーバに送信されないこと() {
+            fun viewイベントがサーバに送信されること() {
                 server.enqueue(
                     MockResponse().setBody(body.toString()).addHeader(
                         "Content-Type",
@@ -193,7 +323,16 @@ class TrackerIntegrationTest {
                 )
                 Tracker.view("", JSONObject())
                 proceedBufferedCall()
-                server.assertThatNoEventOccured()
+
+                val request = server.takeRequest()
+                val event =
+                    JSONObject(request.parseBody()).getJSONArray("events").getJSONObject(0)
+                val eventValues = event.getJSONObject("values")
+                assertWithMessage("event_nameがviewとしてtrackサーバに送信されること")
+                    .that(event.getString("event_name"))
+                    .isEqualTo("view")
+                assertWithMessage("view名が空のままtrackサーバに送信されること").that(eventValues.getString("view_name"))
+                    .isEqualTo("")
             }
         }
 

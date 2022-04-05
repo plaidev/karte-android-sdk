@@ -109,7 +109,7 @@ class EventValidatorTest {
             val messages = EventValidator.getInvalidMessages(this)
             assertThat(messages).isNotEmpty()
             assertThat(messages.size).isEqualTo(1)
-            assertThat(messages[0]).startsWith("Failed to push Event")
+            assertThat(messages[0]).startsWith("view_name or user_id is empty")
         }
         with(Event(CustomEventName("view"), mapOf("viewName" to ""))) {
             assertThat(EventValidator.getDeprecatedMessages(this)).isEmpty()
@@ -117,7 +117,7 @@ class EventValidatorTest {
             val messages = EventValidator.getInvalidMessages(this)
             assertThat(messages).isNotEmpty()
             assertThat(messages.size).isEqualTo(1)
-            assertThat(messages[0]).startsWith("Failed to push Event")
+            assertThat(messages[0]).startsWith("view_name or user_id is empty")
         }
         with(Event(CustomEventName("view"), values = null)) {
             assertThat(EventValidator.getDeprecatedMessages(this)).isEmpty()
@@ -129,7 +129,7 @@ class EventValidatorTest {
             val messages = EventValidator.getInvalidMessages(this)
             assertThat(messages).isNotEmpty()
             assertThat(messages.size).isEqualTo(1)
-            assertThat(messages[0]).startsWith("Failed to push Event")
+            assertThat(messages[0]).startsWith("view_name or user_id is empty")
         }
         with(Event(CustomEventName("identify"), mapOf("user_id" to ""))) {
             assertThat(EventValidator.getDeprecatedMessages(this)).isEmpty()
@@ -137,7 +137,7 @@ class EventValidatorTest {
             val messages = EventValidator.getInvalidMessages(this)
             assertThat(messages).isNotEmpty()
             assertThat(messages.size).isEqualTo(1)
-            assertThat(messages[0]).startsWith("Failed to push Event")
+            assertThat(messages[0]).startsWith("view_name or user_id is empty")
         }
         with(Event(CustomEventName("identify"), values = null)) {
             assertThat(EventValidator.getDeprecatedMessages(this)).isEmpty()
