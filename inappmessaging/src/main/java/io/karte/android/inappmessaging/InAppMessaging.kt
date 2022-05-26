@@ -301,7 +301,8 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
                 return it
         }
         Logger.d(LOG_TAG, "WebView recreate")
-
+        cachedWebView?.destroy()
+        cachedWebView = null
         try {
             cachedWebView = IAMWebView(app.application) { uri: Uri ->
                 Boolean

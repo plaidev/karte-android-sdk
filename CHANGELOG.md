@@ -3,11 +3,17 @@
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
 | core | イベントトラッキング機能を提供します。 | 2.17.0 |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.12.0 |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.13.0 |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.8.0 |
 | variables | 設定値配信機能を提供します。 | 2.2.0 |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.6.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.4.0 |
+
+# Releases - xxxx.xx.xx
+
+### InAppMessaging 2.13.0
+** 💊FIXED **
+- `KarteApp.renewVisitorId`実行後に接客表示用のWebViewがリークする不具合を修正しました。（[issue](https://github.com/plaidev/karte-android-sdk/issues/18)）
 
 # Releases - 2022.04.05
 
