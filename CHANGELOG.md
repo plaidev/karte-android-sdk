@@ -2,7 +2,7 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
-| core | イベントトラッキング機能を提供します。 | 2.17.0 |
+| core | イベントトラッキング機能を提供します。 | 2.18.0 |
 | inappmessaging | アプリ内メッセージ機能を提供します。 | 2.13.0 |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.8.0 |
 | variables | 設定値配信機能を提供します。 | 2.2.0 |
@@ -10,6 +10,11 @@
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.4.0 |
 
 # Releases - xxxx.xx.xx
+
+### Core 2.18.0
+** 💊FIXED **
+- Android Gradle Plugin 4.2.0以降に付属するR8でコードの圧縮を行った際に、実行時エラーが起きる不具合を修正しました。（[issue](https://github.com/plaidev/karte-android-sdk/issues/17)）
+   - MessageEventTypeクラスのeventNameプロパティは非推奨になり、ダミーの固定値に変更されました。
 
 ### InAppMessaging 2.13.0
 ** 💊FIXED **
