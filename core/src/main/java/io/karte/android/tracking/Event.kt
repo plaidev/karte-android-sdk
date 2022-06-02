@@ -218,7 +218,7 @@ class MessageEvent(
     val campaignId: String,
     val shortenId: String,
     values: Values? = null
-) : Event(type.eventName, valuesOf(values) {
+) : Event(CustomEventName(type.eventNameStr), valuesOf(values) {
     this["message"] = mapOf("campaign_id" to campaignId, "shorten_id" to shortenId)
 })
 
@@ -266,21 +266,24 @@ class CustomEventName(override val value: String) : EventName
 
 /**
  * message_xxx イベントのタイプを定義した列挙型です。
- * @property[eventName] 対応するイベント名
  */
-enum class MessageEventType(val eventName: EventName) {
+enum class MessageEventType(internal val eventNameStr: String) {
     /** _message_ready イベント*/
-    Ready(MessageEventName.MessageReady),
+    Ready(MessageEventName.MessageReady.value),
 
     /** message_open イベント*/
-    Open(MessageEventName.MessageOpen),
+    Open(MessageEventName.MessageOpen.value),
 
     /** message_close イベント*/
-    Close(MessageEventName.MessageClose),
+    Close(MessageEventName.MessageClose.value),
 
     /** message_click イベント*/
-    Click(MessageEventName.MessageClick),
+    Click(MessageEventName.MessageClick.value),
 
     /** _message_suppressed イベント */
-    Suppressed(MessageEventName.MessageSuppressed),
+    Suppressed(MessageEventName.MessageSuppressed.value);
+
+    /** 対応するイベント名 */
+    @Deprecated("This property is no longer used. It's always 'MessageOpen' as dummy.")
+    val eventName = MessageEventName.MessageOpen
 }
