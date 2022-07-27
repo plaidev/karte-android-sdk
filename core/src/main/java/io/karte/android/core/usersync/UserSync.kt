@@ -36,7 +36,7 @@ private const val PARAM_TIMESTAMP = "ts"
 /**
  * WebView 連携するためのクラスです。
  *
- * WebページURLに連携用のクエリパラメータを付与した状態で、URLをWebViewで開くことでWebとAppのユーザーの紐付けが行われます。
+ * Webページを開くWebViewに連携用のスクリプトを設定することで、WebとAppのユーザーの紐付けが行われます。
  *
  * なお連携を行うためにはWebページに、KARTEのタグが埋め込まれている必要があります。
  */
@@ -49,7 +49,9 @@ object UserSync {
      * 指定されたURL文字列の形式が正しくない場合、またはSDKの初期化が行われていない場合は、引数に指定したURL文字列を返します。
      */
     @JvmStatic
+    @Deprecated("User sync function using query parameters is deprecated. It will be removed in the future.", ReplaceWith("setUserSyncScript(webView)"))
     fun appendUserSyncQueryParameter(url: String): String {
+        @Suppress("DEPRECATION")
         return appendUserSyncQueryParameter(Uri.parse(url))
     }
 
@@ -61,6 +63,7 @@ object UserSync {
      * SDKの初期化が行われていない場合は、引数に指定したUriを文字列で返します。
      */
     @JvmStatic
+    @Deprecated("User sync function using query parameters is deprecated. It will be removed in the future.", ReplaceWith("setUserSyncScript(webView)"))
     fun appendUserSyncQueryParameter(uri: Uri): String {
         val param = buildUserSyncParameter() ?: return uri.toString()
 
@@ -71,6 +74,20 @@ object UserSync {
             .appendQueryParameter(QUERY_KEY_USER_SYNC, base64EncodedParam)
             .build()
             .toString()
+    }
+
+    /**
+     * WebView 連携用のスクリプト(javascript)を返却します。
+     *
+     * ユーザースクリプトとしてWebViewに設定することで、WebView内のタグと連携されます。
+     *
+     * なおSDKの初期化が行われていない場合はnullを返却します。
+     * @param[webView] [WebView]
+     */
+    @JvmStatic
+    fun getUserSyncScript(): String? {
+        val syncParam = buildUserSyncParameter() ?: return null
+        return String.format("window.__karte_ntvsync = %s;", syncParam)
     }
 
     /**
@@ -86,11 +103,8 @@ object UserSync {
         webView: WebView
     ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val script = String.format(
-                "window.__karte_ntvsync = %s;",
-                buildUserSyncParameter()
-            )
-            webView.evaluateJavascript(script) { }
+            val syncScript = getUserSyncScript() ?: return
+            webView.evaluateJavascript(syncScript) { }
         }
     }
 

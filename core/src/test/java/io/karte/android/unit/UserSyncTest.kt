@@ -64,6 +64,7 @@ class UserSyncTest : RobolectricTestCase() {
 
     @Test
     fun appendUserSyncQueryParameter_String() {
+        @Suppress("DEPRECATION")
         val actual = UserSync.appendUserSyncQueryParameter("https://plaid.co.jp?hoge=fuga")
         val base64EncodedString = Uri.parse(actual).getQueryParameter("_k_ntvsync_b")
         val string = String(Base64.decode(base64EncodedString, Base64.NO_WRAP))
@@ -73,6 +74,7 @@ class UserSyncTest : RobolectricTestCase() {
 
     @Test
     fun appendUserSyncQueryParameter_Uri() {
+        @Suppress("DEPRECATION")
         val actual =
             UserSync.appendUserSyncQueryParameter(Uri.parse("https://plaid.co.jp?hoge=fuga"))
         val base64EncodedString = Uri.parse(actual).getQueryParameter("_k_ntvsync_b")
@@ -87,6 +89,14 @@ class UserSyncTest : RobolectricTestCase() {
 
         UserSync.setUserSyncScript(webView)
         val actual = customShadowOf(webView).lastEvaluatedJavascript
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun getUserSyncScript() {
+        val expected = String.format("window.__karte_ntvsync = %s;", expected)
+
+        val actual = UserSync.getUserSyncScript()
         Assert.assertEquals(expected, actual)
     }
 }

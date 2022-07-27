@@ -73,7 +73,9 @@ class DryRunTest : DryRunTestCase() {
 
     @Test
     fun testUserSync() {
+        @Suppress("DEPRECATION")
         assertThat(UserSync.appendUserSyncQueryParameter("test")).isEqualTo("test")
+        assertThat(UserSync.getUserSyncScript()).isNull()
 
         UserSync.setUserSyncScript(WebView(application))
         assertDryRun()
