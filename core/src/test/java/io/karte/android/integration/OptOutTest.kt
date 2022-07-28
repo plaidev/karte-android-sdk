@@ -117,9 +117,17 @@ class OptOutTest {
                             Base64.NO_WRAP
                         ), "utf8"
                     )
+                    @Suppress("DEPRECATION")
                     val syncParam =
                         UserSync.appendUserSyncQueryParameter("https://plaid.co.jp")
                     assertThat(syncParam).contains(expected)
+                }
+
+                @Test
+                fun UserSyncScriptに_karte_tracker_deactivateが追加されること() {
+                    val param = "{\"_karte_tracker_deactivate\":true}"
+                    val syncScript = UserSync.getUserSyncScript()
+                    assertThat(syncScript).contains(param)
                 }
             }
 
@@ -163,9 +171,17 @@ class OptOutTest {
                             Base64.NO_WRAP
                         ), "utf8"
                     )
+                    @Suppress("DEPRECATION")
                     val syncParam =
                         UserSync.appendUserSyncQueryParameter("https://plaid.co.jp")
                     assertThat(syncParam).doesNotContain(expected)
+                }
+
+                @Test
+                fun UserSyncScriptに_karte_tracker_deactivateが追加されないこと() {
+                    val param = "{\"_karte_tracker_deactivate\":true}"
+                    val syncScript = UserSync.getUserSyncScript()
+                    assertThat(syncScript).doesNotContain(param)
                 }
             }
         }

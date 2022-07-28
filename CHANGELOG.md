@@ -2,12 +2,20 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
-| core | イベントトラッキング機能を提供します。 | 2.18.0 |
+| core | イベントトラッキング機能を提供します。 | 2.19.0 |
 | inappmessaging | アプリ内メッセージ機能を提供します。 | 2.13.0 |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.8.0 |
 | variables | 設定値配信機能を提供します。 | 2.2.0 |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.6.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.4.0 |
+
+# Releases - 2022.07.28
+
+### Core 2.19.0
+** 🎉FEATURE**
+- WebView連携のための補助APIとして `UserSync.getUserSyncScript` を追加しました。
+  - 返されるスクリプトをWebViewで実行することで、`android.webkit.WebView`以外のWebViewに対してもユーザー連携が可能になります。
+  - これに伴い、クエリパラメータ連携API `UserSync.appendUserSyncQueryParameter` は非推奨になります。
 
 # Releases - 2022.06.02
 
