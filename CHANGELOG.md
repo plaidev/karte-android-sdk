@@ -9,7 +9,7 @@
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.6.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.4.0 |
 
-# Releases - xxxx.xx.xx
+# Releases - 2022.07.28
 
 ### Core 2.19.0
 ** 🎉FEATURE**
