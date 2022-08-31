@@ -22,6 +22,7 @@
 ### Notifications 2.9.0
 ** 🔨CHANGED**
 - minSdkVersionを 14 -> 16 に変更しました。
+- 依存しているfirebase-messagingのバージョンを変更しました。
 
 ### Variables 2.3.0
 ** 🔨CHANGED**

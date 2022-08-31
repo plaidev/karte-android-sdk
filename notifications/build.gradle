@@ -51,7 +51,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     // for runtime dependencies
-    runtimeOnly "com.google.firebase:firebase-messaging:17.6.0"
+    runtimeOnly "com.google.firebase:firebase-messaging:19.0.0"
     // for compile dependencies
     compileOnly "com.google.firebase:firebase-messaging:$fcmCompileVersion"
     implementation project(path: ':core')
