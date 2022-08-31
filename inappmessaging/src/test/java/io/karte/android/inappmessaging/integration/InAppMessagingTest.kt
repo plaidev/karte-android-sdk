@@ -22,7 +22,6 @@ import android.net.Uri
 import android.net.http.SslError
 import android.view.KeyEvent
 import android.view.View
-import android.view.ViewGroup
 import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -39,6 +38,8 @@ import io.karte.android.createMessageResponse
 import io.karte.android.createMessagesResponse
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.IAMWebView
+import io.karte.android.inappmessaging.internal.IAMWindow
+import io.karte.android.inappmessaging.proceedUiBufferedCall
 import io.karte.android.parseBody
 import io.karte.android.proceedBufferedCall
 import io.karte.android.setupKarteApp
@@ -84,12 +85,10 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
     lateinit var activity: ActivityController<Activity>
     lateinit var app: KarteApp
 
-    val view: ViewGroup?
-        get() = (shadowOf(activity.get().windowManager) as ShadowWindowManagerImpl).views.getOrNull(
-            0
-        ) as? ViewGroup
+    internal val iamWindow: IAMWindow?
+        get() = (shadowOf(activity.get().windowManager) as ShadowWindowManagerImpl).views.filterIsInstance(IAMWindow::class.java).firstOrNull()
     val webView: WebView?
-        get() = view?.getChildAt(0) as? WebView
+        get() = iamWindow?.getChildAt(0) as? WebView
     val shadowWebView: CustomShadowWebView?
         get() = CustomShadowWebView.current
 
@@ -124,11 +123,12 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         activity = Robolectric.buildActivity(
             Activity::class.java,
             Intent(application, Activity::class.java)
-        ).create().resume()
+        ).create().resume().visible()
 
         // flush first native_app_install event
         proceedBufferedCall()
         server.takeRequest()
+        proceedUiBufferedCall()
     }
 
     @After
@@ -141,6 +141,7 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
     fun trackPopUp1() {
         Tracker.track("popup1")
         proceedBufferedCall()
+        proceedUiBufferedCall()
         emitVisibledCallbackFromTrackerJs()
     }
 
@@ -154,7 +155,7 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         every { mock.context } returns application
         val bridge = shadowWebView?.getJavascriptInterface("NativeBridge") as? IAMWebView
         bridge?.onReceivedMessage(callbackName, data.toString())
-        proceedBufferedCall()
+        proceedUiBufferedCall()
     }
 
     protected fun emitInitializedCallbackFromTrackerJs() {
@@ -237,7 +238,7 @@ class InAppMessagingTest {
             emitVisibledCallbackFromTrackerJs()
 
             assertThat(webView).isNotNull()
-            assertThat(view?.visibility).isEqualTo(View.VISIBLE)
+            assertThat(iamWindow?.visibility).isEqualTo(View.VISIBLE)
             assertThat(shadowWebView?.lastLoadedUrl)
                 .startsWith("javascript:window.tracker.handleResponseData")
             assertThat(shadowWebView?.loadedUrls?.first()).startsWith(overlayBaseUrl)
@@ -254,7 +255,7 @@ class InAppMessagingTest {
         fun 未実施のwebpopup接客が来た場合はoverlayが追加されないこと() {
             trackCgPopUp()
 
-            assertThat(view).isNull()
+            assertThat(iamWindow).isNull()
             assertThat(webView).isNull()
             assertThat(shadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
         }
@@ -264,7 +265,7 @@ class InAppMessagingTest {
             Tracker.track("hoge")
             proceedBufferedCall()
 
-            assertThat(view).isNull()
+            assertThat(iamWindow).isNull()
         }
 
         @Test
@@ -303,7 +304,7 @@ class InAppMessagingTest {
                 )
             )
 
-            assertThat(view?.visibility).isEqualTo(View.VISIBLE)
+            assertThat(iamWindow?.visibility).isEqualTo(View.VISIBLE)
         }
 
         @Test
@@ -315,6 +316,7 @@ class InAppMessagingTest {
 
             Tracker.track("popup2")
             proceedBufferedCall()
+            proceedUiBufferedCall()
 
             val passedResponses = responsesPassedToJs()
             passedResponses.forEach { it.remove("request_body") }
@@ -332,6 +334,7 @@ class InAppMessagingTest {
         @Before
         fun setupOverlayAndTrackerJs() {
             Tracker.view("page1")
+            proceedUiBufferedCall()
             trackPopUp1()
 
             emitInitializedCallbackFromTrackerJs()
@@ -341,7 +344,7 @@ class InAppMessagingTest {
         fun viewによりページが切り替わった時はInAppMessagingViewが破棄されないこと() {
             Tracker.view("page2")
             proceedBufferedCall()
-            assertThat(view).isNotNull()
+            assertThat(iamWindow).isNotNull()
         }
 
         @Test
@@ -358,9 +361,10 @@ class InAppMessagingTest {
 
             activity.pause()
             proceedBufferedCall()
+            proceedUiBufferedCall()
             assertThat(currentShadowWebView?.loadedUrls)
                 .contains("javascript:window.tracker.resetPageState(false);")
-            assertThat(view).isNull()
+            assertThat(iamWindow).isNull()
         }
     }
 
@@ -379,7 +383,7 @@ class InAppMessagingTest {
         fun 通常時にバックボタンを押してもIAMViewが処理しないこと() {
             trackPopUp1()
 
-            val iamView = view
+            val iamView = iamWindow
             assertThat(iamView).isNotNull()
 
             val consume = iamView?.dispatchKeyEvent(backButtonEvent())
@@ -392,7 +396,7 @@ class InAppMessagingTest {
         fun スタックを積んだ時にバックボタンを押すとIAMViewが処理すること() {
             trackPopUp1()
 
-            val iamView = view
+            val iamView = iamWindow
             assertThat(iamView).isNotNull()
 
             webView?.loadUrl("test")
@@ -423,6 +427,8 @@ class InAppMessagingTest {
                     JSONObject().put("foo", "bar")
                 )
             )
+            // trackerのthreadも動かす必要がある
+            proceedBufferedCall()
 
             assertThat(dispatcher.trackedEvents().filter {
                 it.getString("event_name") == "from_tracker_js" &&
@@ -446,13 +452,13 @@ class InAppMessagingTest {
         fun visibility_visibleによりoverlayが表示されること() {
             emitInitializedCallbackFromTrackerJs()
             emitVisibledCallbackFromTrackerJs()
-            assertThat(view).isNotNull()
+            assertThat(iamWindow).isNotNull()
         }
 
         @Test
         fun visibility_invisibleによりoverlayが非表示になること() {
             emitInvisibledCallbackFromTrackerJs()
-            assertThat(view).isNull()
+            assertThat(iamWindow).isNull()
         }
     }
 
@@ -469,7 +475,7 @@ class InAppMessagingTest {
         fun CGではoverlayが表示されないこと() {
             emitCbFromTrackerJs("event", createMessageOpen(shortenId = "__sample_shorten"))
 
-            assertThat(view).isNull()
+            assertThat(iamWindow).isNull()
         }
     }
 
@@ -510,11 +516,12 @@ class InAppMessagingTest {
         fun overlayの読み込みに失敗する場合は非表示になりその後レスポンスは渡らない_onReceivedError() {
             shadowWebView?.webViewClient?.onReceivedError(webView, mockReq, mockError)
             proceedBufferedCall()
-            assertThat(view).isNull()
+            proceedUiBufferedCall()
+            assertThat(iamWindow).isNull()
 
             // 以降のイベントはviewは追加されるが何もロードしない
             trackPopUp1()
-            assertThat(view).isNotNull()
+            assertThat(iamWindow).isNotNull()
             assertThat(responsesPassedToJs()).isEmpty()
         }
 
@@ -526,11 +533,12 @@ class InAppMessagingTest {
                 mockResourceResponse
             )
             proceedBufferedCall()
-            assertThat(view).isNull()
+            proceedUiBufferedCall()
+            assertThat(iamWindow).isNull()
 
             // 以降のイベントはviewは追加されるが何もロードしない
             trackPopUp1()
-            assertThat(view).isNotNull()
+            assertThat(iamWindow).isNotNull()
             assertThat(responsesPassedToJs()).isEmpty()
         }
 
@@ -538,11 +546,12 @@ class InAppMessagingTest {
         fun overlayの読み込みに失敗する場合は非表示になりその後レスポンスは渡らない_onReceivedSslError() {
             shadowWebView?.webViewClient?.onReceivedSslError(webView, mockSslHandler, mockSslError)
             proceedBufferedCall()
-            assertThat(view).isNull()
+            proceedUiBufferedCall()
+            assertThat(iamWindow).isNull()
 
             // 以降のイベントはviewは追加されるが何もロードしない
             trackPopUp1()
-            assertThat(view).isNotNull()
+            assertThat(iamWindow).isNotNull()
             assertThat(responsesPassedToJs()).isEmpty()
         }
 
@@ -557,11 +566,11 @@ class InAppMessagingTest {
                 "state_changed",
                 JSONObject().put("state", "error").put("message", "error message")
             )
-            assertThat(view).isNotNull()
+            assertThat(iamWindow).isNotNull()
 
             // 以降のイベントはviewは追加されるが何もロードしない
             trackPopUp1()
-            assertThat(view).isNotNull()
+            assertThat(iamWindow).isNotNull()
             assertThat(responsesPassedToJs()).isEmpty()
         }
     }
@@ -579,9 +588,9 @@ class InAppMessagingTest {
         fun trackerのrenewVisitorIdが呼ばれた場合はWindowとWebViewが破棄され新しいVidでTrackerJsが読まれる() {
             val currentShadowWebView = shadowWebView
             KarteApp.renewVisitorId()
-            proceedBufferedCall()
+            proceedUiBufferedCall()
 
-            assertThat(view).isNull()
+            assertThat(iamWindow).isNull()
             assertThat(currentShadowWebView?.lastLoadedUrl)
                 .startsWith("javascript:window.tracker.resetPageState(")
 
@@ -600,7 +609,7 @@ class InAppMessagingTest {
     class MessageSuppressedの発火 : InAppMessagingTestCase() {
 
         private fun assertNotSuppressed() {
-            assertThat(view).isNotNull()
+            assertThat(iamWindow).isNotNull()
             assertThat(
                 dispatcher.trackedEvents()
                     .filter { it.getString("event_name") == "_message_suppressed" })
@@ -618,14 +627,15 @@ class InAppMessagingTest {
         fun Activity_not_found() {
             // Activityがあればsuppressされない
             trackPopUp1()
-            assertThat(view).isNotNull()
+            assertThat(iamWindow).isNotNull()
             assertNotSuppressed()
             dispatcher.clearHistory()
 
             // ActiveなActivityがなければsuppressされる
             activity.pause()
             trackPopUp1()
-            assertThat(view).isNull()
+            proceedBufferedCall()
+            assertThat(iamWindow).isNull()
             assertSuppressed("Activity is not found")
         }
 
@@ -638,8 +648,10 @@ class InAppMessagingTest {
 
             // suppressメソッドを呼ぶとsuppressされる
             InAppMessaging.suppress()
+            proceedUiBufferedCall()
             trackPopUp1()
-            assertThat(view).isNull()
+            proceedBufferedCall()
+            assertThat(iamWindow).isNull()
             assertSuppressed("suppress mode")
             dispatcher.clearHistory()
 
@@ -664,6 +676,7 @@ class InAppMessagingTest {
             Tracker.view("another")
             proceedBufferedCall()
             emitVisibledCallbackFromTrackerJs()
+            proceedBufferedCall() // message_suppressed用
             assertSuppressed("native_app_display_limit_mode")
         }
     }

@@ -23,15 +23,12 @@ import io.karte.android.core.logger.Clock
 import io.karte.android.core.logger.FileAppender
 import io.karte.android.core.logger.LogEvent
 import io.karte.android.core.logger.LogLevel
-import io.karte.android.core.logger.THREAD_NAME
 import io.karte.android.pipeLog
 import io.karte.android.proceedBufferedCall
 import io.karte.android.tearDownKarteApp
 import io.karte.android.unpipeLog
-import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockkObject
-import io.mockk.spyk
 import io.mockk.unmockkObject
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -54,11 +51,12 @@ val testFiles = listOf(
     "2020-04-07_test.log",
     "2020-04-06_test.log"
 )
+const val THREAD_NAME = "file_appender_test"
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [28])
 abstract class BaseFileAppenderTest {
-    internal val fileAppender = FileAppender()
+    internal val fileAppender = FileAppender(THREAD_NAME)
     protected val logDir: File
         get() = File(application().cacheDir, "io.karte.android/log")
     protected val cacheFiles: List<File>
@@ -75,8 +73,7 @@ abstract class BaseFileAppenderTest {
     }
 
     protected fun proceedBufferedCall() {
-        Thread.getAllStackTraces().keys.filter { it.name == THREAD_NAME }
-            .forEach { proceedBufferedCall(it) }
+        proceedBufferedCall(threadName = THREAD_NAME)
     }
 }
 
@@ -175,18 +172,6 @@ class FileAppenderTest : BaseFileAppenderTest() {
 }
 
 class FileAppenderWithoutAppTest : BaseFileAppenderTest() {
-    private lateinit var mock: KarteApp
-
-    @Before
-    fun setup() {
-        mock = spyk(KarteApp.self)
-        every { mock.application } throws UninitializedPropertyAccessException()
-    }
-
-    @After
-    fun tearDown() {
-        clearMocks(mock)
-    }
 
     @Test
     fun KarteApp_setup前はファイル書き込みをしない() {

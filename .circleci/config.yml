@@ -9,7 +9,7 @@ executors:
       - image: circleci/android:api-29
     working_directory: /home/circleci/project
     environment:
-      JAVA_OPTS: -Xmx6200m
+      JAVA_OPTS: -Xmx1536m
       GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx1536m -XX:+HeapDumpOnOutOfMemoryError"'
 
   classic:
@@ -52,7 +52,7 @@ jobs:
       - add_google_services
       - run:
           name: Test
-          command: ./gradlew --info testDebug
+          command: ./gradlew --stacktrace --info testDebug
       - run:
           name: Collect test results
           command: |

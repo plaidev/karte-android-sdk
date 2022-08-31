@@ -525,6 +525,7 @@ class TrackerIntegrationTest {
 
     @RunWith(ParameterizedRobolectricTestRunner::class)
     class 再送(private val retryCount: Int) : TrackerTestCase() {
+        // DispatcherKt.MAX_RETRY_COUNTの値
         private val maxRetryCount = 3
 
         companion object {
@@ -575,6 +576,8 @@ class TrackerIntegrationTest {
             enqueueSuccessResponse()
             Tracker.view("test")
             proceedBufferedCall()
+            // retryの実行
+            proceedBufferedCall()
 
             // 成功まで or 上限まで の小さい回数と一致
             val expectedRetryCount = min(retryCount + 1, maxRetryCount)
@@ -587,6 +590,8 @@ class TrackerIntegrationTest {
             enqueueFailedUnretryableResponse()
             Tracker.view("test")
             proceedBufferedCall()
+            // retryの実行確認
+            proceedBufferedCall()
 
             println("requestCount: $retryCount, ${server.requestCount}")
             assertThat(server.requestCount).isEqualTo(1)
@@ -594,6 +599,7 @@ class TrackerIntegrationTest {
     }
 
     class 再送の制限() : TrackerTestCase() {
+        // DispatcherKt.MAX_RETRY_COUNTの値
         private val maxRetryCount = 3
 
         private fun enqueueSuccessResponse() {
@@ -619,12 +625,18 @@ class TrackerIntegrationTest {
             repeat(10) {
                 enqueueFailedResponse()
             }
-            enqueueSuccessResponse()
-            Tracker.view("test")
-            proceedBufferedCall()
-            Tracker.view("test")
-            proceedBufferedCall()
 
+            Tracker.view("test")
+            proceedBufferedCall()
+            // retryの実行
+            proceedBufferedCall()
+            assertThat(server.requestCount).isEqualTo(maxRetryCount)
+
+            // retry上限直後は通常リクエストのみ発生
+            Tracker.view("test")
+            proceedBufferedCall()
+            // retryの実行確認
+            proceedBufferedCall()
             println("requestCount: ${server.requestCount} $maxRetryCount")
             assertThat(server.requestCount).isEqualTo(maxRetryCount + 1)
         }
@@ -633,6 +645,7 @@ class TrackerIntegrationTest {
     @Ignore("仕様の見直し中のため、テストしない")
     class 画面遷移時のeventまとめ制御 : TrackerTestCase() {
         private lateinit var firstActivityController: ActivityController<Activity>
+
         @Before
         fun setup() {
             server.enqueue(

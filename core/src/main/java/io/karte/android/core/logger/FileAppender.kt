@@ -49,7 +49,7 @@ private fun Date.forLog(): String = format("yyyy-MM-dd HH:mm:ss")
 private fun Date.asPrefix(): String = format("yyyy-MM-dd")
 private fun File.files(): List<File> = listFiles()?.filter { it.isFile } ?: listOf()
 private const val LOG_TAG = "Karte.Log.FileAppender"
-internal const val THREAD_NAME = "io.karte.android.logger.buffer"
+private const val THREAD_NAME = "io.karte.android.logger.buffer"
 private const val BUFFER_SIZE = 10000
 
 private fun logDebug(message: String) {
@@ -58,9 +58,9 @@ private fun logDebug(message: String) {
     Log.d(LOG_TAG, message)
 }
 
-internal class FileAppender : Appender, Flushable {
+internal class FileAppender internal constructor(threadName: String = THREAD_NAME) : Appender, Flushable {
     private val handler: Handler =
-        Handler(HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_LOWEST).apply { start() }.looper)
+        Handler(HandlerThread(threadName, Process.THREAD_PRIORITY_LOWEST).apply { start() }.looper)
     private val buffer = StringBuilder()
 
     private val logDir: File?
