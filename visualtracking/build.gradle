@@ -50,3 +50,9 @@ dependencies {
     testImplementation "net.javacrumbs.json-unit:json-unit-assertj:2.6.1"
     testImplementation project(path: ':core', configuration: 'testRuntime')
 }
+
+afterEvaluate {
+    if (rootProject.hasProperty("afterConfigurate")) {
+        rootProject."afterConfigurate"(project)
+    }
+}

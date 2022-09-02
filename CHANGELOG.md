@@ -16,6 +16,9 @@
 - minSdkVersionを 14 -> 16 に変更しました。
 
 ### InAppMessaging 2.14.0
+** 💊FIXED**
+- AndroidXに依存していないアプリで、画像アップロード時にクラッシュする不具合を修正しました。
+
 ** 🔨CHANGED**
 - minSdkVersionを 14 -> 16 に変更しました。
 

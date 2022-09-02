@@ -35,7 +35,11 @@ configure(subprojects.findAll { !it.name.startsWith("sample_") }) {
 
     apply from: '../buildscripts/projectMaven.gradle'
     apply from: '../buildscripts/projectMavenAndroid.gradle'
-    apply from: '../buildscripts/projectSonatype.gradle'
+}
+ext {
+    afterConfigurate = { Project project ->
+        project.apply from: '../buildscripts/projectSonatype.gradle'
+    }
 }
 
 task clean(type: Delete) {

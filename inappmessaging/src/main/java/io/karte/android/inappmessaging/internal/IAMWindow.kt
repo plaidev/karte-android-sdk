@@ -87,21 +87,26 @@ internal class IAMWindow(
                 val fileChooserListener = { uris: Array<Uri>? ->
                     filePathCallback.onReceiveValue(uris)
                 }
-                if (activity is FragmentActivity) {
-                    val fragment = FileChooserFragment.newInstance()
-                    fragment.listener = fileChooserListener
+                try {
+                    if (activity is FragmentActivity) {
+                        val fragment = FileChooserFragment.newInstance()
+                        fragment.listener = fileChooserListener
 
-                    val transaction = activity.supportFragmentManager.beginTransaction()
-                    transaction.add(fragment, FRAGMENT_TAG)
-                    transaction.commit()
-                } else {
-                    val fragment = FileChooserDeprecatedFragment.newInstance()
-                    fragment.listener = fileChooserListener
-
-                    val transaction = activity.fragmentManager.beginTransaction()
-                    transaction.add(fragment, FRAGMENT_TAG)
-                    transaction.commit()
+                        val transaction = activity.supportFragmentManager.beginTransaction()
+                        transaction.add(fragment, FRAGMENT_TAG)
+                        transaction.commit()
+                        return true
+                    }
+                } catch (e: NoClassDefFoundError) {
+                    // AndroidXを参照していない場合はチェック時にexceptionが発生するため、迂回する。
+                    Logger.d(LOG_TAG, "androidx not linked.")
                 }
+                val fragment = FileChooserDeprecatedFragment.newInstance()
+                fragment.listener = fileChooserListener
+
+                val transaction = activity.fragmentManager.beginTransaction()
+                transaction.add(fragment, FRAGMENT_TAG)
+                transaction.commit()
                 return true
             }
         })

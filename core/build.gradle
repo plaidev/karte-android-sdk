@@ -60,3 +60,9 @@ task testJar(type: Jar, dependsOn: "assembleDebugUnitTest") {
 
 configurations.maybeCreate('testRuntime')
 artifacts.add('testRuntime', testJar)
+
+afterEvaluate {
+    if (rootProject.hasProperty("afterConfigurate")) {
+        rootProject."afterConfigurate"(project)
+    }
+}

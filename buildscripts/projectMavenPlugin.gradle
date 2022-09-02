@@ -7,15 +7,3 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
-
-project.ext {
-    makeDeployerPom = { pom ->
-        pom.withXml {
-            def root = asNode()
-            root.appendNode('name', "KARTE SDK ${project.name}")
-            root.appendNode('description', "${project.name} module for KARTE Android SDK")
-            root.appendNode('url', gitUrl)
-            root.children().last() + pomConfig
-        }
-    }
-}
