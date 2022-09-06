@@ -58,10 +58,9 @@ function publish() {
   for MODULE in ${TARGETS_MODULES[@]}; do
     local TARGET=`echo $MODULE | sed -e "s/\/version//"`
     if [ $TARGET = "gradle-plugin" ]; then
-      ./gradlew -p gradle-plugin/ uploadArchives
+      ./gradlew -p gradle-plugin/ publish
     else
-      ./gradlew $TARGET:assembleRelease
-      ./gradlew $TARGET:uploadArchives
+      ./gradlew $TARGET:publish
     fi
   done
   ./gradlew closeAndReleaseRepository
