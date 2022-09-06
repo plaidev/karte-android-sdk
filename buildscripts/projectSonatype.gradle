@@ -1,4 +1,4 @@
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 def getPropOrDefault(name, defaultValue = "") {
@@ -7,28 +7,45 @@ def getPropOrDefault(name, defaultValue = "") {
     return defaultValue
 }
 
-artifacts {
-    archives javadocJar, sourcesJar
-}
-signing {
-    sign configurations.archives
-}
-archivesBaseName = project.name
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-            def username = getPropOrDefault("ossrhUsername")
-            def password = getPropOrDefault("ossrhPassword")
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId group
+            artifactId project.name
+            version version
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: username, password: password)
+            if (project.plugins.findPlugin("com.android.library")) {
+                from components.release
+            } else {
+                from components.java
             }
+            artifact sourcesJar
+            artifact javadocJar
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: username, password: password)
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name', "KARTE SDK ${project.name}")
+                root.appendNode('description', "${project.name} module for KARTE Android SDK")
+                root.appendNode('url', gitUrl)
+                root.children().last() + pomConfig
             }
-            project.makeDeployerPom(pom)
         }
     }
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            def sonatypeUsername = getPropOrDefault("ossrhUsername")
+            def sonatypePassword = getPropOrDefault("ossrhPassword")
+            credentials {
+                username = "$sonatypeUsername"
+                password = "$sonatypePassword"
+            }
+        }
+    }
+}
+signing {
+    sign publishing.publications.maven
 }

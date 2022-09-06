@@ -16,6 +16,7 @@
 package io.karte.android
 
 import android.app.Application
+import android.os.Looper
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Correspondence
@@ -32,7 +33,6 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONArray
 import org.json.JSONObject
-import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowLooper
 
@@ -61,20 +61,38 @@ fun application(): Application {
 }
 
 fun getThreadByName(threadName: String = THREAD_NAME): Thread? {
-    return Thread.getAllStackTraces().keys.firstOrNull { it.name == threadName }
+    // NOTE: idがincrementalに振られることを信頼している
+    return Thread.getAllStackTraces().keys.filter {
+        it.name == threadName
+    }.maxBy { it.id }
 }
 
-fun proceedBufferedCall(thread: Thread? = null) {
-    println("proceedBufferedCall")
-    val scheduler =
-        Shadows.shadowOf(ShadowLooper.getLooperForThread(thread ?: getThreadByName()))
-            .scheduler
-    // Schedulerのbuffer計算バグで一度目のループで実行されないケースがあるため2回呼ぶ
-    while (scheduler.advanceToNextPostedRunnable()) {
+private fun getLooperByThreadName(threadName: String): Looper? {
+    val thread = getThreadByName(threadName)
+    return ShadowLooper.getAllLoopers().firstOrNull {
+        it.thread.id == thread?.id
     }
-    while (scheduler.advanceToNextPostedRunnable()) {
+}
+
+private fun getLooperByThread(thread: Thread): Looper? {
+    return ShadowLooper.getAllLoopers().firstOrNull {
+        it.thread == thread
     }
-    Robolectric.flushForegroundThreadScheduler()
+}
+
+fun proceedBufferedCall(thread: Thread? = null, threadName: String? = null) {
+    val name = thread?.name ?: threadName ?: THREAD_NAME
+    val looper = if (thread != null) {
+        getLooperByThread(thread)
+    } else {
+        getLooperByThreadName(name)
+    }
+    if (looper == null) {
+        println("proceedBufferedCall: $name is not found")
+        return
+    }
+    println("proceedBufferedCall: $name")
+    Shadows.shadowOf(looper).runToEndOfTasks()
 }
 
 fun pipeLog() {

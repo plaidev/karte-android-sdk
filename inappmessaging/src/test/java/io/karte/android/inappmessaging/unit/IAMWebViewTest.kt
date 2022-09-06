@@ -27,6 +27,7 @@ import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.inappmessaging.internal.ParentView
 import io.karte.android.inappmessaging.internal.javascript.State
+import io.karte.android.inappmessaging.proceedUiBufferedCall
 import io.karte.android.shadow.CustomShadowWebView
 import io.karte.android.shadow.customShadowOf
 import io.karte.android.tracking.Tracker
@@ -58,10 +59,15 @@ import org.robolectric.shadows.ShadowWebView
 @Config(sdk = [24], shadows = [CustomShadowWebView::class])
 class IAMWebViewTest {
     private fun makeStateReady() {
-        webView.onReceivedMessage(
+        webViewReceivedMessage(
             "state_changed",
-            JSONObject().put("state", "initialized").toString()
+            JSONObject().put("state", "initialized")
         )
+    }
+
+    private fun webViewReceivedMessage(name: String, data: JSONObject) {
+        webView.onReceivedMessage(name, data.toString())
+        proceedUiBufferedCall()
     }
 
     private val dummyUrl = "https://dummy_url/test"
@@ -103,9 +109,9 @@ class IAMWebViewTest {
 
         val values = JSONObject().put("samplekey", "samplevalue")
 
-        webView.onReceivedMessage(
+        webViewReceivedMessage(
             "event",
-            JSONObject().put("event_name", "some_event").put("values", values).toString()
+            JSONObject().put("event_name", "some_event").put("values", values)
         )
         verify(exactly = 1) { Tracker.track(any(), any<JSONObject>()) }
         assertThat(eventNameSlot.captured).isEqualTo("some_event")
@@ -150,11 +156,10 @@ class IAMWebViewTest {
 
     @Test
     fun StateChange_errorでstateがDESTROYEDに変更されること() {
-        webView.onReceivedMessage(
+        webViewReceivedMessage(
             "state_changed", JSONObject()
                 .put("state", "error")
                 .put("message", "samplemessage")
-                .toString()
         )
 
         Assert.assertEquals(webView.state, State.DESTROYED)
@@ -162,9 +167,9 @@ class IAMWebViewTest {
 
     @Test
     fun startActivityOnOpenUrlCallback() {
-        webView.onReceivedMessage(
+        webViewReceivedMessage(
             "open_url",
-            JSONObject().put("url", "http://sampleurl").toString()
+            JSONObject().put("url", "http://sampleurl")
         )
 
         verify(exactly = 1) { parent.openUrl(Uri.parse("http://sampleurl")) }
@@ -172,9 +177,9 @@ class IAMWebViewTest {
 
     @Test
     fun startActivityOnOpenUrlCallbackWithQueryParameters() {
-        webView.onReceivedMessage(
+        webViewReceivedMessage(
             "open_url",
-            JSONObject().put("url", "http://sampleurl?hoge=fuga&hogehoge=fugafuga").toString()
+            JSONObject().put("url", "http://sampleurl?hoge=fuga&hogehoge=fugafuga")
         )
 
         verify(exactly = 1) {
@@ -184,7 +189,7 @@ class IAMWebViewTest {
 
     @Test
     fun DocumentChangedでupdateTouchableRegionsが呼ばれること() {
-        webView.onReceivedMessage(
+        webViewReceivedMessage(
             "document_changed", JSONObject()
                 .put(
                     "touchable_regions", JSONArray().put(
@@ -194,7 +199,7 @@ class IAMWebViewTest {
                             .put("left", 10.0)
                             .put("right", 10.0)
                     )
-                ).toString()
+                )
         )
 
         verify(exactly = 1) { parent.updateTouchableRegions(ofType()) }
@@ -202,13 +207,13 @@ class IAMWebViewTest {
 
     @Test
     fun Visibility_visibleでshowが呼ばれること() {
-        webView.onReceivedMessage("visibility", JSONObject().put("state", "visible").toString())
+        webViewReceivedMessage("visibility", JSONObject().put("state", "visible"))
         verify(exactly = 1) { parent.show() }
     }
 
     @Test
     fun Visibility_invisibleでdismissが呼ばれること() {
-        webView.onReceivedMessage("visibility", JSONObject().put("state", "invisible").toString())
+        webViewReceivedMessage("visibility", JSONObject().put("state", "invisible"))
         verify(exactly = 1) { parent.dismiss() }
     }
 

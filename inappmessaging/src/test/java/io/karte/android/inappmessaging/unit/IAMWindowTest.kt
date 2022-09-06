@@ -22,6 +22,7 @@ import io.karte.android.inappmessaging.internal.IAMPresenter
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.IAMWindow
 import io.karte.android.inappmessaging.internal.PanelWindowManager
+import io.karte.android.inappmessaging.proceedUiBufferedCall
 import io.karte.android.shadow.CustomShadowWebView
 import io.karte.android.shadow.customShadowOf
 import io.mockk.MockKAnnotations
@@ -51,7 +52,7 @@ class IAMWindowTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockKarteApp()
 
-        activity = Robolectric.buildActivity(Activity::class.java).create().start()
+        activity = Robolectric.buildActivity(Activity::class.java).create().start().visible()
         webView =
             IAMWebView(
                 activity.get().applicationContext,
@@ -70,6 +71,8 @@ class IAMWindowTest {
     @Test
     fun 通常のshow_dismiss() {
         view.show()
+        proceedUiBufferedCall()
+
         Assert.assertEquals(true, view.isShowing)
         view.dismiss()
         // dismiss後もviewのvisibilityは変化しない
@@ -80,6 +83,8 @@ class IAMWindowTest {
         activity.get().window.attributes.softInputMode =
             WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
         view.show()
+        proceedUiBufferedCall()
+
         Assert.assertEquals(true, view.isShowing)
         view.dismiss()
         // dismiss後もviewのvisibilityは変化しない

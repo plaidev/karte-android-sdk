@@ -23,6 +23,7 @@ import org.robolectric.annotation.Implements
 import org.robolectric.annotation.RealObject
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowWebView
+import org.robolectric.util.ReflectionHelpers
 
 @Implements(value = WebView::class)
 class CustomShadowWebView : ShadowWebView() {
@@ -33,6 +34,7 @@ class CustomShadowWebView : ShadowWebView() {
     override fun loadUrl(url: String?) {
         current = this
         super.loadUrl(url)
+        pushEntryToHistory(url)
         loadedUrls.add(url!!)
     }
 
@@ -42,10 +44,11 @@ class CustomShadowWebView : ShadowWebView() {
     }
 
     var keyEventCalled = false
+
     @Implementation
     fun dispatchKeyEvent(event: KeyEvent): Boolean {
         keyEventCalled = true
-        return Shadow.directlyOn(realWebView, WebView::class.java).dispatchKeyEvent(event)
+        return Shadow.directlyOn(realWebView, WebView::class.java, "dispatchKeyEvent", ReflectionHelpers.ClassParameter.from(KeyEvent::class.java, event))
     }
 
     fun wasKeyEventCalled(): Boolean {

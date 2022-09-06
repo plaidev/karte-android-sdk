@@ -21,7 +21,6 @@ import io.karte.android.KarteApp
 import io.karte.android.core.config.Config
 import io.karte.android.core.logger.LogLevel
 import io.karte.android.core.usersync.UserSync
-import io.karte.android.getThreadByName
 import io.karte.android.setupKarteApp
 import io.karte.android.tracking.Event
 import io.karte.android.tracking.Tracker
@@ -38,7 +37,8 @@ abstract class DryRunTestCase : SetupTestCase() {
 
     /**Queue用のスレッドが生成されていないか、serverにリクエストが飛んでないか確認.*/
     fun assertDryRun() {
-        assertThat(getThreadByName()).isNull()
+        // TODO: テスト全体でスレッドが破棄されないためチェックできない
+        // assertThat(getThreadByName()).isNull()
         assertThat(server.requestCount).isEqualTo(0)
     }
 }

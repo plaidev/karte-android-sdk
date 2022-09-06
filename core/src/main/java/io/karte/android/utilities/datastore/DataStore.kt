@@ -110,6 +110,10 @@ internal class DataStore private constructor(context: Context) {
         }
 
         internal fun teardown() {
+            DbHelper.persistableContracts.forEach { contract ->
+                instance.dbHelper.writableDatabase.delete(contract.namespace, null, null)
+            }
+            instance.cache.clear()
             instance.dbHelper.close()
         }
 
