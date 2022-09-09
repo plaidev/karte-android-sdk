@@ -54,7 +54,7 @@ dependencies {
     runtimeOnly "com.google.firebase:firebase-messaging:19.0.0"
     // for compile dependencies
     compileOnly "com.google.firebase:firebase-messaging:$fcmCompileVersion"
-    implementation project(path: ':core')
+    api project(path: ':core')
     testImplementation "com.google.firebase:firebase-messaging:$fcmCompileVersion"
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
