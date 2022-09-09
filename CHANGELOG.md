@@ -4,10 +4,24 @@
 | :-- | :-- | :-- |
 | core | イベントトラッキング機能を提供します。 | 2.20.0 |
 | inappmessaging | アプリ内メッセージ機能を提供します。 | 2.14.0 |
-| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.9.0 |
-| variables | 設定値配信機能を提供します。 | 2.3.0 |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.7.0 |
+| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.9.1 |
+| variables | 設定値配信機能を提供します。 | 2.3.1 |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.7.1 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.4.0 |
+
+# Releases - xxxx.xx.xx
+
+### Notifications 2.9.1
+** 💊FIXED**
+- 依存関係の更新によりReact Native SDKでビルドができない問題を修正しました。
+
+### Variables 2.3.1
+** 💊FIXED**
+- 依存関係の更新によりReact Native SDKでビルドができない問題を修正しました。
+
+### VisualTracking 2.7.1
+** 💊FIXED**
+- 依存関係の更新によりReact Native SDKでビルドができない問題を修正しました。
 
 # Releases - 2022.09.06
 
