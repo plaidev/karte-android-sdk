@@ -1,11 +1,17 @@
+@file:Suppress("JAVA_MODULE_DOES_NOT_EXPORT_PACKAGE", "DEPRECATION")
 package io.karte.android.gradleplugin
 
+import com.android.build.api.instrumentation.FramesComputationMode
+import com.android.build.api.instrumentation.InstrumentationScope
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.tasks.ManifestProcessorTask
+import com.sun.beans.finder.ClassFinder.findClass
 import io.karte.android.gradleplugin.visualtracking.AndroidManifestTransform
 import io.karte.android.gradleplugin.visualtracking.ByteCodeTransform
+import io.karte.android.gradleplugin.visualtracking.asm.KarteClassVisitorFactory
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
@@ -25,11 +31,29 @@ class KartePlugin : Plugin<Project> {
         }
         logger.debug("Karte plugin applied")
         val android: AppExtension = project.extensions.findByName("android") as AppExtension
-        android.registerTransform(
-            ByteCodeTransform(
-                project
+
+        val version = findClass("com.android.Version").getField("ANDROID_GRADLE_PLUGIN_VERSION").get(null) as String
+        val agpVersion = AGPVersion.fromVersionString(version)
+
+        if (agpVersion < AGPVersion.VERSION_7_2_2) {
+            logger.debug("Use Transform API")
+            android.registerTransform(
+                ByteCodeTransform(
+                    project
+                )
             )
-        )
+        } else {
+            logger.debug("Use ASM")
+            val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
+            androidComponents.onVariants { variant ->
+                variant.transformClassesWith(
+                    KarteClassVisitorFactory::class.java,
+                    InstrumentationScope.ALL
+                ) { }
+                @Suppress("UnstableApiUsage")
+                variant.setAsmFramesComputationMode(FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS)
+            }
+        }
 
         // Based on https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration?hl=ja#variant_output
         android.applicationVariants.all { variant ->

@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package io.karte.android.gradleplugin.visualtracking
 
 import com.android.SdkConstants
