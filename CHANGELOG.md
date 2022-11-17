@@ -7,7 +7,15 @@
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.9.1 |
 | variables | 設定値配信機能を提供します。 | 2.3.1 |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.7.1 |
-| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.4.0 |
+| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.0 |
+
+# Releases - xxxx.xx.xx
+
+### Karte Gradle Plugin 2.5.0
+** 💊FIXED **
+- Android Gradle Plugin 8.0以降に対応しました。
+- `androidx.navigation`ライブラリを参照しているとビルドできない不具合を修正しました。（[issue](https://github.com/plaidev/karte-android-sdk/issues/19))
+   - 解消するにはAndroid Gradle Pluginを7.2.2以降にする必要があります。
 
 # Releases - 2022.09.09
 
