@@ -26,7 +26,7 @@ data class AGPVersion(
     }
 
     companion object {
-        val VERSION_7_2_2 = AGPVersion(7, 2, 2)
+        val VERSION_7_0_0 = AGPVersion(7, 0, 0)
 
         private val versionPattern = Regex(
             """(0|[1-9]\d*)?(?:\.)?(0|[1-9]\d*)?(?:\.)?(0|[1-9]\d*)?(?:-([\dA-z\-]+(?:\.[\dA-z\-]+)*))?(?:\+([\dA-z\-]+(?:\.[\dA-z\-]+)*))?"""

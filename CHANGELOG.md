@@ -15,7 +15,8 @@
 ** 💊FIXED **
 - Android Gradle Plugin 8.0以降に対応しました。
 - `androidx.navigation`ライブラリを参照しているとビルドできない不具合を修正しました。（[issue](https://github.com/plaidev/karte-android-sdk/issues/19))
-   - 解消するにはAndroid Gradle Pluginを7.2.2以降にする必要があります。
+   - 解消するにはAndroid Gradle Pluginを7.0.0以降にする必要があります。
+- Kotlin 1.7.20 で一部の操作ログが送信されない不具合を修正しました。
 
 # Releases - 2022.09.09
 

@@ -35,7 +35,7 @@ class KartePlugin : Plugin<Project> {
         val version = findClass("com.android.Version").getField("ANDROID_GRADLE_PLUGIN_VERSION").get(null) as String
         val agpVersion = AGPVersion.fromVersionString(version)
 
-        if (agpVersion < AGPVersion.VERSION_7_2_2) {
+        if (agpVersion < AGPVersion.VERSION_7_0_0) {
             logger.debug("Use Transform API")
             android.registerTransform(
                 ByteCodeTransform(

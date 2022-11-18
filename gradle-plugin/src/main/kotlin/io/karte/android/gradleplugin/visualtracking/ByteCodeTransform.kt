@@ -228,7 +228,7 @@ class ByteCodeTransform(private val project: Project) : Transform() {
         ctClass.declaredMethods
             .filter { it.modifiers and AccessFlag.ABSTRACT == 0 }
             .forEach { method ->
-                if (ModificationLambdaSpecification.isSatisfied(method)) {
+                if (ModificationLambdaSpecification.isSatisfied(method.name + method.signature)) {
                     modificationOperation.add(ModificationExec.Operation.Lambda(method))
                 } else {
                     val modifications = METHOD_SIG_TO_MOD_LIST[method.name + method.signature]

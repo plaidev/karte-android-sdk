@@ -6,6 +6,8 @@ import com.android.build.api.instrumentation.ClassData
 import com.android.build.api.instrumentation.InstrumentationParameters
 import io.karte.android.gradleplugin.logger
 import io.karte.android.gradleplugin.visualtracking.METHOD_SIG_TO_MOD_LIST
+import io.karte.android.gradleplugin.visualtracking.Modification
+import io.karte.android.gradleplugin.visualtracking.ModificationLambdaSpecification
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -30,6 +32,7 @@ abstract class KarteClassVisitorFactory : AsmClassVisitorFactory<Instrumentation
 }
 
 class KarteClassVisitor(private val classData: ClassData, private val apiVersion: Int, classVisitor: ClassVisitor) : ClassVisitor(apiVersion, classVisitor) {
+
     override fun visitMethod(
         access: Int,
         name: String?,
@@ -39,48 +42,59 @@ class KarteClassVisitor(private val classData: ClassData, private val apiVersion
     ): MethodVisitor {
         val methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions)
 
-        if (isInstrumentable(name, descriptor)) {
-            logger.debug("Hook ${classData.className} $name$descriptor")
-            return KarteMethodVisitor(classData, apiVersion, methodVisitor, access, name, descriptor)
+        if (KarteEventListenerMethodVisitor.isInstrumentable(classData, name, descriptor)) {
+            return KarteEventListenerMethodVisitor(classData, apiVersion, methodVisitor, access, name, descriptor)
+        }
+        if (KarteLambdaMethodVisitor.isInstrumentable(name, descriptor)) {
+            return KarteLambdaMethodVisitor(classData, apiVersion, methodVisitor, access, name, descriptor)
         }
 
         return methodVisitor
     }
+}
 
-    private fun isInstrumentable(name: String?, descriptor: String?): Boolean {
-        name ?: return false
-        descriptor ?: return false
+class KarteEventListenerMethodVisitor(private val classData: ClassData, apiVersion: Int, methodVisitor: MethodVisitor, access: Int, name: String?, private val descriptor: String?) : AdviceAdapter(apiVersion, methodVisitor, access, name, descriptor) {
 
-        return isInstrumentableWithInterfaceCondition(name, descriptor) ||
-            isInstrumentableWithLambdaCondition(name, descriptor)
+    override fun onMethodEnter() {
+        logger.debug("Hook ${classData.className} $name$descriptor")
+        val modification = findModification(classData, name, descriptor)
+            ?: throw RuntimeException(
+                "Failed to hook for ${classData.className} $name $descriptor"
+            )
+
+        visitLdcInsn(modification.name)
+        loadArgArray()
+        visitMethodInsn(Opcodes.INVOKESTATIC, "io/karte/android/visualtracking/internal/VTHook", "hookAction", "(Ljava/lang/String;[Ljava/lang/Object;)V", false)
     }
 
-    private fun isInstrumentableWithInterfaceCondition(name: String, descriptor: String): Boolean {
-        return METHOD_SIG_TO_MOD_LIST[name + descriptor] != null
-    }
-
-    private fun isInstrumentableWithLambdaCondition(name: String, descriptor: String): Boolean {
-        if (!name.contains(Regex("\\\$lambda-[0-9]"))) {
-            return false
+    companion object {
+        private fun findModification(classData: ClassData, name: String?, descriptor: String?): Modification? {
+            val modifications = METHOD_SIG_TO_MOD_LIST[name + descriptor]
+            return modifications?.find { modification ->
+                (classData.superClasses + classData.interfaces)
+                    .find { superClass ->
+                        "$superClass#$name" == modification.name
+                    } != null
+            }
         }
-        return descriptor.contains(Regex("\\(.*Landroid/view/View;.*\\)"))
+
+        fun isInstrumentable(classData: ClassData, name: String?, descriptor: String?): Boolean {
+            return findModification(classData, name, descriptor) != null
+        }
     }
 }
 
-class KarteMethodVisitor(private val classData: ClassData, apiVersion: Int, methodVisitor: MethodVisitor, access: Int, name: String?, private val descriptor: String?) : AdviceAdapter(apiVersion, methodVisitor, access, name, descriptor) {
+class KarteLambdaMethodVisitor(private val classData: ClassData, apiVersion: Int, methodVisitor: MethodVisitor, access: Int, name: String?, private val descriptor: String?) : AdviceAdapter(apiVersion, methodVisitor, access, name, descriptor) {
+
     override fun onMethodEnter() {
-        val modifications = METHOD_SIG_TO_MOD_LIST[name + descriptor]
-
-        val modification = modifications?.find { modification ->
-            classData.interfaces.find { `interface` ->
-                "${`interface`}#$name" == modification.name
-            } != null
-        }
-
-        val trackingName = modification?.name ?: "${classData.className}#$name"
-
-        visitLdcInsn(trackingName)
+        logger.debug("Hook ${classData.className} $name$descriptor")
         loadArgArray()
-        visitMethodInsn(Opcodes.INVOKESTATIC, "io/karte/android/visualtracking/internal/VTHook", "hookAction", "(Ljava/lang/String;[Ljava/lang/Object;)V", false)
+        visitMethodInsn(Opcodes.INVOKESTATIC, "io/karte/android/visualtracking/internal/VTHook", "hookDynamicInvoke", "([Ljava/lang/Object;)V", false)
+    }
+
+    companion object {
+        fun isInstrumentable(name: String?, descriptor: String?): Boolean {
+            return ModificationLambdaSpecification.isSatisfied(name + descriptor)
+        }
     }
 }
