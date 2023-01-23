@@ -257,6 +257,18 @@ class SetupTest {
         }
 
         @Test
+        fun apiKey_リソースまたはconfig経由で設定されること() {
+            val expected = if (pattern == SetupPattern.FROM_RESOURCE) {
+                setup()
+                application.getString(R.string.karte_api_key)
+            } else {
+                setup(Config.Builder().apply { apiKey = "test_api_key" })
+                "test_api_key"
+            }
+            assertThat(KarteApp.self.config.apiKey).isEqualTo(expected)
+        }
+
+        @Test
         fun baseUrl_指定したendpointに対してリクエストが行われること() {
             setup()
             Robolectric.buildActivity(Activity::class.java).create()

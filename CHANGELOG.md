@@ -2,7 +2,7 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
-| core | イベントトラッキング機能を提供します。 | 2.20.0 |
+| core | イベントトラッキング機能を提供します。 | 2.21.0 |
 | inappmessaging | アプリ内メッセージ機能を提供します。 | 2.14.0 |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.9.1 |
 | variables | 設定値配信機能を提供します。 | 2.3.1 |
@@ -17,6 +17,13 @@
 - `androidx.navigation`ライブラリを参照しているとビルドできない不具合を修正しました。（[issue](https://github.com/plaidev/karte-android-sdk/issues/19))
    - 解消するにはAndroid Gradle Pluginを7.0.0以降にする必要があります。
 - Kotlin 1.7.20 で一部の操作ログが送信されない不具合を修正しました。
+
+# Releases - xxxx.xx.xx
+
+### Core 2.21.0
+** 🎉 FEATURE**
+- KARTEプロジェクトのAPIキーをSDKに設定できるようになりました。
+  - Inboxモジュールを使用する場合のみ設定が必要です。
 
 # Releases - 2022.09.09
 
