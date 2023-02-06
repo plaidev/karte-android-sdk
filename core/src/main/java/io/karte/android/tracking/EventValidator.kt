@@ -123,8 +123,7 @@ internal object EventValidator {
                 }
             }
             BaseEventName.Identify.value -> {
-                val userId = values.optString("user_id")
-                if (userId.isEmpty()) {
+                if (values.has("user_id") && values.optString("user_id").isEmpty()) {
                     return true
                 }
             }
