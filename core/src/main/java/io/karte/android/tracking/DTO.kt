@@ -28,16 +28,25 @@ interface DTO<T> {
  * @property[shortenId] shorten_id フィールド
  * @property[type] type フィールド
  * @property[content] content フィールド
+ * @property[noAction] no_action フィールド
+ * @property[reason] reason フィールド
+ * @property[responseTimestamp] response_timestamp フィールド
  */
 data class Action<T : DTO<T>>(
     var shortenId: String? = null,
     var type: String? = null,
-    var content: T? = null
+    var content: T? = null,
+    var noAction: Boolean? = null,
+    var reason: String? = null,
+    var responseTimestamp: String? = null
 ) : DTO<Action<T>> {
     override fun load(jsonObject: JSONObject?): Action<T> = apply {
         shortenId = jsonObject?.optString("shorten_id")
         type = jsonObject?.optString("type")
         content = content?.load(jsonObject?.optJSONObject("content"))
+        noAction = jsonObject?.optBoolean("no_action")
+        reason = jsonObject?.optString("reason")
+        responseTimestamp = jsonObject?.optString("response_timestamp")
     }
 }
 
@@ -54,5 +63,17 @@ data class Campaign(
     override fun load(jsonObject: JSONObject?): Campaign = apply {
         campaignId = jsonObject?.optString("_id")
         serviceActionType = jsonObject?.optString("service_action_type")
+    }
+}
+
+/**
+ * アクションのトリガー情報を保持するデータクラスです。
+ * @property[eventHashes] event_hashes フィールド
+ */
+data class Trigger(
+    var eventHashes: String? = null
+) : DTO<Trigger> {
+    override fun load(jsonObject: JSONObject?): Trigger = apply {
+        eventHashes = jsonObject?.optString("event_hashes")
     }
 }

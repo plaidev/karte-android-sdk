@@ -121,18 +121,35 @@ fun createMessage(
     campaignId: String = "sample_campaign",
     shortenId: String = "sample_shorten",
     content: JSONObject = JSONObject(),
-    pluginType: String = "webpopup"
+    pluginType: String = "webpopup",
+    responseTimestamp: String = "sample_response_timestamp",
+    noAction: Boolean? = null,
+    reason: String? = null,
+    triggerEventHash: String = "sample_trigger_event_hash"
 ): JSONObject {
     val action = JSONObject()
         .put("campaign_id", campaignId)
         .put("shorten_id", shortenId)
         .put("plugin_type", pluginType)
         .put("content", content)
+        .put("response_timestamp", responseTimestamp)
+    noAction?.let {
+        action.put("no_action", it)
+    }
+    reason?.let {
+        action.put("reason", it)
+    }
+
     val campaign = JSONObject()
         .put("_id", campaignId)
         .put("service_action_type", pluginType)
+    val trigger = JSONObject()
+        .put("event_hashes", triggerEventHash)
 
-    return JSONObject().put("action", action).put("campaign", campaign)
+    return JSONObject()
+        .put("action", action)
+        .put("campaign", campaign)
+        .put("trigger", trigger)
 }
 
 fun createControlGroupMessage(

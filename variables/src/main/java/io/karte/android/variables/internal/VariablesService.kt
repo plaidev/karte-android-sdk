@@ -29,6 +29,7 @@ import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.Values
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
+import io.karte.android.utilities.merge
 import io.karte.android.utilities.toValues
 import io.karte.android.variables.BuildConfig
 import io.karte.android.variables.FetchCompletion
@@ -95,15 +96,63 @@ internal class VariablesService : Library, ActionModule, UserModule {
             variable.shortenId ?: return@forEach
             if (alreadySentCampaignIds.contains(variable.campaignId)) return@forEach
             alreadySentCampaignIds.add(variable.campaignId)
-            Tracker.track(
-                MessageEvent(
-                    type,
-                    variable.campaignId,
-                    variable.shortenId,
-                    values
-                )
+            track(
+                type,
+                variable.campaignId,
+                variable.shortenId,
+                values,
+                variable.timestamp,
+                variable.eventHash
             )
         }
+    }
+
+    private fun track(type: MessageEventType, campaignId: String, shortenId: String, values: Values?, timestamp: String?, eventHash: String?) {
+        var base = (values ?: mapOf()).merge(mapOf(
+            "message" to mapOf(
+                "frequency_type" to "access"
+            )
+        ))
+
+        timestamp?.let {
+            base = base.merge(mapOf(
+                "message" to mapOf(
+                    "response_id" to "${it}_$shortenId",
+                    "response_timestamp" to it
+                )
+            ))
+        }
+
+        eventHash?.let {
+            base = base.merge(mapOf(
+                "message" to mapOf(
+                    "trigger" to mapOf(
+                        "event_hashes" to eventHash
+                    )
+                )
+            ))
+        }
+
+        Tracker.track(MessageEvent(type, campaignId, shortenId, base))
+    }
+    private fun trackReady(message: VariableMessage) {
+        val campaignId = message.campaign.campaignId ?: return
+        val shortenId = message.action.shortenId ?: return
+
+        val noAction = message.action.noAction ?: false
+        val values = mutableMapOf<String, Any>("no_action" to noAction)
+        if (noAction) {
+            message.action.reason?.let { values["reason"] = it }
+        }
+
+        track(
+            MessageEventType.Ready,
+            campaignId,
+            shortenId,
+            values,
+            message.action.responseTimestamp,
+            message.trigger.eventHashes
+        )
     }
 
     //region Libraary
@@ -136,25 +185,22 @@ internal class VariablesService : Library, ActionModule, UserModule {
         messages.forEach messages@{ message ->
             val shortenId = message.action.shortenId?.let { it } ?: return@messages
             val campaignId = message.campaign.campaignId?.let { it } ?: return@messages
+
             if (!message.isControlGroup) {
                 message.action.content?.inlinedVariables?.forEach variables@{ inlinedVariable ->
                     val name = inlinedVariable.name ?: return@variables
                     val value = inlinedVariable.value ?: return@variables
+                    val timestamp = message.action.responseTimestamp
+                    val eventHash = message.trigger.eventHashes
                     Logger.d(
                         LOG_TAG,
                         "Write variable: $name. campaignId=$campaignId, shortenId=$shortenId"
                     )
-                    repository.put(name, Variable(name, campaignId, shortenId, value).serialize())
+                    repository.put(name, Variable(name, campaignId, shortenId, value, timestamp, eventHash).serialize())
                 }
             }
 
-            Tracker.track(
-                MessageEvent(
-                    MessageEventType.Ready,
-                    campaignId,
-                    shortenId
-                )
-            )
+            trackReady(message)
         }
     }
 

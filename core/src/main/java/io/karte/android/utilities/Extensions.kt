@@ -141,3 +141,22 @@ fun JSONObject.toValues(): Values {
 fun Values.format(): Values {
     return mapValues { it.value.format() }.filterNotNull()
 }
+
+fun Values.merge(other: Values): Values {
+    return mergeInternal(toMutableMap(), other.toMap())
+}
+
+private fun mergeInternal(base: MutableMap<String, Any>, additional: Map<String, Any>): Map<String, Any> {
+    for ((k, av) in additional) {
+        val tv = base[k]
+        if (tv == null) {
+            base[k] = av
+        } else if (tv is Map<*, *> && av is Map<*, *>) {
+            @Suppress("UNCHECKED_CAST")
+            base[k] = mergeInternal((tv as Map<String, Any>).toMutableMap(), av as Map<String, Any>)
+        } else {
+            base[k] = av
+        }
+    }
+    return base
+}

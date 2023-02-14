@@ -16,6 +16,7 @@
 package io.karte.android.tracking
 
 import io.karte.android.utilities.format
+import io.karte.android.utilities.merge
 import io.karte.android.utilities.toMap
 import io.karte.android.utilities.toValues
 import org.json.JSONObject
@@ -219,7 +220,13 @@ class MessageEvent(
     val shortenId: String,
     values: Values? = null
 ) : Event(CustomEventName(type.eventNameStr), valuesOf(values) {
-    this["message"] = mapOf("campaign_id" to campaignId, "shorten_id" to shortenId)
+    val merged = merge(mapOf(
+        "message" to mapOf(
+            "campaign_id" to campaignId,
+            "shorten_id" to shortenId
+        )
+    ))
+    putAll(merged)
 })
 
 /**各イベント名を示すインターフェースです。*/
