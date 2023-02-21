@@ -15,7 +15,7 @@
 //
 package io.karte.android.unit
 
-import io.karte.android.parseBody
+import io.karte.android.test_lib.parseBody
 import io.karte.android.utilities.gzip
 import io.karte.android.utilities.http.CONTENT_ENCODING_GZIP
 import io.karte.android.utilities.http.CONTENT_TYPE_JSON

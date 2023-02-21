@@ -13,16 +13,15 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-package io.karte.android
+package io.karte.android.test_lib
 
 import android.content.pm.PackageInfo
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
+import io.karte.android.KarteApp
 import io.karte.android.core.logger.LogLevel
-import io.karte.android.shadow.CustomShadowWebView
-import io.karte.android.utilities.connectivity.Connectivity
-import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
+import io.karte.android.test_lib.shadow.CustomShadowWebView
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -30,6 +29,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
+import org.robolectric.shadows.ShadowNetworkCapabilities
 import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricTestRunner::class)
@@ -44,8 +44,7 @@ abstract class RobolectricTestCase {
         ShadowLog.stream = System.out
 
         // make online
-        mockkObject(Connectivity)
-        every { Connectivity.isOnline(any()) } returns true
+        setOnline()
 
         KarteApp.setLogLevel(LogLevel.VERBOSE)
 
@@ -66,6 +65,13 @@ abstract class RobolectricTestCase {
 
     @After
     fun after() {
-        unmockkObject(Connectivity)
+    }
+
+    private fun setOnline() {
+        val connectivityManager = application.getSystemService(ConnectivityManager::class.java)
+        val nc: NetworkCapabilities = ShadowNetworkCapabilities.newInstance()
+        shadowOf(nc).addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+
+        shadowOf(connectivityManager).setNetworkCapabilities(connectivityManager.activeNetwork, nc)
     }
 }

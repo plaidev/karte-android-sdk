@@ -17,11 +17,11 @@ package io.karte.android.notifications.integration
 
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
-import io.karte.android.TrackerRequestDispatcher
-import io.karte.android.TrackerTestCase
 import io.karte.android.notifications.proceedBufferedThreads
-import io.karte.android.parseBody
-import io.karte.android.toList
+import io.karte.android.test_lib.TrackerRequestDispatcher
+import io.karte.android.test_lib.integration.TrackerTestCase
+import io.karte.android.test_lib.parseBody
+import io.karte.android.test_lib.toList
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before

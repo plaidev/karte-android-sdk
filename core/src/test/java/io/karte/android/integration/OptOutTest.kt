@@ -18,45 +18,21 @@ package io.karte.android.integration
 import android.util.Base64
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
-import io.karte.android.RobolectricTestCase
-import io.karte.android.assertThatNoEventOccured
 import io.karte.android.core.config.Config
-import io.karte.android.core.optout.PREF_KEY_OPT_OUT
 import io.karte.android.core.usersync.UserSync
-import io.karte.android.parseBody
-import io.karte.android.proceedBufferedCall
-import io.karte.android.setupKarteApp
-import io.karte.android.tearDownKarteApp
+import io.karte.android.test_lib.assertThatNoEventOccured
+import io.karte.android.test_lib.integration.OptOutTestCase
+import io.karte.android.test_lib.parseBody
+import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.setupKarteApp
 import io.karte.android.tracking.Tracker
 import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import java.net.URLEncoder
-
-abstract class OptOutTestCase : RobolectricTestCase() {
-    val body = JSONObject().put("response", JSONObject().put("huga", "hoge"))
-
-    lateinit var server: MockWebServer
-
-    @Before
-    fun initTracker() {
-        server = MockWebServer()
-        server.start()
-    }
-
-    @After
-    fun tearDown() {
-        tearDownKarteApp()
-        val repository = KarteApp.self.repository()
-        repository.remove(PREF_KEY_OPT_OUT)
-        server.shutdown()
-    }
-}
 
 @RunWith(Enclosed::class)
 class OptOutTest {
@@ -117,6 +93,7 @@ class OptOutTest {
                             Base64.NO_WRAP
                         ), "utf8"
                     )
+
                     @Suppress("DEPRECATION")
                     val syncParam =
                         UserSync.appendUserSyncQueryParameter("https://plaid.co.jp")
@@ -171,6 +148,7 @@ class OptOutTest {
                             Base64.NO_WRAP
                         ), "utf8"
                     )
+
                     @Suppress("DEPRECATION")
                     val syncParam =
                         UserSync.appendUserSyncQueryParameter("https://plaid.co.jp")

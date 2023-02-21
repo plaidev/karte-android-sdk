@@ -17,14 +17,14 @@ package io.karte.android.notifications.integration
 
 import com.google.common.truth.Truth
 import io.karte.android.KarteApp
-import io.karte.android.TrackerTestCase
-import io.karte.android.assertThatNoEventOccured
 import io.karte.android.notifications.internal.TokenRegistrar
 import io.karte.android.notifications.manager
 import io.karte.android.notifications.registerFCMToken
 import io.karte.android.notifications.setPermission
-import io.karte.android.parseBody
-import io.karte.android.proceedBufferedCall
+import io.karte.android.test_lib.assertThatNoEventOccured
+import io.karte.android.test_lib.integration.TrackerTestCase
+import io.karte.android.test_lib.parseBody
+import io.karte.android.test_lib.proceedBufferedCall
 import okhttp3.mockwebserver.MockResponse
 import org.json.JSONObject
 import org.junit.Test
@@ -34,8 +34,7 @@ import kotlin.test.assertNotNull
 
 private fun TrackerTestCase.enqueue() {
     server.enqueue(
-        MockResponse().setBody(body.toString())
-            .addHeader("Content-Type", "text/html; charset=utf-8")
+        MockResponse().setBody(body.toString()).addHeader("Content-Type", "text/html; charset=utf-8")
     )
 }
 
@@ -59,12 +58,8 @@ class TokenEventTest {
                 val event = tokenEvent()
                 assertNotNull(event, "plugin_native_app_identifyがtrackサーバに送信されること")
                 val eventValues = event.getJSONObject("values")
-                Truth.assertWithMessage("FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること")
-                    .that(eventValues.getString("fcm_token"))
-                    .isEqualTo("dummy_fcm_token")
-                Truth.assertWithMessage("通知の可否がsubscribeパラメータとしてtrackサーバに送信されること")
-                    .that(eventValues.getString("subscribe"))
-                    .isEqualTo("true")
+                Truth.assertWithMessage("FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること").that(eventValues.getString("fcm_token")).isEqualTo("dummy_fcm_token")
+                Truth.assertWithMessage("通知の可否がsubscribeパラメータとしてtrackサーバに送信されること").that(eventValues.getString("subscribe")).isEqualTo("true")
             }
         }
 
@@ -79,12 +74,8 @@ class TokenEventTest {
                 val event = tokenEvent()
                 assertNotNull(event, "plugin_native_app_identifyがtrackサーバに送信されること")
                 val eventValues = event.getJSONObject("values")
-                Truth.assertWithMessage("FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること")
-                    .that(eventValues.getString("fcm_token"))
-                    .isEqualTo("dummy_fcm_token")
-                Truth.assertWithMessage("通知の可否がsubscribeパラメータとしてtrackサーバに送信されること")
-                    .that(eventValues.getString("subscribe"))
-                    .isEqualTo("false")
+                Truth.assertWithMessage("FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること").that(eventValues.getString("fcm_token")).isEqualTo("dummy_fcm_token")
+                Truth.assertWithMessage("通知の可否がsubscribeパラメータとしてtrackサーバに送信されること").that(eventValues.getString("subscribe")).isEqualTo("false")
             }
         }
     }

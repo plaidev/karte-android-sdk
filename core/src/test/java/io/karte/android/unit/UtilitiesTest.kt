@@ -15,7 +15,7 @@
 //
 package io.karte.android.unit
 
-import io.karte.android.shadow.CustomShadowWebView
+import io.karte.android.test_lib.shadow.CustomShadowWebView
 import io.karte.android.tracking.valuesOf
 import io.karte.android.utilities.isAscii
 import io.karte.android.utilities.merge

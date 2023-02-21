@@ -20,11 +20,11 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import io.karte.android.BuildConfig
 import io.karte.android.KarteApp
-import io.karte.android.TrackerTestCase
-import io.karte.android.eventNameTransform
-import io.karte.android.parseBody
-import io.karte.android.proceedBufferedCall
-import io.karte.android.toList
+import io.karte.android.test_lib.eventNameTransform
+import io.karte.android.test_lib.integration.TrackerTestCase
+import io.karte.android.test_lib.parseBody
+import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.toList
 import io.karte.android.tracking.Tracker
 import io.karte.android.utilities.toValues
 import okhttp3.mockwebserver.MockResponse

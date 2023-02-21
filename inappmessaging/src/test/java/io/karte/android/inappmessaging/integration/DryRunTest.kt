@@ -19,7 +19,7 @@ import android.app.Activity
 import android.widget.PopupWindow
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.inappmessaging.InAppMessaging
-import io.karte.android.integration.DryRunTestCase
+import io.karte.android.test_lib.integration.DryRunTestCase
 import org.junit.Test
 import org.robolectric.Robolectric
 

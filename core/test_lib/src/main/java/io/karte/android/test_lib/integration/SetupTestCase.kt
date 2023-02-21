@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 PLAID, Inc.
+//  Copyright 2023 PLAID, Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -13,31 +13,41 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-package io.karte.android
+package io.karte.android.test_lib.integration
 
+import android.content.Context
+import android.content.SharedPreferences
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.TrackerRequestDispatcher
+import io.karte.android.test_lib.tearDownKarteApp
 import okhttp3.mockwebserver.MockWebServer
-import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 
-abstract class TrackerTestCase : RobolectricTestCase() {
+abstract class SetupTestCase : RobolectricTestCase() {
+    var setupAppKey = "setup_appkey_1234567890123456789"
+    val advertisingId = "advertisingId"
 
     lateinit var server: MockWebServer
-
-    // val advertisingId = "advertisingId"
-    val body = JSONObject().put("response", JSONObject().put("huga", "hoge"))
+    lateinit var dispatcher: TrackerRequestDispatcher
 
     @Before
-    fun initTracker() {
+    fun init() {
         server = MockWebServer()
+        dispatcher = TrackerRequestDispatcher().also { server.dispatcher = it }
         server.start()
-
-        setupKarteApp(server)
     }
 
     @After
     fun tearDown() {
         tearDownKarteApp()
         server.shutdown()
+    }
+
+    protected fun getPreferenceEdit(): SharedPreferences.Editor {
+        return application.getSharedPreferences(
+            "io.karte.android.tracker.Data_$setupAppKey",
+            Context.MODE_PRIVATE
+        ).edit()
     }
 }

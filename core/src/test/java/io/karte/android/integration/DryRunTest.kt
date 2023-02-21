@@ -18,30 +18,14 @@ package io.karte.android.integration
 import android.webkit.WebView
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
-import io.karte.android.core.config.Config
 import io.karte.android.core.logger.LogLevel
 import io.karte.android.core.usersync.UserSync
-import io.karte.android.setupKarteApp
+import io.karte.android.test_lib.integration.DryRunTestCase
 import io.karte.android.tracking.Event
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.TrackerDelegate
 import org.json.JSONObject
-import org.junit.Before
 import org.junit.Test
-
-abstract class DryRunTestCase : SetupTestCase() {
-    @Before
-    fun setup() {
-        setupKarteApp(server, Config.Builder().isDryRun(true))
-    }
-
-    /**Queue用のスレッドが生成されていないか、serverにリクエストが飛んでないか確認.*/
-    fun assertDryRun() {
-        // TODO: テスト全体でスレッドが破棄されないためチェックできない
-        // assertThat(getThreadByName()).isNull()
-        assertThat(server.requestCount).isEqualTo(0)
-    }
-}
 
 class DryRunTest : DryRunTestCase() {
     @Test

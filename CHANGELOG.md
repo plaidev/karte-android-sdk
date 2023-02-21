@@ -9,15 +9,6 @@
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.7.1 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.0 |
 
-# Releases - 2022.11.18
-
-### Karte Gradle Plugin 2.5.0
-** 💊FIXED **
-- Android Gradle Plugin 8.0以降に対応しました。
-- `androidx.navigation`ライブラリを参照しているとビルドできない不具合を修正しました。（[issue](https://github.com/plaidev/karte-android-sdk/issues/19))
-   - 解消するにはAndroid Gradle Pluginを7.0.0以降にする必要があります。
-- Kotlin 1.7.20 で一部の操作ログが送信されない不具合を修正しました。
-
 # Releases - xxxx.xx.xx
 
 ### Core 2.21.0
@@ -30,6 +21,17 @@
 ### Variables 2.4.0
 ** 🔨CHANGED**
 - 効果測定用のイベントにフィールドを追加しました。
+
+# Releases - 2022.11.18
+
+### Karte Gradle Plugin 2.5.0
+** 💊FIXED **
+- Android Gradle Plugin 8.0以降に対応しました。
+- `androidx.navigation`ライブラリを参照しているとビルドできない不具合を修正しました。（[issue](https://github.com/plaidev/karte-android-sdk/issues/19))
+  - 解消するにはAndroid Gradle Pluginを7.0.0以降にする必要があります。
+- Kotlin 1.7.20 で一部の操作ログが送信されない不具合を修正しました。
+** 🔨CHANGED**
+- Android Gradle Plugin 3.6.0未満は非対応となりました。
 
 # Releases - 2022.09.09
 

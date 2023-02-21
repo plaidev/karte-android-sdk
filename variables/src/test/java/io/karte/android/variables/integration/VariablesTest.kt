@@ -18,15 +18,16 @@ package io.karte.android.variables.integration
 import android.os.Looper
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
-import io.karte.android.RobolectricTestCase
-import io.karte.android.assertThat
-import io.karte.android.createControlGroupMessage
-import io.karte.android.createMessage
-import io.karte.android.createMessagesResponse
-import io.karte.android.parseBody
-import io.karte.android.proceedBufferedCall
-import io.karte.android.setupKarteApp
-import io.karte.android.tearDownKarteApp
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.assertThat
+import io.karte.android.test_lib.createControlGroupMessage
+import io.karte.android.test_lib.createMessage
+import io.karte.android.test_lib.createMessagesResponse
+import io.karte.android.test_lib.parseBody
+import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.setupKarteApp
+import io.karte.android.test_lib.tearDownKarteApp
+import io.karte.android.test_lib.toList
 import io.karte.android.variables.Variable
 import io.karte.android.variables.Variables
 import okhttp3.mockwebserver.MockResponse
@@ -1245,15 +1246,6 @@ class VariablesTest {
         private val dateParam = Date()
         private val expectedDateValue = dateParam.time / 1000
 
-        private fun <E> mapJsonArrayToArrayList(
-            array: JSONArray,
-            mapper: (JSONObject) -> E
-        ): ArrayList<E> {
-            val ret: ArrayList<E> = ArrayList()
-            for (i in 0 until array.length()) ret.add(mapper(array.optJSONObject(i)))
-            return ret
-        }
-
         @Before
         override fun init() {
             super.init()
@@ -1305,7 +1297,7 @@ class VariablesTest {
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
-            val messages = mapJsonArrayToArrayList(events) { evt ->
+            val messages = events.toList().map { evt ->
                 evt.getJSONObject("values").getJSONObject("message")
             }
             val campaignIds = messages.map { it.getString("campaign_id") }
@@ -1365,7 +1357,7 @@ class VariablesTest {
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
-            val messages = mapJsonArrayToArrayList(events) { evt ->
+            val messages = events.toList().map { evt ->
                 evt.getJSONObject("values").getJSONObject("message")
             }
             val campaignIds = messages.map { it.getString("campaign_id") }

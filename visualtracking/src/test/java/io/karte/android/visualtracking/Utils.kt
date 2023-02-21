@@ -21,7 +21,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import io.karte.android.toJSONArray
+import io.karte.android.test_lib.toJSONArray
 import io.karte.android.visualtracking.internal.PairingManager
 import io.karte.android.visualtracking.internal.tracking.DefinitionList
 import io.mockk.every

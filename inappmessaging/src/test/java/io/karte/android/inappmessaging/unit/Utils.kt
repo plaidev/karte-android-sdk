@@ -17,9 +17,9 @@ package io.karte.android.inappmessaging.unit
 
 import io.karte.android.KarteApp
 import io.karte.android.core.config.Config
-import io.karte.android.createControlGroupMessage
-import io.karte.android.createMessage
 import io.karte.android.inappmessaging.internal.MessageModel
+import io.karte.android.test_lib.createControlGroupMessage
+import io.karte.android.test_lib.createMessage
 import io.karte.android.tracking.AppInfo
 import io.karte.android.tracking.CustomEventName
 import io.karte.android.tracking.Event

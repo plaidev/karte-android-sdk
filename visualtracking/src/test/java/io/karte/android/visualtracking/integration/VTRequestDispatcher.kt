@@ -15,7 +15,7 @@
 //
 package io.karte.android.visualtracking.integration
 
-import io.karte.android.TrackerRequestDispatcher
+import io.karte.android.test_lib.TrackerRequestDispatcher
 import io.karte.android.visualtracking.autoTrackDefinition
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest

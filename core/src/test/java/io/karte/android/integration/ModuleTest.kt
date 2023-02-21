@@ -19,8 +19,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import io.karte.android.KarteApp
-import io.karte.android.RobolectricTestCase
-import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.core.library.ActionModule
 import io.karte.android.core.library.DeepLinkModule
 import io.karte.android.core.library.Library
@@ -28,9 +26,11 @@ import io.karte.android.core.library.Module
 import io.karte.android.core.library.NotificationModule
 import io.karte.android.core.library.TrackModule
 import io.karte.android.core.library.UserModule
-import io.karte.android.proceedBufferedCall
-import io.karte.android.setupKarteApp
-import io.karte.android.tearDownKarteApp
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.TrackerRequestDispatcher
+import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.setupKarteApp
+import io.karte.android.test_lib.tearDownKarteApp
 import io.karte.android.tracking.Tracker
 import io.mockk.every
 import io.mockk.mockk

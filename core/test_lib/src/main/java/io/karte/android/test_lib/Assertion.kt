@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 PLAID, Inc.
+//  Copyright 2023 PLAID, Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -13,14 +13,13 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-package io.karte.android
+package io.karte.android.test_lib
 
-import com.google.common.truth.Fact.simpleFact
+import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
-import com.google.common.truth.Truth.assertAbout
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONArray
 import org.json.JSONObject
@@ -41,11 +40,11 @@ class JSONArraySubject private constructor(
     override fun isEqualTo(expected: Any?) {
         if (expected == null || actual == null) {
             if (actual != expected) {
-                failWithActual(simpleFact("Expected $actual to be $expected but was not."))
+                failWithActual(Fact.simpleFact("Expected $actual to be $expected but was not."))
             }
         }
         if (expected.toString() != actual.toString()) {
-            failWithActual(simpleFact("Expected $actual to be $expected but was not."))
+            failWithActual(Fact.simpleFact("Expected $actual to be $expected but was not."))
         }
     }
 
@@ -53,7 +52,7 @@ class JSONArraySubject private constructor(
 
         // User-defined entry point
         fun assertThat(jsonArray: JSONArray?): JSONArraySubject {
-            return assertAbout(JSONARRAY_SUBJECT_FACTORY).that(jsonArray)
+            return Truth.assertAbout(JSONARRAY_SUBJECT_FACTORY).that(jsonArray)
         }
 
         // Static method for getting the subject factory (for use with assertAbout())
@@ -79,11 +78,11 @@ class JSONObjectSubject private constructor(
     override fun isEqualTo(expected: Any?) {
         if (expected == null || actual == null) {
             if (actual != expected) {
-                failWithActual(simpleFact("Expected $actual to be $expected but was not."))
+                failWithActual(Fact.simpleFact("Expected $actual to be $expected but was not."))
             }
         }
         if (expected.toString() != actual.toString()) {
-            failWithActual(simpleFact("Expected $actual to be $expected but was not."))
+            failWithActual(Fact.simpleFact("Expected $actual to be $expected but was not."))
         }
     }
 
@@ -91,7 +90,7 @@ class JSONObjectSubject private constructor(
 
         // User-defined entry point
         fun assertThat(jsonObject: JSONObject?): JSONObjectSubject {
-            return assertAbout(JSONOBJECT_SUBJECT_FACTORY).that(jsonObject)
+            return Truth.assertAbout(JSONOBJECT_SUBJECT_FACTORY).that(jsonObject)
         }
 
         // Static method for getting the subject factory (for use with assertAbout())

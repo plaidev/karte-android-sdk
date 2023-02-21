@@ -16,8 +16,8 @@
 package io.karte.android.visualtracking.unit
 
 import com.google.common.truth.Truth.assertThat
-import io.karte.android.RobolectricTestCase
-import io.karte.android.eventNameTransform
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.eventNameTransform
 import io.karte.android.visualtracking.buildDefinitionList
 import io.karte.android.visualtracking.condition
 import io.karte.android.visualtracking.definition

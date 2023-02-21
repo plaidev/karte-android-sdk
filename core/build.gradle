@@ -2,13 +2,13 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'io.karte.android'
     compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 16
         //noinspection OldTargetApi
         targetSdkVersion 29
-        versionName version
         buildConfigField "String", "LIB_VERSION", "\"$version\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -21,10 +21,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    lintOptions {
-        warningsAsErrors true
-        lintConfig file('../lint.xml')
-    }
+
     testOptions {
         unitTests {
             includeAndroidResources = true
@@ -34,7 +31,10 @@ android {
         }
     }
     kotlinOptions.allWarningsAsErrors = true
-    testOptions.unitTests.includeAndroidResources = true
+    lint {
+        lintConfig file('../lint.xml')
+        warningsAsErrors true
+    }
 }
 
 dependencies {
@@ -51,15 +51,8 @@ dependencies {
     testImplementation "org.robolectric:robolectric:4.8"
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.8.0'
     testImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    testImplementation project(':test_lib')
 }
-
-task testJar(type: Jar, dependsOn: "assembleDebugUnitTest") {
-    classifier = 'test'
-    from 'build/tmp/kotlin-classes/debugUnitTest'
-}
-
-configurations.maybeCreate('testRuntime')
-artifacts.add('testRuntime', testJar)
 
 afterEvaluate {
     if (rootProject.hasProperty("afterConfigurate")) {

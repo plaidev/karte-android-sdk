@@ -18,10 +18,10 @@ package io.karte.android.notifications.integration
 import android.content.Intent
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.messaging.RemoteMessage
-import io.karte.android.integration.DryRunTestCase
 import io.karte.android.notifications.MessageHandler
 import io.karte.android.notifications.Notifications
 import io.karte.android.notifications.internal.wrapper.KEY_PUSH_NOTIFICATION_FLAG
+import io.karte.android.test_lib.integration.DryRunTestCase
 import org.junit.Test
 
 class DryRunTest : DryRunTestCase() {

@@ -18,7 +18,7 @@ package io.karte.android.inappmessaging.unit
 import io.karte.android.inappmessaging.internal.IAMPresenter
 import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.inappmessaging.internal.Window
-import io.karte.android.shadow.CustomShadowWebView
+import io.karte.android.test_lib.shadow.CustomShadowWebView
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify

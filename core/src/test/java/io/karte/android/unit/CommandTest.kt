@@ -18,9 +18,9 @@ package io.karte.android.unit
 import android.content.Intent
 import android.net.Uri
 import io.karte.android.KarteApp
-import io.karte.android.RobolectricTestCase
-import io.karte.android.setupKarteApp
-import io.karte.android.tearDownKarteApp
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.setupKarteApp
+import io.karte.android.test_lib.tearDownKarteApp
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before

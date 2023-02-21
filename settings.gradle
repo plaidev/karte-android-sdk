@@ -1,5 +1,5 @@
 include ':core', ':inappmessaging', ':notifications', ':variables', ':visualtracking'
-include ':sample_java', ':sample_kotlin'
+include ':sample_java', ':sample_kotlin', ':test_lib'
 rootProject.name='Karte'
 includeBuild('gradle-plugin') {
     dependencySubstitution {
@@ -7,5 +7,6 @@ includeBuild('gradle-plugin') {
     }
 }
 
+project(':test_lib').projectDir = new File(settingsDir, 'core/test_lib')
 project(':sample_java').projectDir = new File(settingsDir, 'examples/sample_java')
 project(':sample_kotlin').projectDir = new File(settingsDir, 'examples/sample_kotlin')

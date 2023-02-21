@@ -17,16 +17,16 @@ package io.karte.android.integration
 
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
-import io.karte.android.application
 import io.karte.android.core.config.Config
 import io.karte.android.core.logger.Clock
 import io.karte.android.core.logger.FileAppender
 import io.karte.android.core.logger.LogEvent
 import io.karte.android.core.logger.LogLevel
-import io.karte.android.pipeLog
-import io.karte.android.proceedBufferedCall
-import io.karte.android.tearDownKarteApp
-import io.karte.android.unpipeLog
+import io.karte.android.test_lib.application
+import io.karte.android.test_lib.pipeLog
+import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.tearDownKarteApp
+import io.karte.android.test_lib.unpipeLog
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject

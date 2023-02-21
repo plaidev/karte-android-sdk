@@ -18,14 +18,14 @@ package io.karte.android.notifications.integration
 
 import android.app.Activity
 import com.google.common.truth.Truth.assertThat
-import io.karte.android.RobolectricTestCase
-import io.karte.android.TrackerRequestDispatcher
 import io.karte.android.core.config.Config
 import io.karte.android.notifications.Notifications
 import io.karte.android.notifications.NotificationsConfig
 import io.karte.android.notifications.proceedBufferedThreads
-import io.karte.android.setupKarteApp
-import io.karte.android.tearDownKarteApp
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.TrackerRequestDispatcher
+import io.karte.android.test_lib.setupKarteApp
+import io.karte.android.test_lib.tearDownKarteApp
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
 import org.junit.After

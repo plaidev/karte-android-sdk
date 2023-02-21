@@ -19,8 +19,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
 import com.google.common.truth.Truth.assertThat
-import io.karte.android.RobolectricTestCase
-import io.karte.android.proceedBufferedCall
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.proceedBufferedCall
 import io.karte.android.tracking.queue.RateLimit
 import io.karte.android.tracking.queue.getCurrentTimeMillis
 import io.mockk.every
