@@ -90,18 +90,18 @@ jobs:
                 -d build_parameters[RELEASE_BRANCH]=${CIRCLE_BRANCH} \
                 ${UI_TEST_ENDPOINT}
 
-  generate_docs:
+  publish_docs:
     executor:
       name: build
     steps:
       - checkout
       - setup_gradle
       - run:
-          name: Generate docs
+          name: Generate and Publish docs
           command: |
             git config --global user.name "${GITHUB_USER_NAME}"
             git config --global user.email "${GITHUB_USER_EMAIL}"
-            ./gradlew generateDocs
+            ./gradlew publishDocs
 
   publish:
     executor:
@@ -142,7 +142,7 @@ workflows:
             branches:
               only:
                 - develop
-      - generate_docs:
+      - publish_docs:
           filters:
             branches:
               only:

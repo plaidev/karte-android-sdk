@@ -23,7 +23,7 @@ fun getThreadByName(threadName: String = InternalUtils.threadName): Thread? {
     // NOTE: idがincrementalに振られることを信頼している
     return Thread.getAllStackTraces().keys.filter {
         it.name == threadName
-    }.maxBy { it.id }
+    }.maxByOrNull { it.id }
 }
 
 private fun getLooperByThreadName(threadName: String): Looper? {

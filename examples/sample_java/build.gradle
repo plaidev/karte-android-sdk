@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'com.google.gms:google-services:4.3.3'
@@ -12,7 +12,6 @@ apply plugin: 'io.karte.android'
 
 android {
     compileSdkVersion 31
-
 
     defaultConfig {
         applicationId "io.karte.tracker_sample"

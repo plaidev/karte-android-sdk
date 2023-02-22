@@ -74,7 +74,7 @@ internal class FileAppender internal constructor(threadName: String = THREAD_NAM
             val date = Clock.now()
             val prefix = date.asPrefix()
             return logDir?.let { dir ->
-                dir.files().filter { it.name.startsWith(prefix) }.maxBy { it.name }
+                dir.files().filter { it.name.startsWith(prefix) }.maxByOrNull { it.name }
                     ?: File(dir, "${prefix}_${date.time}.log")
             }
         }
@@ -99,7 +99,7 @@ internal class FileAppender internal constructor(threadName: String = THREAD_NAM
         val date = Clock.now()
         val tid = Process.myTid()
         handler.post {
-            buffer.appendln(Layout.layout(date, tid, log))
+            buffer.appendLine(Layout.layout(date, tid, log))
             if (buffer.length > BUFFER_SIZE) write()
         }
     }

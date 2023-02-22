@@ -49,9 +49,8 @@ class MainActivity : AppCompatActivity() {
         val user_id = edit_user_id.getText().toString()
         if (user_id.length > 0) {
             val values = HashMap<String, Any>()
-            values["user_id"] = user_id
             values["is_app_user"] = true
-            Tracker.identify(values)
+            Tracker.identify(user_id, values)
         } else {
             Log.w(TAG, "no user_id")
         }

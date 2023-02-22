@@ -135,7 +135,7 @@ class Command
 
   def initialize
     @parser = OptionParser.new do |opt|
-      opt.program_name = 'generate_docs'
+      opt.program_name = 'publish_docs'
       opt.version = '0.0.1'
       opt.banner = "Usage: #{opt.program_name} [options]"
 

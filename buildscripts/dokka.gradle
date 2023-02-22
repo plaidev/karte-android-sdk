@@ -7,7 +7,7 @@ task dokkaModuleMd(type: Copy, group: 'documentation') {
     filteringCharset = 'UTF-8'
 }
 
-task generateDocs(type: Exec, group: 'documentation') {
+task publishDocs(type: Exec, group: 'documentation') {
     commandLine "ruby", "scripts/publish_docs.rb"
     standardOutput = new ByteArrayOutputStream()
     ext.output = {
