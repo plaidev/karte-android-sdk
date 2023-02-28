@@ -26,8 +26,8 @@ import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.inappmessaging.internal.ParentView
 import io.karte.android.inappmessaging.internal.javascript.State
-import io.karte.android.inappmessaging.proceedUiBufferedCall
 import io.karte.android.test_lib.application
+import io.karte.android.test_lib.proceedUiBufferedCall
 import io.karte.android.test_lib.shadow.CustomShadowWebView
 import io.karte.android.test_lib.shadow.customShadowOf
 import io.karte.android.tracking.Tracker

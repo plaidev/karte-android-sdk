@@ -53,3 +53,8 @@ fun proceedBufferedCall(thread: Thread? = null, threadName: String? = null) {
     println("proceedBufferedCall: $name")
     Shadows.shadowOf(looper).runToEndOfTasks()
 }
+
+/** ui thread にpostした内容を実行 */
+fun proceedUiBufferedCall() {
+    ShadowLooper.idleMainLooper()
+}

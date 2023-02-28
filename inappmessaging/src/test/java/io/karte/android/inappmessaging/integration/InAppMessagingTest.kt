@@ -32,7 +32,6 @@ import io.karte.android.KarteApp
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.IAMWindow
-import io.karte.android.inappmessaging.proceedUiBufferedCall
 import io.karte.android.test_lib.RobolectricTestCase
 import io.karte.android.test_lib.assertThat
 import io.karte.android.test_lib.createControlGroupMessage
@@ -42,6 +41,7 @@ import io.karte.android.test_lib.createMessageResponse
 import io.karte.android.test_lib.createMessagesResponse
 import io.karte.android.test_lib.parseBody
 import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.proceedUiBufferedCall
 import io.karte.android.test_lib.setupKarteApp
 import io.karte.android.test_lib.shadow.CustomShadowWebView
 import io.karte.android.test_lib.tearDownKarteApp

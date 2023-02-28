@@ -18,6 +18,7 @@ package io.karte.android.test_lib.integration
 import io.karte.android.test_lib.RobolectricTestCase
 import io.karte.android.test_lib.setupKarteApp
 import io.karte.android.test_lib.tearDownKarteApp
+import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
 import org.junit.After
@@ -28,7 +29,7 @@ abstract class TrackerTestCase : RobolectricTestCase() {
     lateinit var server: MockWebServer
 
     // val advertisingId = "advertisingId"
-    val body = JSONObject().put("response", JSONObject().put("huga", "hoge"))
+    private val body = JSONObject().put("response", JSONObject().put("huga", "hoge"))
 
     @Before
     fun initTracker() {
@@ -42,5 +43,23 @@ abstract class TrackerTestCase : RobolectricTestCase() {
     fun tearDown() {
         tearDownKarteApp()
         server.shutdown()
+    }
+
+    fun enqueueSuccessResponse() {
+        server.enqueue(
+            MockResponse().setBody(body.toString()).addHeader(
+                "Content-Type",
+                "text/html; charset=utf-8"
+            )
+        )
+    }
+
+    fun enqueueFailedResponse(status: Int) {
+        server.enqueue(
+            MockResponse().setBody(body.toString()).setResponseCode(status).addHeader(
+                "Content-Type",
+                "text/html; charset=utf-8"
+            )
+        )
     }
 }

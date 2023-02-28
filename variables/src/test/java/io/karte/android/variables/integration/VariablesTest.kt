@@ -25,6 +25,7 @@ import io.karte.android.test_lib.createMessage
 import io.karte.android.test_lib.createMessagesResponse
 import io.karte.android.test_lib.parseBody
 import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.proceedUiBufferedCall
 import io.karte.android.test_lib.setupKarteApp
 import io.karte.android.test_lib.tearDownKarteApp
 import io.karte.android.test_lib.toList
@@ -36,7 +37,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
@@ -1171,7 +1171,6 @@ class VariablesTest {
     class completionHandler : VariablesTestCase() {
 
         @Test
-        @Ignore("そもそもそんな実装されていなかったのになぜか通ってたのでスキップ。UIスレッドに戻してあげた方が親切ではある")
         fun completionHandlerがUIスレッドで実行されること() {
             enqMsgRespAndMsgOpenResp(JSONArray().put(createRemoteConfigMessage()))
 
@@ -1180,6 +1179,7 @@ class VariablesTest {
                 looper = Looper.myLooper()
             }
             proceedBufferedCall()
+            proceedUiBufferedCall()
             assertThat(looper).isEqualTo(Looper.getMainLooper())
         }
 
@@ -1200,6 +1200,7 @@ class VariablesTest {
                 value = Variables.get("hoge").string("default")
             }
             proceedBufferedCall()
+            proceedUiBufferedCall()
             assertThat(value).isEqualTo("fuga")
         }
 
@@ -1212,6 +1213,7 @@ class VariablesTest {
                 isSuccessful = it
             }
             proceedBufferedCall()
+            proceedUiBufferedCall()
             assertThat(isSuccessful).isTrue()
         }
 
@@ -1224,6 +1226,7 @@ class VariablesTest {
                 isSuccessful = it
             }
             proceedBufferedCall()
+            proceedUiBufferedCall()
             assertThat(isSuccessful).isFalse()
         }
     }

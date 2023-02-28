@@ -16,6 +16,7 @@
 package io.karte.android.integration
 
 import android.app.Activity
+import android.os.Looper
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import io.karte.android.BuildConfig
@@ -24,10 +25,10 @@ import io.karte.android.test_lib.eventNameTransform
 import io.karte.android.test_lib.integration.TrackerTestCase
 import io.karte.android.test_lib.parseBody
 import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.proceedUiBufferedCall
 import io.karte.android.test_lib.toList
 import io.karte.android.tracking.Tracker
 import io.karte.android.utilities.toValues
-import okhttp3.mockwebserver.MockResponse
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Before
@@ -65,12 +66,7 @@ class TrackerIntegrationTest {
             @Test
             fun trackイベントがサーバに送信されること() {
                 val jsonValues = createJsonValues()
-                server.enqueue(
-                    MockResponse().setBody(body.toString()).addHeader(
-                        "Content-Type",
-                        "text/html; charset=utf-8"
-                    )
-                )
+                enqueueSuccessResponse()
                 Tracker.track("buy", jsonValues.toValues())
                 proceedBufferedCall()
                 val request = server.takeRequest()
@@ -101,12 +97,7 @@ class TrackerIntegrationTest {
             @Test
             fun identifyイベントがサーバに送信されること() {
                 val jsonValues = createJsonValues()
-                server.enqueue(
-                    MockResponse().setBody(body.toString()).addHeader(
-                        "Content-Type",
-                        "text/html; charset=utf-8"
-                    )
-                )
+                enqueueSuccessResponse()
                 Tracker.identify("test_user", jsonValues.toValues())
                 proceedBufferedCall()
 
@@ -136,12 +127,7 @@ class TrackerIntegrationTest {
             @Test
             fun identifyイベントがサーバに送信されること() {
                 val jsonValues = createJsonValues()
-                server.enqueue(
-                    MockResponse().setBody(body.toString()).addHeader(
-                        "Content-Type",
-                        "text/html; charset=utf-8"
-                    )
-                )
+                enqueueSuccessResponse()
                 Tracker.identify("", jsonValues.toValues())
                 proceedBufferedCall()
 
@@ -175,12 +161,7 @@ class TrackerIntegrationTest {
             @Test
             fun identifyイベントがサーバに送信されること() {
                 val jsonValues = createJsonValues().put("user_id", "test_user")
-                server.enqueue(
-                    MockResponse().setBody(body.toString()).addHeader(
-                        "Content-Type",
-                        "text/html; charset=utf-8"
-                    )
-                )
+                enqueueSuccessResponse()
                 Tracker.identify(jsonValues.toValues())
                 proceedBufferedCall()
 
@@ -210,12 +191,7 @@ class TrackerIntegrationTest {
             @Test
             fun identifyイベントがサーバに送信されること() {
                 val jsonValues = createJsonValues().put("user_id", "")
-                server.enqueue(
-                    MockResponse().setBody(body.toString()).addHeader(
-                        "Content-Type",
-                        "text/html; charset=utf-8"
-                    )
-                )
+                enqueueSuccessResponse()
                 Tracker.identify(jsonValues.toValues())
                 proceedBufferedCall()
 
@@ -246,12 +222,7 @@ class TrackerIntegrationTest {
             @Test
             fun identifyイベントがサーバに送信されること() {
                 val jsonValues = createJsonValues()
-                server.enqueue(
-                    MockResponse().setBody(body.toString()).addHeader(
-                        "Content-Type",
-                        "text/html; charset=utf-8"
-                    )
-                )
+                enqueueSuccessResponse()
                 Tracker.identify(jsonValues.toValues())
                 proceedBufferedCall()
 
@@ -282,12 +253,7 @@ class TrackerIntegrationTest {
         @Test
         fun attributeイベントがサーバに送信されること() {
             val jsonValues = createJsonValues()
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
+            enqueueSuccessResponse()
             Tracker.attribute(jsonValues.toValues())
             proceedBufferedCall()
 
@@ -315,12 +281,7 @@ class TrackerIntegrationTest {
         class view_nameに空文字を設定した場合 : TrackerTestCase() {
             @Test
             fun viewイベントがサーバに送信されること() {
-                server.enqueue(
-                    MockResponse().setBody(body.toString()).addHeader(
-                        "Content-Type",
-                        "text/html; charset=utf-8"
-                    )
-                )
+                enqueueSuccessResponse()
                 Tracker.view("", JSONObject())
                 proceedBufferedCall()
 
@@ -341,12 +302,7 @@ class TrackerIntegrationTest {
             class titleを設定しない場合 : TrackerTestCase() {
                 @Test
                 fun viewイベントがサーバに送信されること() {
-                    server.enqueue(
-                        MockResponse().setBody(body.toString()).addHeader(
-                            "Content-Type",
-                            "text/html; charset=utf-8"
-                        )
-                    )
+                    enqueueSuccessResponse()
                     Tracker.view("test_view")
                     proceedBufferedCall()
 
@@ -369,12 +325,7 @@ class TrackerIntegrationTest {
             class titleを設定する場合 : TrackerTestCase() {
                 @Test
                 fun viewイベントがサーバに送信されること() {
-                    server.enqueue(
-                        MockResponse().setBody(body.toString()).addHeader(
-                            "Content-Type",
-                            "text/html; charset=utf-8"
-                        )
-                    )
+                    enqueueSuccessResponse()
                     Tracker.view("test_view", "fuga")
                     proceedBufferedCall()
 
@@ -401,12 +352,7 @@ class TrackerIntegrationTest {
                 @Test
                 fun タイトルがtitleパラメータとしてtrackサーバに送信されること() {
                     val jsonValues = createJsonValues()
-                    server.enqueue(
-                        MockResponse().setBody(body.toString()).addHeader(
-                            "Content-Type",
-                            "text/html; charset=utf-8"
-                        )
-                    )
+                    enqueueSuccessResponse()
                     Tracker.view("test_view", "fuga", jsonValues.toValues())
                     proceedBufferedCall()
 
@@ -442,12 +388,7 @@ class TrackerIntegrationTest {
                 @Test
                 fun タイトルがtitleパラメータとしてtrackサーバに送信されること() {
                     val jsonValues = createJsonValues()
-                    server.enqueue(
-                        MockResponse().setBody(body.toString()).addHeader(
-                            "Content-Type",
-                            "text/html; charset=utf-8"
-                        )
-                    )
+                    enqueueSuccessResponse()
                     jsonValues.put("title", "fuga")
                     Tracker.view("test_view", jsonValues.toValues())
                     proceedBufferedCall()
@@ -484,12 +425,7 @@ class TrackerIntegrationTest {
                 @Test
                 fun view_nameと同じ値がtitleパラメータとしてサーバに送信されること() {
                     val jsonValues = createJsonValues()
-                    server.enqueue(
-                        MockResponse().setBody(body.toString()).addHeader(
-                            "Content-Type",
-                            "text/html; charset=utf-8"
-                        )
-                    )
+                    enqueueSuccessResponse()
                     Tracker.view("test_view", jsonValues.toValues())
                     proceedBufferedCall()
 
@@ -523,6 +459,47 @@ class TrackerIntegrationTest {
         }
     }
 
+    class completionHandler : TrackerTestCase() {
+        @Test
+        fun completionHandlerがUIスレッドで実行されること() {
+            enqueueSuccessResponse()
+
+            var looper: Looper? = null
+            Tracker.view("test") {
+                looper = Looper.myLooper()
+            }
+            proceedBufferedCall()
+            proceedUiBufferedCall()
+            assertThat(looper).isEqualTo(Looper.getMainLooper())
+        }
+
+        @Test
+        fun リクエストに成功した場合_completionHandlerに渡されるisSuccessfulの値がtrueであること() {
+            enqueueSuccessResponse()
+
+            var isSuccessful: Boolean? = null
+            Tracker.view("test") {
+                isSuccessful = it
+            }
+            proceedBufferedCall()
+            proceedUiBufferedCall()
+            assertThat(isSuccessful).isTrue()
+        }
+
+        @Test
+        fun リクエストに失敗した場合_completionHandlerに渡されるisSuccessfulの値がfalseであること() {
+            enqueueFailedResponse(500)
+
+            var isSuccessful: Boolean? = null
+            Tracker.view("test") {
+                isSuccessful = it
+            }
+            proceedBufferedCall()
+            proceedUiBufferedCall()
+            assertThat(isSuccessful).isFalse()
+        }
+    }
+
     @RunWith(ParameterizedRobolectricTestRunner::class)
     class 再送(private val retryCount: Int) : TrackerTestCase() {
         // DispatcherKt.MAX_RETRY_COUNTの値
@@ -541,31 +518,12 @@ class TrackerIntegrationTest {
             }
         }
 
-        private fun enqueueSuccessResponse() {
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
-        }
-
         private fun enqueueFailedRetryableResponse() {
-            server.enqueue(
-                MockResponse().setBody(body.toString()).setResponseCode(500).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
+            enqueueFailedResponse(500)
         }
 
         private fun enqueueFailedUnretryableResponse() {
-            server.enqueue(
-                MockResponse().setBody(body.toString()).setResponseCode(400).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
+            enqueueFailedResponse(400)
         }
 
         @Test
@@ -602,22 +560,8 @@ class TrackerIntegrationTest {
         // DispatcherKt.MAX_RETRY_COUNTの値
         private val maxRetryCount = 3
 
-        private fun enqueueSuccessResponse() {
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
-        }
-
         private fun enqueueFailedResponse() {
-            server.enqueue(
-                MockResponse().setBody(body.toString()).setResponseCode(500).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
+            enqueueFailedResponse(500)
         }
 
         @Test
@@ -648,18 +592,8 @@ class TrackerIntegrationTest {
 
         @Before
         fun setup() {
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
+            enqueueSuccessResponse()
+            enqueueSuccessResponse()
             firstActivityController =
                 Robolectric.buildActivity(Activity::class.java).create().start().resume()
             // flush native_app_install and native_app_open
@@ -670,18 +604,8 @@ class TrackerIntegrationTest {
 
         @Test
         fun eventsがviewイベントにより表示画面毎にまとめられて全て送られること() {
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
+            enqueueSuccessResponse()
+            enqueueSuccessResponse()
 
             Tracker.track("frame1_a")
             Tracker.track("frame1_b")
@@ -714,18 +638,8 @@ class TrackerIntegrationTest {
 
         @Test
         fun eventsがonPauseにより表示画面毎にまとめられて全て送られること() {
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
+            enqueueSuccessResponse()
+            enqueueSuccessResponse()
 
             Tracker.view("view1")
             Tracker.track("frame1_a")
@@ -762,12 +676,7 @@ class TrackerIntegrationTest {
 
         @Test
         fun app_infoがサーバに送信されること() {
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
+            enqueueSuccessResponse()
             Tracker.view("view1")
             Robolectric.buildActivity(Activity::class.java).create()
             proceedBufferedCall()
@@ -822,12 +731,7 @@ class TrackerIntegrationTest {
         @Test
         fun renewVisitorId_成功した場合() {
             for (i in 1..3)
-                server.enqueue(
-                    MockResponse().setBody(body.toString()).addHeader(
-                        "Content-Type",
-                        "text/html; charset=utf-8"
-                    )
-                )
+                enqueueSuccessResponse()
             val oldVisitorId = KarteApp.visitorId
             KarteApp.renewVisitorId()
             proceedBufferedCall()
@@ -870,12 +774,7 @@ class TrackerIntegrationTest {
         @Test
         fun visitor_idがサーバに送信されること() {
             val jsonValues = createJsonValues()
-            server.enqueue(
-                MockResponse().setBody(body.toString()).addHeader(
-                    "Content-Type",
-                    "text/html; charset=utf-8"
-                )
-            )
+            enqueueSuccessResponse()
             Tracker.track("buy", jsonValues.toValues())
             proceedBufferedCall()
 

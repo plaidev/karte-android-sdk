@@ -25,18 +25,11 @@ import io.karte.android.test_lib.assertThatNoEventOccured
 import io.karte.android.test_lib.integration.TrackerTestCase
 import io.karte.android.test_lib.parseBody
 import io.karte.android.test_lib.proceedBufferedCall
-import okhttp3.mockwebserver.MockResponse
 import org.json.JSONObject
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import kotlin.test.assertNotNull
-
-private fun TrackerTestCase.enqueue() {
-    server.enqueue(
-        MockResponse().setBody(body.toString()).addHeader("Content-Type", "text/html; charset=utf-8")
-    )
-}
 
 private fun TrackerTestCase.tokenEvent(): JSONObject {
     return JSONObject(server.takeRequest().parseBody()).getJSONArray("events").getJSONObject(0)
@@ -50,7 +43,7 @@ class TokenEventTest {
         class 通知が許可されている場合 : TrackerTestCase() {
             @Test
             fun plugin_native_app_identifyイベントがサーバに送信されること() {
-                enqueue()
+                enqueueSuccessResponse()
                 manager.setPermission(true)
                 KarteApp.registerFCMToken("dummy_fcm_token")
                 proceedBufferedCall()
@@ -66,7 +59,7 @@ class TokenEventTest {
         class 通知が許可されていない場合 : TrackerTestCase() {
             @Test
             fun plugin_native_app_identifyイベントがサーバに送信されること() {
-                enqueue()
+                enqueueSuccessResponse()
                 manager.setPermission(false)
                 KarteApp.registerFCMToken("dummy_fcm_token")
                 proceedBufferedCall()
