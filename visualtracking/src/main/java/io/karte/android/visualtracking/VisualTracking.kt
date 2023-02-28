@@ -27,6 +27,7 @@ import io.karte.android.core.logger.Logger
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
+import io.karte.android.tracking.queue.TrackEventRejectionFilterRule
 import io.karte.android.utilities.ActivityLifecycleCallback
 import io.karte.android.utilities.http.JSONRequest
 import io.karte.android.visualtracking.internal.LifecycleHook
@@ -105,6 +106,9 @@ class VisualTracking : Library, ActionModule, TrackModule {
     //endregion
 
     //region TrackModule
+    override val eventRejectionFilterRules: List<TrackEventRejectionFilterRule>
+        get() = emptyList()
+
     override fun intercept(request: TrackRequest): TrackRequest {
         setHeader(request)
         return request

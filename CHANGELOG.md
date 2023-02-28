@@ -3,10 +3,10 @@
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
 | core | イベントトラッキング機能を提供します。 | 2.21.0 |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.14.0 |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.15.0 |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.9.1 |
 | variables | 設定値配信機能を提供します。 | 2.4.0 |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.7.1 |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.8.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.0 |
 
 # Releases - xxxx.xx.xx
@@ -15,13 +15,24 @@
 ** 🎉 FEATURE**
 - KARTEプロジェクトのAPIキーをSDKに設定できるようになりました。
   - Inboxモジュールを使用する場合のみ設定が必要です。
+- サブモジュールと連携してイベントの送信を行う機構を追加しました。
+
 ** 🔨CHANGED**
 - identifyイベントのuser_idに明示的に空文字が指定された場合に警告を出力するように変更しました。
 - Trackerのイベント送信のコールバックを、iOS SDKに合わせUIスレッドで呼び出すようにしました。
+- message_openイベントの送信仕様をWebの仕様に合わせるようにしました。
+
+### InAppMessaging 2.15.0
+** 🔨CHANGED**
+- message_openイベントの送信仕様をWebの仕様に合わせるようにしました。
 
 ### Variables 2.4.0
 ** 🔨CHANGED**
 - 効果測定用のイベントにフィールドを追加しました。
+
+### VisualTracking 2.8.0
+** 🔨CHANGED**
+- モジュール間連携用のインターフェース仕様の変更に合わせて軽微な修正を行いました。
 
 # Releases - 2022.11.18
 
@@ -31,6 +42,7 @@
 - `androidx.navigation`ライブラリを参照しているとビルドできない不具合を修正しました。（[issue](https://github.com/plaidev/karte-android-sdk/issues/19))
   - 解消するにはAndroid Gradle Pluginを7.0.0以降にする必要があります。
 - Kotlin 1.7.20 で一部の操作ログが送信されない不具合を修正しました。
+
 ** 🔨CHANGED**
 - Android Gradle Plugin 3.6.0未満は非対応となりました。
 

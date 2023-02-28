@@ -28,8 +28,10 @@ import android.widget.PopupWindow
 import io.karte.android.KarteApp
 import io.karte.android.core.library.ActionModule
 import io.karte.android.core.library.Library
+import io.karte.android.core.library.TrackModule
 import io.karte.android.core.library.UserModule
 import io.karte.android.core.logger.Logger
+import io.karte.android.inappmessaging.internal.ExpiredMessageOpenEventRejectionFilterRule
 import io.karte.android.inappmessaging.internal.IAMPresenter
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.IAMWindow
@@ -41,6 +43,7 @@ import io.karte.android.tracking.MessageEventType
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
+import io.karte.android.tracking.queue.TrackEventRejectionFilterRule
 import io.karte.android.utilities.ActivityLifecycleCallback
 import org.json.JSONException
 import org.json.JSONObject
@@ -53,10 +56,10 @@ private const val COOKIE_DOMAIN = "karte.io"
 /**
  * アプリ内メッセージの管理を行うクラスです。
  */
-class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallback() {
+class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityLifecycleCallback() {
 
     //region Library
-    override val name: String = "inappmessaging"
+    override val name: String = InAppMessaging.name
     override val version: String = BuildConfig.LIB_VERSION
     override val isPublic: Boolean = true
 
@@ -153,6 +156,15 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
     }
     //endregion
 
+    //region TrackModule
+    override val eventRejectionFilterRules: List<TrackEventRejectionFilterRule>
+        get() = listOf(ExpiredMessageOpenEventRejectionFilterRule())
+
+    override fun intercept(request: TrackRequest): TrackRequest {
+        return request
+    }
+    //endregion
+
     //region ActivityLifecycleCallback
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         currentActiveActivity = WeakReference(activity)
@@ -194,6 +206,7 @@ class InAppMessaging : Library, ActionModule, UserModule, ActivityLifecycleCallb
 
     companion object {
         internal var self: InAppMessaging? = null
+        internal var name: String = "inappmessaging"
 
         /**
          * アプリ内メッセージの表示有無を返します。

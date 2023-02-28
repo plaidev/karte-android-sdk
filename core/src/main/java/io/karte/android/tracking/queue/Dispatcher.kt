@@ -61,7 +61,14 @@ internal class Dispatcher {
         }
     private val rateLimit = RateLimit(handler)
     private val retryCircuitBreaker = CircuitBreaker()
-
+    private val filter by lazy {
+        TrackEventRejectionFilter().apply {
+            KarteApp.self.modules
+                .filterIsInstance<TrackModule>()
+                .flatMap { it.eventRejectionFilterRules }
+                .forEach { add(it) }
+        }
+    }
     init {
         DataStore.setup(KarteApp.self.application.applicationContext, EventRecord.EventContract)
         KarteApp.self.connectivityObserver?.subscribe(::connectivity)
@@ -162,7 +169,9 @@ internal class Dispatcher {
             visitorId,
             originalPvId,
             pvId,
-            events.map { it.event.apply { isRetry = it.retry > 0 } })
+            events
+                .filterNot { filter.reject(it.event) }
+                .map { it.event.apply { isRetry = it.retry > 0 } })
         KarteApp.self.modules.filterIsInstance<TrackModule>()
             .forEach { request = it.intercept(request) }
         try {
