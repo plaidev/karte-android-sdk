@@ -2,35 +2,10 @@
 #
 version: 2.1
 
-executors:
-  build:
-    resource_class: medium
-    docker:
-      - image: circleci/android:api-29
-    working_directory: /home/circleci/project
-    environment:
-      JAVA_OPTS: -Xmx1536m
-      GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx1536m -XX:+HeapDumpOnOutOfMemoryError"'
-
-  classic:
-    machine:
-      image: circleci/classic:201808-01
+orbs:
+  android: circleci/android@2.2.0
 
 commands:
-  setup_gradle:
-    steps:
-      - restore_cache:
-          name: Restoring build gradle cache
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum "core/build.gradle" }}-{{ checksum "core/version" }}-{{ checksum "inappmessaging/build.gradle" }}-{{ checksum "inappmessaging/version" }}-{{ checksum "notifications/build.gradle" }}-{{ checksum "notifications/version" }}-{{ checksum "variables/build.gradle" }}-{{ checksum "variables/version" }}-{{ checksum "visualtracking/build.gradle" }}-{{ checksum "visualtracking/version" }}-{{ checksum "examples/sample_java/build.gradle" }}-{{ checksum "examples/sample_kotlin/build.gradle" }}-{{ checksum "gradle-plugin/build.gradle" }}
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - save_cache:
-          name: Saving build gradle cache
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum "core/build.gradle" }}-{{ checksum "core/version" }}-{{ checksum "inappmessaging/build.gradle" }}-{{ checksum "inappmessaging/version" }}-{{ checksum "notifications/build.gradle" }}-{{ checksum "notifications/version" }}-{{ checksum "variables/build.gradle" }}-{{ checksum "variables/version" }}-{{ checksum "visualtracking/build.gradle" }}-{{ checksum "visualtracking/version" }}-{{ checksum "examples/sample_java/build.gradle" }}-{{ checksum "examples/sample_kotlin/build.gradle" }}-{{ checksum "gradle-plugin/build.gradle" }}checksum "karte-sample-app/build.gradle" }}
-          paths:
-            - ~/.gradle
-
   add_google_services:
     steps:
       - run:
@@ -42,34 +17,22 @@ commands:
           name: Build modules
           command: ./gradlew --stacktrace assembleDebug assembleRelease
 
-jobs:
-  test:
-    executor:
-      name: build
+  run_lint:
     steps:
-      - checkout
-      - setup_gradle
-      - add_google_services
-      - run:
-          name: Test
-          command: ./gradlew --stacktrace --info testDebug
-      - run:
-          name: Collect test results
-          command: |
-            mkdir -p ~/test-results/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
-      - store_test_results:
-          path: ~/test-results
-      - store_artifacts:
-          path: ~/test-results/junit
       - run:
           name: Lint
           command: |
             ./gradlew --stacktrace lintRelease
             ./gradlew --stacktrace ktlint
+
+  run_doc_check:
+    steps:
       - run:
           name: Doc check
           command: ./gradlew dokkaHtml
+
+  run_static_analysis:
+    steps:
       - run:
           name: CodeCov
           command: |
@@ -77,9 +40,39 @@ jobs:
             curl -s https://codecov.io/bash > codecov
             VERSION=$(grep '^VERSION=\"[0-9\.]*\"' codecov | awk -F '"' '{print $2}')
             shasum -c --ignore-missing <(curl -s https://raw.githubusercontent.com/codecov/codecov-bash/${VERSION}/SHA256SUM)
+
+jobs:
+  test:
+    executor:
+      name: android/android-machine
+      tag: 2023.02.01
+    steps:
+      - checkout
+      - run_lint
+      - run_doc_check
+      - run_static_analysis
+      - android/restore-gradle-cache
+      - android/restore-build-cache
+      - add_google_services
+      - android/run-tests:
+          test-command: ./gradlew --stacktrace --info testDebug
+      - android/save-gradle-cache
+      - android/save-build-cache
+      - run:
+          name: Collect test results
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/test-results/junit
+
   ui_test:
     executor:
-      name: build
+      name: android/android-machine
+      tag: 2023.02.01
     steps:
       - checkout
       - run:
@@ -92,23 +85,29 @@ jobs:
 
   publish_docs:
     executor:
-      name: build
+      name: android/android-machine
+      tag: 2023.02.01
     steps:
       - checkout
-      - setup_gradle
+      - android/restore-gradle-cache
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
       - run:
           name: Generate and Publish docs
           command: |
             git config --global user.name "${GITHUB_USER_NAME}"
             git config --global user.email "${GITHUB_USER_EMAIL}"
             ./gradlew publishDocs
+      - android/save-gradle-cache
 
   publish:
     executor:
-      name: build
+      name: android/android-machine
+      tag: 2023.02.01
     steps:
       - checkout
-      - setup_gradle
+      - android/restore-gradle-cache
       - run:
           name: Decrypt properties
           # encrypt to update(OpenSSL 1.1.1):
@@ -124,9 +123,9 @@ jobs:
       - run:
           name: Publish
           command: bash ./scripts/publish.sh
+      - android/save-gradle-cache
 
 workflows:
-  version: 2
   build_and_test:
     when: # Execute only public repository
       equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
