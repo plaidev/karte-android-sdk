@@ -45,15 +45,15 @@ jobs:
   test:
     executor:
       name: android/android-machine
-      tag: 2023.02.01
+      tag: 2023.02.1
     steps:
       - checkout
+      - add_google_services
       - run_lint
       - run_doc_check
       - run_static_analysis
       - android/restore-gradle-cache
       - android/restore-build-cache
-      - add_google_services
       - android/run-tests:
           test-command: ./gradlew --stacktrace --info testDebug
       - android/save-gradle-cache
@@ -72,7 +72,7 @@ jobs:
   ui_test:
     executor:
       name: android/android-machine
-      tag: 2023.02.01
+      tag: 2023.02.1
     steps:
       - checkout
       - run:
@@ -86,7 +86,7 @@ jobs:
   publish_docs:
     executor:
       name: android/android-machine
-      tag: 2023.02.01
+      tag: 2023.02.1
     steps:
       - checkout
       - android/restore-gradle-cache
@@ -104,7 +104,7 @@ jobs:
   publish:
     executor:
       name: android/android-machine
-      tag: 2023.02.01
+      tag: 2023.02.1
     steps:
       - checkout
       - android/restore-gradle-cache

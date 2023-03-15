@@ -41,7 +41,6 @@ import io.karte.android.visualtracking.VisualTracking
 import io.karte.android.visualtracking.internal.tracing.Trace
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.ArrayList
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -91,7 +90,7 @@ internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCall
                 } else {
                     throw KarteServerException(resp.body)
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 showPairingFailedToast(context)
                 setPairingAccountId(null)
                 Logger.e(LOG_TAG, "Failed to start Pairing.", e)
@@ -115,7 +114,7 @@ internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCall
 
                     val res = Client.execute(request)
                     finishPairingIfNeeded(res)
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     Logger.e(LOG_TAG, "Failed to heartbeat.", e)
                 }
 
@@ -167,7 +166,7 @@ internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCall
                     Logger.e(LOG_TAG, "Failed to send action. Response=" + res.body)
                 }
                 finishPairingIfNeeded(res)
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Logger.e(LOG_TAG, "Failed to send action info.", e)
             }
         })

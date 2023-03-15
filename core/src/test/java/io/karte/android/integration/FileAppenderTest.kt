@@ -52,13 +52,14 @@ val testFiles = listOf(
     "2020-04-06_test.log"
 )
 const val THREAD_NAME = "file_appender_test"
+const val DIR_PATH = "io.karte.android/log-test"
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [28])
 abstract class BaseFileAppenderTest {
-    internal val fileAppender = FileAppender(THREAD_NAME)
+    internal val fileAppender = FileAppender(THREAD_NAME, DIR_PATH)
     protected val logDir: File
-        get() = File(application().cacheDir, "io.karte.android/log")
+        get() = File(application().cacheDir, DIR_PATH)
     protected val cacheFiles: List<File>
         get() = logDir.listFiles()?.filter { it.isFile } ?: listOf()
 

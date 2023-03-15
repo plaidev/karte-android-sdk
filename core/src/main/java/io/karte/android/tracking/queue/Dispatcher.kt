@@ -69,6 +69,7 @@ internal class Dispatcher {
                 .forEach { add(it) }
         }
     }
+
     init {
         DataStore.setup(KarteApp.self.application.applicationContext, EventRecord.EventContract)
         KarteApp.self.connectivityObserver?.subscribe(::connectivity)
@@ -199,7 +200,7 @@ internal class Dispatcher {
                     handleFailure(events)
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Logger.e(LOG_TAG, "Failed to send request.", e)
             handleFailure(events)
         }

@@ -41,7 +41,7 @@ internal object GetDefinitions {
             val result =
                 runCatching { JSONObject(response.body) }.getOrNull()?.optJSONObject("response")
             completion?.invoke(result)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Logger.e(LOG_TAG, "Failed to get definitions.", e)
         }
     }

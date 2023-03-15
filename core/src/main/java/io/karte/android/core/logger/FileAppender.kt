@@ -50,6 +50,7 @@ private fun Date.asPrefix(): String = format("yyyy-MM-dd")
 private fun File.files(): List<File> = listFiles()?.filter { it.isFile } ?: listOf()
 private const val LOG_TAG = "Karte.Log.FileAppender"
 private const val THREAD_NAME = "io.karte.android.logger.buffer"
+private const val DIR_PATH = "io.karte.android/log"
 private const val BUFFER_SIZE = 10000
 
 private fun logDebug(message: String) {
@@ -58,14 +59,14 @@ private fun logDebug(message: String) {
     Log.d(LOG_TAG, message)
 }
 
-internal class FileAppender internal constructor(threadName: String = THREAD_NAME) : Appender, Flushable {
+internal class FileAppender internal constructor(threadName: String = THREAD_NAME, private val directoryPath: String = DIR_PATH) : Appender, Flushable {
     private val handler: Handler =
         Handler(HandlerThread(threadName, Process.THREAD_PRIORITY_LOWEST).apply { start() }.looper)
     private val buffer = StringBuilder()
 
     private val logDir: File?
         get() = runCatching {
-            File(KarteApp.self.application.cacheDir, "io.karte.android/log").apply { mkdirs() }
+            File(KarteApp.self.application.cacheDir, directoryPath).apply { mkdirs() }
         }.getOrNull()
 
     /**Bufferの書き込み先ファイル.*/
