@@ -10,6 +10,7 @@ MODULES=(
   "notifications"
   "variables"
   "visualtracking"
+  "inbox"
   "gradle-plugin"
 )
 

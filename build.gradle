@@ -2,6 +2,7 @@
 
 buildscript {
     ext.kotlin_version = '1.4.32'
+    ext.coroutine_version = '1.4.3'
     repositories {
         google()
         mavenCentral()

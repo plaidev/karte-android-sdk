@@ -14,13 +14,17 @@
   - variables/src/main/**
 'Module:VT':
   - visualtracking/*
-  - visualtracking/src/main/**  
+  - visualtracking/src/main/**
+'Module:Inbox':
+  - inbox/*
+  - inbox/src/main/**
 'Test':
   - core/src/test/**
   - inappmessaging/src/test/**
   - notifications/src/test/**
   - variables/src/test/**
-  - visualtracking/src/test/**    
+  - visualtracking/src/test/**
+  - inbox/src/test/**
 'Examples':
   - examples/**
 'Gradle-Plugin':
