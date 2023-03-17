@@ -13,9 +13,15 @@ commands:
           command: |
             echo '{"project_info":{"project_number":"xxx","project_id":"xxx"},"client":[{"client_info":{"mobilesdk_app_id":"xxx","android_client_info":{"package_name":"io.karte.tracker_sample"}},"api_key":[{"current_key":"xxx"}]}]}' > examples/sample_java/google-services.json
             cp examples/sample_java/google-services.json examples/sample_kotlin/google-services.json
+
+  run_build:
+    steps:
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
       - run:
           name: Build modules
-          command: ./gradlew --stacktrace assembleDebug assembleRelease
+          command: ./gradlew --stacktrace assembleDebug assembleRelease --parallel --max-workers=4
 
   run_lint:
     steps:
@@ -29,7 +35,7 @@ commands:
     steps:
       - run:
           name: Doc check
-          command: ./gradlew dokkaHtml
+          command: ./gradlew dokkaHtml --parallel --max-workers=4
 
   run_static_analysis:
     steps:
@@ -43,19 +49,22 @@ commands:
 
 jobs:
   test:
-    executor:
-      name: android/android-machine
-      tag: 2023.02.1
+    docker:
+      - image: cimg/android:2023.02
+        environment:
+          GRADLE_OPTS: -Xmx6G
+    resource_class: large
     steps:
       - checkout
       - add_google_services
-      - run_lint
-      - run_doc_check
-      - run_static_analysis
       - android/restore-gradle-cache
       - android/restore-build-cache
+      - run_build
+      - run_lint
+      - run_doc_check
       - android/run-tests:
-          test-command: ./gradlew --stacktrace --info testDebug
+          test-command: ./gradlew --stacktrace --info testDebug --parallel --max-workers=4
+      - run_static_analysis
       - android/save-gradle-cache
       - android/save-build-cache
       - run:
