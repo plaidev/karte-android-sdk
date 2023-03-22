@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import io.karte.android.inbox.internal.Config
 import io.karte.android.inbox.internal.ProductionConfig
 import io.karte.android.inbox.internal.apis.FetchMessagesRequest
+import io.karte.android.inbox.internal.apis.OpenMessagesRequest
 import org.json.JSONObject
 import org.junit.Test
 import java.net.URL
@@ -22,10 +23,10 @@ public class ApiRequestTest {
 
     @Test
     public fun testFetchMessagesRequestHasProperBodyWithUserId() {
-        val dummyUserId = "dummy_user_id"
-        val req = FetchMessagesRequest("", dummyUserId, config = dummyConfig)
+        val dummyVisitorId = "dummy_visitor_id"
+        val req = FetchMessagesRequest("", dummyVisitorId, config = dummyConfig)
         val body = JSONObject().apply {
-            put("userId", dummyUserId)
+            put("visitorId", dummyVisitorId)
             put("appType", "native_app")
             put("os", "android")
         }
@@ -38,7 +39,7 @@ public class ApiRequestTest {
         val dummyMessageId = "Dummy"
         val req = FetchMessagesRequest("", "", dummyLimit, dummyMessageId, dummyConfig)
         val body = JSONObject().apply {
-            put("userId", "")
+            put("visitorId", "")
             put("appType", "native_app")
             put("os", "android")
             put("limit", dummyLimit)
@@ -58,5 +59,26 @@ public class ApiRequestTest {
         val dummyApiKey = "dummy_api_key"
         val req = FetchMessagesRequest(dummyApiKey, "", config = dummyConfig)
         assertThat(req.header["X-KARTE-Api-key"]).isEqualTo(dummyApiKey)
+    }
+
+    @Test
+    public fun testOpenMessagesRequestHasProperUrlWithProductionConfig() {
+        val req = OpenMessagesRequest("", "", listOf(), config = ProductionConfig())
+        val url = URL("https://api.karte.io/v2native/inbox/openMessages")
+        assertThat(req.url).isEqualTo(url)
+    }
+
+    @Test
+    public fun testOpenMessagesRequestHasProperBodyWithParameters() {
+        val dummyVisitorId = "dummy_visitor_id"
+        val ids = listOf("aaa", "bbb", "ccc")
+        val req = OpenMessagesRequest("", dummyVisitorId, ids, config = dummyConfig)
+        val body = JSONObject().apply {
+            put("visitorId", dummyVisitorId)
+            put("appType", "native_app")
+            put("os", "android")
+            put("messageIds", ids)
+        }
+        assertThat(req.body.toString()).isEqualTo(body.toString())
     }
 }

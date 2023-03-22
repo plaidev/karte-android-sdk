@@ -17,18 +17,26 @@ internal class TestInboxClient(baseUrl: String, override val apiKey: String) : I
         this.client = InboxClientImpl(apiKey, config)
     }
 
-    override suspend fun fetchMessages(userId: String, limit: Int?, latestMessageId: String?): List<InboxMessage>? {
-        return client.fetchMessages(userId, limit, latestMessageId)
+    override suspend fun fetchMessages(visitorId: String, limit: Int?, latestMessageId: String?): List<InboxMessage>? {
+        return client.fetchMessages(visitorId, limit, latestMessageId)
     }
 
     override fun fetchMessagesAsync(
-        userId: String,
+        visitorId: String,
         limit: Int?,
         latestMessageId: String?,
         handler: Handler?,
         callback: (List<InboxMessage>?) -> Unit
     ) {
-        client.fetchMessagesAsync(userId, limit, latestMessageId, handler, callback)
+        client.fetchMessagesAsync(visitorId, limit, latestMessageId, handler, callback)
+    }
+
+    override suspend fun openMessages(visitorId: String, messageIds: List<String>): Boolean {
+        return client.openMessages(visitorId, messageIds)
+    }
+
+    override fun openMessagesAsync(visitorId: String, messageIds: List<String>, handler: Handler?, callback: (Boolean) -> Unit) {
+        return client.openMessagesAsync(visitorId, messageIds, handler, callback)
     }
 }
 

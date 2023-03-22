@@ -20,6 +20,15 @@ internal sealed class ResponseParser<T> {
             return messages
         }
     }
+
+    object OpenMessagesParser : ResponseParser<SuccessResponse>() {
+        override fun parse(rawResponse: JSONObject): SuccessResponse {
+            val isSuccess = rawResponse.optBoolean("success")
+            return SuccessResponse(isSuccess)
+        }
+    }
 }
 
 private typealias FetchMessagesResponse = List<InboxMessage>?
+
+internal class SuccessResponse(val success: Boolean)

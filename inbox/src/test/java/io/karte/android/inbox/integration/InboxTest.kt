@@ -37,7 +37,7 @@ public class InboxTest {
         assertThat(res?.count()).isEqualTo(2)
 
         val recorded = server.takeRequest()
-        val requestedUserId = JSONObject(recorded.body.readUtf8()).optString("userId")
+        val requestedUserId = JSONObject(recorded.body.readUtf8()).optString("visitorId")
         assertThat(requestedUserId).isEqualTo(dummyUserId)
 
         val m1 = res!![0]
@@ -99,6 +99,20 @@ public class InboxTest {
 
         lateinit var workerThreadName: String
         client.fetchMessagesAsync("", null, null, null) {
+            workerThreadName = Thread.currentThread().name
+            latch.countDown()
+        }
+        latch.await(1000L, TimeUnit.MILLISECONDS)
+        assertThat(workerThreadName).isNotEqualTo(Thread.currentThread().name)
+    }
+
+    @Test
+    public fun testOpenMessagesAsyncShouldRunCallbackOnBackgroundThreadWithoutHandlerParameter() {
+        val latch = CountDownLatch(1)
+        server.enqueue(MockResponse().setResponseCode(200))
+
+        lateinit var workerThreadName: String
+        client.openMessagesAsync("", listOf(), null) {
             workerThreadName = Thread.currentThread().name
             latch.countDown()
         }

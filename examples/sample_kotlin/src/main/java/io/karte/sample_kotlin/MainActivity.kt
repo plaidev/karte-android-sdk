@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         button_fetch_inbox.setOnClickListener {
             scope.launch {
-                fetchInboxMessages("SET_USER_ID")
+                fetchInboxMessages()
             }
         }
     }
@@ -95,9 +95,9 @@ class MainActivity : AppCompatActivity() {
         Tracker.track("buy", values)
     }
 
-    private suspend fun fetchInboxMessages(userId: String, limit: Int? = null, latestMessageId: String? = null) {
+    private suspend fun fetchInboxMessages(limit: Int? = null, latestMessageId: String? = null) {
         // For suspend function version
-        val result = Inbox.fetchMessages(userId, limit, latestMessageId)
+        val result = Inbox.fetchMessages(limit, latestMessageId)
         result?.let {
             runOnUiThread {
                 val count = it.count()
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, result.toString())
 
         // For async version
-        // Inbox.fetchMessagesAsync(userId, limit, latestMessageId, Handler(Looper.getMainLooper())) { result ->
+        // Inbox.fetchMessagesAsync(limit, latestMessageId, Handler(Looper.getMainLooper())) { result ->
         //     result?.let {
         //         val count = it.count()
         //         var content = "Count: ${count}\n"
