@@ -21,6 +21,14 @@ public class ModelTest {
         assertThat(message.attachmentUrl).isEqualTo("Dummy attachment url")
         assertThat(message.campaignId).isEqualTo("Dummy campaign id")
         assertThat(message.messageId).isEqualTo("Dummy message id")
+        assertThat(message.isRead).isTrue()
+
+        assertThat(message.customPayload["keyStr"]).isEqualTo("Dummy")
+        assertThat(message.customPayload["keyInt"]).isEqualTo(10)
+        assertThat(message.customPayload["keyDouble"]).isEqualTo(1.11)
+        assertThat(message.customPayload["keyArray"]).isEqualTo(listOf(1, 2, 3))
+        assertThat(message.customPayload["keyMap"]).isEqualTo(mapOf("prop1" to "hoge", "prop2" to 0))
+        assertThat(message.customPayload["keyNull"]).isNull()
     }
 
     @Test
@@ -34,6 +42,8 @@ public class ModelTest {
         assertThat(message.attachmentUrl).isEmpty()
         assertThat(message.campaignId).isEmpty()
         assertThat(message.messageId).isEmpty()
+        assertThat(message.isRead).isFalse()
+        assertThat(message.customPayload.isEmpty()).isTrue()
     }
 }
 
@@ -46,5 +56,21 @@ internal fun InboxMessage.Companion.makeDummyJSON(): JSONObject {
         put("attachmentUrl", "Dummy attachment url")
         put("campaignId", "Dummy campaign id")
         put("messageId", "Dummy message id")
+        put("isRead", true)
+
+        val payload = """
+            {
+                "keyStr": "Dummy",
+                "keyInt": 10,
+                "keyDouble": 1.11,
+                "keyArray": [1, 2, 3],
+                "keyMap": {
+                    "prop1": "hoge",
+                    "prop2": 0
+                },
+                "keyNull": null
+            }
+        """.trimIndent()
+        put("customPayload", JSONObject(payload))
     }
 }

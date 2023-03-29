@@ -50,7 +50,19 @@ internal val dummyRawResponse = """
                 "linkUrl": "",
                 "messageId": "dummy_messageId_1",
                 "timestamp": 1674015317,
-                "title": "title1"
+                "title": "title1",
+                "isRead": true,
+                "customPayload": {
+                    "keyStr": "Dummy",
+                    "keyInt": 10,
+                    "keyDouble": 1.11,
+                    "keyArray": [1, 2, 3],
+                    "keyMap": {
+                        "prop1": "hoge",
+                        "prop2": 0
+                    },
+                    "keyNull": null
+                }
             },
             {
                 "attachmentUrl": "",
@@ -59,7 +71,9 @@ internal val dummyRawResponse = """
                 "linkUrl": "",
                 "messageId": "dummy_messageId_2",
                 "timestamp": 1672919717,
-                "title": "title2"
+                "title": "title2",
+                "isRead": false,
+                "customPayload": {}
             }
         ]
     }

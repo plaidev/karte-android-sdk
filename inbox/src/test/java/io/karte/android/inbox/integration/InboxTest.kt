@@ -32,13 +32,9 @@ public class InboxTest {
             setBody(dummyRawResponse)
         })
 
-        val dummyUserId = "dummy_user"
-        val res = client.fetchMessages(dummyUserId, null, null)
+        val dummyVisitorId = "dummy_visitor"
+        val res = client.fetchMessages(dummyVisitorId, null, null)
         assertThat(res?.count()).isEqualTo(2)
-
-        val recorded = server.takeRequest()
-        val requestedUserId = JSONObject(recorded.body.readUtf8()).optString("visitorId")
-        assertThat(requestedUserId).isEqualTo(dummyUserId)
 
         val m1 = res!![0]
         assertThat(m1.timestamp).isNotNull()
@@ -48,6 +44,52 @@ public class InboxTest {
         assertThat(m1.attachmentUrl).isEmpty()
         assertThat(m1.campaignId).isEqualTo("dummy_campaignId_1")
         assertThat(m1.messageId).isEqualTo("dummy_messageId_1")
+        assertThat(m1.isRead).isTrue()
+
+        val m2 = res[1]
+        assertThat(m2.timestamp).isNotNull()
+        assertThat(m2.title).isEqualTo("title2")
+        assertThat(m2.body).isEqualTo("body2")
+        assertThat(m2.linkUrl).isEmpty()
+        assertThat(m2.attachmentUrl).isEmpty()
+        assertThat(m2.campaignId).isEqualTo("dummy_campaignId_2")
+        assertThat(m2.messageId).isEqualTo("dummy_messageId_2")
+        assertThat(m2.isRead).isFalse()
+    }
+
+    @Test
+    public fun testCustomPayloadShouldBeParsedProperly(): Unit = runBlocking {
+        server.enqueue(MockResponse().apply {
+            setResponseCode(200)
+            setBody(dummyRawResponse)
+        })
+
+        val dummyVisitorId = "dummy_visitor"
+        val res = client.fetchMessages(dummyVisitorId, null, null)
+        assertThat(res?.count()).isEqualTo(2)
+
+        val m1 = res!![0]
+        assertThat(m1.customPayload["keyStr"]).isEqualTo("Dummy")
+        assertThat(m1.customPayload["keyInt"]).isEqualTo(10)
+        assertThat(m1.customPayload["keyDouble"]).isEqualTo(1.11)
+        assertThat(m1.customPayload["keyArray"]).isEqualTo(listOf(1, 2, 3))
+        assertThat(m1.customPayload["keyMap"]).isEqualTo(mapOf("prop1" to "hoge", "prop2" to 0))
+        assertThat(m1.customPayload["keyNull"]).isNull()
+
+        val m2 = res[1]
+        assertThat(m2.customPayload.isEmpty()).isTrue()
+    }
+
+    @Test
+    public fun testVisitorIdWillBeSetToRequestBody(): Unit = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(200))
+
+        val dummyVisitorId = "dummy_visitor"
+        client.fetchMessages(dummyVisitorId, null, null)
+
+        val recorded = server.takeRequest()
+        val requestedVisitorId = JSONObject(recorded.body.readUtf8()).optString("visitorId")
+        assertThat(requestedVisitorId).isEqualTo(dummyVisitorId)
     }
 
     @Test

@@ -1,5 +1,6 @@
 package io.karte.android.inbox.models
 
+import io.karte.android.utilities.toMap
 import org.json.JSONObject
 import java.util.Date
 
@@ -13,6 +14,8 @@ import java.util.Date
  * @property[attachmentUrl] Push通知に設定された画像URLを返します。未設定の場合は空文字を返します。
  * @property[campaignId] 接客のキャンペーンIDを返します。
  * @property[messageId] Push通知のユニークなIDを返します。
+ * @property[isRead] Push通知の既読状態を返します。
+ * @property[customPayload] Push通知に設定されたカスタムペイロードをMapで返します。値が設定されていない場合は空のMapを返します。
  */
 public data class InboxMessage(
     val timestamp: Date,
@@ -21,7 +24,9 @@ public data class InboxMessage(
     val linkUrl: String,
     val attachmentUrl: String,
     val campaignId: String,
-    val messageId: String
+    val messageId: String,
+    val isRead: Boolean,
+    val customPayload: Map<String, Any?>
 ) {
     internal companion object {
         fun fromJsonObject(json: JSONObject): InboxMessage {
@@ -34,7 +39,9 @@ public data class InboxMessage(
                 linkUrl = json.optString("linkUrl"),
                 attachmentUrl = json.optString("attachmentUrl"),
                 campaignId = json.optString("campaignId"),
-                messageId = json.optString("messageId")
+                messageId = json.optString("messageId"),
+                isRead = json.optBoolean("isRead"),
+                customPayload = (json.optJSONObject("customPayload") ?: JSONObject()).toMap()
             )
         }
     }
