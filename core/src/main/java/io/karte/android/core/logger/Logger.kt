@@ -22,7 +22,7 @@ import java.io.Flushable
  * ログを出力するためのクラスです。
  */
 object Logger {
-    private val appenders = listOf(ConsoleAppender(), FileAppender())
+    private val appenders = listOf(ConsoleAppender())
 
     /**
      * ログレベルの取得および設定を行います。
@@ -117,7 +117,10 @@ enum class LogLevel {
     WARN,
 
     /** ERROR */
-    ERROR
+    ERROR,
+
+    /** OFF */
+    OFF
 }
 
 internal data class LogEvent(
