@@ -7,7 +7,14 @@ jacoco {
 task jacocoMerge(
         type: JacocoMerge,
         group: "verification",
-        dependsOn: ["core:jacocoTestReport", "inappmessaging:jacocoTestReport", "notifications:jacocoTestReport", "variables:jacocoTestReport", "visualtracking:jacocoTestReport"]
+        dependsOn: [
+                "core:jacocoTestReport",
+                "inappmessaging:jacocoTestReport",
+                "notifications:jacocoTestReport",
+                "variables:jacocoTestReport",
+                "visualtracking:jacocoTestReport",
+                "inbox:jacocoTestReport"
+        ]
 ) {
     gradle.afterProject { project, _ ->
         if (project.rootProject != project && project.plugins.hasPlugin('jacoco')) {

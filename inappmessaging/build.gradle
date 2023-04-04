@@ -2,13 +2,13 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'io.karte.android.inappmessaging'
     compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 16
         //noinspection OldTargetApi
         targetSdkVersion 29
-        versionName version
         buildConfigField "String", "LIB_VERSION", "\"$version\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -21,16 +21,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     testOptions {
         unitTests {
             includeAndroidResources = true
         }
     }
-    lintOptions {
-        warningsAsErrors true
-        lintConfig file('../lint.xml')
-    }
     kotlinOptions.allWarningsAsErrors = true
+    lint {
+        lintConfig file('../lint.xml')
+        warningsAsErrors true
+    }
 }
 
 
@@ -47,7 +48,7 @@ dependencies {
     testImplementation "io.mockk:mockk:1.10.0"
     testImplementation "org.robolectric:robolectric:4.8"
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.8.0'
-    testImplementation project(path: ':core', configuration: 'testRuntime')
+    testImplementation project(':test_lib')
 }
 
 afterEvaluate {

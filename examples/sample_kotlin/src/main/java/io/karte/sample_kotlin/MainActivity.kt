@@ -6,15 +6,22 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.InAppMessagingDelegate
+import io.karte.android.inbox.Inbox
 import io.karte.android.tracking.Tracker
 import io.karte.android.visualtracking.VisualTracking
 import io.karte.android.visualtracking.VisualTrackingDelegate
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.ArrayList
-import java.util.HashMap
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-
+    val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        throwable.printStackTrace()
+    }
+    private val scope = CoroutineScope(Job() + Dispatchers.IO + exceptionHandler)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,16 +49,20 @@ class MainActivity : AppCompatActivity() {
         send_view_event.setOnClickListener { sendViewEvent() }
 
         send_buy_event.setOnClickListener { sendBuyEvent() }
+
+        button_fetch_inbox.setOnClickListener {
+            scope.launch {
+                fetchInboxMessages()
+            }
+        }
     }
 
     private fun sendIdentifyEvent() {
-
         val user_id = edit_user_id.getText().toString()
         if (user_id.length > 0) {
             val values = HashMap<String, Any>()
-            values["user_id"] = user_id
             values["is_app_user"] = true
-            Tracker.identify(values)
+            Tracker.identify(user_id, values)
         } else {
             Log.w(TAG, "no user_id")
         }
@@ -82,6 +93,35 @@ class MainActivity : AppCompatActivity() {
         items.add(item)
         values["items"] = items
         Tracker.track("buy", values)
+    }
+
+    private suspend fun fetchInboxMessages(limit: Int? = null, latestMessageId: String? = null) {
+        // For suspend function version
+        val result = Inbox.fetchMessages(limit, latestMessageId)
+        result?.let {
+            runOnUiThread {
+                val count = it.count()
+                var content = "Count: ${count}\n"
+                for (item in it) {
+                    content += "${item}\n"
+                }
+                inbox_content.text = content
+            }
+        }
+        Log.d(TAG, result.toString())
+
+        // For async version
+        // Inbox.fetchMessagesAsync(limit, latestMessageId, Handler(Looper.getMainLooper())) { result ->
+        //     result?.let {
+        //         val count = it.count()
+        //         var content = "Count: ${count}\n"
+        //         for(item in it) {
+        //             content += "${item}\n"
+        //         }
+        //         inbox_content.text = content
+        //         Log.d(TAG, it.toString())
+        //     }
+        // }
     }
 
     override fun onResume() {

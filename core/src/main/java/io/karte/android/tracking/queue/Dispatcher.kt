@@ -17,6 +17,7 @@ package io.karte.android.tracking.queue
 
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
 import android.os.Process
 import io.karte.android.KarteApp
 import io.karte.android.core.library.ActionModule
@@ -50,6 +51,7 @@ internal class Dispatcher {
     private val thread =
         HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_LOWEST).apply { start() }
     private val handler: Handler = Handler(thread.looper)
+    private val mainHandler = Handler(Looper.getMainLooper())
     private val completions = mutableMapOf<Long, TrackCompletion>()
     private var isSuspend: Boolean = false
         set(value) {
@@ -59,6 +61,14 @@ internal class Dispatcher {
         }
     private val rateLimit = RateLimit(handler)
     private val retryCircuitBreaker = CircuitBreaker()
+    private val filter by lazy {
+        TrackEventRejectionFilter().apply {
+            KarteApp.self.modules
+                .filterIsInstance<TrackModule>()
+                .flatMap { it.eventRejectionFilterRules }
+                .forEach { add(it) }
+        }
+    }
 
     init {
         DataStore.setup(KarteApp.self.application.applicationContext, EventRecord.EventContract)
@@ -87,7 +97,7 @@ internal class Dispatcher {
                 LOG_TAG,
                 "Failed to push Event to queue because unretryable event was detected while offline"
             )
-            completion?.onComplete(false)
+            mainHandler.post { completion?.onComplete(false) }
             return
         }
         val eventInvalidMessages = EventValidator.getInvalidMessages(record.event)
@@ -99,7 +109,7 @@ internal class Dispatcher {
         completion?.let {
             if (id == -1L) {
                 Logger.e(LOG_TAG, "Failed to push Event to queue")
-                completion.onComplete(false)
+                mainHandler.post { completion.onComplete(false) }
             } else {
                 completions[id] = it
             }
@@ -160,7 +170,9 @@ internal class Dispatcher {
             visitorId,
             originalPvId,
             pvId,
-            events.map { it.event.apply { isRetry = it.retry > 0 } })
+            events
+                .filterNot { filter.reject(it.event) }
+                .map { it.event.apply { isRetry = it.retry > 0 } })
         KarteApp.self.modules.filterIsInstance<TrackModule>()
             .forEach { request = it.intercept(request) }
         try {
@@ -188,7 +200,7 @@ internal class Dispatcher {
                     handleFailure(events)
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Logger.e(LOG_TAG, "Failed to send request.", e)
             handleFailure(events)
         }
@@ -198,7 +210,7 @@ internal class Dispatcher {
     private fun removeFromQueue(events: List<EventRecord>, isSuccessful: Boolean) {
         events.forEach {
             DataStore.delete(it)
-            completions.remove(it.id)?.onComplete(isSuccessful)
+            completions.remove(it.id)?.let { mainHandler.post { it.onComplete(isSuccessful) } }
         }
     }
 
@@ -221,7 +233,7 @@ internal class Dispatcher {
                 Logger.w(LOG_TAG, logMessage)
                 DataStore.delete(it)
             }
-            completions.remove(it.id)?.onComplete(false)
+            completions.remove(it.id)?.let { mainHandler.post { it.onComplete(false) } }
         }
         if (minRetryCount > MAX_RETRY_COUNT) return
         val retryInterval = retryIntervalMs(minRetryCount)

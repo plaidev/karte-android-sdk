@@ -16,9 +16,9 @@
 package io.karte.android.notifications.unit
 
 import com.google.common.truth.Truth.assertThat
-import io.karte.android.RobolectricTestCase
 import io.karte.android.notifications.KarteAttributes
 import io.karte.android.notifications.internal.NotificationBuilder
+import io.karte.android.test_lib.RobolectricTestCase
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

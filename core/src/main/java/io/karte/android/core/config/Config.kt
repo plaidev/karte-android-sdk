@@ -58,6 +58,7 @@ import io.karte.android.core.library.LibraryConfig
  */
 open class Config protected constructor(
     appKey: String,
+    apiKey: String,
     val baseUrl: String,
     internal val logCollectionUrl: String,
     val isDryRun: Boolean,
@@ -75,10 +76,21 @@ open class Config protected constructor(
 
     internal val isValidAppKey get() = appKey.length == 32
 
+    /**
+     * @property[apiKey] APIキーの取得・設定を行います。
+     *
+     * 設定ファイルから自動でロードされるAPIキー以外を利用したい場合にのみ設定します。
+     */
+    var apiKey: String = apiKey
+        internal set
+
     /** [Config]クラスの生成を行うためのクラスです。 */
     open class Builder {
         /**[Config.appKey]を変更します。*/
         var appKey: String = "" @JvmSynthetic set
+
+        /**[Config.apiKey]を変更します。*/
+        var apiKey: String = "" @JvmSynthetic set
 
         /**[Config.baseUrl]を変更します。*/
         var baseUrl: String = "https://api.karte.io/v0/native" @JvmSynthetic set
@@ -128,6 +140,7 @@ open class Config protected constructor(
         /**[Config]クラスのインスタンスを生成します。*/
         open fun build(): Config = Config(
             appKey,
+            apiKey,
             baseUrl,
             logCollectionUrl,
             isDryRun,
@@ -150,7 +163,10 @@ open class Config protected constructor(
 
         internal fun withAppKey(context: Context, config: Config?): Config {
             if (config != null && config.appKey.isNotEmpty()) return config
-            return (config ?: build()).apply { this.appKey = appKeyFromResource(context) }
+            return (config ?: build()).apply {
+                this.appKey = appKeyFromResource(context)
+                this.apiKey = apiKeyFromResource(context)
+            }
         }
 
         private fun appKeyFromResource(context: Context): String {
@@ -163,6 +179,17 @@ open class Config protected constructor(
                 } else {
                     ""
                 }
+            } else {
+                res.getString(id)
+            }
+        }
+
+        private fun apiKeyFromResource(context: Context): String {
+            val res = context.resources
+            val pkg = res.getResourcePackageName(R.id.karte_resources)
+            val id = res.getIdentifier("karte_api_key", "string", pkg)
+            return if (id == 0) {
+                ""
             } else {
                 res.getString(id)
             }

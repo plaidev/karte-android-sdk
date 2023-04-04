@@ -26,14 +26,14 @@ import android.net.Uri
 import android.os.Bundle
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.messaging.RemoteMessage
-import io.karte.android.RobolectricTestCase
-import io.karte.android.TrackerTestCase
 import io.karte.android.notifications.MessageHandler
 import io.karte.android.notifications.NOTIFICATION_TAG
 import io.karte.android.notifications.internal.wrapper.KEY_CAMPAIGN_ID
 import io.karte.android.notifications.internal.wrapper.KEY_SHORTEN_ID
 import io.karte.android.notifications.manager
 import io.karte.android.notifications.uniqueId
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.integration.TrackerTestCase
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic

@@ -18,15 +18,17 @@ package io.karte.android.variables.integration
 import android.os.Looper
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
-import io.karte.android.RobolectricTestCase
-import io.karte.android.assertThat
-import io.karte.android.createControlGroupMessage
-import io.karte.android.createMessage
-import io.karte.android.createMessagesResponse
-import io.karte.android.parseBody
-import io.karte.android.proceedBufferedCall
-import io.karte.android.setupKarteApp
-import io.karte.android.tearDownKarteApp
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.assertThat
+import io.karte.android.test_lib.createControlGroupMessage
+import io.karte.android.test_lib.createMessage
+import io.karte.android.test_lib.createMessagesResponse
+import io.karte.android.test_lib.parseBody
+import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.proceedUiBufferedCall
+import io.karte.android.test_lib.setupKarteApp
+import io.karte.android.test_lib.tearDownKarteApp
+import io.karte.android.test_lib.toList
 import io.karte.android.variables.Variable
 import io.karte.android.variables.Variables
 import okhttp3.mockwebserver.MockResponse
@@ -35,7 +37,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
@@ -46,7 +47,11 @@ data class Var(val name: String, val value: String)
 private fun createRemoteConfigMessage(
     campaignId: String = "sample_campaign",
     shortenId: String = "sample_shorten",
-    variables: Array<Var> = emptyArray()
+    variables: Array<Var> = emptyArray(),
+    responseTimestamp: String = "sample_response_timestamp",
+    noAction: Boolean? = null,
+    reason: String? = null,
+    triggerEventHash: String = "sample_trigger_event_hash"
 ): JSONObject {
     val inlinedVariables = JSONArray()
     for (variable in variables) {
@@ -58,7 +63,11 @@ private fun createRemoteConfigMessage(
         campaignId,
         shortenId,
         JSONObject().put("inlined_variables", inlinedVariables),
-        "remote_config"
+        "remote_config",
+        responseTimestamp,
+        noAction,
+        reason,
+        triggerEventHash
     )
 }
 
@@ -967,9 +976,9 @@ class VariablesTest {
         @Test
         fun message_readyが接客の個数分トラッキングされること() {
             enqMsgRespAndMsgOpenResp(
-                JSONArray().put(createRemoteConfigMessage()).put(
-                    createRemoteConfigCGMessage()
-                )
+                JSONArray()
+                    .put(createRemoteConfigMessage())
+                    .put(createRemoteConfigCGMessage())
             )
 
             Variables.fetch()
@@ -993,7 +1002,9 @@ class VariablesTest {
                         campaignId = "campaign1"
                     )
                 ).put(
-                    createRemoteConfigCGMessage(campaignId = "campaign2")
+                    createRemoteConfigCGMessage(
+                        campaignId = "campaign2"
+                    )
                 )
             )
 
@@ -1036,12 +1047,130 @@ class VariablesTest {
 
             assertThat(shortenIds).isEqualTo(arrayListOf("shorten2", "shorten1"))
         }
+
+        @Test
+        fun message_readyのmessageのresponse_idとresponse_timestampが正しいこと() {
+            enqMsgRespAndMsgOpenResp(
+                JSONArray().put(
+                    createRemoteConfigMessage(
+                        shortenId = "shorten_id1",
+                        responseTimestamp = "response_timestamp1"
+                    )
+                )
+            )
+
+            Variables.fetch()
+
+            proceedBufferedCall()
+            server.takeRequest()
+
+            proceedBufferedCall()
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            val message = events.getJSONObject(0).getJSONObject("values").getJSONObject("message")
+            val responseId = message.getString("response_id")
+            val responseTimestamp = message.getString("response_timestamp")
+
+            assertThat(responseId).isEqualTo("response_timestamp1_shorten_id1")
+            assertThat(responseTimestamp).isEqualTo("response_timestamp1")
+        }
+
+        @Test
+        fun message_readyのmessageのfrequency_typeが正しいこと() {
+            enqMsgRespAndMsgOpenResp(
+                JSONArray().put(
+                    createRemoteConfigMessage()
+                )
+            )
+
+            Variables.fetch()
+
+            proceedBufferedCall()
+            server.takeRequest()
+
+            proceedBufferedCall()
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            val message = events.getJSONObject(0).getJSONObject("values").getJSONObject("message")
+            val frequencyType = message.getString("frequency_type")
+
+            assertThat(frequencyType).isEqualTo("access")
+        }
+
+        @Test
+        fun message_readyのmessageのtriggerのevent_hashesが正しいこと() {
+            enqMsgRespAndMsgOpenResp(
+                JSONArray().put(
+                    createRemoteConfigMessage(
+                        triggerEventHash = "event_hash1"
+                    )
+                )
+            )
+
+            Variables.fetch()
+
+            proceedBufferedCall()
+            server.takeRequest()
+
+            proceedBufferedCall()
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            val message = events.getJSONObject(0).getJSONObject("values").getJSONObject("message")
+            val eventHashes = message.getJSONObject("trigger").getString("event_hashes")
+
+            assertThat(eventHashes).isEqualTo("event_hash1")
+        }
+
+        @Test
+        fun no_actionの場合にmessage_readyにno_actionとreasonが含まれること() {
+            enqMsgRespAndMsgOpenResp(
+                JSONArray().put(
+                    createRemoteConfigMessage(
+                        noAction = true,
+                        reason = "reason1"
+                    )
+                )
+            )
+
+            Variables.fetch()
+
+            proceedBufferedCall()
+            server.takeRequest()
+
+            proceedBufferedCall()
+
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            val event = events.getJSONObject(0)
+            val noAction = event.getJSONObject("values").getBoolean("no_action")
+            val reason = event.getJSONObject("values").getString("reason")
+
+            assertThat(noAction).isTrue()
+            assertThat(reason).isEqualTo("reason1")
+        }
+
+        @Test
+        fun no_actionでない場合にmessage_readyにreasonが含まれないこと() {
+            enqMsgRespAndMsgOpenResp(
+                JSONArray().put(
+                    createRemoteConfigMessage()
+                )
+            )
+
+            Variables.fetch()
+
+            proceedBufferedCall()
+            server.takeRequest()
+
+            proceedBufferedCall()
+
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            val event = events.getJSONObject(0)
+
+            assertThat(event.getJSONObject("values").getBoolean("no_action")).isFalse()
+            assertThat(event.getJSONObject("values").has("reason")).isFalse()
+        }
     }
 
     class completionHandler : VariablesTestCase() {
 
         @Test
-        @Ignore("そもそもそんな実装されていなかったのになぜか通ってたのでスキップ。UIスレッドに戻してあげた方が親切ではある")
         fun completionHandlerがUIスレッドで実行されること() {
             enqMsgRespAndMsgOpenResp(JSONArray().put(createRemoteConfigMessage()))
 
@@ -1050,6 +1179,7 @@ class VariablesTest {
                 looper = Looper.myLooper()
             }
             proceedBufferedCall()
+            proceedUiBufferedCall()
             assertThat(looper).isEqualTo(Looper.getMainLooper())
         }
 
@@ -1070,6 +1200,7 @@ class VariablesTest {
                 value = Variables.get("hoge").string("default")
             }
             proceedBufferedCall()
+            proceedUiBufferedCall()
             assertThat(value).isEqualTo("fuga")
         }
 
@@ -1082,6 +1213,7 @@ class VariablesTest {
                 isSuccessful = it
             }
             proceedBufferedCall()
+            proceedUiBufferedCall()
             assertThat(isSuccessful).isTrue()
         }
 
@@ -1094,6 +1226,7 @@ class VariablesTest {
                 isSuccessful = it
             }
             proceedBufferedCall()
+            proceedUiBufferedCall()
             assertThat(isSuccessful).isFalse()
         }
     }
@@ -1103,6 +1236,10 @@ class VariablesTest {
         private val campaignId2 = "campaignId2"
         private val shortenId1 = "shortenId1"
         private val shortenId2 = "shortenId2"
+        private val responseTimestamp1 = "responseTimestamp1"
+        private val responseTimestamp2 = "responseTimestamp2"
+        private val triggerEventHash1 = "triggerEventHash1"
+        private val triggerEventHash2 = "triggerEventHash2"
 
         private val campaign1Var1 = Var("var1", "hoge")
         private val campaign1Var2 = Var("var2", "hoge")
@@ -1120,16 +1257,19 @@ class VariablesTest {
                     createRemoteConfigMessage(
                         campaignId = campaignId1,
                         shortenId = shortenId1,
-                        variables = arrayOf(campaign1Var1, campaign1Var2)
+                        variables = arrayOf(campaign1Var1, campaign1Var2),
+                        responseTimestamp = responseTimestamp1,
+                        triggerEventHash = triggerEventHash1
+                    )
+                ).put(
+                    createRemoteConfigMessage(
+                        campaignId = campaignId2,
+                        shortenId = shortenId2,
+                        variables = arrayOf(campaign2Var1, campaign2Var2),
+                        responseTimestamp = responseTimestamp2,
+                        triggerEventHash = triggerEventHash2
                     )
                 )
-                    .put(
-                        createRemoteConfigMessage(
-                            campaignId = campaignId2,
-                            shortenId = shortenId2,
-                            variables = arrayOf(campaign2Var1, campaign2Var2)
-                        )
-                    )
             )
             Variables.fetch()
             // dequeue _fetch_variables event request
@@ -1152,6 +1292,29 @@ class VariablesTest {
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             assertThat(events.length()).isEqualTo(2)
             assertRequest(events, "message_click")
+        }
+
+        @Test
+        fun SDKが付与した値が含まれること_Click() {
+            Variables.trackClick(getVariables())
+            proceedBufferedCall()
+
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            val messages = events.toList().map { evt ->
+                evt.getJSONObject("values").getJSONObject("message")
+            }
+            val campaignIds = messages.map { it.getString("campaign_id") }
+            val shortenIds = messages.map { it.getString("shorten_id") }
+            val responseIds = messages.map { it.getString("response_id") }
+            val responseTimestamps = messages.map { it.getString("response_timestamp") }
+            val triggerEventHashes = messages.map { it.getJSONObject("trigger").getString("event_hashes") }
+
+            assertThat(events.length()).isEqualTo(2)
+            assertThat(campaignIds).isEqualTo(arrayListOf(campaignId1, campaignId2))
+            assertThat(shortenIds).isEqualTo(arrayListOf(shortenId1, shortenId2))
+            assertThat(responseIds).isEqualTo(arrayListOf("${responseTimestamp1}_$shortenId1", "${responseTimestamp2}_$shortenId2"))
+            assertThat(responseTimestamps).isEqualTo(arrayListOf(responseTimestamp1, responseTimestamp2))
+            assertThat(triggerEventHashes).isEqualTo(arrayListOf(triggerEventHash1, triggerEventHash2))
         }
 
         @Test
@@ -1189,6 +1352,29 @@ class VariablesTest {
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
             assertThat(events.length()).isEqualTo(2)
             assertRequest(events, "message_open")
+        }
+
+        @Test
+        fun SDKが付与した値が含まれること_Open() {
+            Variables.trackOpen(getVariables())
+            proceedBufferedCall()
+
+            val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
+            val messages = events.toList().map { evt ->
+                evt.getJSONObject("values").getJSONObject("message")
+            }
+            val campaignIds = messages.map { it.getString("campaign_id") }
+            val shortenIds = messages.map { it.getString("shorten_id") }
+            val responseIds = messages.map { it.getString("response_id") }
+            val responseTimestamps = messages.map { it.getString("response_timestamp") }
+            val triggerEventHashes = messages.map { it.getJSONObject("trigger").getString("event_hashes") }
+
+            assertThat(events.length()).isEqualTo(2)
+            assertThat(campaignIds).isEqualTo(arrayListOf(campaignId1, campaignId2))
+            assertThat(shortenIds).isEqualTo(arrayListOf(shortenId1, shortenId2))
+            assertThat(responseIds).isEqualTo(arrayListOf("${responseTimestamp1}_$shortenId1", "${responseTimestamp2}_$shortenId2"))
+            assertThat(responseTimestamps).isEqualTo(arrayListOf(responseTimestamp1, responseTimestamp2))
+            assertThat(triggerEventHashes).isEqualTo(arrayListOf(triggerEventHash1, triggerEventHash2))
         }
 
         @Test

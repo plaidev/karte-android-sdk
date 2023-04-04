@@ -16,7 +16,7 @@
 package io.karte.android.variables.integration
 
 import com.google.common.truth.Truth.assertThat
-import io.karte.android.integration.DryRunTestCase
+import io.karte.android.test_lib.integration.DryRunTestCase
 import io.karte.android.variables.Variables
 import org.junit.Test
 

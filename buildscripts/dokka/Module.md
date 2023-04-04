@@ -17,3 +17,7 @@
 # Module visualtracking
 
 @README@
+
+# Module inbox
+
+@README@

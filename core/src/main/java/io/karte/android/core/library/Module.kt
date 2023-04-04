@@ -18,6 +18,7 @@ package io.karte.android.core.library
 import android.content.Intent
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
+import io.karte.android.tracking.queue.TrackEventRejectionFilterRule
 
 /**
  * モジュールを表すInterfaceです。
@@ -100,6 +101,14 @@ interface DeepLinkModule : Module {
  * **サブモジュールと連携するために用意している機能であり、通常利用で使用することはありません。**
  */
 interface TrackModule : Module {
+    /**
+     * イベントの送信拒絶フィルタルールのリスト。
+     *
+     * ここで返したフィルタルールリストに基づきイベントの送信を拒絶することが可能です。
+     * またSDK初期化時に一度だけ呼ばれます。
+     */
+    val eventRejectionFilterRules: List<TrackEventRejectionFilterRule>
+
     /**
      * リクエスト処理に割り込みます。
      *

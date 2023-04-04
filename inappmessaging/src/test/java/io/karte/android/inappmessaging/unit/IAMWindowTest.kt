@@ -22,9 +22,9 @@ import io.karte.android.inappmessaging.internal.IAMPresenter
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.IAMWindow
 import io.karte.android.inappmessaging.internal.PanelWindowManager
-import io.karte.android.inappmessaging.proceedUiBufferedCall
-import io.karte.android.shadow.CustomShadowWebView
-import io.karte.android.shadow.customShadowOf
+import io.karte.android.test_lib.proceedUiBufferedCall
+import io.karte.android.test_lib.shadow.CustomShadowWebView
+import io.karte.android.test_lib.shadow.customShadowOf
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import org.junit.After

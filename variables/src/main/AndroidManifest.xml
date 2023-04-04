@@ -1,2 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.karte.android.variables" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />

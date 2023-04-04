@@ -22,14 +22,15 @@ import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import com.google.common.truth.Truth.assertThat
-import io.karte.android.application
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.inappmessaging.internal.ParentView
 import io.karte.android.inappmessaging.internal.javascript.State
-import io.karte.android.inappmessaging.proceedUiBufferedCall
-import io.karte.android.shadow.CustomShadowWebView
-import io.karte.android.shadow.customShadowOf
+import io.karte.android.test_lib.application
+import io.karte.android.test_lib.proceedUiBufferedCall
+import io.karte.android.test_lib.shadow.CustomShadowWebView
+import io.karte.android.test_lib.shadow.customShadowOf
+import io.karte.android.tracking.Event
 import io.karte.android.tracking.Tracker
 import io.karte.android.tracking.client.TrackRequest
 import io.mockk.MockKAnnotations
@@ -103,9 +104,8 @@ class IAMWebViewTest {
     @Test
     fun EventCallbackでtrackが呼ばれること() {
         mockkStatic(Tracker::class)
-        val eventNameSlot = slot<String>()
-        val jsonSlot = slot<JSONObject>()
-        every { Tracker.track(capture(eventNameSlot), capture(jsonSlot)) } just Runs
+        val eventSlot = slot<Event>()
+        every { Tracker.track(capture(eventSlot)) } just Runs
 
         val values = JSONObject().put("samplekey", "samplevalue")
 
@@ -113,9 +113,9 @@ class IAMWebViewTest {
             "event",
             JSONObject().put("event_name", "some_event").put("values", values)
         )
-        verify(exactly = 1) { Tracker.track(any(), any<JSONObject>()) }
-        assertThat(eventNameSlot.captured).isEqualTo("some_event")
-        assertThat(jsonSlot.captured.toString()).isEqualTo(values.toString())
+        verify(exactly = 1) { Tracker.track(any<Event>()) }
+        assertThat(eventSlot.captured.eventName.value).isEqualTo("some_event")
+        assertThat(eventSlot.captured.values.toString()).isEqualTo(values.toString())
     }
 
     @Test

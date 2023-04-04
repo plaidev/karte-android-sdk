@@ -20,11 +20,11 @@ import android.net.Uri
 import android.util.Base64
 import android.webkit.WebView
 import io.karte.android.KarteApp
-import io.karte.android.RobolectricTestCase
 import io.karte.android.core.usersync.UserSync
-import io.karte.android.setupKarteApp
-import io.karte.android.shadow.customShadowOf
-import io.karte.android.tearDownKarteApp
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.setupKarteApp
+import io.karte.android.test_lib.shadow.customShadowOf
+import io.karte.android.test_lib.tearDownKarteApp
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.unmockkConstructor

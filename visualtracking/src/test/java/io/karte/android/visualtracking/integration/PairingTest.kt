@@ -25,10 +25,10 @@ import android.graphics.Paint
 import android.net.Uri
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
-import io.karte.android.RobolectricTestCase
-import io.karte.android.parseBody
-import io.karte.android.setupKarteApp
-import io.karte.android.tearDownKarteApp
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.parseBody
+import io.karte.android.test_lib.setupKarteApp
+import io.karte.android.test_lib.tearDownKarteApp
 import io.karte.android.visualtracking.BasicAction
 import io.karte.android.visualtracking.ImageProvider
 import io.karte.android.visualtracking.PairingActivity

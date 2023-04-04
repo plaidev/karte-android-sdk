@@ -16,6 +16,7 @@
 package io.karte.android.tracking
 
 import io.karte.android.utilities.format
+import io.karte.android.utilities.merge
 import io.karte.android.utilities.toMap
 import io.karte.android.utilities.toValues
 import org.json.JSONObject
@@ -75,12 +76,14 @@ open class Event {
     internal val isDeprecatedEventName: Boolean
     internal val isDeprecatedEventFieldName: Boolean
     internal val isInvalidEventFieldValue: Boolean
+    val libraryName: String?
 
     /** [JSONObject] による初期化 */
     constructor(
         eventName: EventName,
         jsonObject: JSONObject? = null,
-        isRetryable: Boolean? = null
+        isRetryable: Boolean? = null,
+        libraryName: String? = null
     ) {
         this.eventName = eventName
         this.values = jsonObject?.format() ?: JSONObject()
@@ -88,13 +91,15 @@ open class Event {
         this.isDeprecatedEventName = validateEventName(eventName.value)
         this.isDeprecatedEventFieldName = validateEventFieldName(values)
         this.isInvalidEventFieldValue = validateEventFieldValue(eventName.value, values)
+        this.libraryName = libraryName
     }
 
     /** [Values] による初期化 */
-    constructor(eventName: EventName, values: Values? = null, isRetryable: Boolean? = null) : this(
+    constructor(eventName: EventName, values: Values? = null, isRetryable: Boolean? = null, libraryName: String? = null) : this(
         eventName,
         values?.let { JSONObject(values.format()) },
-        isRetryable
+        isRetryable,
+        libraryName
     )
 
     internal fun toJSON(forSerialize: Boolean = false): JSONObject {
@@ -103,7 +108,12 @@ open class Event {
             .put("values", values
                 .put("_local_event_date", date)
                 .apply { if (isRetry) put("_retry", true) }
-            ).apply { if (forSerialize) put("_is_retryable", isRetryable) }
+            ).apply {
+                if (forSerialize) {
+                    put("_is_retryable", isRetryable)
+                    put("library_name", libraryName)
+                }
+            }
     }
 
     companion object {
@@ -111,10 +121,12 @@ open class Event {
             return runCatching {
                 val jsonObject = JSONObject(json)
                 val isRetryable = runCatching { jsonObject.getBoolean("_is_retryable") }.getOrNull()
+                val libraryName = runCatching { jsonObject.getString("library_name") }.getOrNull()
                 Event(
                     CustomEventName(jsonObject.getString("event_name")),
                     jsonObject.getJSONObject("values"),
-                    isRetryable
+                    isRetryable,
+                    libraryName
                 )
             }.getOrNull()
         }
@@ -217,10 +229,17 @@ class MessageEvent(
     type: MessageEventType,
     val campaignId: String,
     val shortenId: String,
-    values: Values? = null
+    values: Values? = null,
+    libraryName: String? = null
 ) : Event(CustomEventName(type.eventNameStr), valuesOf(values) {
-    this["message"] = mapOf("campaign_id" to campaignId, "shorten_id" to shortenId)
-})
+    val merged = merge(mapOf(
+        "message" to mapOf(
+            "campaign_id" to campaignId,
+            "shorten_id" to shortenId
+        )
+    ))
+    putAll(merged)
+}, libraryName = libraryName)
 
 /**各イベント名を示すインターフェースです。*/
 interface EventName {

@@ -24,6 +24,8 @@ private const val LOG_TAG = "Karte.Variable"
 private const val JSON_KEY_VALUE = "value"
 private const val JSON_KEY_CAMPAIGN_ID = "campaign_id"
 private const val JSON_KEY_SHORTEN_ID = "shorten_id"
+private const val JSON_KEY_TIMESTAMP = "timestamp"
+private const val JSON_KEY_EVENT_HASH = "event_hash"
 
 /**
  * 設定値とそれに付随する情報を保持するためのクラスです。
@@ -45,7 +47,9 @@ data class Variable internal constructor(
     val name: String,
     val campaignId: String? = null,
     val shortenId: String? = null,
-    val value: Any? = null
+    val value: Any? = null,
+    val timestamp: String? = null,
+    val eventHash: String? = null
 ) {
 
     /**
@@ -165,6 +169,8 @@ data class Variable internal constructor(
                 .put(JSON_KEY_CAMPAIGN_ID, campaignId)
                 .put(JSON_KEY_SHORTEN_ID, shortenId)
                 .put(JSON_KEY_VALUE, value)
+                .put(JSON_KEY_TIMESTAMP, timestamp)
+                .put(JSON_KEY_EVENT_HASH, eventHash)
                 .toString()
         } catch (e: JSONException) {
             null
@@ -180,7 +186,9 @@ data class Variable internal constructor(
                     key,
                     json.getString(JSON_KEY_CAMPAIGN_ID),
                     json.getString(JSON_KEY_SHORTEN_ID),
-                    json.getString(JSON_KEY_VALUE)
+                    json.getString(JSON_KEY_VALUE),
+                    if (json.has(JSON_KEY_TIMESTAMP)) json.getString(JSON_KEY_TIMESTAMP) else null,
+                    if (json.has(JSON_KEY_EVENT_HASH)) json.getString(JSON_KEY_EVENT_HASH) else null
                 )
             } catch (e: JSONException) {
                 Logger.e(LOG_TAG, "Failed to load saved variable:", e)

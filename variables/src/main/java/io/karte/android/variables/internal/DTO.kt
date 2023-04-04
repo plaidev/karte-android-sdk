@@ -18,6 +18,7 @@ package io.karte.android.variables.internal
 import io.karte.android.tracking.Action
 import io.karte.android.tracking.Campaign
 import io.karte.android.tracking.DTO
+import io.karte.android.tracking.Trigger
 import org.json.JSONObject
 
 internal fun parse(jsonObject: JSONObject): VariableMessage? {
@@ -48,7 +49,8 @@ internal data class Content(var inlinedVariables: List<InlinedVariable> = emptyL
 
 internal data class VariableMessage(
     val action: Action<Content> = Action(content = Content()),
-    var campaign: Campaign = Campaign()
+    var campaign: Campaign = Campaign(),
+    var trigger: Trigger = Trigger()
 ) : DTO<VariableMessage> {
     val isEnabled: Boolean
         get() = campaign.campaignId != null && action.shortenId != null &&
@@ -59,5 +61,6 @@ internal data class VariableMessage(
     override fun load(jsonObject: JSONObject?): VariableMessage = apply {
         action.load(jsonObject?.optJSONObject("action"))
         campaign.load(jsonObject?.optJSONObject("campaign"))
+        trigger.load(jsonObject?.optJSONObject("trigger"))
     }
 }

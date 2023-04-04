@@ -21,10 +21,10 @@ import android.net.Uri
 import android.provider.Settings
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
-import io.karte.android.TrackerRequestDispatcher
-import io.karte.android.TrackerTestCase
-import io.karte.android.parseBody
-import io.karte.android.proceedBufferedCall
+import io.karte.android.test_lib.TrackerRequestDispatcher
+import io.karte.android.test_lib.integration.TrackerTestCase
+import io.karte.android.test_lib.parseBody
+import io.karte.android.test_lib.proceedBufferedCall
 import io.karte.android.utilities.map
 import org.json.JSONObject
 import org.junit.After

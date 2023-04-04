@@ -18,7 +18,7 @@ package io.karte.android.visualtracking.unit
 import android.app.Activity
 import android.view.View
 import android.widget.ListView
-import io.karte.android.RobolectricTestCase
+import io.karte.android.test_lib.RobolectricTestCase
 import io.karte.android.visualtracking.BasicAction
 import io.karte.android.visualtracking.createLinearLayoutWithText
 import io.karte.android.visualtracking.internal.HookTargetMethodFromDynamicInvoke

@@ -17,9 +17,9 @@ package io.karte.android.unit
 
 import io.karte.android.KarteApp
 import io.karte.android.core.logger.LogLevel
-import io.karte.android.proceedBufferedCall
-import io.karte.android.setupKarteApp
-import io.karte.android.tearDownKarteApp
+import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.setupKarteApp
+import io.karte.android.test_lib.tearDownKarteApp
 import io.karte.android.tracking.Tracker
 import io.karte.android.utilities.connectivity.Connectivity
 import io.karte.android.utilities.http.Client

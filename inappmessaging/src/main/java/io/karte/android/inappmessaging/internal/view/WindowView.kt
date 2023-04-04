@@ -48,7 +48,6 @@ import io.karte.android.inappmessaging.BuildConfig
 import io.karte.android.inappmessaging.R
 import io.karte.android.inappmessaging.internal.PanelWindowManager
 import java.lang.ref.WeakReference
-import java.util.ArrayList
 
 private const val LOG_TAG = "Karte.IAMView"
 private const val WINDOW_FLAGS_FOCUSED = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
@@ -203,14 +202,18 @@ internal open class WindowView(
             )
             return
         }
-        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // https://stackoverflow.com/questions/9247369/alpha-8-bitmaps-and-getpixel
-            Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
-        } else {
-            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        try {
+            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // https://stackoverflow.com/questions/9247369/alpha-8-bitmaps-and-getpixel
+                Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
+            } else {
+                Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            }
+            canvas = Canvas(bitmap)
+            webViewDrawingBitmap = bitmap
+        } catch (e: OutOfMemoryError) {
+            Logger.e(LOG_TAG, "OutOfMemoryError occurred: ${e.message}", e)
         }
-        canvas = Canvas(bitmap)
-        webViewDrawingBitmap = bitmap
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {

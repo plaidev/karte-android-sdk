@@ -23,14 +23,14 @@ import android.content.pm.ResolveInfo
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.firebase.messaging.RemoteMessage
-import io.karte.android.TrackerRequestDispatcher
-import io.karte.android.TrackerTestCase
-import io.karte.android.assertThatNoEventOccured
 import io.karte.android.notifications.MessageHandler
 import io.karte.android.notifications.MessageReceiver
 import io.karte.android.notifications.manager
 import io.karte.android.notifications.setPermission
-import io.karte.android.proceedBufferedCall
+import io.karte.android.test_lib.TrackerRequestDispatcher
+import io.karte.android.test_lib.assertThatNoEventOccured
+import io.karte.android.test_lib.integration.TrackerTestCase
+import io.karte.android.test_lib.proceedBufferedCall
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
@@ -38,7 +38,6 @@ import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows
-import java.util.HashMap
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 

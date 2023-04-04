@@ -16,7 +16,7 @@
 package io.karte.android.unit
 
 import com.google.common.truth.Truth.assertThat
-import io.karte.android.RobolectricTestCase
+import io.karte.android.test_lib.RobolectricTestCase
 import io.karte.android.tracking.queue.CircuitBreaker
 import io.karte.android.tracking.queue.getCurrentTimeMillisCB
 import io.mockk.every

@@ -34,7 +34,8 @@ class EventValidatorTest {
         val events = listOf(
             Event(CustomEventName("custom_event"), jsonObject = null),
             IdentifyEvent("user_id"),
-            ViewEvent("viewName", "title")
+            ViewEvent("viewName", "title"),
+            Event(CustomEventName("identify"), values = mapOf("foo" to "bar"))
         )
         events.forEach {
             assertThat(EventValidator.getDeprecatedMessages(it)).isEmpty()

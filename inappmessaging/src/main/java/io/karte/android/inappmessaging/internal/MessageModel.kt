@@ -23,7 +23,6 @@ import io.karte.android.utilities.map
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.ArrayList
 
 private const val LOG_TAG = "Karte.IAMessages"
 
@@ -31,7 +30,12 @@ internal class MessageModel @Throws(JSONException::class)
 constructor(private val data: JSONObject?, private val request: TrackRequest) {
 
     val string: String
-        get() = Base64.encodeToString(data.toString().toByteArray(), Base64.NO_WRAP)
+        get() = runCatching {
+            Base64.encodeToString(data.toString().toByteArray(), Base64.NO_WRAP)
+        }.onFailure {
+            // OutOfMemory を想定
+            Logger.e(LOG_TAG, "Failed to encode: ${it.message}", it)
+        }.getOrDefault("")
 
     val messages: List<JSONObject>
         @Throws(JSONException::class)
@@ -99,17 +103,19 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
     }
 
     override fun toString(): String {
-        return "Messages: ${messages.joinToString { message ->
-            val action = message.optJSONObject("action")
-            JSONObject()
-                .put(
-                    "action", JSONObject()
-                        .put("_id", action?.optString("_id"))
-                        .put("shorten_id", action?.optString("shorten_id"))
-                )
-                .put("campaign", message.optJSONObject("campaign"))
-                .toString()
-        }}"
+        return "Messages: ${
+            messages.joinToString { message ->
+                val action = message.optJSONObject("action")
+                JSONObject()
+                    .put(
+                        "action", JSONObject()
+                            .put("_id", action?.optString("_id"))
+                            .put("shorten_id", action?.optString("shorten_id"))
+                    )
+                    .put("campaign", message.optJSONObject("campaign"))
+                    .toString()
+            }
+        }"
     }
 
     internal interface MessageAdapter {

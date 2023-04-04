@@ -20,13 +20,13 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Intent
 import com.google.common.truth.Truth.assertThat
-import io.karte.android.RobolectricTestCase
 import io.karte.android.notifications.MessageReceiveActivity
 import io.karte.android.notifications.MessageReceiver
 import io.karte.android.notifications.internal.wrapper.ACTION_KARTE_IGNORED
 import io.karte.android.notifications.internal.wrapper.IntentProcessor
 import io.karte.android.notifications.internal.wrapper.RemoteMessageWrapper
 import io.karte.android.notifications.internal.wrapper.isTrampolineBlocked
+import io.karte.android.test_lib.RobolectricTestCase
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic

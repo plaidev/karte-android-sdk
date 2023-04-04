@@ -16,10 +16,10 @@
 package io.karte.android.notifications
 
 import android.app.NotificationManager
-import io.karte.android.RobolectricTestCase
-import io.karte.android.getThreadByName
 import io.karte.android.notifications.internal.THREAD_NAME
-import io.karte.android.proceedBufferedCall
+import io.karte.android.test_lib.RobolectricTestCase
+import io.karte.android.test_lib.getThreadByName
+import io.karte.android.test_lib.proceedBufferedCall
 import org.robolectric.Shadows
 
 fun NotificationManager.setPermission(enabled: Boolean) {

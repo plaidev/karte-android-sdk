@@ -17,10 +17,10 @@ package io.karte.android.notifications.integration
 
 import com.google.common.truth.Truth
 import io.karte.android.KarteApp
-import io.karte.android.integration.OptOutTestCase
-import io.karte.android.parseBody
-import io.karte.android.proceedBufferedCall
-import io.karte.android.setupKarteApp
+import io.karte.android.test_lib.integration.OptOutTestCase
+import io.karte.android.test_lib.parseBody
+import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.setupKarteApp
 import okhttp3.mockwebserver.MockResponse
 import org.json.JSONObject
 import org.junit.Before

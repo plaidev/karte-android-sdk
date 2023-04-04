@@ -31,6 +31,7 @@ import io.karte.android.core.library.LibraryConfig
 class ExperimentalConfig private constructor(
     val operationMode: OperationMode,
     appKey: String,
+    apiKey: String,
     baseUrl: String,
     logCollectionUrl: String,
     isDryRun: Boolean,
@@ -39,6 +40,7 @@ class ExperimentalConfig private constructor(
     libraryConfigs: List<LibraryConfig>
 ) : Config(
     appKey,
+    apiKey,
     baseUrl,
     logCollectionUrl,
     isDryRun,
@@ -60,6 +62,7 @@ class ExperimentalConfig private constructor(
         override fun build(): ExperimentalConfig = ExperimentalConfig(
             operationMode,
             appKey,
+            apiKey,
             baseUrl,
             logCollectionUrl,
             isDryRun,

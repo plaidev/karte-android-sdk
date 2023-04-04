@@ -135,7 +135,7 @@ class Command
 
   def initialize
     @parser = OptionParser.new do |opt|
-      opt.program_name = 'generate_docs'
+      opt.program_name = 'publish_docs'
       opt.version = '0.0.1'
       opt.banner = "Usage: #{opt.program_name} [options]"
 
@@ -173,7 +173,7 @@ class Command
 
     docs_dir = File.join(git.workspace, 'docs', 'android')
     FileUtils.mkdir_p(docs_dir)
-    modules = ['core', 'inappmessaging', 'notifications', 'variables', 'visualtracking']
+    modules = ['core', 'inappmessaging', 'notifications', 'variables', 'visualtracking', 'inbox']
     modules.each do |mod|
       docs = Documents.new(mod, 'android', @workspace)
       if docs.publish(@force)

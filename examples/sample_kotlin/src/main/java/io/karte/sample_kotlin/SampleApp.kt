@@ -7,18 +7,25 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import io.karte.android.KarteApp
+import io.karte.android.core.config.Config
 import io.karte.android.core.logger.LogLevel
 import io.karte.android.core.logger.Logger
 import io.karte.android.variables.Variables
 
 private const val APP_KEY = "SET_YOUR_APP_KEY"
+private const val API_KEY = "SET_YOUR_API_KEY"
 
 class SampleApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
         Logger.level = LogLevel.DEBUG
-        KarteApp.setup(this, APP_KEY)
+
+        val config = Config.Builder().apply {
+            appKey = APP_KEY
+            apiKey = API_KEY
+        }.build()
+        KarteApp.setup(this, config)
         Variables.fetch()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(this)

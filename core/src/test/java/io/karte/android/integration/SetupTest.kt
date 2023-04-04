@@ -16,67 +16,32 @@
 package io.karte.android.integration
 
 import android.app.Activity
-import android.content.Context
-import android.content.SharedPreferences
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
-import io.karte.android.RobolectricTestCase
-import io.karte.android.TrackerRequestDispatcher
-import io.karte.android.VALID_APPKEY
 import io.karte.android.core.config.Config
 import io.karte.android.core.config.ExperimentalConfig
 import io.karte.android.core.config.OperationMode
 import io.karte.android.core.library.LibraryConfig
-import io.karte.android.eventNameTransform
 import io.karte.android.modules.crashreporting.CrashReporting
 import io.karte.android.modules.crashreporting.CrashReportingConfig
-import io.karte.android.parseBody
-import io.karte.android.proceedBufferedCall
-import io.karte.android.setupKarteApp
-import io.karte.android.tearDownKarteApp
 import io.karte.android.test.R
+import io.karte.android.test_lib.eventNameTransform
+import io.karte.android.test_lib.integration.SetupTestCase
+import io.karte.android.test_lib.parseBody
+import io.karte.android.test_lib.proceedBufferedCall
+import io.karte.android.test_lib.setupKarteApp
 import io.karte.android.tracking.Tracker
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
-
-abstract class SetupTestCase : RobolectricTestCase() {
-    var setupAppKey = "setup_appkey_1234567890123456789"
-    val advertisingId = "advertisingId"
-
-    lateinit var server: MockWebServer
-    lateinit var dispatcher: TrackerRequestDispatcher
-
-    @Before
-    fun init() {
-        server = MockWebServer()
-        dispatcher = TrackerRequestDispatcher().also { server.dispatcher = it }
-        server.start()
-    }
-
-    @After
-    fun tearDown() {
-        tearDownKarteApp()
-        server.shutdown()
-    }
-
-    protected fun getPreferenceEdit(): SharedPreferences.Editor {
-        return application.getSharedPreferences(
-            "io.karte.android.tracker.Data_$setupAppKey",
-            Context.MODE_PRIVATE
-        ).edit()
-    }
-}
 
 @Suppress("NonAsciiCharacters")
 @RunWith(Enclosed::class)
@@ -209,7 +174,7 @@ class SetupTest {
             assertThat(KarteApp.self.tracker).isNull()
             KarteApp.setup(application, "b".repeat(100))
             assertThat(KarteApp.self.tracker).isNull()
-            KarteApp.setup(application, VALID_APPKEY)
+            KarteApp.setup(application, "c".repeat(32))
             assertThat(KarteApp.self.tracker).isNotNull()
         }
     }
@@ -254,6 +219,18 @@ class SetupTest {
             }
             assertThat(dispatcher.trackedRequests().first().getHeader("X-KARTE-App-Key"))
                 .isEqualTo(expected)
+        }
+
+        @Test
+        fun apiKey_リソースまたはconfig経由で設定されること() {
+            val expected = if (pattern == SetupPattern.FROM_RESOURCE) {
+                setup()
+                application.getString(R.string.karte_api_key)
+            } else {
+                setup(Config.Builder().apply { apiKey = "test_api_key" })
+                "test_api_key"
+            }
+            assertThat(KarteApp.self.config.apiKey).isEqualTo(expected)
         }
 
         @Test

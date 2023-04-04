@@ -48,6 +48,8 @@ import io.karte.android.inappmessaging.internal.javascript.OPEN_URL
 import io.karte.android.inappmessaging.internal.javascript.STATE_CHANGE
 import io.karte.android.inappmessaging.internal.javascript.State
 import io.karte.android.inappmessaging.internal.javascript.VISIBILITY
+import io.karte.android.tracking.CustomEventName
+import io.karte.android.tracking.Event
 import io.karte.android.tracking.MessageEventName
 import io.karte.android.tracking.Tracker
 import io.karte.android.utilities.asString
@@ -300,7 +302,7 @@ constructor(
                     val eventName = callback.data.getString("event_name")
                     val values = callback.data.getJSONObject("values")
                     Logger.d(LOG_TAG, "Received event callback: event_name=$eventName")
-                    Tracker.track(eventName, values)
+                    Tracker.track(Event(CustomEventName(eventName), values, libraryName = InAppMessaging.name))
                     notifyCampaignOpenOrClose(eventName, values)
                 }
                 STATE_CHANGE -> {
