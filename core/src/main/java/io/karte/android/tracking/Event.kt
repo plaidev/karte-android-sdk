@@ -94,6 +94,8 @@ open class Event {
         this.libraryName = libraryName
     }
 
+    constructor(eventName: EventName, jsonObject: JSONObject? = null, isRetryable: Boolean? = null) : this(eventName, jsonObject, isRetryable, null)
+
     /** [Values] による初期化 */
     constructor(eventName: EventName, values: Values? = null, isRetryable: Boolean? = null, libraryName: String? = null) : this(
         eventName,
@@ -101,6 +103,8 @@ open class Event {
         isRetryable,
         libraryName
     )
+
+    constructor(eventName: EventName, values: Values? = null, isRetryable: Boolean? = null) : this(eventName, values, isRetryable, null)
 
     internal fun toJSON(forSerialize: Boolean = false): JSONObject {
         return JSONObject()
@@ -232,12 +236,14 @@ class MessageEvent(
     values: Values? = null,
     libraryName: String? = null
 ) : Event(CustomEventName(type.eventNameStr), valuesOf(values) {
-    val merged = merge(mapOf(
-        "message" to mapOf(
-            "campaign_id" to campaignId,
-            "shorten_id" to shortenId
+    val merged = merge(
+        mapOf(
+            "message" to mapOf(
+                "campaign_id" to campaignId,
+                "shorten_id" to shortenId
+            )
         )
-    ))
+    )
     putAll(merged)
 }, libraryName = libraryName)
 

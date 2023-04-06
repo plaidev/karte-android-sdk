@@ -108,6 +108,7 @@ interface TrackModule : Module {
      * またSDK初期化時に一度だけ呼ばれます。
      */
     val eventRejectionFilterRules: List<TrackEventRejectionFilterRule>
+        get() = emptyList()
 
     /**
      * リクエスト処理に割り込みます。
