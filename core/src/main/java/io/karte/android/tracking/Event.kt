@@ -94,6 +94,7 @@ open class Event {
         this.libraryName = libraryName
     }
 
+    /** [JSONObject] による初期化 */
     constructor(eventName: EventName, jsonObject: JSONObject? = null, isRetryable: Boolean? = null) : this(eventName, jsonObject, isRetryable, null)
 
     /** [Values] による初期化 */
@@ -104,6 +105,7 @@ open class Event {
         libraryName
     )
 
+    /** [Values] による初期化 */
     constructor(eventName: EventName, values: Values? = null, isRetryable: Boolean? = null) : this(eventName, values, isRetryable, null)
 
     internal fun toJSON(forSerialize: Boolean = false): JSONObject {
@@ -245,7 +247,9 @@ class MessageEvent(
         )
     )
     putAll(merged)
-}, libraryName = libraryName)
+}, libraryName = libraryName) {
+    constructor(type: MessageEventType, campaignId: String, shortenId: String, values: Values?) : this(type, campaignId, shortenId, values, null)
+}
 
 /**各イベント名を示すインターフェースです。*/
 interface EventName {
