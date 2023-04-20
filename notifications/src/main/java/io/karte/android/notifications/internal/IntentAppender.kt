@@ -37,7 +37,7 @@ internal object IntentAppender {
         var intent: Intent? = null
         if (link.isNotEmpty()) {
             val uri = Uri.parse(link)
-            intent = Notifications.self?.app?.executeCommand(uri)?.filterIsInstance<Intent>()
+            intent = Notifications.self?.app?.executeCommand(uri, true)?.filterIsInstance<Intent>()
                 ?.firstOrNull()
             if (intent == null) {
                 intent = Intent(Intent.ACTION_VIEW, uri)

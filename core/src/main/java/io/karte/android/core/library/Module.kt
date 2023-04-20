@@ -16,6 +16,7 @@
 package io.karte.android.core.library
 
 import android.content.Intent
+import android.net.Uri
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
 import io.karte.android.tracking.queue.TrackEventRejectionFilterRule
@@ -118,4 +119,38 @@ interface TrackModule : Module {
      * @return 編集済みのリクエストを返します。
      */
     fun intercept(request: TrackRequest): TrackRequest
+}
+
+private const val karteSchemeLength = 36
+
+/**
+ * コマンドを実行するためのモジュールタイプです。
+ *
+ * **サブモジュールと連携するために用意している機能であり、通常利用で使用することはありません。**
+ */
+interface CommandModule : Module {
+    /**
+     * コマンドを実行します。
+     *
+     * @param[uri] コマンドを表現するURL
+     * @param[isDelay] 遅延実行すべきかを表す真偽値
+     * @return コマンドの実行するための[Intent]
+     */
+    fun execute(uri: Uri, isDelay: Boolean = false): Intent? {
+        return null
+    }
+
+    /**
+     * 対象のKARTEのコマンドかどうか検証します。
+     *
+     * @param[uri] 検証対象のURL
+     * @return コマンドの検証結果
+     */
+    fun validate(uri: Uri): Boolean {
+        val scheme = uri.scheme
+        if (scheme != null && scheme.startsWith("krt-") && scheme.length == karteSchemeLength) {
+            return true
+        }
+        return false
+    }
 }

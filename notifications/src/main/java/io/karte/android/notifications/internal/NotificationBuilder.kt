@@ -45,10 +45,18 @@ internal class NotificationBuilder(
             .setContentTitle(attributes.title)
             .setContentText(attributes.body)
 
-        val bundle: Bundle = context.packageManager.getApplicationInfo(
-            context.packageName,
-            PackageManager.GET_META_DATA
-        ).metaData ?: Bundle()
+        val bundle = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.packageManager.getApplicationInfo(
+                context.packageName,
+                PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
+            ).metaData
+        } else {
+            @Suppress("DEPRECATION")
+            context.packageManager.getApplicationInfo(
+                context.packageName,
+                PackageManager.GET_META_DATA
+            ).metaData
+        } ?: Bundle()
         if (bundle.containsKey(META_DATA_ICON_KEY)) {
             builder.setSmallIcon(bundle.getInt(META_DATA_ICON_KEY))
         } else {

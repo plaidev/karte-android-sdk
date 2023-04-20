@@ -5,12 +5,12 @@ def fcmCompileVersion = "20.3.0"
 
 android {
     namespace 'io.karte.android.notifications'
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 16
         //noinspection OldTargetApi
-        targetSdkVersion 31
+        targetSdkVersion 33
         buildConfigField "String", "LIB_VERSION", "\"$version\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

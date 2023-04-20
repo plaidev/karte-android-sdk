@@ -15,59 +15,92 @@
 //
 package io.karte.android.notifications.unit
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import io.karte.android.notifications.Notifications
+import io.karte.android.notifications.internal.command.RegisterPushCommandExecutor
 import io.karte.android.test_lib.RobolectricTestCase
 import io.karte.android.test_lib.setupKarteApp
 import io.karte.android.test_lib.tearDownKarteApp
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.spyk
+import io.mockk.verify
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.lang.ref.WeakReference
+import kotlin.test.assertNull
 
 @RunWith(RobolectricTestRunner::class)
 class CommandTest : RobolectricTestCase() {
     private val testApiKey = "aWgSxztqGSpKN0otg5w1ruUk8kTBF5vb"
+    private lateinit var notificationsMock: Notifications
+    private lateinit var commandExecutor: RegisterPushCommandExecutor
 
     @Before
     fun setup() {
         setupKarteApp()
+        notificationsMock = spyk(Notifications.self!!, recordPrivateCalls = true)
+        commandExecutor = spyk(recordPrivateCalls = true)
+        notificationsMock.app.register(commandExecutor)
+        Notifications.self = notificationsMock
     }
 
     @After
     fun tearDown() {
         tearDownKarteApp()
+        clearMocks(notificationsMock, commandExecutor)
+        notificationsMock.app.unregister(commandExecutor)
     }
 
     @Test
-    fun testCommand() {
-        testCommandHasValidIntent(Uri.parse("app-settings:"), "package:${application.packageName}")
-        testCommandHasValidIntent(
-            Uri.parse("krt-$testApiKey://open-settings?key=value"),
-            "package:${application.packageName}"
-        )
-        testCommandHasValidIntent(
-            Uri.parse("krt-$testApiKey://open-store"),
-            "market://details?id=${application.packageName}"
-        )
+    fun testCommandExecute() {
+        executeCommand(Uri.parse("invalid-uri"))
+        verify(exactly = 1) { commandExecutor.validate(any()) }
+        verify(exactly = 0) { commandExecutor.execute(any()) }
 
-        testCommandReturnsNull(Uri.parse("invalid-scheme:"))
-        testCommandReturnsNull(Uri.parse("app-settings-invalid:"))
-        testCommandReturnsNull(Uri.parse("krt-$testApiKey://open-settings-invalid"))
+        // uriが条件にあえば実行される
+        val intent = executeCommand(Uri.parse("krt-$testApiKey://register-push"))
+        verify(exactly = 2) { commandExecutor.validate(any()) }
+        verify(exactly = 1) { commandExecutor.execute(any()) }
+        verify(exactly = 0) { commandExecutor["requestPermission"](any<Activity>()) }
+        assertNull(intent)
+
+        // 実際に表示されるのはactivityが存在する時のみ
+        every { notificationsMock.currentActivity } returns WeakReference(Activity())
+        executeCommand(Uri.parse("krt-$testApiKey://register-push"))
+        verify(exactly = 3) { commandExecutor.validate(any()) }
+        verify(exactly = 2) { commandExecutor.execute(any()) }
+        verify(exactly = 1) { commandExecutor["requestPermission"](any<Activity>()) }
     }
 
-    private fun testCommandHasValidIntent(uri: Uri, expected: String?) {
-        val intent = Notifications.self?.app?.executeCommand(uri)?.filterIsInstance<Intent>()
-            ?.firstOrNull()
-        Assert.assertEquals(expected, intent?.data.toString())
+    @Test
+    fun testCommandWithDelay() {
+        executeCommand(Uri.parse("invalid-uri"), true)
+        verify(exactly = 1) { commandExecutor.validate(any()) }
+        verify(exactly = 0) { commandExecutor.execute(any(), true) }
+
+        // uriが条件にあえば実行される
+        val intent = executeCommand(Uri.parse("krt-$testApiKey://register-push"), true)
+        verify(exactly = 2) { commandExecutor.validate(any()) }
+        verify(exactly = 1) { commandExecutor.execute(any(), true) }
+        verify(exactly = 0) { commandExecutor["requestPermission"](any<Activity>()) }
+        assertNull(intent)
+
+        // 遅延実行時はactivityが存在してもアラートは表示されない
+        every { notificationsMock.currentActivity } returns WeakReference(Activity())
+        executeCommand(Uri.parse("krt-$testApiKey://register-push"), true)
+        verify(exactly = 3) { commandExecutor.validate(any()) }
+        verify(exactly = 2) { commandExecutor.execute(any(), true) }
+        verify(exactly = 0) { commandExecutor["requestPermission"](any<Activity>()) }
     }
 
-    private fun testCommandReturnsNull(uri: Uri) {
-        val intent = Notifications.self?.app?.executeCommand(uri)?.filterIsInstance<Intent>()
+    private fun executeCommand(uri: Uri, isDelay: Boolean = false): Intent? {
+        return Notifications.self?.app?.executeCommand(uri, isDelay)?.filterIsInstance<Intent>()
             ?.firstOrNull()
-        Assert.assertNull(intent)
     }
 }
