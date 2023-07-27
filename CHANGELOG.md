@@ -16,6 +16,10 @@
 ** 🔨CHANGED**
 - Native機能呼び出しをサブモジュールから追加可能にしました。
 
+### InAppMessaging 2.16.0
+** 💊FIXED **
+- タップ時のパフォーマンスを改善する仕組みに不具合があったので修正しました。
+
 ### Notifications 2.10.0
 ** 🎉 FEATURE**
 - Android 13以降において、[Native機能呼び出し](https://support.karte.io/post/1F1VeY2yy3mrTIO2U4HhHi)のプッシュ通知の許可を求めるアラートの表示に対応しました。

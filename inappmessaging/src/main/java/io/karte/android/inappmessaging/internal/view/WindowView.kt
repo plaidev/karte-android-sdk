@@ -166,6 +166,7 @@ internal open class WindowView(
     }
 
     fun updateTouchableRegions(touchableRegions: List<RectF>) {
+        Logger.d(LOG_TAG, "updateTouchableRegions: $touchableRegions")
         this.knownTouchableRegions = touchableRegions
     }
 

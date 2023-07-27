@@ -379,12 +379,12 @@ constructor(
         try {
             val density = resources.displayMetrics.density
 
-            return regionsJson.toList().filterIsInstance<JSONObject>().map { rect ->
+            return regionsJson.toList().filterIsInstance<Map<String, Double>>().map { rect ->
                 RectF(
-                    (density * rect.getDouble("left")).toFloat(),
-                    (density * rect.getDouble("top")).toFloat(),
-                    (density * rect.getDouble("right")).toFloat(),
-                    (density * rect.getDouble("bottom")).toFloat()
+                    (density * rect.getValue("left")).toFloat(),
+                    (density * rect.getValue("top")).toFloat(),
+                    (density * rect.getValue("right")).toFloat(),
+                    (density * rect.getValue("bottom")).toFloat()
                 )
             }
         } catch (e: Exception) {
