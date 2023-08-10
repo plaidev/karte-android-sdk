@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 PLAID, Inc.
+//  Copyright 2023 PLAID, Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -13,155 +13,51 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-@file:Suppress("DEPRECATION")
 
 package io.karte.android.inappmessaging.internal
 
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
-import android.app.AlertDialog
-import android.app.Dialog
-import android.app.DialogFragment
-import android.net.Uri
 import android.os.Build
-import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
-import android.webkit.ConsoleMessage
-import android.webkit.JsResult
-import android.webkit.ValueCallback
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import androidx.fragment.app.FragmentActivity
-import io.karte.android.KarteApp
 import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.view.WindowView
 
 private const val LOG_TAG = "Karte.IAMView"
-private const val FRAGMENT_TAG = "Karte.FileChooserFragment"
 
 @SuppressLint("ViewConstructor")
 @TargetApi(Build.VERSION_CODES.KITKAT)
-internal class IAMWindow(
-    activity: Activity,
-    panelWindowManager: PanelWindowManager,
-    private val webView: IAMWebView
-) : WindowView(activity, panelWindowManager), Window,
-    ParentView {
-    override var presenter: IAMPresenter? = null
-
-    override val isShowing: Boolean
+internal class IAMWindow(val activity: Activity, panelWindowManager: PanelWindowManager) : WindowView(activity, panelWindowManager) {
+    val isShowing: Boolean
         get() = visibility == VISIBLE && isAttachedToWindow
 
-    init {
-        if (webView.parent != null) {
+    override fun addView(child: View) {
+        if (child.parent != null) {
             Logger.e(LOG_TAG, "webView already has Parent View!")
-            (webView.parent as ViewGroup).removeView(webView)
+            (child.parent as ViewGroup).removeView(child)
         }
-        this.addView(webView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-        webView.parentView = this
-        webView.setWebChromeClient(object : WebChromeClient() {
-
-            override fun onJsAlert(
-                view: WebView,
-                url: String,
-                message: String,
-                result: JsResult
-            ): Boolean {
-                AlertDialogFragment.show(activity, message)
-                result.cancel()
-                return true
-            }
-
-            override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
-                Logger.d(LOG_TAG, "Console message:" + consoleMessage.message())
-                return super.onConsoleMessage(consoleMessage)
-            }
-
-            override fun onShowFileChooser(
-                webView: WebView,
-                filePathCallback: ValueCallback<Array<Uri>>,
-                fileChooserParams: FileChooserParams
-            ): Boolean {
-                val fileChooserListener = { uris: Array<Uri>? ->
-                    filePathCallback.onReceiveValue(uris)
-                }
-                try {
-                    if (activity is FragmentActivity) {
-                        val fragment = FileChooserFragment.newInstance()
-                        fragment.listener = fileChooserListener
-
-                        val transaction = activity.supportFragmentManager.beginTransaction()
-                        transaction.add(fragment, FRAGMENT_TAG)
-                        transaction.commit()
-                        return true
-                    }
-                } catch (e: NoClassDefFoundError) {
-                    // AndroidXを参照していない場合はチェック時にexceptionが発生するため、迂回する。
-                    Logger.d(LOG_TAG, "androidx not linked.")
-                }
-                val fragment = FileChooserDeprecatedFragment.newInstance()
-                fragment.listener = fileChooserListener
-
-                val transaction = activity.fragmentManager.beginTransaction()
-                transaction.add(fragment, FRAGMENT_TAG)
-                transaction.commit()
-                return true
-            }
-        })
+        this.addView(child, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
     }
 
-    override fun destroy(isForceClose: Boolean) {
-        webView.webChromeClient = null
-        webView.parentView = null
-        postDelayed({
-            this.removeView(webView)
-            dismiss()
-        }, 50)
-        webView.reset(isForceClose)
-    }
-
-    override fun show() {
+    fun show(focus: Boolean, view: View?) {
+        setFocus(focus)
+        view?.let { addView(view) }
         super.show()
         InAppMessaging.delegate?.onWindowPresented()
     }
 
-    override fun dismiss() {
+    fun dismiss(withDelay: Boolean) {
+        if (withDelay) {
+            postDelayed({
+                dismiss(false)
+            }, 50)
+            return
+        }
         super.dismiss()
+        removeAllViews()
         InAppMessaging.delegate?.onWindowDismissed()
-    }
-
-    override fun openUrl(uri: Uri, withReset: Boolean) {
-        if (!withReset) {
-            (context as? Activity)?.let { InAppMessaging.self?.enablePreventRelayFlag(it) }
-        }
-        KarteApp.openUrl(uri, context)
-    }
-
-    override fun errorOccurred() {
-        presenter?.destroy()
-    }
-}
-
-internal class AlertDialogFragment : DialogFragment() {
-
-    override fun onCreateDialog(savedInstanceState: Bundle): Dialog {
-        val builder = AlertDialog.Builder(activity)
-        val message = arguments.getString("message")
-        builder.setMessage(message)
-        builder.setPositiveButton(android.R.string.ok, null)
-        return builder.create()
-    }
-
-    companion object {
-
-        internal fun show(activity: Activity, message: String) {
-            val alertDialogFragment = AlertDialogFragment()
-            val bundle = Bundle()
-            bundle.putString("message", message)
-            alertDialogFragment.arguments = bundle
-            alertDialogFragment.show(activity.fragmentManager, "krt_alert_dialog")
-        }
     }
 }

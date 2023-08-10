@@ -178,6 +178,12 @@ class ModuleTest {
     class TrackModuleTest : ModuleTestCase() {
         override val mock = mockk<TrackModule>(relaxed = true)
 
+        @Before
+        fun start() {
+            // relaxedだと他のテストがうまく動かないので全体でmockする
+            every { mock.prepare(any()) } returnsArgument 0
+        }
+
         @Test
         fun interceptが毎回呼ばれること() {
             // interceptではrequestをそのまま返す
@@ -192,6 +198,21 @@ class ModuleTest {
             Tracker.track("test")
             proceedBufferedCall()
             verify(exactly = 2) { mock.intercept(any()) }
+        }
+
+        @Test
+        fun prepareが毎回呼ばれること() {
+            // startでmock済み
+
+            verify(exactly = 0) { mock.prepare(any()) }
+
+            Tracker.track("test")
+            proceedBufferedCall()
+            verify(exactly = 1) { mock.prepare(any()) }
+
+            Tracker.track("test")
+            proceedBufferedCall()
+            verify(exactly = 2) { mock.prepare(any()) }
         }
 
         @Test

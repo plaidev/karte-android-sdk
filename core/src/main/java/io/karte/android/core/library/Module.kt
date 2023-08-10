@@ -17,6 +17,7 @@ package io.karte.android.core.library
 
 import android.content.Intent
 import android.net.Uri
+import io.karte.android.tracking.Event
 import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
 import io.karte.android.tracking.queue.TrackEventRejectionFilterRule
@@ -110,6 +111,19 @@ interface TrackModule : Module {
      */
     val eventRejectionFilterRules: List<TrackEventRejectionFilterRule>
         get() = emptyList()
+
+    /**
+     * イベントの準備処理に割り込みます。
+     * Trackerがイベントを受け取りリクエストキューに入れる前に発火されます。
+     *
+     * 編集済みのイベントを返すことで、イベントの内容を編集することが可能です。
+     *
+     * @param event イベント
+     * @return 編集済みのイベントを返します
+     */
+    fun prepare(event: Event): Event {
+        return event
+    }
 
     /**
      * リクエスト処理に割り込みます。

@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 PLAID, Inc.
+//  Copyright 2023 PLAID, Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -13,351 +13,159 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
+
 package io.karte.android.inappmessaging.internal
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.Color
-import android.graphics.RectF
 import android.net.Uri
-import android.net.http.SslError
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.view.DisplayCutout
-import android.view.KeyEvent
-import android.view.WindowManager
 import android.webkit.JavascriptInterface
-import android.webkit.SslErrorHandler
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import androidx.annotation.VisibleForTesting
+import android.webkit.ValueCallback
 import io.karte.android.core.logger.Logger
-import io.karte.android.inappmessaging.BuildConfig
 import io.karte.android.inappmessaging.InAppMessaging
-import io.karte.android.inappmessaging.internal.javascript.Callback
-import io.karte.android.inappmessaging.internal.javascript.DOCUMENT_CHANGED
-import io.karte.android.inappmessaging.internal.javascript.EVENT
-import io.karte.android.inappmessaging.internal.javascript.OPEN_URL
-import io.karte.android.inappmessaging.internal.javascript.STATE_CHANGE
+import io.karte.android.inappmessaging.internal.javascript.JsMessage
 import io.karte.android.inappmessaging.internal.javascript.State
-import io.karte.android.inappmessaging.internal.javascript.VISIBILITY
+import io.karte.android.inappmessaging.internal.view.BaseWebView
 import io.karte.android.tracking.CustomEventName
 import io.karte.android.tracking.Event
 import io.karte.android.tracking.MessageEventName
 import io.karte.android.tracking.Tracker
-import io.karte.android.utilities.asString
-import io.karte.android.utilities.toList
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.IOException
-import java.util.ArrayList
-import kotlin.math.roundToInt
 
 private const val LOG_TAG = "Karte.IAMWebView"
-private const val FILE_SCHEME = "file://"
 
-internal interface ParentView {
-    fun updateTouchableRegions(touchableRegions: List<RectF>)
-    fun openUrl(uri: Uri, withReset: Boolean = true)
-    fun errorOccurred()
-    fun show()
-    fun dismiss()
-}
-
-@SuppressLint("ViewConstructor", "SetJavaScriptEnabled", "AddJavascriptInterface")
-internal class IAMWebView
-constructor(
-    context: Context,
-    private val shouldOpenURLListener: ((uri: Uri) -> Boolean)?
-) :
-    WebView(context.applicationContext), MessageModel.MessageView {
-    private val uiThreadHandler: Handler
-
-    override var adapter: MessageModel.MessageAdapter? = null
-    internal var parentView: ParentView? = null
-    internal var hasMessage: Boolean = false
-
-    @VisibleForTesting
-    var state = State.LOADING
-
-    class SafeInsets(
-        val left: Int,
-        val top: Int,
-        val right: Int,
-        val bottom: Int
-    )
-
-    private var safeInsets: SafeInsets? = null
+@SuppressLint("ViewConstructor", "AddJavascriptInterface")
+internal class IAMWebView(context: Context, private val delegate: WebViewDelegate) : BaseWebView(context) {
+    var visible: Boolean = false
+    private val uiThreadHandler: Handler = Handler(Looper.getMainLooper())
+    internal var state: State = State.LOADING
+        private set
+    private val queue: MutableList<Data> = mutableListOf()
+    private val isReady
+        get() = state == State.READY
 
     init {
-
-        settings.javaScriptEnabled = true
-        @Suppress("DEPRECATION")
-        settings.savePassword = false
-        settings.domStorageEnabled = true
-        settings.databaseEnabled = true
-
-        setBackgroundColor(Color.TRANSPARENT)
-
-        // 初回表示時にスクロールバーが画面端にちらつく現象の回避
-        isVerticalScrollBarEnabled = false
-        isHorizontalScrollBarEnabled = false
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            @Suppress("DEPRECATION")
-            settings.databasePath =
-                getContext().filesDir.path + getContext().packageName + "/databases/"
-        }
-        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            setWebContentsDebuggingEnabled(true)
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Web版も合わせて接客側で対応ができるまではダークモードはオフにする
-            settings.forceDark = WebSettings.FORCE_DARK_OFF
-        }
-
-        webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(webView: WebView, url: String): Boolean {
-                if (!Callback.isTrackerJsCallback(url)) {
-                    // アプリ内メッセージにリンクが設定されていない状態で、リンクをタップすると file:// から始まるURLへのアクセスが発生する
-                    // Android N以上だとクラッシュする可能性があるので、 file:// から始まるURLは無視する
-                    // https://github.com/plaidev/karte-io/issues/24432
-                    if (url.startsWith(FILE_SCHEME)) return true
-
-                    val uri = Uri.parse(url)
-                    if (shouldOpenURLListener?.invoke(uri) != false) {
-                        parentView?.openUrl(uri)
-                    }
-                    return true
-                }
-                return true
-            }
-
-            override fun onReceivedSslError(
-                view: WebView,
-                handler: SslErrorHandler,
-                error: SslError
-            ) {
-                super.onReceivedSslError(view, handler, error)
-                handleError("SslError occurred in WebView. $error", error.url)
-            }
-
-            // api23以上でmainpage以外でも呼ばれる
-            @TargetApi(Build.VERSION_CODES.M)
-            override fun onReceivedHttpError(
-                view: WebView,
-                request: WebResourceRequest,
-                errorResponse: WebResourceResponse?
-            ) {
-                super.onReceivedHttpError(view, request, errorResponse)
-                var message = "HttpError occurred in WebView. "
-                try {
-                    message += errorResponse?.data?.asString() ?: ""
-                } catch (e: IOException) {
-                    Logger.d(LOG_TAG, "Failed to parse Http error response.", e)
-                }
-
-                handleError(message, request.url.toString())
-            }
-
-            // api23以上でmainpage以外でも呼ばれる
-            @TargetApi(Build.VERSION_CODES.M)
-            override fun onReceivedError(
-                view: WebView,
-                request: WebResourceRequest,
-                error: WebResourceError
-            ) {
-                super.onReceivedError(view, request, error)
-                handleError(
-                    "Error occurred in WebView. " + error.description.toString(),
-                    request.url.toString()
-                )
-            }
-
-            // mainpageの失敗時のみ呼ばれる
-            @Suppress("DEPRECATION")
-            override fun onReceivedError(
-                view: WebView,
-                errorCode: Int,
-                description: String,
-                failingUrl: String
-            ) {
-                super.onReceivedError(view, errorCode, description, failingUrl)
-                handleError("Error $errorCode occurred in WebView. $description", failingUrl)
-            }
-        }
-
-        uiThreadHandler = Handler(Looper.getMainLooper())
         addJavascriptInterface(this, "NativeBridge")
     }
 
+    override fun reload() {
+        super.reload()
+        state = State.LOADING
+    }
+
+    fun reset(isForce: Boolean = false) {
+        if (!isReady) {
+            Logger.d(LOG_TAG, "overlay not ready, canceled: resetPageState($isForce)")
+            return
+        }
+        Logger.d(LOG_TAG, "resetPageState($isForce)")
+        loadUrl("javascript:window.tracker.resetPageState($isForce);")
+    }
+
     fun handleChangePv() {
+        if (!isReady) {
+            Logger.d(LOG_TAG, "overlay not ready, canceled: handleChangePv()")
+            return
+        }
         Logger.d(LOG_TAG, "handleChangePv()")
         loadUrl("javascript:window.tracker.handleChangePv();")
-        if (parentView == null) return
-        try {
-            if (hasMessage) parentView?.show()
-        } catch (e: Exception) {
-            Logger.e(LOG_TAG, "Failed to show Window.", e)
-        }
     }
 
-    fun reset(isForceClose: Boolean) {
-        Logger.d(LOG_TAG, "resetTrackerJs()")
-        if (isForceClose) {
-            adapter = null
-            parentView = null
-        }
-        loadUrl("javascript:window.tracker.resetPageState($isForceClose);")
-    }
-
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        @Suppress("DEPRECATION")
-        super.onLayout(changed, l, t, r, b)
-        // 自身がスクリーンのトップに無ければcutoutが重ならないのでsafeAreaInsetTopを0にする。
-        if (!isLocatedAtTopOfScreen()) {
-            loadUrl("javascript:window.tracker.setSafeAreaInset(0);")
-            return
-        }
-        val insets = safeInsets ?: return
-        val safeAreaInsetTop = insets.top
-        loadUrl("javascript:window.tracker.setSafeAreaInset($safeAreaInsetTop);")
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        this.safeInsets = getSafeInsets()
-    }
-
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        // chat等のcloseイベントをハンドルするために、戻るボタンでhistory backを行う.
-        if (event.keyCode == KeyEvent.KEYCODE_BACK && canGoBack()) {
-            if (event.action == KeyEvent.ACTION_UP) {
-                goBack()
+    fun handleView(values: JSONObject) {
+        if (isReady) {
+            val viewName = values.optString("view_name")
+            val title = values.optString("title")
+            Logger.d(LOG_TAG, "handleView($viewName, $title)")
+            loadUrl("javascript:window.tracker.handleView('$viewName', '$title');")
+        } else {
+            Logger.d(LOG_TAG, "handleView(), queueing")
+            uiThreadHandler.post {
+                queue.add(Data.ViewData(values))
             }
-            return true
         }
-        return super.dispatchKeyEvent(event)
     }
 
-    override fun destroy() {
-        Logger.d(LOG_TAG, "destroy")
-        super.destroy()
-        webChromeClient = null
-    }
-
-    override fun notifyChanged() {
-        when (state) {
-            State.LOADING -> {
+    fun handleResponseData(data: String) {
+        if (isReady) {
+            Logger.d(LOG_TAG, "handleResponseData()")
+            loadUrl("javascript:window.tracker.handleResponseData('$data');")
+        } else {
+            Logger.d(LOG_TAG, "handleResponseData(), queuing")
+            uiThreadHandler.post {
+                queue.add(Data.ResponseData(data))
             }
-            State.READY -> loadQueue()
-            State.DESTROYED -> Logger.d(
-                LOG_TAG,
-                "Ignore response because InAppMessagingView has been destroyed."
-            )
-        } // wait.
-    }
-
-    private fun loadQueue() {
-        if (adapter == null)
-            return
-        while (true) {
-            val message = adapter?.dequeue() ?: break
-            Logger.d(LOG_TAG, "loadQueue $message")
-            loadUrl("javascript:window.tracker.handleResponseData('${message.string}');")
         }
     }
 
     private fun changeState(newState: State) {
         if (state == newState)
             return
-        Logger.d(LOG_TAG, "OverlayView entered state: $newState")
-        if (newState == State.READY) {
-            loadQueue()
-        } else if (newState == State.DESTROYED) {
-            // TODO: reload Trackerjs or dismiss.
-            //      destroy();
-        }
         state = newState
+        if (isReady) {
+            Logger.d(LOG_TAG, "Js state: $newState")
+            queue.forEach {
+                when (it) {
+                    is Data.ResponseData -> handleResponseData(it.string)
+                    is Data.ViewData -> handleView(it.values)
+                }
+            }
+            queue.clear()
+        } else {
+            Logger.w(LOG_TAG, "Js state: $newState")
+            // TODO: reload overlay or dismiss, destroy();
+        }
     }
 
     @JavascriptInterface
     fun onReceivedMessage(name: String, data: String) {
-        uiThreadHandler.post { handleCallback(name, data) }
+        Logger.d(LOG_TAG, "onReceivedMessage")
+        uiThreadHandler.post { handleJsMessage(name, data) }
     }
 
-    private fun handleCallback(name: String, data: String) {
+    private fun handleJsMessage(name: String, data: String) {
+        Logger.d(LOG_TAG, "handleJsMessage")
         try {
-            val callback = Callback.parse(name, data)
-
-            when (callback.callbackName) {
-                EVENT -> {
-                    val eventName = callback.data.getString("event_name")
-                    val values = callback.data.getJSONObject("values")
-                    Logger.d(LOG_TAG, "Received event callback: event_name=$eventName")
-                    Tracker.track(Event(CustomEventName(eventName), values, libraryName = InAppMessaging.name))
-                    notifyCampaignOpenOrClose(eventName, values)
+            when (val message = JsMessage.parse(name, data)) {
+                is JsMessage.Event -> {
+                    Logger.d(LOG_TAG, "Received event callback: event_name=${message.eventName}")
+                    Tracker.track(Event(CustomEventName(message.eventName), message.values, libraryName = InAppMessaging.name))
+                    notifyCampaignOpenOrClose(message.eventName, message.values)
                 }
-                STATE_CHANGE -> {
-                    val stateStr = callback.data.getString("state")
-                    Logger.d(LOG_TAG, "Received state_change callback: state=$stateStr")
-                    changeState(State.of(stateStr))
+                is JsMessage.StateChanged -> {
+                    Logger.d(LOG_TAG, "Received state_change callback: state=${message.state}")
+                    changeState(State.of(message.state))
                 }
-                OPEN_URL -> {
-                    val uri = Uri.parse(callback.data.getString("url"))
-                    val target = callback.data.optString("target")
-                    Logger.d(LOG_TAG, "Received open_url callback: url=$uri")
-
-                    if (shouldOpenURLListener?.invoke(uri) != false) {
-                        parentView?.openUrl(uri, target != "_blank")
-                    }
+                is JsMessage.OpenUrl -> {
+                    Logger.d(LOG_TAG, "Received open_url callback: url=${message.uri}")
+                    tryOpenUrl(message.uri, message.withReset)
                 }
-                DOCUMENT_CHANGED -> {
-                    val regions = callback.data.getJSONArray("touchable_regions")
+                is JsMessage.DocumentChanged -> {
                     Logger.d(
                         LOG_TAG,
-                        "Received document_changed callback: touchable_regions=$regions"
+                        "Received document_changed callback: touchable_regions=${message.regions}"
                     )
-
-                    parentView?.updateTouchableRegions(parseDocumentRect(regions))
+                    delegate.onUpdateTouchableRegions(message.regions)
                 }
-                VISIBILITY -> {
-                    val visibility = callback.data.getString("state")
-                    Logger.d(LOG_TAG, "Received visibility callback: state=$visibility")
-                    if ("visible" == visibility) {
-                        hasMessage = true
-                        parentView?.show()
+                is JsMessage.Visibility -> {
+                    Logger.d(LOG_TAG, "Received visibility callback: visible=${message.visible}")
+                    if (message.visible) {
+                        visible = true
+                        delegate.onWebViewVisible()
                     } else {
-                        hasMessage = false
-                        parentView?.dismiss()
+                        visible = false
+                        delegate.onWebViewInvisible()
                     }
                 }
                 else -> Logger.w(
                     LOG_TAG,
-                    "Unknown callback " + callback.callbackName + " was passed from WebView"
+                    "Unknown callback $name was passed from WebView"
                 )
             } // noop
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to parse callback url.", e)
-        }
-    }
-
-    private fun handleError(message: String, urlTriedToLoad: String?) {
-        Logger.e(LOG_TAG, "$message, url: $urlTriedToLoad")
-        // 現在のページのエラー時には空htmlを読み込む
-        if (url != null && url == urlTriedToLoad)
-            loadData("<html></html>", "text/html", "utf-8")
-        if (urlTriedToLoad == null || urlTriedToLoad.contains("/native/overlay") ||
-            urlTriedToLoad.contains("native_tracker")
-        ) {
-            parentView?.errorOccurred()
         }
     }
 
@@ -375,50 +183,50 @@ constructor(
         }
     }
 
-    private fun parseDocumentRect(regionsJson: JSONArray): List<RectF> {
-        try {
-            val density = resources.displayMetrics.density
-
-            return regionsJson.toList().filterIsInstance<Map<String, Double>>().map { rect ->
-                RectF(
-                    (density * rect.getValue("left")).toFloat(),
-                    (density * rect.getValue("top")).toFloat(),
-                    (density * rect.getValue("right")).toFloat(),
-                    (density * rect.getValue("bottom")).toFloat()
-                )
-            }
-        } catch (e: Exception) {
-            Logger.e(LOG_TAG, "Failed to update touchable regions.", e)
+    private fun tryOpenUrl(uri: Uri, withReset: Boolean = true) {
+        if (delegate.shouldOpenUrl(uri)) {
+            delegate.onOpenUrl(uri, withReset)
         }
-
-        return ArrayList()
     }
 
-    private fun getSafeInsets(): SafeInsets? {
-        // Pより前のバージョンではcutoutが取得できないので何もしない
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            return null
+    override fun setSafeAreaInset(top: Int) {
+        if (!isReady) {
+            Logger.d(LOG_TAG, "overlay not ready, canceled: setSafeAreaInset($top)")
+            return
         }
-
-        val cutout: DisplayCutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            windowManager.defaultDisplay.cutout
-        } else {
-            rootWindowInsets.displayCutout
-        } ?: return null
-
-        val scale = Resources.getSystem().displayMetrics.density
-        return SafeInsets(
-            (cutout.safeInsetLeft / scale).roundToInt(),
-            (cutout.safeInsetTop / scale).roundToInt(),
-            (cutout.safeInsetRight / scale).roundToInt(),
-            (cutout.safeInsetBottom / scale).roundToInt()
-        )
+        Logger.d(LOG_TAG, "setSafeAreaInset($top)")
+        loadUrl("javascript:window.tracker.setSafeAreaInset($top);")
     }
 
-    private fun isLocatedAtTopOfScreen(): Boolean {
-        val location = IntArray(2)
-        getLocationOnScreen(location)
-        return location[1] == 0
+    override fun errorOccurred() {
+        delegate.onErrorOccurred()
     }
+
+    override fun openUrl(uri: Uri) {
+        tryOpenUrl(uri)
+    }
+
+    override fun showAlert(message: String) {
+        delegate.onShowAlert(message)
+    }
+
+    override fun showFileChooser(filePathCallback: ValueCallback<Array<Uri>>): Boolean {
+        return delegate.onShowFileChooser(filePathCallback)
+    }
+}
+
+private sealed class Data {
+    class ResponseData(val string: String) : Data()
+    class ViewData(val values: JSONObject) : Data()
+}
+
+internal interface WebViewDelegate {
+    fun onWebViewVisible()
+    fun onWebViewInvisible()
+    fun onUpdateTouchableRegions(touchableRegions: JSONArray)
+    fun shouldOpenUrl(uri: Uri): Boolean
+    fun onOpenUrl(uri: Uri, withReset: Boolean = true)
+    fun onErrorOccurred()
+    fun onShowAlert(message: String)
+    fun onShowFileChooser(filePathCallback: ValueCallback<Array<Uri>>): Boolean
 }

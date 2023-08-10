@@ -25,7 +25,6 @@ import android.widget.PopupWindow
 import androidx.annotation.RequiresApi
 import io.karte.android.core.logger.Logger
 import java.lang.ref.WeakReference
-import java.util.ArrayList
 
 internal class PanelWindowManager {
     private val LOG_TAG = "Karte.IAMPWManager"

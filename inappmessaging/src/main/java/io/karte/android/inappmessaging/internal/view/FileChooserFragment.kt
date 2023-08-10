@@ -15,20 +15,25 @@
 //
 @file:Suppress("DEPRECATION")
 
-package io.karte.android.inappmessaging.internal
+package io.karte.android.inappmessaging.internal.view
 
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.webkit.ValueCallback
 import androidx.fragment.app.Fragment
-import io.karte.android.inappmessaging.InAppMessaging
+import androidx.fragment.app.FragmentActivity
+import io.karte.android.core.logger.Logger
+import io.karte.android.inappmessaging.internal.ResetPrevent
 import android.app.Fragment as DeprecatedFragment
 
 internal typealias FileChooserListener = (Array<Uri>?) -> Unit
 
+private const val LOG_TAG = "Karte.IAM.FileChooser"
 private const val ACTION_GET_CONTENT_TYPE = "image/*"
 private const val ACTION_GET_CONTENT_REQUEST_CODE = 1
+private const val FRAGMENT_TAG = "Karte.FileChooserFragment"
 
 @SuppressLint("ValidFragment")
 internal class FileChooserDeprecatedFragment : DeprecatedFragment() {
@@ -42,7 +47,7 @@ internal class FileChooserDeprecatedFragment : DeprecatedFragment() {
         if (!activityStarted) {
             activityStarted = true
 
-            InAppMessaging.self?.enablePreventRelayFlag(activity)
+            ResetPrevent.enablePreventResetFlag(activity)
 
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -97,7 +102,7 @@ internal class FileChooserFragment : Fragment() {
         if (!activityStarted) {
             activityStarted = true
 
-            InAppMessaging.self?.enablePreventRelayFlag(activity)
+            ResetPrevent.enablePreventResetFlag(activity)
 
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -137,6 +142,33 @@ internal class FileChooserFragment : Fragment() {
 
         fun newInstance(): FileChooserFragment {
             return FileChooserFragment()
+        }
+
+        fun showFileChooser(activity: Activity, filePathCallback: ValueCallback<Array<Uri>>): Boolean {
+            val fileChooserListener = { uris: Array<Uri>? ->
+                filePathCallback.onReceiveValue(uris)
+            }
+            try {
+                if (activity is FragmentActivity) {
+                    val fragment = FileChooserFragment.newInstance()
+                    fragment.listener = fileChooserListener
+
+                    val transaction = activity.supportFragmentManager.beginTransaction()
+                    transaction.add(fragment, FRAGMENT_TAG)
+                    transaction.commit()
+                    return true
+                }
+            } catch (e: NoClassDefFoundError) {
+                // AndroidXを参照していない場合はチェック時にexceptionが発生するため、迂回する。
+                Logger.d(LOG_TAG, "androidx not linked.")
+            }
+            val fragment = FileChooserDeprecatedFragment.newInstance()
+            fragment.listener = fileChooserListener
+
+            val transaction = activity.fragmentManager.beginTransaction()
+            transaction.add(fragment, FRAGMENT_TAG)
+            transaction.commit()
+            return true
         }
     }
 } // Required empty public constructor
