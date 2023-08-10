@@ -30,14 +30,15 @@ import android.webkit.WebView
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
 import io.karte.android.inappmessaging.InAppMessaging
+import io.karte.android.inappmessaging.internal.IAMProcessor
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.IAMWindow
+import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.test_lib.RobolectricTestCase
 import io.karte.android.test_lib.assertThat
 import io.karte.android.test_lib.createControlGroupMessage
 import io.karte.android.test_lib.createMessage
 import io.karte.android.test_lib.createMessageOpen
-import io.karte.android.test_lib.createMessageResponse
 import io.karte.android.test_lib.createMessagesResponse
 import io.karte.android.test_lib.parseBody
 import io.karte.android.test_lib.proceedBufferedCall
@@ -47,6 +48,7 @@ import io.karte.android.test_lib.shadow.CustomShadowWebView
 import io.karte.android.test_lib.tearDownKarteApp
 import io.karte.android.test_lib.toList
 import io.karte.android.tracking.Tracker
+import io.karte.android.utilities.forEach
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -72,10 +74,13 @@ import java.util.Base64
 private const val iamAppKey = "inappmessaging_appkey_1234567890"
 private const val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
 
-private val popupMsg1 = createMessage(shortenId = "action1", pluginType = "webpopup")
-private val popupMsg2 = createMessage(shortenId = "action2", pluginType = "webpopup")
+private const val popup1ActionId = "action1"
+private const val popup2ActionId = "action2"
+private const val limitedActionId = "action3"
+private val popupMsg1 = createMessage(shortenId = popup1ActionId, pluginType = "webpopup")
+private val popupMsg2 = createMessage(shortenId = popup2ActionId, pluginType = "webpopup")
 private val cgPopupMsg = createControlGroupMessage()
-private val limitedMsg = createMessage(shortenId = "action3", pluginType = "webpopup").apply {
+private val limitedMsg = createMessage(shortenId = limitedActionId, pluginType = "webpopup").apply {
     getJSONObject("campaign").put("native_app_display_limit_mode", true)
 }
 
@@ -91,6 +96,8 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         get() = iamWindow?.getChildAt(0) as? WebView
     val shadowWebView: CustomShadowWebView?
         get() = CustomShadowWebView.current
+    private val iamWebView: IAMWebView?
+        get() = shadowWebView?.getJavascriptInterface("NativeBridge") as? IAMWebView
 
     @Before
     fun initTracker() {
@@ -118,6 +125,19 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         }
         server.dispatcher = dispatcher
         server.start()
+        // IAMWebViewをspyしても良いが、バグでviewのサブクラスをspyするとstackoverflowを起こすのでProcessorにしている
+        mockkConstructor(IAMProcessor::class)
+        every { anyConstructed<IAMProcessor>().handle(any()) } answers {
+            val messages = firstArg<MessageModel>()
+            println("IAMProcessor.handle spy: ${messages.shouldLoad()}, $iamWebView")
+            callOriginal()
+            if (shouldVisible(messages)) emitVisibleCallbackFromJs()
+        }
+        every { anyConstructed<IAMProcessor>().reset(any()) } answers {
+            println("IAMProcessor.reset spy: ${firstArg<Boolean>()}")
+            callOriginal()
+            emitInvisibleCallbackFromJs()
+        }
 
         app = setupKarteApp(server, appKey = iamAppKey)
         activity = Robolectric.buildActivity(
@@ -136,41 +156,56 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         tearDownKarteApp()
         server.shutdown()
         CustomShadowWebView.teardown()
+        unmockkConstructor(IAMProcessor::class)
+    }
+
+    fun track(eventName: String) {
+        Tracker.track(eventName)
+        proceedBufferedCall()
+        proceedUiBufferedCall()
+    }
+
+    fun view(viewName: String) {
+        Tracker.view(viewName)
+        proceedBufferedCall()
+        proceedUiBufferedCall()
     }
 
     fun trackPopUp1() {
-        Tracker.track("popup1")
-        proceedBufferedCall()
-        proceedUiBufferedCall()
-        emitVisibledCallbackFromTrackerJs()
+        track("popup1")
     }
 
     fun trackCgPopUp() {
-        Tracker.track("cg_popup")
-        proceedBufferedCall()
+        track("cg_popup")
     }
 
-    protected fun emitCbFromTrackerJs(callbackName: String, data: JSONObject) {
+    private fun shouldVisible(messages: MessageModel): Boolean {
+        return messages.messages.any {
+            val type = it.optJSONObject("action")?.optString("type")
+            type != null && type != "control"
+        }
+    }
+
+    protected fun emitCbFromJs(callbackName: String, data: JSONObject) {
         val mock = mockk<WebView>()
         every { mock.context } returns application
-        val bridge = shadowWebView?.getJavascriptInterface("NativeBridge") as? IAMWebView
-        bridge?.onReceivedMessage(callbackName, data.toString())
+        iamWebView?.onReceivedMessage(callbackName, data.toString())
         proceedUiBufferedCall()
     }
 
-    protected fun emitInitializedCallbackFromTrackerJs() {
-        emitCbFromTrackerJs("state_changed", JSONObject().put("state", "initialized"))
+    protected fun emitInitializedCallbackFromJs() {
+        emitCbFromJs("state_changed", JSONObject().put("state", "initialized"))
     }
 
-    protected fun emitVisibledCallbackFromTrackerJs() {
-        emitCbFromTrackerJs("visibility", JSONObject().put("state", "visible"))
+    protected fun emitVisibleCallbackFromJs() {
+        emitCbFromJs("visibility", JSONObject().put("state", "visible"))
     }
 
-    protected fun emitInvisibledCallbackFromTrackerJs() {
-        emitCbFromTrackerJs("visibility", JSONObject().put("state", "invisible"))
+    protected fun emitInvisibleCallbackFromJs() {
+        emitCbFromJs("visibility", JSONObject().put("state", "invisible"))
     }
 
-    protected fun responsesPassedToJs(): List<JSONObject> {
+    private fun responsesPassedToJs(): List<JSONObject> {
         val handleResponseDataHead = "javascript:window.tracker.handleResponseData('"
         val handleResponseDataTail = "');"
         val filtered = shadowWebView?.loadedUrls?.filter { it.startsWith(handleResponseDataHead) }
@@ -182,6 +217,23 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         }
         return encodedStr?.map { JSONObject(String(Base64.getDecoder().decode(it))) } ?: listOf()
     }
+
+    protected fun assertNoResponseDataPassed() {
+        assertThat(responsesPassedToJs()).isEmpty()
+    }
+
+    protected fun assertActionInResponseData(actionId: String) {
+        val responseData = responsesPassedToJs()
+        val actionIds = mutableListOf<String>()
+        responseData.forEach {
+            it.getJSONArray("messages").forEach {
+                if (it is JSONObject) {
+                    actionIds.add(it.getJSONObject("action").getString("shorten_id"))
+                }
+            }
+        }
+        assertThat(actionIds).contains(actionId)
+    }
 }
 
 @RunWith(Enclosed::class)
@@ -189,8 +241,6 @@ class InAppMessagingTest {
     class IAMWebViewの初期化 : InAppMessagingTestCase() {
         @Test
         fun 最初のloadで正しいurlの読み込みを行うこと() {
-            trackPopUp1()
-
             val shadow = shadowWebView ?: throw AssertionError()
             val uri = Uri.parse(shadow.loadedUrls.first())
 
@@ -234,8 +284,7 @@ class InAppMessagingTest {
         @Test
         fun webpopup接客を含むレスポンスが来た場合はoverlayが追加されること() {
             trackPopUp1()
-            emitInitializedCallbackFromTrackerJs()
-            emitVisibledCallbackFromTrackerJs()
+            emitInitializedCallbackFromJs()
 
             assertThat(webView).isNotNull()
             assertThat(iamWindow?.visibility).isEqualTo(View.VISIBLE)
@@ -262,101 +311,79 @@ class InAppMessagingTest {
 
         @Test
         fun webpopup接客を含まないレスポンスが来た場合はInAppMessagingViewが追加されないこと() {
-            Tracker.track("hoge")
-            proceedBufferedCall()
+            track("hoge")
 
             assertThat(iamWindow).isNull()
         }
 
         @Test
-        fun trackerJs読み込み中の場合はresponseが渡らないこと() {
+        fun overlay読み込み中の場合はresponseが渡らないこと() {
             // overlay表示
             trackPopUp1()
             // 2度目のpopup response
             trackPopUp1()
 
             assertThat(shadowWebView).isNotNull()
-            assertThat(responsesPassedToJs()).isEmpty()
+            assertNoResponseDataPassed()
         }
 
         @Test
-        fun trackerJs読み込み完了時にバッファされていたresponseが渡ること() {
+        fun overlay読み込み完了時にバッファされていたresponseが渡ること() {
             trackPopUp1()
-
-            Tracker.track("popup2")
-            proceedBufferedCall()
+            track("popup2")
 
             assertThat(shadowWebView).isNotNull()
-            emitInitializedCallbackFromTrackerJs()
+            assertNoResponseDataPassed()
 
-            val passedResponses = responsesPassedToJs()
-            passedResponses.forEach { it.remove("request_body") }
-
-            assertThat(passedResponses).hasSize(2)
-            assertThat(passedResponses[0]).isEqualTo(
-                createMessageResponse(popupMsg1).getJSONObject(
-                    "response"
-                )
-            )
-            assertThat(passedResponses[1]).isEqualTo(
-                createMessageResponse(popupMsg2).getJSONObject(
-                    "response"
-                )
-            )
+            emitInitializedCallbackFromJs()
+            assertActionInResponseData(popup1ActionId)
+            assertActionInResponseData(popup2ActionId)
 
             assertThat(iamWindow?.visibility).isEqualTo(View.VISIBLE)
         }
 
         @Test
-        fun trackerJs読み込み完了後に来たresponseがtrackerJsに渡ること() {
+        fun overlay読み込み完了後に来たresponseがjsに渡ること() {
             trackPopUp1()
 
             assertThat(shadowWebView).isNotNull()
-            emitInitializedCallbackFromTrackerJs()
+            assertNoResponseDataPassed()
 
-            Tracker.track("popup2")
-            proceedBufferedCall()
-            proceedUiBufferedCall()
+            emitInitializedCallbackFromJs()
+            track("popup2")
 
-            val passedResponses = responsesPassedToJs()
-            passedResponses.forEach { it.remove("request_body") }
-            assertThat(passedResponses).hasSize(2)
-            assertThat(passedResponses[1]).isEqualTo(
-                createMessageResponse(popupMsg2).getJSONObject(
-                    "response"
-                )
-            )
+            assertActionInResponseData(popup2ActionId)
         }
     }
 
     class ページのリセット処理 : InAppMessagingTestCase() {
 
         @Before
-        fun setupOverlayAndTrackerJs() {
-            Tracker.view("page1")
-            proceedUiBufferedCall()
+        fun setupOverlayAndJs() {
+            view("page1")
             trackPopUp1()
 
-            emitInitializedCallbackFromTrackerJs()
+            emitInitializedCallbackFromJs()
         }
 
         @Test
-        fun viewによりページが切り替わった時はInAppMessagingViewが破棄されないこと() {
-            Tracker.view("page2")
-            proceedBufferedCall()
-            assertThat(iamWindow).isNotNull()
+        fun viewによりページが切り替わった時にresetとwindow破棄が呼ばれること() {
+            view("page2")
+            assertThat(shadowWebView?.loadedUrls)
+                .contains("javascript:window.tracker.resetPageState(false);")
+            assertThat(iamWindow).isNull()
         }
 
         @Test
         fun ページが切り替わらなければresetPageStateが実行されないこと() {
-            Tracker.track("hogehoge")
+            track("hogehoge")
             assertThat(shadowWebView?.loadedUrls).isNotEmpty()
             assertThat(shadowWebView?.loadedUrls)
                 .doesNotContain("javascript:window.tracker.resetPageState(")
         }
 
         @Test
-        fun onPauseによりページが切り替わった時に破棄処理が呼ばれること() {
+        fun onPauseによりページが切り替わった時にresetとwindow破棄が呼ばれること() {
             val currentShadowWebView = shadowWebView
 
             activity.pause()
@@ -409,20 +436,20 @@ class InAppMessagingTest {
         }
     }
 
-    class trackerJsからのコールバック : InAppMessagingTestCase() {
+    class overlayからのコールバック : InAppMessagingTestCase() {
 
         @Before
-        fun setupOverlayAndTrackerJs() {
+        fun setupOverlayAndJs() {
             trackPopUp1()
 
-            emitInitializedCallbackFromTrackerJs()
+            emitInitializedCallbackFromJs()
         }
 
         @Test
         fun イベントが来た場合はトラッキングされること() {
-            emitCbFromTrackerJs(
+            emitCbFromJs(
                 "event",
-                JSONObject().put("event_name", "from_tracker_js").put(
+                JSONObject().put("event_name", "from_overlay").put(
                     "values",
                     JSONObject().put("foo", "bar")
                 )
@@ -431,14 +458,14 @@ class InAppMessagingTest {
             proceedBufferedCall()
 
             assertThat(dispatcher.trackedEvents().filter {
-                it.getString("event_name") == "from_tracker_js" &&
+                it.getString("event_name") == "from_overlay" &&
                     it.getJSONObject("values").getString("foo") == "bar"
             }).isNotEmpty()
         }
 
         @Test
         fun open_urlが来た場合はIntentが投げられること() {
-            emitCbFromTrackerJs("open_url", JSONObject().put("url", "test://hoge"))
+            emitCbFromJs("open_url", JSONObject().put("url", "test://hoge"))
 
             ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
 
@@ -450,30 +477,30 @@ class InAppMessagingTest {
 
         @Test
         fun visibility_visibleによりoverlayが表示されること() {
-            emitInitializedCallbackFromTrackerJs()
-            emitVisibledCallbackFromTrackerJs()
+            emitInitializedCallbackFromJs()
+            emitVisibleCallbackFromJs()
             assertThat(iamWindow).isNotNull()
         }
 
         @Test
         fun visibility_invisibleによりoverlayが非表示になること() {
-            emitInvisibledCallbackFromTrackerJs()
+            emitInvisibleCallbackFromJs()
             assertThat(iamWindow).isNull()
         }
     }
 
-    class trackerJsからのコールバック_CG : InAppMessagingTestCase() {
+    class overlayからのコールバック_CG : InAppMessagingTestCase() {
 
         @Before
-        fun setupOverlayAndTrackerJs() {
+        fun setupOverlayAndJs() {
             trackCgPopUp()
 
-            emitInitializedCallbackFromTrackerJs()
+            emitInitializedCallbackFromJs()
         }
 
         @Test
         fun CGではoverlayが表示されないこと() {
-            emitCbFromTrackerJs("event", createMessageOpen(shortenId = "__sample_shorten"))
+            emitCbFromJs("event", createMessageOpen(shortenId = "__sample_shorten"))
 
             assertThat(iamWindow).isNull()
         }
@@ -522,7 +549,7 @@ class InAppMessagingTest {
             // 以降のイベントはviewは追加されるが何もロードしない
             trackPopUp1()
             assertThat(iamWindow).isNotNull()
-            assertThat(responsesPassedToJs()).isEmpty()
+            assertNoResponseDataPassed()
         }
 
         @Test
@@ -539,7 +566,7 @@ class InAppMessagingTest {
             // 以降のイベントはviewは追加されるが何もロードしない
             trackPopUp1()
             assertThat(iamWindow).isNotNull()
-            assertThat(responsesPassedToJs()).isEmpty()
+            assertNoResponseDataPassed()
         }
 
         @Test
@@ -552,17 +579,17 @@ class InAppMessagingTest {
             // 以降のイベントはviewは追加されるが何もロードしない
             trackPopUp1()
             assertThat(iamWindow).isNotNull()
-            assertThat(responsesPassedToJs()).isEmpty()
+            assertNoResponseDataPassed()
         }
 
         @Test
-        fun trackerJsがエラー状態になった場合は何もしないがその後レスポンスは渡らない() {
-            emitInitializedCallbackFromTrackerJs()
-            assertThat(responsesPassedToJs()).hasSize(1)
+        fun overlayがエラー状態になった場合は何もしないがその後レスポンスは渡らない() {
+            emitInitializedCallbackFromJs()
+            assertActionInResponseData(popup1ActionId)
             shadowWebView?.resetLoadedUrls()
 
             // エラー後も表示状態のまま
-            emitCbFromTrackerJs(
+            emitCbFromJs(
                 "state_changed",
                 JSONObject().put("state", "error").put("message", "error message")
             )
@@ -571,21 +598,21 @@ class InAppMessagingTest {
             // 以降のイベントはviewは追加されるが何もロードしない
             trackPopUp1()
             assertThat(iamWindow).isNotNull()
-            assertThat(responsesPassedToJs()).isEmpty()
+            assertNoResponseDataPassed()
         }
     }
 
     class ビジターID更新の制御 : InAppMessagingTestCase() {
 
         @Before
-        fun setupOverlayAndTrackerJs() {
+        fun setupOverlayAndJs() {
             trackCgPopUp()
 
-            emitInitializedCallbackFromTrackerJs()
+            emitInitializedCallbackFromJs()
         }
 
         @Test
-        fun trackerのrenewVisitorIdが呼ばれた場合はWindowとWebViewが破棄され新しいVidでTrackerJsが読まれる() {
+        fun renewVisitorIdが呼ばれた場合はWindowとWebViewが破棄され新しいvis_idでoverlayが読まれる() {
             val currentShadowWebView = shadowWebView
             KarteApp.renewVisitorId()
             proceedUiBufferedCall()
@@ -609,7 +636,6 @@ class InAppMessagingTest {
     class MessageSuppressedの発火 : InAppMessagingTestCase() {
 
         private fun assertNotSuppressed() {
-            assertThat(iamWindow).isNotNull()
             assertThat(
                 dispatcher.trackedEvents()
                     .filter { it.getString("event_name") == "_message_suppressed" })
@@ -624,25 +650,26 @@ class InAppMessagingTest {
         }
 
         @Test
-        fun Activity_not_found() {
+        fun Activity_not_found時はsuppressしない() {
             // Activityがあればsuppressされない
             trackPopUp1()
             assertThat(iamWindow).isNotNull()
             assertNotSuppressed()
             dispatcher.clearHistory()
 
-            // ActiveなActivityがなければsuppressされる
+            // 変更: ActiveなActivityがなくてもsuppressしない
             activity.pause()
             trackPopUp1()
             proceedBufferedCall()
             assertThat(iamWindow).isNull()
-            assertSuppressed("Activity is not found")
+            assertNotSuppressed()
         }
 
         @Test
         fun suppress_mode() {
             // デフォルト値ではsuppressされない
             trackPopUp1()
+            assertThat(iamWindow).isNotNull()
             assertNotSuppressed()
             dispatcher.clearHistory()
 
@@ -658,24 +685,25 @@ class InAppMessagingTest {
             // unsuppressメソッドを呼ぶとsuppressされない
             InAppMessaging.unsuppress()
             trackPopUp1()
+            assertThat(iamWindow).isNotNull()
             assertNotSuppressed()
         }
 
         @Test
         fun native_app_display_limit_mode() {
             // native_app_display_limit_modeがonな接客は同一画面(view)ならsuppressされない
-            Tracker.track("limited", JSONObject())
-            proceedBufferedCall()
-            emitVisibledCallbackFromTrackerJs()
+            track("limited")
+            assertThat(iamWindow).isNotNull()
             assertNotSuppressed()
             dispatcher.clearHistory()
 
             // 異なるviewが発火されたあとにレスポンスが来ると、suppressされる
+            // 順番にthreadを実行するとsuppressされずにopenされるのでまとめる。
             Tracker.view("a_page")
-            Tracker.track("limited", JSONObject())
+            Tracker.track("limited")
             Tracker.view("another")
             proceedBufferedCall()
-            emitVisibledCallbackFromTrackerJs()
+            proceedUiBufferedCall()
             proceedBufferedCall() // message_suppressed用
             assertSuppressed("native_app_display_limit_mode")
         }

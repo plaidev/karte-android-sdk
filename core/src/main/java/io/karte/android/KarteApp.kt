@@ -23,9 +23,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import io.karte.android.core.command.CommandExecutor
 import io.karte.android.core.config.Config
 import io.karte.android.core.library.ActionModule
+import io.karte.android.core.library.CommandModule
 import io.karte.android.core.library.DeepLinkModule
 import io.karte.android.core.library.Library
 import io.karte.android.core.library.LibraryConfig
@@ -172,9 +172,13 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
      * コマンドスキームを処理し、結果を返します。
      *
      * **SDK内部で利用するクラスであり、通常のSDK利用でこちらのクラスを利用することはありません。**
+     *
+     * @param[uri] コマンドを表現するURI
+     * @param[isDelay] 通知タップなど、即時に実行すべきでない場合にtrueとします。デフォルトはfalseです。
      */
-    fun executeCommand(uri: Uri): List<Any?> {
-        return CommandExecutor.execute(uri)
+    @JvmOverloads
+    fun executeCommand(uri: Uri, isDelay: Boolean = false): List<Any?> {
+        return modules.filterIsInstance<CommandModule>().filter { it.validate(uri) }.map { it.execute(uri, isDelay) }
     }
 
     private fun handleDeeplink(intent: Intent) {

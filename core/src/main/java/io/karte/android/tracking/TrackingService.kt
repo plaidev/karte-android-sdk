@@ -16,6 +16,7 @@
 package io.karte.android.tracking
 
 import io.karte.android.KarteApp
+import io.karte.android.core.library.TrackModule
 import io.karte.android.core.logger.Logger
 import io.karte.android.tracking.queue.Dispatcher
 import io.karte.android.tracking.queue.EventRecord
@@ -54,7 +55,9 @@ internal class TrackingService internal constructor() {
             )
 
         Logger.d(LOG_TAG, "track")
-        val event = delegate?.intercept(inEvent) ?: inEvent
+        var event = delegate?.intercept(inEvent) ?: inEvent
+        KarteApp.self.modules.filterIsInstance<TrackModule>()
+            .forEach { event = it.prepare(event) }
         if (event.eventName.value == BaseEventName.View.value) {
             KarteApp.self.pvIdContainer.renew()
         }

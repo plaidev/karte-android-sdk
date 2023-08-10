@@ -47,6 +47,8 @@ import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.BuildConfig
 import io.karte.android.inappmessaging.R
 import io.karte.android.inappmessaging.internal.PanelWindowManager
+import io.karte.android.utilities.toList
+import org.json.JSONArray
 import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.IAMView"
@@ -153,7 +155,7 @@ internal open class WindowView(
         logWindowSize("initialized")
     }
 
-    open fun dismiss() {
+    protected open fun dismiss() {
         if (!isAttachedToWindow) return
 
         webViewDrawingBitmap?.recycle()
@@ -165,8 +167,27 @@ internal open class WindowView(
         isAttaching = false
     }
 
-    fun updateTouchableRegions(touchableRegions: List<RectF>) {
-        this.knownTouchableRegions = touchableRegions
+    fun updateTouchableRegions(touchableRegions: JSONArray) {
+        this.knownTouchableRegions = parseJsonToRect(touchableRegions)
+    }
+
+    private fun parseJsonToRect(regionsJson: JSONArray): List<RectF> {
+        try {
+            val density = resources.displayMetrics.density
+
+            return regionsJson.toList().filterIsInstance<Map<String, Double>>().map { rect ->
+                RectF(
+                    (density * rect.getValue("left")).toFloat(),
+                    (density * rect.getValue("top")).toFloat(),
+                    (density * rect.getValue("right")).toFloat(),
+                    (density * rect.getValue("bottom")).toFloat()
+                )
+            }
+        } catch (e: Exception) {
+            Logger.e(LOG_TAG, "Failed to update touchable regions.", e)
+        }
+
+        return emptyList()
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -259,7 +280,7 @@ internal open class WindowView(
         return super.dispatchKeyEvent(event)
     }
 
-    internal fun setFocus(focus: Boolean) {
+    protected fun setFocus(focus: Boolean) {
         focusFlag = if (focus) WINDOW_FLAGS_FOCUSED else WINDOW_FLAGS_UNFOCUSED
         if (!isAttachedToWindow) return
 

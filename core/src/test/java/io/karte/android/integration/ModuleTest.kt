@@ -20,6 +20,7 @@ import android.content.Intent
 import android.net.Uri
 import io.karte.android.KarteApp
 import io.karte.android.core.library.ActionModule
+import io.karte.android.core.library.CommandModule
 import io.karte.android.core.library.DeepLinkModule
 import io.karte.android.core.library.Library
 import io.karte.android.core.library.Module
@@ -177,8 +178,14 @@ class ModuleTest {
     class TrackModuleTest : ModuleTestCase() {
         override val mock = mockk<TrackModule>(relaxed = true)
 
+        @Before
+        fun start() {
+            // relaxedだと他のテストがうまく動かないので全体でmockする
+            every { mock.prepare(any()) } returnsArgument 0
+        }
+
         @Test
-        fun interceptが呼ばれること() {
+        fun interceptが毎回呼ばれること() {
             // interceptではrequestをそのまま返す
             every { mock.intercept(any()) } returnsArgument 0
 
@@ -187,6 +194,76 @@ class ModuleTest {
             Tracker.track("test")
             proceedBufferedCall()
             verify(exactly = 1) { mock.intercept(any()) }
+
+            Tracker.track("test")
+            proceedBufferedCall()
+            verify(exactly = 2) { mock.intercept(any()) }
+        }
+
+        @Test
+        fun prepareが毎回呼ばれること() {
+            // startでmock済み
+
+            verify(exactly = 0) { mock.prepare(any()) }
+
+            Tracker.track("test")
+            proceedBufferedCall()
+            verify(exactly = 1) { mock.prepare(any()) }
+
+            Tracker.track("test")
+            proceedBufferedCall()
+            verify(exactly = 2) { mock.prepare(any()) }
+        }
+
+        @Test
+        fun eventRejectionFilterRulesが一度だけ呼ばれること() {
+            every { mock.eventRejectionFilterRules } returns emptyList()
+            verify(exactly = 0) { mock.eventRejectionFilterRules }
+
+            Tracker.track("test")
+            proceedBufferedCall()
+            verify(exactly = 1) { mock.eventRejectionFilterRules }
+
+            // 二回目以降も1度しか呼ばれない。
+            Tracker.track("test")
+            proceedBufferedCall()
+            verify(exactly = 1) { mock.eventRejectionFilterRules }
+        }
+    }
+
+    class CommandModuleTest : ModuleTestCase() {
+        override val mock = mockk<CommandModule>(relaxed = true)
+
+        @Test
+        fun validateが毎回呼ばれること() {
+            every { mock.validate(any()) } returns false
+
+            verify(exactly = 0) { mock.validate(any()) }
+
+            KarteApp.self.executeCommand(Uri.parse("test://aa"))
+            verify(exactly = 1) { mock.validate(any()) }
+
+            KarteApp.self.executeCommand(Uri.parse("test://bb"))
+            verify(exactly = 2) { mock.validate(any()) }
+        }
+
+        @Test
+        fun executeが呼ばれること() {
+            val validUri = Uri.parse("test://valid")
+            val invalidUri = Uri.parse("test://invalid")
+            every { mock.validate(validUri) } returns true
+            every { mock.validate(invalidUri) } returns false
+            every { mock.execute(any()) } returns null
+
+            verify(exactly = 0) { mock.execute(any()) }
+
+            // invalidなuriでは呼ばれない
+            KarteApp.self.executeCommand(invalidUri)
+            verify(exactly = 0) { mock.execute(any()) }
+
+            // validなuriでは呼ばれる
+            KarteApp.self.executeCommand(validUri)
+            verify(exactly = 1) { mock.execute(any()) }
         }
     }
 }

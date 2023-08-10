@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 PLAID, Inc.
+//  Copyright 2023 PLAID, Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -13,55 +13,36 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-package io.karte.android.core.command
+
+package io.karte.android.modules.commands
 
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import io.karte.android.BuildConfig
 import io.karte.android.KarteApp
+import io.karte.android.core.library.CommandModule
+import io.karte.android.core.library.Library
 
-internal object CommandExecutor {
-    fun execute(uri: Uri): List<Any?> {
-        val commands = listOf(
-            OpenSettingsCommand(),
-            OpenStoreCommand()
-        )
-        return commands.filter { it.validate(uri) }.map { it.execute() }
+internal class CoreCommands : Library {
+    override val name: String = "CoreCommands"
+    override val version: String = BuildConfig.LIB_VERSION
+    override val isPublic: Boolean = false
+    private val commands = listOf(OpenSettingsCommandExecutor(), OpenStoreCommandExecutor())
+
+    override fun configure(app: KarteApp) {
+        commands.forEach { app.register(it) }
+    }
+
+    override fun unconfigure(app: KarteApp) {
+        commands.forEach { app.unregister(it) }
     }
 }
 
-private const val karteSchemeLength = 36
+private class OpenSettingsCommandExecutor : CommandModule {
+    override val name: String = "OpenSettingsCommand"
 
-/**
- * コマンドを表現するインターフェースです。
- *
- * **SDK内部で利用するタイプであり、通常のSDK利用でこちらのタイプを利用することはありません。**
- *
- */
-private interface Command {
-    /**
-     * コマンドを実行します。
-     *
-     * @return コマンドの実行結果
-     */
-    fun execute(): Any?
-
-    /**
-     * 有効なKARTEのコマンドかどうか検証します。
-     *
-     * @return コマンドの検証結果
-     */
-    fun validate(uri: Uri): Boolean {
-        val scheme = uri.scheme
-        if (scheme != null && scheme.startsWith("krt-") && scheme.length == karteSchemeLength) {
-            return true
-        }
-        return false
-    }
-}
-
-private class OpenSettingsCommand : Command {
-    override fun execute(): Any? {
+    override fun execute(uri: Uri, isDelay: Boolean): Intent {
         val uriString = "package:" + KarteApp.self.application.packageName
         return Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse(uriString))
     }
@@ -80,8 +61,9 @@ private class OpenSettingsCommand : Command {
     }
 }
 
-private class OpenStoreCommand : Command {
-    override fun execute(): Any? {
+private class OpenStoreCommandExecutor : CommandModule {
+    override val name: String = "OpenStoreCommand"
+    override fun execute(uri: Uri, isDelay: Boolean): Intent {
         val uriString = "market://details?id=" + KarteApp.self.application.packageName
         return Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
     }

@@ -20,8 +20,10 @@ import io.karte.android.KarteApp
 import io.karte.android.core.library.Library
 import io.karte.android.core.logger.Logger
 import io.karte.android.notifications.internal.TokenRegistrar
+import io.karte.android.notifications.internal.command.RegisterPushCommandExecutor
 import io.karte.android.notifications.internal.track.ClickTracker
 import io.karte.android.utilities.ActivityLifecycleCallback
+import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.Notifications"
 
@@ -31,9 +33,11 @@ private const val LOG_TAG = "Karte.Notifications"
 class Notifications : Library, ActivityLifecycleCallback() {
     private lateinit var registrar: TokenRegistrar
     private val clickTracker = ClickTracker
+    private val commandExecutor: RegisterPushCommandExecutor = RegisterPushCommandExecutor()
 
     internal lateinit var app: KarteApp
     private var config: NotificationsConfig? = null
+    internal var currentActivity: WeakReference<Activity>? = null
 
     //region Libraary
     override val name: String = "notifications"
@@ -48,6 +52,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
         registrar = TokenRegistrar(app.application)
         app.register(registrar)
         app.register(clickTracker)
+        app.register(commandExecutor)
     }
 
     override fun unconfigure(app: KarteApp) {
@@ -55,6 +60,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
         app.application.unregisterActivityLifecycleCallbacks(this)
         app.unregister(registrar)
         app.unregister(clickTracker)
+        app.unregister(commandExecutor)
     }
     //endregion
 
@@ -62,6 +68,11 @@ class Notifications : Library, ActivityLifecycleCallback() {
     override fun onActivityResumed(activity: Activity) {
         Logger.v(LOG_TAG, "onActivityResumed $activity")
         if (enabledFCMTokenResend) registrar.registerFCMToken()
+        currentActivity = WeakReference(activity)
+    }
+
+    override fun onActivityPaused(activity: Activity) {
+        currentActivity = null
     }
     //endregion
 

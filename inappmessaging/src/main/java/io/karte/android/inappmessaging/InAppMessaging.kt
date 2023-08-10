@@ -16,10 +16,7 @@
 package io.karte.android.inappmessaging
 
 import android.app.Activity
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.Window
@@ -32,12 +29,11 @@ import io.karte.android.core.library.TrackModule
 import io.karte.android.core.library.UserModule
 import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.internal.ExpiredMessageOpenEventRejectionFilterRule
-import io.karte.android.inappmessaging.internal.IAMPresenter
-import io.karte.android.inappmessaging.internal.IAMWebView
-import io.karte.android.inappmessaging.internal.IAMWindow
+import io.karte.android.inappmessaging.internal.IAMProcessor
 import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.inappmessaging.internal.PanelWindowManager
 import io.karte.android.inappmessaging.internal.preview.PreviewParams
+import io.karte.android.tracking.Event
 import io.karte.android.tracking.MessageEvent
 import io.karte.android.tracking.MessageEventType
 import io.karte.android.tracking.Tracker
@@ -45,12 +41,9 @@ import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
 import io.karte.android.tracking.queue.TrackEventRejectionFilterRule
 import io.karte.android.utilities.ActivityLifecycleCallback
-import org.json.JSONException
 import org.json.JSONObject
-import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.InAppMessaging"
-private const val PREVENT_RELAY_TO_PRESENTER_KEY = "krt_prevent_relay_to_presenter"
 private const val COOKIE_DOMAIN = "karte.io"
 
 /**
@@ -67,6 +60,7 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
         self = this
         app.application.registerActivityLifecycleCallbacks(this)
         this.app = app
+        this.processor = IAMProcessor(app.application, panelWindowManager)
         app.register(this)
     }
 
@@ -76,46 +70,24 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
         app.unregister(this)
 
         // teardown
-        currentActiveActivity = null
-        presenter?.destroy()
         isSuppressed = false
         delegate = null
-        cachedWebView?.destroy()
-        cachedWebView = null
+        processor.teardown()
     }
     //endregion
 
     //region ActionModule
     override fun receive(trackResponse: TrackResponse, trackRequest: TrackRequest) {
         uiThreadHandler.post {
-            try {
-                val message = MessageModel(trackResponse.json, trackRequest)
-                message.filter(app.pvId, ::trackMessageSuppressed)
-                if (!message.shouldLoad()) return@post
-                if (isSuppressed) {
-                    message.messages.map {
-                        trackMessageSuppressed(it, "The display is suppressed by suppress mode.")
-                    }
-                    return@post
+            val message = MessageModel(trackResponse.json, trackRequest)
+            message.filter(app.pvId, ::trackMessageSuppressed)
+            if (isSuppressed) {
+                message.messages.map {
+                    trackMessageSuppressed(it, "The display is suppressed by suppress mode.")
                 }
-                val activity = currentActiveActivity?.get()
-                if (activity == null) {
-                    message.messages.map {
-                        trackMessageSuppressed(
-                            it,
-                            "The display is suppressed because Activity is not found."
-                        )
-                    }
-                    return@post
-                }
-
-                Logger.d(LOG_TAG, "Try to add overlay to activity if not yet added. $activity")
-                if (!windowFocusable) windowFocusable = message.shouldFocusCrossDisplayCampaign()
-                setIAMWindow(message.shouldFocus())
-                presenter?.addMessage(message)
-            } catch (e: JSONException) {
-                Logger.d(LOG_TAG, "Failed to parse json. ", e)
+                return@post
             }
+            processor.handle(message)
         }
     }
 
@@ -124,33 +96,22 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
         // pvIdがある(onResumeより後ろ)場合のみdismissする
         if (app.pvId != app.originalPvId) {
             uiThreadHandler.post {
-                getWebView()?.also {
-                    if (it.hasMessage) {
-                        if (currentActiveActivity != null) {
-                            setIAMWindow(windowFocusable)
-                        }
-                        it.handleChangePv()
-                        it.reset(false)
-                    } else {
-                        Logger.d(LOG_TAG, "Dismiss by reset pv_id")
-                        windowFocusable = false
-                        dismiss()
-                    }
-                }
+                processor.handleChangePv()
+                processor.reset(false)
             }
         }
     }
 
     override fun resetAll() {
-        dismiss()
+        processor.reset(true)
     }
     //endregion
 
     //region UserModule
     override fun renewVisitorId(current: String, previous: String?) {
         uiThreadHandler.post {
-            presenter?.destroy()
-            getWebView(generateOverlayURL())
+            processor.reset(true)
+            processor.reload()
             clearWebViewCookies()
         }
     }
@@ -160,49 +121,29 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
     override val eventRejectionFilterRules: List<TrackEventRejectionFilterRule>
         get() = listOf(ExpiredMessageOpenEventRejectionFilterRule())
 
+    override fun prepare(event: Event): Event {
+        if (event.eventName.value == "view") {
+            processor.handleView(event.values)
+        }
+        return event
+    }
+
     override fun intercept(request: TrackRequest): TrackRequest {
         return request
     }
     //endregion
 
     //region ActivityLifecycleCallback
-    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        currentActiveActivity = WeakReference(activity)
-    }
-
     override fun onActivityStarted(activity: Activity) {
         val previewParams = PreviewParams(activity)
         // 接客プレビューの場合はイベントを送信しない。
         if (previewParams.shouldShowPreview()) {
             Logger.i(LOG_TAG, "Enter preview mode. ${previewParams.generateUrl(app)}")
             app.optOutTemporarily()
-            showPreview(previewParams)
+            processor.reload(previewParams.generateUrl(app))
         }
-    }
-
-    override fun onActivityResumed(activity: Activity) {
-        currentActiveActivity = WeakReference(activity)
-        // foregroundになった時に初めてキャッシュする.
-        getWebView()
-    }
-
-    override fun onActivityPaused(activity: Activity) {
-        // FileChooser等のrelay以外は非表示にする.
-        var isPreventRelayToPresenter = false
-        activity.intent?.let { intent ->
-            isPreventRelayToPresenter =
-                intent.getBooleanExtra(PREVENT_RELAY_TO_PRESENTER_KEY, false)
-            intent.removeExtra(PREVENT_RELAY_TO_PRESENTER_KEY)
-        }
-        Logger.d(LOG_TAG, "onActivityPaused prevent_relay flag: $isPreventRelayToPresenter")
-        if (!isPreventRelayToPresenter) presenter?.destroy(false)
-        currentActiveActivity = null
     }
     //endregion
-
-    internal fun enablePreventRelayFlag(activity: Activity?) {
-        activity?.intent?.putExtra(PREVENT_RELAY_TO_PRESENTER_KEY, true)
-    }
 
     companion object {
         internal var self: InAppMessaging? = null
@@ -215,7 +156,7 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
          */
         @JvmStatic
         val isPresenting: Boolean
-            get() = self?.presenter?.isVisible == true
+            get() = self?.processor?.isPresenting == true
 
         /**
          * アプリ内メッセージで発生するイベント等を委譲するためのデリゲートインスタンスを取得・設定します。
@@ -233,7 +174,7 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
         @JvmStatic
         fun dismiss() {
             self?.uiThreadHandler?.post {
-                self?.presenter?.destroy()
+                self?.processor?.reset(true)
             }
         }
 
@@ -292,63 +233,15 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
     }
 
     internal lateinit var app: KarteApp
-
+    private lateinit var processor: IAMProcessor
     private val uiThreadHandler: Handler = Handler(Looper.getMainLooper())
     private val panelWindowManager = PanelWindowManager()
     private val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
-    private var currentActiveActivity: WeakReference<Activity>? = null
-    private var presenter: IAMPresenter? = null
+
     private var isSuppressed = false
     private var delegate: InAppMessagingDelegate? = null
 
-    private var cachedWebView: IAMWebView? = null
-    private var windowFocusable: Boolean = false
-
-    /*
-      * WebViewを作成. キャッシュ有効時には初回はキャッシュを作成し、以後使い回す。
-      */
-    private fun getWebView(url: String? = null): IAMWebView? {
-        cachedWebView?.let {
-            // urlが指定されている場合、読み込み済みのものと異なればcacheを使用しない
-            if (url == null || url == it.url)
-                return it
-        }
-        Logger.d(LOG_TAG, "WebView recreate")
-        cachedWebView?.destroy()
-        cachedWebView = null
-        try {
-            cachedWebView = IAMWebView(app.application) { uri: Uri ->
-                Boolean
-                Logger.d(LOG_TAG, " shouldOpenURL $delegate")
-                delegate?.shouldOpenURL(uri) ?: true
-            }.apply { loadUrl(url ?: generateOverlayURL()) }
-        } catch (e: PackageManager.NameNotFoundException) {
-            // WebViewアップデート中に初期化すると例外発生する可能性がある
-            // NOTE: https://stackoverflow.com/questions/29575313/namenotfoundexception-webview
-            // 4系,5.0系に多いが、その他でも発生しうる。
-            Logger.e(LOG_TAG, "Failed to construct IAMWebView, because WebView is updating.", e)
-        } catch (t: Throwable) {
-            // 7系等入っているWebViewによってWebKit側のExceptionになってしまうのでThrowableでキャッチする
-            // https://stackoverflow.com/questions/46278681/android-webkit-webviewfactorymissingwebviewpackageexception-from-android-7-0
-            Logger.e(LOG_TAG, "Failed to construct IAMWebView", t)
-        }
-
-        return cachedWebView
-    }
-
-    private fun setIAMWindow(focusable: Boolean) {
-        if (presenter != null) return
-
-        val activity = currentActiveActivity?.get() ?: return
-        val webView = getWebView() ?: return
-        Logger.d(LOG_TAG, "Setting IAMWindow to activity. $currentActiveActivity")
-        presenter = IAMPresenter(
-            IAMWindow(activity, panelWindowManager, webView).apply { setFocus(focusable) },
-            webView
-        ) { presenter = null }
-    }
-
-    private fun generateOverlayURL(): String {
+    internal fun generateOverlayURL(): String {
         return "$overlayBaseUrl/overlay?app_key=${app.appKey}&_k_vid=${KarteApp.visitorId}" +
             "&_k_app_prof=${app.appInfo?.json}"
     }
@@ -365,20 +258,6 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
                     cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
                 }
             cookieManager.flush()
-        }
-    }
-
-    private fun showPreview(params: PreviewParams) {
-        currentActiveActivity?.get()?.window?.decorView?.post {
-            val activity = currentActiveActivity?.get() ?: return@post
-            val url = params.generateUrl(app) ?: return@post
-            val webView = getWebView(url) ?: return@post
-            // dismissされないため. 本来はTracker.jsサイドで処理する？
-            webView.hasMessage = true
-            presenter = IAMPresenter(
-                IAMWindow(activity, panelWindowManager, webView),
-                webView
-            ) { presenter = null }
         }
     }
 

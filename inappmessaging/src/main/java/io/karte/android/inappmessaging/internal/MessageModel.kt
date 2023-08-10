@@ -117,13 +117,4 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
             }
         }"
     }
-
-    internal interface MessageAdapter {
-        fun dequeue(): MessageModel?
-    }
-
-    internal interface MessageView {
-        var adapter: MessageAdapter?
-        fun notifyChanged()
-    }
 }

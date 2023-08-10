@@ -18,7 +18,7 @@ package io.karte.android.inappmessaging.unit
 import android.app.Activity
 import android.view.KeyEvent
 import android.view.WindowManager
-import io.karte.android.inappmessaging.internal.IAMPresenter
+import io.karte.android.inappmessaging.internal.IAMProcessor
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.IAMWindow
 import io.karte.android.inappmessaging.internal.PanelWindowManager
@@ -42,7 +42,7 @@ import org.robolectric.annotation.Config
 class IAMWindowTest {
 
     @MockK
-    private lateinit var presenter: IAMPresenter
+    private lateinit var processor: IAMProcessor
     private lateinit var webView: IAMWebView
     lateinit var activity: ActivityController<Activity>
     private lateinit var view: IAMWindow
@@ -56,11 +56,11 @@ class IAMWindowTest {
         webView =
             IAMWebView(
                 activity.get().applicationContext,
-                null
+                processor
             )
-        webView.hasMessage = true
-        view = IAMWindow(activity.get(), PanelWindowManager(), webView)
-        view.presenter = presenter
+        webView.visible = true
+        view = IAMWindow(activity.get(), PanelWindowManager())
+        view.addView(webView)
     }
 
     @After
@@ -74,7 +74,7 @@ class IAMWindowTest {
         proceedUiBufferedCall()
 
         Assert.assertEquals(true, view.isShowing)
-        view.dismiss()
+        view.dismiss(false)
         // dismiss後もviewのvisibilityは変化しない
     }
 
@@ -86,7 +86,7 @@ class IAMWindowTest {
         proceedUiBufferedCall()
 
         Assert.assertEquals(true, view.isShowing)
-        view.dismiss()
+        view.dismiss(false)
         // dismiss後もviewのvisibilityは変化しない
     }
 

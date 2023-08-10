@@ -28,7 +28,7 @@ internal enum class State {
             when (nameInCallback) {
                 INITIALIZED -> return READY
                 ERROR -> return DESTROYED
-                else -> throw IllegalArgumentException("Unknown TrackerJsState: $nameInCallback")
+                else -> throw IllegalArgumentException("Unknown overlay state: $nameInCallback")
             }
         }
     }

@@ -268,7 +268,7 @@ class MessageHandlerTest {
             val contentIntent = shadowOf(getNotification(id).contentIntent)
             assertThat(contentIntent.requestCode).isEqualTo(id)
             assertThat(contentIntent.savedIntent.action).isEqualTo(Intent.ACTION_MAIN)
-            assertThat(contentIntent.savedIntent.extras?.get("krt_component_name"))
+            assertThat(contentIntent.savedIntent.extras?.getString("krt_component_name"))
                 .isEqualTo("${application.packageName}/TestActivity")
         }
 
