@@ -8,6 +8,7 @@ def getPropOrDefault(name, defaultValue = "") {
 
 nexusStaging {
     packageGroup = 'io.karte.android'
+    stagingProfileId = '20eca948b3508'
     username = getPropOrDefault("ossrhUsername")
     password = getPropOrDefault("ossrhPassword")
 }
