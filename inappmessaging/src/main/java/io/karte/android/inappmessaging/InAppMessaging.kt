@@ -123,7 +123,9 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
 
     override fun prepare(event: Event): Event {
         if (event.eventName.value == "view") {
-            processor.handleView(event.values)
+            uiThreadHandler.post {
+                processor.handleView(event.values)
+            }
         }
         return event
     }
