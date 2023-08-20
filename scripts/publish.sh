@@ -73,7 +73,7 @@ function publish() {
 # Checkout
 ##################################################
 
-set -e -o pipefail
+set -e
 cd `dirname $0`
 cd ../
 
