@@ -1,0 +1,62 @@
+public abstract interface class io/karte/android/visualtracking/Action {
+	public abstract fun getAction ()Ljava/lang/String;
+	public abstract fun getActionId ()Ljava/lang/String;
+	public abstract fun getImageProvider ()Lio/karte/android/visualtracking/ImageProvider;
+	public abstract fun getTargetText ()Ljava/lang/String;
+}
+
+public final class io/karte/android/visualtracking/BasicAction : io/karte/android/visualtracking/Action {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lio/karte/android/visualtracking/ImageProvider;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lio/karte/android/visualtracking/ImageProvider;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAction ()Ljava/lang/String;
+	public fun getActionId ()Ljava/lang/String;
+	public fun getImageProvider ()Lio/karte/android/visualtracking/ImageProvider;
+	public fun getTargetText ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/karte/android/visualtracking/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public static final field LIB_VERSION Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public abstract interface class io/karte/android/visualtracking/ImageProvider {
+	public abstract fun image ()Landroid/graphics/Bitmap;
+}
+
+public final class io/karte/android/visualtracking/VisualTracking : io/karte/android/core/library/ActionModule, io/karte/android/core/library/Library, io/karte/android/core/library/TrackModule {
+	public static final field Companion Lio/karte/android/visualtracking/VisualTracking$Companion;
+	public fun <init> ()V
+	public fun configure (Lio/karte/android/KarteApp;)V
+	public static final fun getDelegate ()Lio/karte/android/visualtracking/VisualTrackingDelegate;
+	public fun getEventRejectionFilterRules ()Ljava/util/List;
+	public fun getName ()Ljava/lang/String;
+	public fun getVersion ()Ljava/lang/String;
+	public static final fun handle (Lio/karte/android/visualtracking/Action;)V
+	public fun intercept (Lio/karte/android/tracking/client/TrackRequest;)Lio/karte/android/tracking/client/TrackRequest;
+	public static final fun isPaired ()Z
+	public fun isPublic ()Z
+	public fun prepare (Lio/karte/android/tracking/Event;)Lio/karte/android/tracking/Event;
+	public fun receive (Lio/karte/android/tracking/client/TrackResponse;Lio/karte/android/tracking/client/TrackRequest;)V
+	public fun reset ()V
+	public fun resetAll ()V
+	public static final fun setDelegate (Lio/karte/android/visualtracking/VisualTrackingDelegate;)V
+	public fun unconfigure (Lio/karte/android/KarteApp;)V
+}
+
+public final class io/karte/android/visualtracking/VisualTracking$Companion {
+	public final fun getDelegate ()Lio/karte/android/visualtracking/VisualTrackingDelegate;
+	public final fun handle (Lio/karte/android/visualtracking/Action;)V
+	public final fun isPaired ()Z
+	public final fun setDelegate (Lio/karte/android/visualtracking/VisualTrackingDelegate;)V
+}
+
+public abstract class io/karte/android/visualtracking/VisualTrackingDelegate {
+	public fun <init> ()V
+	public fun onDevicePairingStatusUpdated (Z)V
+}
+

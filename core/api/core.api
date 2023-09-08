@@ -1,0 +1,571 @@
+public final class io/karte/android/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public static final field LIB_VERSION Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public final class io/karte/android/KarteApp : io/karte/android/utilities/ActivityLifecycleCallback {
+	public static final field Companion Lio/karte/android/KarteApp$Companion;
+	public final fun executeCommand (Landroid/net/Uri;)Ljava/util/List;
+	public final fun executeCommand (Landroid/net/Uri;Z)Ljava/util/List;
+	public static synthetic fun executeCommand$default (Lio/karte/android/KarteApp;Landroid/net/Uri;ZILjava/lang/Object;)Ljava/util/List;
+	public final fun getAppInfo ()Lio/karte/android/tracking/AppInfo;
+	public final fun getAppKey ()Ljava/lang/String;
+	public final fun getApplication ()Landroid/app/Application;
+	public final fun getConfig ()Lio/karte/android/core/config/Config;
+	public final fun getOriginalPvId ()Ljava/lang/String;
+	public final fun getPvId ()Ljava/lang/String;
+	public static final fun getVisitorId ()Ljava/lang/String;
+	public static final fun isOptOut ()Z
+	public final fun libraryConfig (Ljava/lang/Class;)Lio/karte/android/core/library/LibraryConfig;
+	public fun onActivityCreated (Landroid/app/Activity;Landroid/os/Bundle;)V
+	public fun onActivityPaused (Landroid/app/Activity;)V
+	public fun onActivityResumed (Landroid/app/Activity;)V
+	public fun onActivityStarted (Landroid/app/Activity;)V
+	public fun onActivityStopped (Landroid/app/Activity;)V
+	public static final fun onNewIntent (Landroid/content/Intent;)V
+	public static final fun openUrl (Landroid/net/Uri;Landroid/content/Context;)Z
+	public static final fun optIn ()V
+	public static final fun optOut ()V
+	public final fun optOutTemporarily ()V
+	public static final fun register (Lio/karte/android/core/library/Library;)V
+	public final fun register (Lio/karte/android/core/library/Module;)V
+	public static final fun renewVisitorId ()V
+	public final fun repository (Ljava/lang/String;)Lio/karte/android/core/repository/Repository;
+	public static synthetic fun repository$default (Lio/karte/android/KarteApp;Ljava/lang/String;ILjava/lang/Object;)Lio/karte/android/core/repository/Repository;
+	public static final fun setLogLevel (Lio/karte/android/core/logger/LogLevel;)V
+	public static final fun setup (Landroid/content/Context;)V
+	public static final fun setup (Landroid/content/Context;Lio/karte/android/core/config/Config;)V
+	public static final fun setup (Landroid/content/Context;Ljava/lang/String;)V
+	public static final fun setup (Landroid/content/Context;Ljava/lang/String;Lio/karte/android/core/config/Config;)V
+	public static final fun unregister (Lio/karte/android/core/library/Library;)V
+	public final fun unregister (Lio/karte/android/core/library/Module;)V
+}
+
+public final class io/karte/android/KarteApp$Companion {
+	public final fun getVisitorId ()Ljava/lang/String;
+	public final fun isOptOut ()Z
+	public final fun onNewIntent (Landroid/content/Intent;)V
+	public final fun openUrl (Landroid/net/Uri;Landroid/content/Context;)Z
+	public final fun optIn ()V
+	public final fun optOut ()V
+	public final fun register (Lio/karte/android/core/library/Library;)V
+	public final fun renewVisitorId ()V
+	public final fun setLogLevel (Lio/karte/android/core/logger/LogLevel;)V
+	public final fun setup (Landroid/content/Context;)V
+	public final fun setup (Landroid/content/Context;Lio/karte/android/core/config/Config;)V
+	public final fun setup (Landroid/content/Context;Ljava/lang/String;)V
+	public final fun setup (Landroid/content/Context;Ljava/lang/String;Lio/karte/android/core/config/Config;)V
+	public static synthetic fun setup$default (Lio/karte/android/KarteApp$Companion;Landroid/content/Context;Lio/karte/android/core/config/Config;ILjava/lang/Object;)V
+	public static synthetic fun setup$default (Lio/karte/android/KarteApp$Companion;Landroid/content/Context;Ljava/lang/String;Lio/karte/android/core/config/Config;ILjava/lang/Object;)V
+	public final fun unregister (Lio/karte/android/core/library/Library;)V
+}
+
+public class io/karte/android/KarteException : java/lang/Exception {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+}
+
+public final class io/karte/android/KarteServerException : io/karte/android/KarteException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+}
+
+public class io/karte/android/core/config/Config {
+	public static final field Companion Lio/karte/android/core/config/Config$Companion;
+	protected fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZZLjava/util/List;)V
+	public final fun getApiKey ()Ljava/lang/String;
+	public final fun getAppKey ()Ljava/lang/String;
+	public final fun getBaseUrl ()Ljava/lang/String;
+	public final fun getEnabledTrackingAaid ()Z
+	public final fun getLibraryConfigs ()Ljava/util/List;
+	public final fun isDryRun ()Z
+	public final fun isOptOut ()Z
+}
+
+public class io/karte/android/core/config/Config$Builder {
+	public fun <init> ()V
+	public final fun baseUrl (Ljava/lang/String;)Lio/karte/android/core/config/Config$Builder;
+	public fun build ()Lio/karte/android/core/config/Config;
+	public final fun enabledTrackingAaid (Z)Lio/karte/android/core/config/Config$Builder;
+	public final fun getApiKey ()Ljava/lang/String;
+	public final fun getAppKey ()Ljava/lang/String;
+	public final fun getBaseUrl ()Ljava/lang/String;
+	public final fun getEnabledTrackingAaid ()Z
+	public final fun getLibraryConfigs ()Ljava/util/List;
+	public final fun isDryRun ()Z
+	public final fun isDryRun (Z)Lio/karte/android/core/config/Config$Builder;
+	public final fun isOptOut ()Z
+	public final fun isOptOut (Z)Lio/karte/android/core/config/Config$Builder;
+	public final fun libraryConfigs (Ljava/util/List;)Lio/karte/android/core/config/Config$Builder;
+	public final fun libraryConfigs ([Lio/karte/android/core/library/LibraryConfig;)Lio/karte/android/core/config/Config$Builder;
+	public final synthetic fun setApiKey (Ljava/lang/String;)V
+	public final synthetic fun setAppKey (Ljava/lang/String;)V
+	public final synthetic fun setBaseUrl (Ljava/lang/String;)V
+	public final synthetic fun setDryRun (Z)V
+	public final synthetic fun setEnabledTrackingAaid (Z)V
+	public final synthetic fun setLibraryConfigs (Ljava/util/List;)V
+	public final synthetic fun setOptOut (Z)V
+}
+
+public final class io/karte/android/core/config/Config$Companion {
+	public final fun build (Lkotlin/jvm/functions/Function1;)Lio/karte/android/core/config/Config;
+	public static synthetic fun build$default (Lio/karte/android/core/config/Config$Companion;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lio/karte/android/core/config/Config;
+}
+
+public final class io/karte/android/core/config/ExperimentalConfig : io/karte/android/core/config/Config {
+	public static final field Companion Lio/karte/android/core/config/ExperimentalConfig$Companion;
+	public synthetic fun <init> (Lio/karte/android/core/config/OperationMode;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZZLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getOperationMode ()Lio/karte/android/core/config/OperationMode;
+}
+
+public final class io/karte/android/core/config/ExperimentalConfig$Builder : io/karte/android/core/config/Config$Builder {
+	public fun <init> ()V
+	public synthetic fun build ()Lio/karte/android/core/config/Config;
+	public fun build ()Lio/karte/android/core/config/ExperimentalConfig;
+	public final fun getOperationMode ()Lio/karte/android/core/config/OperationMode;
+	public final fun operationMode (Lio/karte/android/core/config/OperationMode;)Lio/karte/android/core/config/ExperimentalConfig$Builder;
+	public final synthetic fun setOperationMode (Lio/karte/android/core/config/OperationMode;)V
+}
+
+public final class io/karte/android/core/config/ExperimentalConfig$Companion {
+	public final fun build (Lkotlin/jvm/functions/Function1;)Lio/karte/android/core/config/ExperimentalConfig;
+	public static synthetic fun build$default (Lio/karte/android/core/config/ExperimentalConfig$Companion;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lio/karte/android/core/config/ExperimentalConfig;
+}
+
+public abstract class io/karte/android/core/config/OperationMode : java/lang/Enum {
+	public static final field DEFAULT Lio/karte/android/core/config/OperationMode;
+	public static final field INGEST Lio/karte/android/core/config/OperationMode;
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun getTrackEndpointPath ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lio/karte/android/core/config/OperationMode;
+	public static fun values ()[Lio/karte/android/core/config/OperationMode;
+}
+
+public abstract interface class io/karte/android/core/library/ActionModule : io/karte/android/core/library/Module {
+	public abstract fun receive (Lio/karte/android/tracking/client/TrackResponse;Lio/karte/android/tracking/client/TrackRequest;)V
+	public abstract fun reset ()V
+	public abstract fun resetAll ()V
+}
+
+public abstract interface class io/karte/android/core/library/CommandModule : io/karte/android/core/library/Module {
+	public abstract fun execute (Landroid/net/Uri;Z)Landroid/content/Intent;
+	public abstract fun validate (Landroid/net/Uri;)Z
+}
+
+public final class io/karte/android/core/library/CommandModule$DefaultImpls {
+	public static fun execute (Lio/karte/android/core/library/CommandModule;Landroid/net/Uri;Z)Landroid/content/Intent;
+	public static synthetic fun execute$default (Lio/karte/android/core/library/CommandModule;Landroid/net/Uri;ZILjava/lang/Object;)Landroid/content/Intent;
+	public static fun validate (Lio/karte/android/core/library/CommandModule;Landroid/net/Uri;)Z
+}
+
+public abstract interface class io/karte/android/core/library/DeepLinkModule : io/karte/android/core/library/Module {
+	public abstract fun handle (Landroid/content/Intent;)V
+}
+
+public abstract interface class io/karte/android/core/library/Library {
+	public abstract fun configure (Lio/karte/android/KarteApp;)V
+	public abstract fun getName ()Ljava/lang/String;
+	public abstract fun getVersion ()Ljava/lang/String;
+	public abstract fun isPublic ()Z
+	public abstract fun unconfigure (Lio/karte/android/KarteApp;)V
+}
+
+public abstract interface class io/karte/android/core/library/LibraryConfig {
+}
+
+public abstract interface class io/karte/android/core/library/Module {
+	public abstract fun getName ()Ljava/lang/String;
+}
+
+public abstract interface class io/karte/android/core/library/NotificationModule : io/karte/android/core/library/Module {
+	public abstract fun unsubscribe ()V
+}
+
+public abstract interface class io/karte/android/core/library/TrackModule : io/karte/android/core/library/Module {
+	public abstract fun getEventRejectionFilterRules ()Ljava/util/List;
+	public abstract fun intercept (Lio/karte/android/tracking/client/TrackRequest;)Lio/karte/android/tracking/client/TrackRequest;
+	public abstract fun prepare (Lio/karte/android/tracking/Event;)Lio/karte/android/tracking/Event;
+}
+
+public final class io/karte/android/core/library/TrackModule$DefaultImpls {
+	public static fun getEventRejectionFilterRules (Lio/karte/android/core/library/TrackModule;)Ljava/util/List;
+	public static fun prepare (Lio/karte/android/core/library/TrackModule;Lio/karte/android/tracking/Event;)Lio/karte/android/tracking/Event;
+}
+
+public abstract interface class io/karte/android/core/library/UserModule : io/karte/android/core/library/Module {
+	public abstract fun renewVisitorId (Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class io/karte/android/core/logger/LogLevel : java/lang/Enum {
+	public static final field DEBUG Lio/karte/android/core/logger/LogLevel;
+	public static final field ERROR Lio/karte/android/core/logger/LogLevel;
+	public static final field INFO Lio/karte/android/core/logger/LogLevel;
+	public static final field OFF Lio/karte/android/core/logger/LogLevel;
+	public static final field VERBOSE Lio/karte/android/core/logger/LogLevel;
+	public static final field WARN Lio/karte/android/core/logger/LogLevel;
+	public static fun valueOf (Ljava/lang/String;)Lio/karte/android/core/logger/LogLevel;
+	public static fun values ()[Lio/karte/android/core/logger/LogLevel;
+}
+
+public final class io/karte/android/core/logger/Logger {
+	public static final field INSTANCE Lio/karte/android/core/logger/Logger;
+	public static final fun d (Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun d (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public static synthetic fun d$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)V
+	public static final fun e (Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun e (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public static synthetic fun e$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)V
+	public static final fun getLevel ()Lio/karte/android/core/logger/LogLevel;
+	public static final fun i (Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun i (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public static synthetic fun i$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)V
+	public static final fun setLevel (Lio/karte/android/core/logger/LogLevel;)V
+	public static final fun v (Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun v (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public static synthetic fun v$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)V
+	public static final fun w (Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun w (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public static synthetic fun w$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)V
+}
+
+public abstract interface class io/karte/android/core/repository/Repository {
+	public abstract fun get (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun put (Ljava/lang/String;Ljava/lang/Object;)V
+	public abstract fun remove (Ljava/lang/String;)V
+	public abstract fun removeAll ()V
+}
+
+public final class io/karte/android/core/usersync/UserSync {
+	public static final field INSTANCE Lio/karte/android/core/usersync/UserSync;
+	public static final fun appendUserSyncQueryParameter (Landroid/net/Uri;)Ljava/lang/String;
+	public static final fun appendUserSyncQueryParameter (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun getUserSyncScript ()Ljava/lang/String;
+	public static final fun setUserSyncScript (Landroid/webkit/WebView;)V
+}
+
+public final class io/karte/android/modules/crashreporting/CrashReportingConfig : io/karte/android/core/library/LibraryConfig {
+	public static final field Companion Lio/karte/android/modules/crashreporting/CrashReportingConfig$Companion;
+	public synthetic fun <init> (ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getEnabledTracking ()Z
+}
+
+public final class io/karte/android/modules/crashreporting/CrashReportingConfig$Builder {
+	public fun <init> ()V
+	public final fun build ()Lio/karte/android/modules/crashreporting/CrashReportingConfig;
+	public final fun enabledTracking (Z)Lio/karte/android/modules/crashreporting/CrashReportingConfig$Builder;
+	public final fun getEnabledTracking ()Z
+	public final synthetic fun setEnabledTracking (Z)V
+}
+
+public final class io/karte/android/modules/crashreporting/CrashReportingConfig$Companion {
+	public final fun build (Lkotlin/jvm/functions/Function1;)Lio/karte/android/modules/crashreporting/CrashReportingConfig;
+	public static synthetic fun build$default (Lio/karte/android/modules/crashreporting/CrashReportingConfig$Companion;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lio/karte/android/modules/crashreporting/CrashReportingConfig;
+}
+
+public final class io/karte/android/tracking/Action : io/karte/android/tracking/DTO {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lio/karte/android/tracking/DTO;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lio/karte/android/tracking/DTO;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lio/karte/android/tracking/DTO;
+	public final fun component4 ()Ljava/lang/Boolean;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lio/karte/android/tracking/DTO;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;)Lio/karte/android/tracking/Action;
+	public static synthetic fun copy$default (Lio/karte/android/tracking/Action;Ljava/lang/String;Ljava/lang/String;Lio/karte/android/tracking/DTO;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lio/karte/android/tracking/Action;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContent ()Lio/karte/android/tracking/DTO;
+	public final fun getNoAction ()Ljava/lang/Boolean;
+	public final fun getReason ()Ljava/lang/String;
+	public final fun getResponseTimestamp ()Ljava/lang/String;
+	public final fun getShortenId ()Ljava/lang/String;
+	public final fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun load (Lorg/json/JSONObject;)Lio/karte/android/tracking/Action;
+	public synthetic fun load (Lorg/json/JSONObject;)Ljava/lang/Object;
+	public final fun setContent (Lio/karte/android/tracking/DTO;)V
+	public final fun setNoAction (Ljava/lang/Boolean;)V
+	public final fun setReason (Ljava/lang/String;)V
+	public final fun setResponseTimestamp (Ljava/lang/String;)V
+	public final fun setShortenId (Ljava/lang/String;)V
+	public final fun setType (Ljava/lang/String;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/karte/android/tracking/AppInfo : io/karte/android/tracking/Serializable {
+	public fun <init> (Landroid/content/Context;Lio/karte/android/core/repository/Repository;Lio/karte/android/core/config/Config;)V
+	public final fun getJson ()Lorg/json/JSONObject;
+	public fun serialize ()Lorg/json/JSONObject;
+}
+
+public final class io/karte/android/tracking/Campaign : io/karte/android/tracking/DTO {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lio/karte/android/tracking/Campaign;
+	public static synthetic fun copy$default (Lio/karte/android/tracking/Campaign;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lio/karte/android/tracking/Campaign;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCampaignId ()Ljava/lang/String;
+	public final fun getServiceActionType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun load (Lorg/json/JSONObject;)Lio/karte/android/tracking/Campaign;
+	public synthetic fun load (Lorg/json/JSONObject;)Ljava/lang/Object;
+	public final fun setCampaignId (Ljava/lang/String;)V
+	public final fun setServiceActionType (Ljava/lang/String;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/karte/android/tracking/CustomEventName : io/karte/android/tracking/EventName {
+	public fun <init> (Ljava/lang/String;)V
+	public fun getValue ()Ljava/lang/String;
+}
+
+public abstract interface class io/karte/android/tracking/DTO {
+	public abstract fun load (Lorg/json/JSONObject;)Ljava/lang/Object;
+}
+
+public class io/karte/android/tracking/Event {
+	public static final field Companion Lio/karte/android/tracking/Event$Companion;
+	public fun <init> (Lio/karte/android/tracking/EventName;Ljava/util/Map;Ljava/lang/Boolean;)V
+	public synthetic fun <init> (Lio/karte/android/tracking/EventName;Ljava/util/Map;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lio/karte/android/tracking/EventName;Ljava/util/Map;Ljava/lang/Boolean;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/karte/android/tracking/EventName;Ljava/util/Map;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lio/karte/android/tracking/EventName;Lorg/json/JSONObject;Ljava/lang/Boolean;)V
+	public synthetic fun <init> (Lio/karte/android/tracking/EventName;Lorg/json/JSONObject;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lio/karte/android/tracking/EventName;Lorg/json/JSONObject;Ljava/lang/Boolean;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/karte/android/tracking/EventName;Lorg/json/JSONObject;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getEventName ()Lio/karte/android/tracking/EventName;
+	public final fun getLibraryName ()Ljava/lang/String;
+	public final fun getValues ()Lorg/json/JSONObject;
+	public final fun setValues (Lorg/json/JSONObject;)V
+}
+
+public final class io/karte/android/tracking/Event$Companion {
+}
+
+public final class io/karte/android/tracking/EventKt {
+	public static final fun valuesOf (Ljava/lang/String;)Ljava/util/Map;
+}
+
+public abstract interface class io/karte/android/tracking/EventName {
+	public abstract fun getValue ()Ljava/lang/String;
+}
+
+public final class io/karte/android/tracking/MessageEvent : io/karte/android/tracking/Event {
+	public fun <init> (Lio/karte/android/tracking/MessageEventType;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public fun <init> (Lio/karte/android/tracking/MessageEventType;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/karte/android/tracking/MessageEventType;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getCampaignId ()Ljava/lang/String;
+	public final fun getShortenId ()Ljava/lang/String;
+}
+
+public final class io/karte/android/tracking/MessageEventName : java/lang/Enum, io/karte/android/tracking/EventName {
+	public static final field MessageClick Lio/karte/android/tracking/MessageEventName;
+	public static final field MessageClose Lio/karte/android/tracking/MessageEventName;
+	public static final field MessageOpen Lio/karte/android/tracking/MessageEventName;
+	public static final field MessageReady Lio/karte/android/tracking/MessageEventName;
+	public static final field MessageSuppressed Lio/karte/android/tracking/MessageEventName;
+	public fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lio/karte/android/tracking/MessageEventName;
+	public static fun values ()[Lio/karte/android/tracking/MessageEventName;
+}
+
+public final class io/karte/android/tracking/MessageEventType : java/lang/Enum {
+	public static final field Click Lio/karte/android/tracking/MessageEventType;
+	public static final field Close Lio/karte/android/tracking/MessageEventType;
+	public static final field Open Lio/karte/android/tracking/MessageEventType;
+	public static final field Ready Lio/karte/android/tracking/MessageEventType;
+	public static final field Suppressed Lio/karte/android/tracking/MessageEventType;
+	public final fun getEventName ()Lio/karte/android/tracking/MessageEventName;
+	public static fun valueOf (Ljava/lang/String;)Lio/karte/android/tracking/MessageEventType;
+	public static fun values ()[Lio/karte/android/tracking/MessageEventType;
+}
+
+public abstract interface class io/karte/android/tracking/TrackCompletion {
+	public abstract fun onComplete (Z)V
+}
+
+public final class io/karte/android/tracking/Tracker {
+	public static fun attribute (Ljava/util/Map;)V
+	public static fun attribute (Ljava/util/Map;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun attribute (Lorg/json/JSONObject;)V
+	public static fun attribute (Lorg/json/JSONObject;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun identify (Ljava/lang/String;)V
+	public static fun identify (Ljava/lang/String;Ljava/util/Map;)V
+	public static fun identify (Ljava/lang/String;Ljava/util/Map;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun identify (Ljava/lang/String;Lorg/json/JSONObject;)V
+	public static fun identify (Ljava/lang/String;Lorg/json/JSONObject;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun identify (Ljava/util/Map;)V
+	public static fun identify (Ljava/util/Map;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun identify (Lorg/json/JSONObject;)V
+	public static fun identify (Lorg/json/JSONObject;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun setDelegate (Lio/karte/android/tracking/TrackerDelegate;)V
+	public static fun track (Lio/karte/android/tracking/Event;)V
+	public static fun track (Lio/karte/android/tracking/Event;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun track (Lio/karte/android/tracking/Event;Ljava/lang/String;)V
+	public static fun track (Lio/karte/android/tracking/Event;Ljava/lang/String;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun track (Ljava/lang/String;)V
+	public static fun track (Ljava/lang/String;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun track (Ljava/lang/String;Ljava/util/Map;)V
+	public static fun track (Ljava/lang/String;Ljava/util/Map;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun track (Ljava/lang/String;Lorg/json/JSONObject;)V
+	public static fun track (Ljava/lang/String;Lorg/json/JSONObject;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun view (Ljava/lang/String;)V
+	public static fun view (Ljava/lang/String;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun view (Ljava/lang/String;Ljava/lang/String;)V
+	public static fun view (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public static fun view (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun view (Ljava/lang/String;Ljava/lang/String;Lorg/json/JSONObject;)V
+	public static fun view (Ljava/lang/String;Ljava/lang/String;Lorg/json/JSONObject;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun view (Ljava/lang/String;Ljava/util/Map;)V
+	public static fun view (Ljava/lang/String;Ljava/util/Map;Lio/karte/android/tracking/TrackCompletion;)V
+	public static fun view (Ljava/lang/String;Lorg/json/JSONObject;)V
+	public static fun view (Ljava/lang/String;Lorg/json/JSONObject;Lio/karte/android/tracking/TrackCompletion;)V
+}
+
+public abstract interface class io/karte/android/tracking/TrackerDelegate {
+	public abstract fun intercept (Lio/karte/android/tracking/Event;)Lio/karte/android/tracking/Event;
+}
+
+public final class io/karte/android/tracking/Trigger : io/karte/android/tracking/DTO {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lio/karte/android/tracking/Trigger;
+	public static synthetic fun copy$default (Lio/karte/android/tracking/Trigger;Ljava/lang/String;ILjava/lang/Object;)Lio/karte/android/tracking/Trigger;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEventHashes ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun load (Lorg/json/JSONObject;)Lio/karte/android/tracking/Trigger;
+	public synthetic fun load (Lorg/json/JSONObject;)Ljava/lang/Object;
+	public final fun setEventHashes (Ljava/lang/String;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/karte/android/tracking/client/TrackRequest : io/karte/android/utilities/http/JSONRequest {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V
+	public final fun contains (Lio/karte/android/tracking/EventName;)Z
+	public synthetic fun getBody ()Ljava/lang/Object;
+	public fun getBody ()Ljava/lang/String;
+	public final fun getJson ()Lorg/json/JSONObject;
+	public final fun getOriginalPvId ()Ljava/lang/String;
+	public final fun getPvId ()Ljava/lang/String;
+	public synthetic fun setBody (Ljava/lang/Object;)V
+	public fun setBody (Ljava/lang/String;)V
+}
+
+public final class io/karte/android/tracking/client/TrackResponse : io/karte/android/utilities/http/Response {
+	public final fun getJson ()Lorg/json/JSONObject;
+	public final fun getMessages ()Ljava/util/List;
+}
+
+public abstract interface class io/karte/android/tracking/queue/TrackEventRejectionFilterRule {
+	public abstract fun getEventName ()Lio/karte/android/tracking/EventName;
+	public abstract fun getLibraryName ()Ljava/lang/String;
+	public abstract fun reject (Lio/karte/android/tracking/Event;)Z
+	public abstract fun setEventName (Lio/karte/android/tracking/EventName;)V
+	public abstract fun setLibraryName (Ljava/lang/String;)V
+}
+
+public abstract class io/karte/android/utilities/ActivityLifecycleCallback : android/app/Application$ActivityLifecycleCallbacks {
+	public fun <init> ()V
+	public fun onActivityCreated (Landroid/app/Activity;Landroid/os/Bundle;)V
+	public fun onActivityDestroyed (Landroid/app/Activity;)V
+	public fun onActivityPaused (Landroid/app/Activity;)V
+	public fun onActivityResumed (Landroid/app/Activity;)V
+	public fun onActivitySaveInstanceState (Landroid/app/Activity;Landroid/os/Bundle;)V
+	public fun onActivityStarted (Landroid/app/Activity;)V
+	public fun onActivityStopped (Landroid/app/Activity;)V
+}
+
+public final class io/karte/android/utilities/ExtensionsKt {
+	public static final fun asString (Ljava/io/InputStream;)Ljava/lang/String;
+	public static final fun forEach (Lorg/json/JSONArray;Lkotlin/jvm/functions/Function1;)V
+	public static final fun forEach (Lorg/json/JSONObject;Lkotlin/jvm/functions/Function2;)V
+	public static final fun format (Ljava/util/Map;)Ljava/util/Map;
+	public static final fun format (Lorg/json/JSONArray;)Lorg/json/JSONArray;
+	public static final fun format (Lorg/json/JSONObject;)Lorg/json/JSONObject;
+	public static final fun getLowerClassName (Ljava/lang/Object;)Ljava/lang/String;
+	public static final fun isAscii (Ljava/lang/String;)Z
+	public static final fun map (Lorg/json/JSONArray;Lkotlin/jvm/functions/Function1;)Ljava/util/List;
+	public static final fun merge (Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;
+	public static final fun toList (Lorg/json/JSONArray;)Ljava/util/List;
+	public static final fun toMap (Lorg/json/JSONObject;)Ljava/util/Map;
+	public static final fun toValues (Lorg/json/JSONObject;)Ljava/util/Map;
+}
+
+public final class io/karte/android/utilities/http/Client {
+	public static final field INSTANCE Lio/karte/android/utilities/http/Client;
+	public final fun execute (Lio/karte/android/utilities/http/Request;)Lio/karte/android/utilities/http/Response;
+}
+
+public class io/karte/android/utilities/http/JSONRequest : io/karte/android/utilities/http/Request {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun getBody ()Ljava/lang/Object;
+	public fun getBody ()Ljava/lang/String;
+	public synthetic fun setBody (Ljava/lang/Object;)V
+	public fun setBody (Ljava/lang/String;)V
+}
+
+public final class io/karte/android/utilities/http/MultipartRequest : io/karte/android/utilities/http/Request {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V
+	public synthetic fun getBody ()Ljava/lang/Object;
+	public fun getBody ()Ljava/util/List;
+	public synthetic fun setBody (Ljava/lang/Object;)V
+	public fun setBody (Ljava/util/List;)V
+}
+
+public final class io/karte/android/utilities/http/MultipartRequest$BitmapPart : io/karte/android/utilities/http/MultipartRequest$Part {
+	public fun <init> (Ljava/lang/String;Landroid/graphics/Bitmap;)V
+	public synthetic fun getBody$core_release ()Ljava/lang/Object;
+}
+
+public abstract class io/karte/android/utilities/http/MultipartRequest$Part {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getName ()Ljava/lang/String;
+}
+
+public final class io/karte/android/utilities/http/MultipartRequest$StringPart : io/karte/android/utilities/http/MultipartRequest$Part {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun getBody$core_release ()Ljava/lang/Object;
+}
+
+public abstract class io/karte/android/utilities/http/Request {
+	public abstract fun getBody ()Ljava/lang/Object;
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getMethod ()Ljava/lang/String;
+	public final fun getUrl ()Ljava/lang/String;
+	public abstract fun setBody (Ljava/lang/Object;)V
+}
+
+public final class io/karte/android/utilities/http/RequestKt {
+	public static final field CONTENT_ENCODING_GZIP Ljava/lang/String;
+	public static final field CONTENT_TYPE_JSON Ljava/lang/String;
+	public static final field CONTENT_TYPE_OCTET_STREAM Ljava/lang/String;
+	public static final field CONTENT_TYPE_TEXT Ljava/lang/String;
+	public static final field HEADER_APP_KEY Ljava/lang/String;
+	public static final field HEADER_CONTENT_ENCODING Ljava/lang/String;
+	public static final field HEADER_CONTENT_TYPE Ljava/lang/String;
+	public static final field METHOD_POST Ljava/lang/String;
+}
+
+public class io/karte/android/utilities/http/Response {
+	public fun <init> (ILjava/util/Map;Ljava/lang/String;)V
+	public final fun getBody ()Ljava/lang/String;
+	public final fun getCode ()I
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun isMaintenance ()Z
+	public final fun isSuccessful ()Z
+	public fun toString ()Ljava/lang/String;
+}
+

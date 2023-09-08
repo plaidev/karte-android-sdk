@@ -37,6 +37,13 @@ commands:
           name: Doc check
           command: ./gradlew dokkaHtml --parallel --max-workers=4
 
+  run_api_check:
+    steps:
+      - run:
+          name: API check
+          command:
+            ./gradlew apiCheck -q || (echo "❌ apiCheck failed, If there are intended differences in the public API, you can run ./gradlew apiDump and commit the output. See more details https://github.com/Kotlin/binary-compatibility-validator." && exit 1)
+
   run_static_analysis:
     steps:
       - run:
@@ -62,6 +69,7 @@ jobs:
       - run_build
       - run_lint
       - run_doc_check
+      - run_api_check
       - android/run-tests:
           test-command: ./gradlew --stacktrace --info testDebug --parallel --max-workers=4
       - run_static_analysis
