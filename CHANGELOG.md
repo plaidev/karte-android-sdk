@@ -10,10 +10,12 @@
 | inbox | Push通知の送信履歴を取得する機能を提供します（β版）。 | 0.1.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.0 |
 
+# Releases - xxxx.xx.xx
 
 ### InAppMessaging 2.17.0
 ** 💊FIXED**
 - タグv2利用時に、エレメントビルダー（β版）で作成した接客アクションで「アプリで確認」機能が動かない問題を修正しました。
+- InAppMessaging.resetAllをUIスレッド以外で呼び出すとクラッシュする不具合を修正しました。
 
 # Releases - 2023.08.18
 
