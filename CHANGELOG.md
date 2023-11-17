@@ -12,6 +12,10 @@
 
 # Releases - xxxx.xx.xx
 
+### Karte Gradle Plugin  2.5.1
+** 💊FIXED**
+- JDK 17でのビルドエラーに対応しました。
+
 ### InAppMessaging 2.17.0
 ** 💊FIXED**
 - タグv2利用時に、エレメントビルダー（β版）で作成した接客アクションで「アプリで確認」機能が動かない問題を修正しました。

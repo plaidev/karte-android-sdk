@@ -8,7 +8,6 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.tasks.ManifestProcessorTask
-import com.sun.beans.finder.ClassFinder.findClass
 import io.karte.android.gradleplugin.visualtracking.AndroidManifestTransform
 import io.karte.android.gradleplugin.visualtracking.ByteCodeTransform
 import io.karte.android.gradleplugin.visualtracking.asm.KarteClassVisitorFactory
@@ -32,10 +31,17 @@ class KartePlugin : Plugin<Project> {
         logger.debug("Karte plugin applied")
         val android: AppExtension = project.extensions.findByName("android") as AppExtension
 
-        val version = findClass("com.android.Version").getField("ANDROID_GRADLE_PLUGIN_VERSION").get(null) as String
-        val agpVersion = AGPVersion.fromVersionString(version)
+        var isTransformApiAvailable = true
+        try {
+            val androidExtensionClass = Class.forName("com.android.build.gradle.BaseExtension")
+            androidExtensionClass.getMethod("registerTransform", Class.forName("com.android.build.api.transform.Transform"))
+        } catch (e: ClassNotFoundException) {
+            isTransformApiAvailable = false
+        } catch (e: NoSuchMethodException) {
+            isTransformApiAvailable = false
+        }
 
-        if (agpVersion < AGPVersion.VERSION_7_0_0) {
+        if (isTransformApiAvailable) {
             logger.debug("Use Transform API")
             android.registerTransform(
                 ByteCodeTransform(
