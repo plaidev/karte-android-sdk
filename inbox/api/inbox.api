@@ -1,0 +1,54 @@
+public final class io/karte/android/inbox/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public static final field LIB_VERSION Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public final class io/karte/android/inbox/Inbox : io/karte/android/core/library/Library {
+	public static final field Companion Lio/karte/android/inbox/Inbox$Companion;
+	public fun <init> ()V
+	public fun configure (Lio/karte/android/KarteApp;)V
+	public fun getName ()Ljava/lang/String;
+	public fun getVersion ()Ljava/lang/String;
+	public fun isPublic ()Z
+	public fun unconfigure (Lio/karte/android/KarteApp;)V
+}
+
+public final class io/karte/android/inbox/Inbox$Companion {
+	public final fun fetchMessages (Ljava/lang/Integer;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun fetchMessages$default (Lio/karte/android/inbox/Inbox$Companion;Ljava/lang/Integer;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun fetchMessagesAsync (Ljava/lang/Integer;Ljava/lang/String;Landroid/os/Handler;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun fetchMessagesAsync$default (Lio/karte/android/inbox/Inbox$Companion;Ljava/lang/Integer;Ljava/lang/String;Landroid/os/Handler;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun openMessages (Ljava/util/List;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun openMessagesAsync (Ljava/util/List;Landroid/os/Handler;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class io/karte/android/inbox/models/InboxMessage {
+	public fun <init> (Ljava/util/Date;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/util/Map;)V
+	public final fun component1 ()Ljava/util/Date;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Z
+	public final fun component9 ()Ljava/util/Map;
+	public final fun copy (Ljava/util/Date;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/util/Map;)Lio/karte/android/inbox/models/InboxMessage;
+	public static synthetic fun copy$default (Lio/karte/android/inbox/models/InboxMessage;Ljava/util/Date;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/util/Map;ILjava/lang/Object;)Lio/karte/android/inbox/models/InboxMessage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAttachmentUrl ()Ljava/lang/String;
+	public final fun getBody ()Ljava/lang/String;
+	public final fun getCampaignId ()Ljava/lang/String;
+	public final fun getCustomPayload ()Ljava/util/Map;
+	public final fun getLinkUrl ()Ljava/lang/String;
+	public final fun getMessageId ()Ljava/lang/String;
+	public final fun getTimestamp ()Ljava/util/Date;
+	public final fun getTitle ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun isRead ()Z
+	public fun toString ()Ljava/lang/String;
+}
+

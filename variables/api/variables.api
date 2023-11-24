@@ -1,0 +1,54 @@
+public final class io/karte/android/variables/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public static final field LIB_VERSION Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public abstract interface class io/karte/android/variables/FetchCompletion : io/karte/android/tracking/TrackCompletion {
+}
+
+public final class io/karte/android/variables/Variable {
+	public static final field Companion Lio/karte/android/variables/Variable$Companion;
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/Object;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)Lio/karte/android/variables/Variable;
+	public static synthetic fun copy$default (Lio/karte/android/variables/Variable;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lio/karte/android/variables/Variable;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBoolean (Z)Z
+	public final fun getCampaignId ()Ljava/lang/String;
+	public final fun getDouble (D)D
+	public final fun getEventHash ()Ljava/lang/String;
+	public final fun getJSONArray (Lorg/json/JSONArray;)Lorg/json/JSONArray;
+	public final fun getJSONObject (Lorg/json/JSONObject;)Lorg/json/JSONObject;
+	public final fun getLong (J)J
+	public final fun getName ()Ljava/lang/String;
+	public final fun getShortenId ()Ljava/lang/String;
+	public final fun getString (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getTimestamp ()Ljava/lang/String;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public final fun isDefined ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/karte/android/variables/Variable$Companion {
+}
+
+public class io/karte/android/variables/Variables {
+	public static fun fetch ()V
+	public static fun fetch (Lio/karte/android/variables/FetchCompletion;)V
+	public static fun get (Ljava/lang/String;)Lio/karte/android/variables/Variable;
+	public static fun trackClick (Ljava/util/List;)V
+	public static fun trackClick (Ljava/util/List;Ljava/util/Map;)V
+	public static fun trackClick (Ljava/util/List;Lorg/json/JSONObject;)V
+	public static fun trackOpen (Ljava/util/List;)V
+	public static fun trackOpen (Ljava/util/List;Ljava/util/Map;)V
+	public static fun trackOpen (Ljava/util/List;Lorg/json/JSONObject;)V
+}
+

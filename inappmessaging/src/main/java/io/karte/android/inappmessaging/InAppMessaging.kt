@@ -103,7 +103,9 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
     }
 
     override fun resetAll() {
-        processor.reset(true)
+        uiThreadHandler.post {
+            processor.reset(true)
+        }
     }
     //endregion
 

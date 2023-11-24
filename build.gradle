@@ -21,6 +21,14 @@ buildscript {
     }
 }
 
+plugins {
+    id 'org.jetbrains.kotlinx.binary-compatibility-validator' version '0.13.2'
+}
+
+apiValidation {
+    ignoredProjects += ["test_lib", "sample_kotlin", "sample_java"]
+}
+
 allprojects {
     repositories {
         google()
