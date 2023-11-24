@@ -10,7 +10,7 @@
 | inbox | Push通知の送信履歴を取得する機能を提供します（β版）。 | 0.1.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1 |
 
-# Releases - 2023.11.17
+# Releases - 2023.11.24
 
 ### Karte Gradle Plugin  2.5.1
 ** 💊FIXED**
