@@ -1,8 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def fcmCompileVersion = "20.3.0"
-
 android {
     namespace 'io.karte.android.notifications'
     compileSdkVersion 33
@@ -34,29 +32,14 @@ android {
         lintConfig file('../lint.xml')
         warningsAsErrors true
     }
-
-    libraryVariants.all { variant ->
-        variant.getRuntimeConfiguration().resolutionStrategy { strategy ->
-            strategy.eachDependency { details ->
-                if (details.requested.group == 'com.google.firebase'
-                        && details.requested.name == 'firebase-messaging') {
-                    // To skip compile-time dependency resolution checks
-                    details.useVersion fcmCompileVersion
-                }
-            }
-        }
-    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    // for runtime dependencies
-    runtimeOnly "com.google.firebase:firebase-messaging:19.0.0"
-    // for compile dependencies
-    compileOnly "com.google.firebase:firebase-messaging:$fcmCompileVersion"
+    implementation "com.google.firebase:firebase-messaging:20.3.0"
     api project(path: ':core')
-    testImplementation "com.google.firebase:firebase-messaging:$fcmCompileVersion"
+    testImplementation "com.google.firebase:firebase-messaging:20.3.0"
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'androidx.test:core:1.4.0'

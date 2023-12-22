@@ -41,12 +41,12 @@ class RenewVisitorIdTest {
         fun setup() {
             dispatcher = TrackerRequestDispatcher()
             server.dispatcher = dispatcher
-            mockFirebaseInstanceId(mockedToken)
+            mockFirebaseMessaging(mockedToken)
         }
 
         @After
         fun teardown() {
-            unmockFirebaseInstanceId()
+            unmockFirebaseMessaging()
         }
 
         @Test

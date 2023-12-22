@@ -64,13 +64,12 @@ abstract class NotificationSetupTestCase : RobolectricTestCase() {
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class TokenResendTest(private val pattern: MockPattern) : NotificationSetupTestCase() {
-    enum class MockPattern { INSTANCE_ID, MESSAGING, NONE }
+    enum class MockPattern { MESSAGING, NONE }
     companion object {
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "{index}: {0}")
         fun data(): List<Any> {
             return listOf(
-                arrayOf(MockPattern.INSTANCE_ID),
                 arrayOf(MockPattern.MESSAGING),
                 arrayOf(MockPattern.NONE)
             )
@@ -79,7 +78,6 @@ class TokenResendTest(private val pattern: MockPattern) : NotificationSetupTestC
 
     private fun mockToken(token: String) {
         when (pattern) {
-            MockPattern.INSTANCE_ID -> mockFirebaseInstanceId(token)
             MockPattern.MESSAGING -> mockFirebaseMessaging(token)
             MockPattern.NONE -> {
             }
@@ -88,7 +86,6 @@ class TokenResendTest(private val pattern: MockPattern) : NotificationSetupTestC
 
     private fun unmockToken() {
         when (pattern) {
-            MockPattern.INSTANCE_ID -> unmockFirebaseInstanceId()
             MockPattern.MESSAGING -> unmockFirebaseMessaging()
             MockPattern.NONE -> {
             }
