@@ -275,7 +275,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
                 Logger.w(LOG_TAG, "APP_KEY is already exists.")
                 return
             }
-            val configWithAppKey = Config.withAppKey(context, config)
+            val configWithAppKey = Config.fillFromResource(context, config)
             if (!configWithAppKey.isValidAppKey) {
                 Logger.w(LOG_TAG, "Invalid APP_KEY is set. ${configWithAppKey.appKey}")
                 return

@@ -197,12 +197,13 @@ class SetupTest {
         private val overwriteAppKey = "overwriteappkey_1234567890123456"
 
         private fun setup(configBuilder: Config.Builder = Config.Builder()) {
-            val config = configBuilder.baseUrl(server.url("/native").toString()).build()
+            val config = configBuilder.baseUrl(server.url("").toString()).build()
             when (pattern) {
                 SetupPattern.FROM_RESOURCE -> KarteApp.setup(application, config)
                 SetupPattern.BY_CONFIG -> KarteApp.setup(
                     application,
                     config.apply { appKey = overwriteAppKey })
+
                 SetupPattern.BY_METHOD -> KarteApp.setup(application, overwriteAppKey, config)
             }
         }
@@ -239,7 +240,7 @@ class SetupTest {
             Robolectric.buildActivity(Activity::class.java).create()
             proceedBufferedCall()
             assertThat(dispatcher.trackedRequests().first().requestUrl)
-                .isEqualTo(server.url("/native/track"))
+                .isEqualTo(server.url("/v0/native/track"))
         }
 
         /** [isLimitAdTrackingEnabled] がfalseの時、trackingを許可している. */
@@ -315,7 +316,7 @@ class SetupTest {
             Robolectric.buildActivity(Activity::class.java).create()
             proceedBufferedCall()
             assertThat(dispatcher.trackedRequests().first().requestUrl)
-                .isEqualTo(server.url("/native/track"))
+                .isEqualTo(server.url("/v0/native/track"))
         }
 
         @Test
@@ -324,7 +325,7 @@ class SetupTest {
             Robolectric.buildActivity(Activity::class.java).create()
             proceedBufferedCall()
             assertThat(dispatcher.ingestRequests().first().requestUrl)
-                .isEqualTo(server.url("/native/ingest"))
+                .isEqualTo(server.url("/v0/native/ingest"))
         }
 
         class TestLibraryConfig(val enableTest: Boolean) : LibraryConfig

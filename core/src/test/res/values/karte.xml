@@ -2,4 +2,5 @@
 <resources>
     <string name="karte_app_key">sampleappkey_1234567890123456789</string>
     <string name="karte_api_key">sampleapikey_1234567890123456789</string>
+    <string name="karte_base_url">https://b-rs.karte.io</string>
 </resources>

@@ -64,7 +64,7 @@ class ExperimentalConfig private constructor(
             appKey,
             apiKey,
             baseUrl,
-            logCollectionUrl,
+            "",
             isDryRun,
             isOptOut,
             enabledTrackingAaid,

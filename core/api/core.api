@@ -89,6 +89,8 @@ public class io/karte/android/core/config/Config {
 
 public class io/karte/android/core/config/Config$Builder {
 	public fun <init> ()V
+	public final fun apiKey (Ljava/lang/String;)Lio/karte/android/core/config/Config$Builder;
+	public final fun appKey (Ljava/lang/String;)Lio/karte/android/core/config/Config$Builder;
 	public final fun baseUrl (Ljava/lang/String;)Lio/karte/android/core/config/Config$Builder;
 	public fun build ()Lio/karte/android/core/config/Config;
 	public final fun enabledTrackingAaid (Z)Lio/karte/android/core/config/Config$Builder;

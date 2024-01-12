@@ -29,7 +29,9 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
+import io.karte.android.core.config.Config
 import io.karte.android.inappmessaging.InAppMessaging
+import io.karte.android.inappmessaging.InAppMessagingConfig
 import io.karte.android.inappmessaging.internal.IAMProcessor
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.IAMWindow
@@ -72,7 +74,7 @@ import org.robolectric.shadows.ShadowWindowManagerImpl
 import java.util.Base64
 
 private const val iamAppKey = "inappmessaging_appkey_1234567890"
-private const val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
+private const val overlayBaseUrl = "https://iam-test.karte.io/v0/native"
 
 private const val popup1ActionId = "action1"
 private const val popup2ActionId = "action2"
@@ -139,7 +141,10 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
             emitInvisibleCallbackFromJs()
         }
 
-        app = setupKarteApp(server, appKey = iamAppKey)
+        val configBuilder = Config.Builder().libraryConfigs(
+            InAppMessagingConfig.build { overlayBaseUrl = "https://iam-test.karte.io" }
+        )
+        app = setupKarteApp(server, appKey = iamAppKey, configBuilder = configBuilder)
         activity = Robolectric.buildActivity(
             Activity::class.java,
             Intent(application, Activity::class.java)
@@ -245,7 +250,7 @@ class InAppMessagingTest {
             val uri = Uri.parse(shadow.loadedUrls.first())
 
             assertThat(uri.scheme).isEqualTo("https")
-            assertThat(uri.host).isEqualTo("cf-native.karte.io")
+            assertThat(uri.host).isEqualTo("iam-test.karte.io")
             assertThat(uri.path).isEqualTo("/v0/native/overlay")
             assertThat(uri.queryParameterNames).isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
             assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
