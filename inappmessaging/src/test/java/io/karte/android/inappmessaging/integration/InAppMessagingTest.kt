@@ -239,6 +239,17 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         }
         assertThat(actionIds).contains(actionId)
     }
+
+    protected fun assertUrlIsCorrect(uri: Uri) {
+        assertThat(uri.scheme).isEqualTo("https")
+        assertThat(uri.host).isEqualTo("iam-test.karte.io")
+        assertThat(uri.path).isEqualTo("/v0/native/overlay")
+        assertThat(uri.queryParameterNames).isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof", "location"))
+        assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
+        assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
+        assertThat(uri.getQueryParameter("_k_app_prof")).isEqualTo(app.appInfo?.json.toString())
+        assertThat(uri.getQueryParameter("location")).isEqualTo(app.config.dataLocation)
+    }
 }
 
 @RunWith(Enclosed::class)
@@ -248,14 +259,7 @@ class InAppMessagingTest {
         fun 最初のloadで正しいurlの読み込みを行うこと() {
             val shadow = shadowWebView ?: throw AssertionError()
             val uri = Uri.parse(shadow.loadedUrls.first())
-
-            assertThat(uri.scheme).isEqualTo("https")
-            assertThat(uri.host).isEqualTo("iam-test.karte.io")
-            assertThat(uri.path).isEqualTo("/v0/native/overlay")
-            assertThat(uri.queryParameterNames).isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
-            assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
-            assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
-            assertThat(uri.getQueryParameter("_k_app_prof")).isEqualTo(app.appInfo?.json.toString())
+            assertUrlIsCorrect(uri)
         }
     }
 
@@ -297,12 +301,7 @@ class InAppMessagingTest {
                 .startsWith("javascript:window.tracker.handleResponseData")
             assertThat(shadowWebView?.loadedUrls?.first()).startsWith(overlayBaseUrl)
             val uri = Uri.parse(shadowWebView?.loadedUrls?.first())
-            assertThat(uri.queryParameterNames)
-                .isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
-            assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
-            assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
-            assertThat(uri.getQueryParameter("_k_app_prof")?.let { JSONObject(it) })
-                .isEqualTo(app.appInfo?.json)
+            assertUrlIsCorrect(uri)
         }
 
         @Test
@@ -629,12 +628,7 @@ class InAppMessagingTest {
             val newShadowWebView = shadowWebView
             assertThat(newShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
             val uri = Uri.parse(newShadowWebView?.lastLoadedUrl)
-            assertThat(uri.queryParameterNames)
-                .isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof"))
-            assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
-            assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
-            assertThat(uri.getQueryParameter("_k_app_prof")?.let { JSONObject(it) })
-                .isEqualTo(app.appInfo?.json)
+            assertUrlIsCorrect(uri)
         }
     }
 

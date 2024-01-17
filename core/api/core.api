@@ -81,6 +81,7 @@ public class io/karte/android/core/config/Config {
 	public final fun getApiKey ()Ljava/lang/String;
 	public final fun getAppKey ()Ljava/lang/String;
 	public final fun getBaseUrl ()Ljava/lang/String;
+	public final fun getDataLocation ()Ljava/lang/String;
 	public final fun getEnabledTrackingAaid ()Z
 	public final fun getLibraryConfigs ()Ljava/util/List;
 	public final fun isDryRun ()Z
@@ -93,10 +94,12 @@ public class io/karte/android/core/config/Config$Builder {
 	public final fun appKey (Ljava/lang/String;)Lio/karte/android/core/config/Config$Builder;
 	public final fun baseUrl (Ljava/lang/String;)Lio/karte/android/core/config/Config$Builder;
 	public fun build ()Lio/karte/android/core/config/Config;
+	public final fun dataLocation (Ljava/lang/String;)Lio/karte/android/core/config/Config$Builder;
 	public final fun enabledTrackingAaid (Z)Lio/karte/android/core/config/Config$Builder;
 	public final fun getApiKey ()Ljava/lang/String;
 	public final fun getAppKey ()Ljava/lang/String;
 	public final fun getBaseUrl ()Ljava/lang/String;
+	public final fun getDataLocation ()Ljava/lang/String;
 	public final fun getEnabledTrackingAaid ()Z
 	public final fun getLibraryConfigs ()Ljava/util/List;
 	public final fun isDryRun ()Z
@@ -108,6 +111,7 @@ public class io/karte/android/core/config/Config$Builder {
 	public final synthetic fun setApiKey (Ljava/lang/String;)V
 	public final synthetic fun setAppKey (Ljava/lang/String;)V
 	public final synthetic fun setBaseUrl (Ljava/lang/String;)V
+	public final synthetic fun setDataLocation (Ljava/lang/String;)V
 	public final synthetic fun setDryRun (Z)V
 	public final synthetic fun setEnabledTrackingAaid (Z)V
 	public final synthetic fun setLibraryConfigs (Ljava/util/List;)V

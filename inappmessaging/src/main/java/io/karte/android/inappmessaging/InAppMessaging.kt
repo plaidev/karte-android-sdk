@@ -61,7 +61,7 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
         app.application.registerActivityLifecycleCallbacks(this)
         this.app = app
         this.processor = IAMProcessor(app.application, panelWindowManager)
-        this.config = InAppMessagingConfig.fillFromResource(app.application, app.libraryConfig(InAppMessagingConfig::class.java))
+        this.config = app.libraryConfig(InAppMessagingConfig::class.java) ?: InAppMessagingConfig.build()
         app.register(this)
     }
 
@@ -250,8 +250,11 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
     private var delegate: InAppMessagingDelegate? = null
 
     internal fun generateOverlayURL(): String {
-        return "$overlayBaseUrl/v0/native/overlay?app_key=${app.appKey}&_k_vid=${KarteApp.visitorId}" +
-            "&_k_app_prof=${app.appInfo?.json}"
+        return "$overlayBaseUrl/v0/native/overlay" +
+            "?app_key=${app.appKey}" +
+            "&_k_vid=${KarteApp.visitorId}" +
+            "&_k_app_prof=${app.appInfo?.json}" +
+            "&location=${app.config.dataLocation}"
     }
 
     private fun clearWebViewCookies() {

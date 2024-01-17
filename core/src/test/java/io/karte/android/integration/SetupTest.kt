@@ -237,10 +237,25 @@ class SetupTest {
         @Test
         fun baseUrl_指定したendpointに対してリクエストが行われること() {
             setup()
+            // mockに向ける必要があるため、baseUrlは必ずcode経由
+            assertThat(KarteApp.self.config.baseUrl).isEqualTo(server.url("/v0/native").toString())
+
             Robolectric.buildActivity(Activity::class.java).create()
             proceedBufferedCall()
             assertThat(dispatcher.trackedRequests().first().requestUrl)
                 .isEqualTo(server.url("/v0/native/track"))
+        }
+
+        @Test
+        fun dataLocation_リソースまたはconfig経由で設定されること() {
+            val expected = if (pattern == SetupPattern.FROM_RESOURCE) {
+                setup()
+                application.getString(R.string.karte_data_location)
+            } else {
+                setup(Config.Builder().apply { dataLocation = "us" })
+                "us"
+            }
+            assertThat(KarteApp.self.config.dataLocation).isEqualTo(expected)
         }
 
         /** [isLimitAdTrackingEnabled] がfalseの時、trackingを許可している. */

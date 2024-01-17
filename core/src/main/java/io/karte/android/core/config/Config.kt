@@ -68,17 +68,13 @@ open class Config protected constructor(
     val enabledTrackingAaid: Boolean,
     val libraryConfigs: List<LibraryConfig>
 ) {
-    /**
-     * @property[appKey] アプリケーションキーの取得を行います。
-     */
+    /** アプリケーションキーの取得を行います。 */
     var appKey: String = appKey
         internal set
 
     internal val isValidAppKey get() = appKey.length == 32
 
-    /**
-     * @property[apiKey] APIキーの取得を行います。
-     */
+    /** APIキーの取得を行います。 */
     var apiKey: String = apiKey
         private set
 
@@ -86,7 +82,7 @@ open class Config protected constructor(
     private var _baseUrl: String = ""
 
     /**
-     * @property[baseUrl] ベースURLの取得を行います。
+     * ベースURLの取得を行います。
      * 設定されたURLにサブパスを付与したものを返します。
      */
     var baseUrl: String
@@ -101,6 +97,18 @@ open class Config protected constructor(
             return _baseUrl
         }
 
+    private var _dataLocation: String = ""
+    /** KARTEプロジェクトのデータロケーションを取得します。 */
+    var dataLocation: String
+        private set(value) {
+            _dataLocation = value
+        }
+        get() {
+            if (_dataLocation.isEmpty())
+                return "tw"
+            return _dataLocation
+        }
+
     init {
         this.baseUrl = baseUrl
     }
@@ -109,13 +117,13 @@ open class Config protected constructor(
     open class Builder {
         /**
          * [Config.appKey]を変更します。
-         * 設定ファイルから自動でロードされるアプリケーションキー以外を利用したい場合にのみ設定します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
          */
         var appKey: String = "" @JvmSynthetic set
 
         /**
          * [Config.apiKey]を変更します。
-         * 設定ファイルから自動でロードされるAPIキー以外を利用したい場合にのみ設定します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
          */
         var apiKey: String = "" @JvmSynthetic set
 
@@ -123,9 +131,15 @@ open class Config protected constructor(
          * [Config.baseUrl]を変更します。
          * URLを変更することで、地域や環境を設定することができます。
          *
-         * 設定ファイルから自動でロードされるベースURL以外を利用したい場合にのみ設定します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
          */
         var baseUrl: String = "" @JvmSynthetic set
+
+        /**
+         * [Config.dataLocation]を変更します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
+         */
+        var dataLocation: String = "" @JvmSynthetic set
 
         /**[Config.isDryRun]を変更します。*/
         var isDryRun: Boolean = false @JvmSynthetic set
@@ -141,13 +155,13 @@ open class Config protected constructor(
 
         /**
          * [Config.appKey]を変更します。
-         * 設定ファイルから自動でロードされるアプリケーションキー以外を利用したい場合にのみ設定します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
          */
         fun appKey(appKey: String): Builder = apply { this.appKey = appKey }
 
         /**
          * [Config.apiKey]を変更します。
-         * 設定ファイルから自動でロードされるAPIキー以外を利用したい場合にのみ設定します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
          */
         fun apiKey(apiKey: String): Builder = apply { this.apiKey = apiKey }
 
@@ -155,9 +169,15 @@ open class Config protected constructor(
          * [Config.baseUrl]を変更します。
          * URLを変更することで、地域や環境を設定することができます。
          *
-         * 設定ファイルから自動でロードされるベースURL以外を利用したい場合にのみ設定します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
          */
         fun baseUrl(baseUrl: String): Builder = apply { this.baseUrl = baseUrl }
+
+        /**
+         * [Config.dataLocation]を変更します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
+         */
+        fun dataLocation(dataLocation: String): Builder = apply { this.dataLocation = dataLocation }
 
         /**[Config.isDryRun]を変更します。*/
         fun isDryRun(isDryRun: Boolean): Builder = apply { this.isDryRun = isDryRun }
@@ -187,7 +207,9 @@ open class Config protected constructor(
             isOptOut,
             enabledTrackingAaid,
             libraryConfigs
-        )
+        ).also { config ->
+            config.dataLocation = dataLocation
+        }
     }
 
     companion object {
@@ -226,6 +248,11 @@ open class Config protected constructor(
             if (cfg._baseUrl.isEmpty()) {
                 readStringFromResource(context, "karte_base_url")?.let {
                     cfg.baseUrl = it
+                }
+            }
+            if (cfg._dataLocation.isEmpty()) {
+                readStringFromResource(context, "karte_data_location")?.let {
+                    cfg.dataLocation = it
                 }
             }
             return cfg

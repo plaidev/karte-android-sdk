@@ -18,7 +18,6 @@ package io.karte.android.inappmessaging.unit
 
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.inappmessaging.InAppMessagingConfig
-import io.karte.android.test_lib.application
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -34,35 +33,11 @@ class ConfigTest {
     }
 
     @Test
-    fun config_from_resource() {
-        // 全てresourceから読み込む場合
-        val config = InAppMessagingConfig.fillFromResource(application(), null)
-
-        assertThat(config.overlayBaseUrl).isEqualTo("https://cf-native-rs.karte.io")
-    }
-
-    @Test
     fun customize_config() {
         val config = InAppMessagingConfig.build {
             overlayBaseUrl = "https://cf-native-js.karte.io"
         }
 
         assertThat(config.overlayBaseUrl).isEqualTo("https://cf-native-js.karte.io")
-    }
-
-    @Test
-    fun config_from_resource_with_custom() {
-        // code優先
-        InAppMessagingConfig.fillFromResource(application(), InAppMessagingConfig.build {
-            overlayBaseUrl = "https://cf-native-js.karte.io"
-        }).let { config ->
-            assertThat(config.overlayBaseUrl).isEqualTo("https://cf-native-js.karte.io")
-        }
-        // default値を指定してもresourceに上書きされない
-        InAppMessagingConfig.fillFromResource(application(), InAppMessagingConfig.build {
-            overlayBaseUrl = "https://cf-native.karte.io"
-        }).let { config ->
-            assertThat(config.overlayBaseUrl).isEqualTo("https://cf-native.karte.io")
-        }
     }
 }

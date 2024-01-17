@@ -36,6 +36,7 @@ class ConfigTest {
         assertThat(config.appKey).isEmpty()
         assertThat(config.isValidAppKey).isFalse()
         assertThat(config.baseUrl).isEqualTo("https://b.karte.io/v0/native")
+        assertThat(config.dataLocation).isEqualTo("tw")
         assertThat(config.isDryRun).isFalse()
         assertThat(config.isOptOut).isFalse()
         assertThat(config.enabledTrackingAaid).isFalse()
@@ -51,6 +52,7 @@ class ConfigTest {
         assertThat(config.appKey).isEqualTo("sampleappkey_1234567890123456789")
         assertThat(config.isValidAppKey).isTrue()
         assertThat(config.baseUrl).isEqualTo("https://b-rs.karte.io/v0/native")
+        assertThat(config.dataLocation).isEqualTo("rs")
         assertThat(config.isDryRun).isFalse()
         assertThat(config.isOptOut).isFalse()
         assertThat(config.enabledTrackingAaid).isFalse()
@@ -63,6 +65,7 @@ class ConfigTest {
             apiKey = "dummy_api_key"
             appKey = "dummy_application_key_1234567890"
             baseUrl = "https://b-jp.karte.io"
+            dataLocation = "jp"
             isDryRun = true
             isOptOut = true
             enabledTrackingAaid = true
@@ -73,6 +76,7 @@ class ConfigTest {
         assertThat(config.appKey).isEqualTo("dummy_application_key_1234567890")
         assertThat(config.isValidAppKey).isTrue()
         assertThat(config.baseUrl).isEqualTo("https://b-jp.karte.io/v0/native")
+        assertThat(config.dataLocation).isEqualTo("jp")
         assertThat(config.isDryRun).isTrue()
         assertThat(config.isOptOut).isTrue()
         assertThat(config.enabledTrackingAaid).isTrue()
@@ -80,94 +84,90 @@ class ConfigTest {
     }
 
     @Test
-    fun config_from_resource_with_custom() {
-        // app keyのみ指定
+    fun config_from_resource_or_code() {
+        fun assertFromResource(config: Config, vararg targets: String) {
+            if (targets.contains("appKey"))
+                assertThat(config.appKey).isEqualTo("sampleappkey_1234567890123456789")
+            if (targets.contains("apiKey"))
+                assertThat(config.apiKey).isEqualTo("sampleapikey_1234567890123456789")
+            if (targets.contains("baseUrl"))
+                assertThat(config.baseUrl).isEqualTo("https://b-rs.karte.io/v0/native")
+            if (targets.contains("dataLocation"))
+                assertThat(config.dataLocation).isEqualTo("rs")
+        }
+
+        fun assertFromCode(config: Config, vararg targets: String) {
+            if (targets.contains("appKey"))
+                assertThat(config.appKey).isEqualTo("dummy_application_key_1234567890")
+            if (targets.contains("apiKey"))
+                assertThat(config.apiKey).isEqualTo("dummy_api_key")
+            if (targets.contains("baseUrl"))
+                assertThat(config.baseUrl).isEqualTo("https://b-jp.karte.io/v0/native")
+            if (targets.contains("dataLocation"))
+                assertThat(config.dataLocation).isEqualTo("jp")
+        }
+
+        // appKey
         Config.fillFromResource(application(), Config.build {
             appKey = "dummy_application_key_1234567890"
         }).let { config ->
-            // from code
-            assertThat(config.appKey).isEqualTo("dummy_application_key_1234567890")
-            assertThat(config.isValidAppKey).isTrue()
-            // from resource
-            assertThat(config.apiKey).isEqualTo("sampleapikey_1234567890123456789")
-            assertThat(config.baseUrl).isEqualTo("https://b-rs.karte.io/v0/native")
+            assertFromCode(config, "appKey")
+            assertFromResource(config, "apiKey", "baseUrl", "dataLocation")
         }
-        // api keyのみ指定
+        // 空文字は上書き
+        Config.fillFromResource(application(), Config.build {
+            appKey = ""
+        }).let { config ->
+            assertFromResource(config, "appKey", "apiKey", "baseUrl", "dataLocation")
+        }
+
+        // apiKey
         Config.fillFromResource(application(), Config.build {
             apiKey = "dummy_api_key"
         }).let { config ->
-            // from code
-            assertThat(config.apiKey).isEqualTo("dummy_api_key")
-            // from resource
-            assertThat(config.appKey).isEqualTo("sampleappkey_1234567890123456789")
-            assertThat(config.isValidAppKey).isTrue()
-            assertThat(config.baseUrl).isEqualTo("https://b-rs.karte.io/v0/native")
+            assertFromCode(config, "apiKey")
+            assertFromResource(config, "appKey", "baseUrl", "dataLocation")
         }
-        // baseUrlのみ指定
+        // 空文字は上書き
+        Config.fillFromResource(application(), Config.build {
+            apiKey = ""
+        }).let { config ->
+            assertFromResource(config, "appKey", "apiKey", "baseUrl", "dataLocation")
+        }
+
+        // baseUrl
         Config.fillFromResource(application(), Config.build {
             baseUrl = "https://b-jp.karte.io"
         }).let { config ->
-            // from code
-            assertThat(config.baseUrl).isEqualTo("https://b-jp.karte.io/v0/native")
-            // from resource
-            assertThat(config.apiKey).isEqualTo("sampleapikey_1234567890123456789")
-            assertThat(config.appKey).isEqualTo("sampleappkey_1234567890123456789")
-            assertThat(config.isValidAppKey).isTrue()
+            assertFromCode(config, "baseUrl")
+            assertFromResource(config, "appKey", "apiKey", "dataLocation")
         }
         // baseUrlにdefault値を指定しても、resourceで上書きされない
         Config.fillFromResource(application(), Config.build {
             baseUrl = "https://b.karte.io"
         }).let { config ->
-            // from code
             assertThat(config.baseUrl).isEqualTo("https://b.karte.io/v0/native")
+            assertFromResource(config, "appKey", "apiKey", "dataLocation")
         }
-        // app keyとapi key指定
+        // 空文字は上書き
         Config.fillFromResource(application(), Config.build {
-            apiKey = "dummy_api_key"
-            appKey = "dummy_application_key_1234567890"
+            baseUrl = ""
         }).let { config ->
-            // from code
-            assertThat(config.apiKey).isEqualTo("dummy_api_key")
-            assertThat(config.appKey).isEqualTo("dummy_application_key_1234567890")
-            assertThat(config.isValidAppKey).isTrue()
-            // from resource
-            assertThat(config.baseUrl).isEqualTo("https://b-rs.karte.io/v0/native")
+            assertFromResource(config, "appKey", "apiKey", "baseUrl", "dataLocation")
         }
-        // app keyとbaseUrl指定
+
+        // dataLocation
         Config.fillFromResource(application(), Config.build {
-            appKey = "dummy_application_key_1234567890"
-            baseUrl = "https://b-jp.karte.io"
+            dataLocation = "jp"
         }).let { config ->
-            // from code
-            assertThat(config.appKey).isEqualTo("dummy_application_key_1234567890")
-            assertThat(config.isValidAppKey).isTrue()
-            assertThat(config.baseUrl).isEqualTo("https://b-jp.karte.io/v0/native")
-            // from resource
-            assertThat(config.apiKey).isEqualTo("sampleapikey_1234567890123456789")
+            assertFromCode(config, "dataLocation")
+            assertFromResource(config, "appKey", "apiKey", "baseUrl")
         }
-        // api keyとbaseUrl指定
+        // 空文字は上書き
         Config.fillFromResource(application(), Config.build {
-            apiKey = "dummy_api_key"
-            baseUrl = "https://b-jp.karte.io"
+            dataLocation = ""
         }).let { config ->
-            // from code
-            assertThat(config.apiKey).isEqualTo("dummy_api_key")
-            assertThat(config.baseUrl).isEqualTo("https://b-jp.karte.io/v0/native")
-            // from resource
-            assertThat(config.appKey).isEqualTo("sampleappkey_1234567890123456789")
-            assertThat(config.isValidAppKey).isTrue()
-        }
-        // 全部指定
-        Config.fillFromResource(application(), Config.build {
-            apiKey = "dummy_api_key"
-            appKey = "dummy_application_key_1234567890"
-            baseUrl = "https://b-jp.karte.io"
-        }).let { config ->
-            // from code
-            assertThat(config.apiKey).isEqualTo("dummy_api_key")
-            assertThat(config.appKey).isEqualTo("dummy_application_key_1234567890")
-            assertThat(config.isValidAppKey).isTrue()
-            assertThat(config.baseUrl).isEqualTo("https://b-jp.karte.io/v0/native")
+            assertFromResource(config, "appKey", "apiKey", "baseUrl", "dataLocation")
         }
     }
 }

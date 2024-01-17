@@ -16,8 +16,6 @@
 
 package io.karte.android.inappmessaging
 
-import android.content.Context
-import io.karte.android.R
 import io.karte.android.core.library.LibraryConfig
 
 private const val OVERLAY_DEFAULT_URL = "https://cf-native.karte.io"
@@ -55,7 +53,7 @@ class InAppMessagingConfig private constructor(overlayBaseUrl: String) : Library
 
         /**
          * [InAppMessagingConfig.overlayBaseUrl]を変更します。
-         * 未指定（空文字）時には、設定ファイル＞デフォルト値の順に使用されます。
+         * 未指定（空文字）時には、デフォルト値が使用されます。
          *
          * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
          */
@@ -63,7 +61,7 @@ class InAppMessagingConfig private constructor(overlayBaseUrl: String) : Library
 
         /**
          * [InAppMessagingConfig.overlayBaseUrl]を変更します。
-         * 未指定（空文字）時には、設定ファイル＞デフォルト値の順に使用されます。
+         * 未指定（空文字）時には、デフォルト値が使用されます。
          *
          * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
          */
@@ -83,27 +81,6 @@ class InAppMessagingConfig private constructor(overlayBaseUrl: String) : Library
             val builder = Builder()
             f?.let { builder.it() }
             return builder.build()
-        }
-
-        internal fun fillFromResource(context: Context, config: InAppMessagingConfig?): InAppMessagingConfig {
-            val cfg = config ?: build()
-            if (cfg._overlayBaseUrl.isEmpty()) {
-                readStringFromResource(context, "karte_overlay_base_url")?.let {
-                    cfg.overlayBaseUrl = it
-                }
-            }
-            return cfg
-        }
-
-        private fun readStringFromResource(context: Context, name: String): String? {
-            val res = context.resources
-            val pkg = res.getResourcePackageName(R.id.karte_resources)
-            val id = res.getIdentifier(name, "string", pkg)
-            return if (id == 0) {
-                null
-            } else {
-                res.getString(id)
-            }
         }
     }
 }
