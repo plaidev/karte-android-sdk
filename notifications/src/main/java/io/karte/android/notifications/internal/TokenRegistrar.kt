@@ -17,7 +17,6 @@ package io.karte.android.notifications.internal
 
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
-import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
 import io.karte.android.core.library.NotificationModule
 import io.karte.android.core.library.UserModule
@@ -83,14 +82,6 @@ internal class TokenRegistrar(private val context: Context) : UserModule, Notifi
         }
 
     private fun getToken(completion: ((token: String) -> Unit)? = null) {
-        runCatching { getTokenByFirebaseInstanceId(completion) }
-            .onSuccess { return }
-            .onFailure {
-                Logger.w(
-                    LOG_TAG,
-                    logMessage("FirebaseInstanceId.getInstanceId", "Failed to get", it.message)
-                )
-            }
         runCatching { getTokenByFirebaseMessaging(completion) }
             .onSuccess { return }
             .onFailure {
@@ -99,22 +90,6 @@ internal class TokenRegistrar(private val context: Context) : UserModule, Notifi
                     logMessage("FirebaseMessaging.getToken", "Failed to get", it.message)
                 )
             }
-        Logger.e(LOG_TAG, "Failed to get FCM Token using both methods.")
-    }
-
-    private fun getTokenByFirebaseInstanceId(completion: ((token: String) -> Unit)? = null) {
-        val methodName = "FirebaseInstanceId.getInstanceId"
-        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Logger.d(LOG_TAG, logMessage(methodName, "Could not get", task.exception?.message))
-                return@addOnCompleteListener
-            }
-            // Get new Instance ID token
-            task.result?.token?.let {
-                Logger.d(LOG_TAG, logMessage(methodName, "Got"))
-                completion?.invoke(it)
-            }
-        }
     }
 
     private fun getTokenByFirebaseMessaging(completion: ((token: String) -> Unit)? = null) {

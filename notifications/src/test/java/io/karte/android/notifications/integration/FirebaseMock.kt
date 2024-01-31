@@ -17,42 +17,12 @@ package io.karte.android.notifications.integration
 
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
-import com.google.firebase.iid.FirebaseInstanceId
-import com.google.firebase.iid.InstanceIdResult
 import com.google.firebase.messaging.FirebaseMessaging
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkStatic
-
-fun mockFirebaseInstanceId(mockedToken: String?) {
-    mockkStatic(FirebaseInstanceId::class)
-    val slot = slot<OnCompleteListener<InstanceIdResult>>()
-    val mockedInstance = mockk<FirebaseInstanceId> {
-        every { instanceId } returns mockk {
-            every { addOnCompleteListener(capture(slot)) } answers {
-                val result: Task<InstanceIdResult> = if (mockedToken != null) {
-                    mockk {
-                        every { isSuccessful } returns true
-                        every { result } returns mockk {
-                            every { token } returns mockedToken
-                        }
-                    }
-                } else {
-                    mockk { every { isSuccessful } returns false }
-                }
-                slot.captured.onComplete(result)
-                result
-            }
-        }
-    }
-    every { FirebaseInstanceId.getInstance() } returns mockedInstance
-}
-
-fun unmockFirebaseInstanceId() {
-    unmockkStatic(FirebaseInstanceId::class)
-}
 
 fun mockFirebaseMessaging(mockedToken: String?) {
     mockkStatic(FirebaseMessaging::class)

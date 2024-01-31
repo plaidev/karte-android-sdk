@@ -16,6 +16,7 @@
 package io.karte.android.core.config
 
 import android.content.Context
+import android.net.Uri
 import io.karte.android.BuildConfig
 import io.karte.android.KarteException
 import io.karte.android.R
@@ -27,11 +28,11 @@ import io.karte.android.core.library.LibraryConfig
  * - Kotlinでは[Config.build]関数でインスタンスを生成します。
  * - Javaでは[Config.Builder.build]関数でインスタンスを生成します。
  *
- * @property[baseUrl] ベースURLの取得・設定を行います。
- *
- * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
+ * @param[baseUrl] ベースURLの取得・設定を行います。
+ * URLを変更することで、地域や環境を設定することができます。
  *
  * @property[logCollectionUrl] ログ収集URLの取得・設定を行います。
+ * ログ収集機能は廃止されたため、この設定は使用されません。
  *
  * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
  *
@@ -59,46 +60,86 @@ import io.karte.android.core.library.LibraryConfig
 open class Config protected constructor(
     appKey: String,
     apiKey: String,
-    val baseUrl: String,
+    baseUrl: String,
+    @Deprecated("No longer used")
     internal val logCollectionUrl: String,
     val isDryRun: Boolean,
     val isOptOut: Boolean,
     val enabledTrackingAaid: Boolean,
     val libraryConfigs: List<LibraryConfig>
 ) {
-    /**
-     * @property[appKey] アプリケーションキーの取得・設定を行います。
-     *
-     * 設定ファイルから自動でロードされるアプリケーションキー以外を利用したい場合にのみ設定します。
-     */
+    /** アプリケーションキーの取得を行います。 */
     var appKey: String = appKey
         internal set
 
     internal val isValidAppKey get() = appKey.length == 32
 
-    /**
-     * @property[apiKey] APIキーの取得・設定を行います。
-     *
-     * 設定ファイルから自動でロードされるAPIキー以外を利用したい場合にのみ設定します。
-     */
+    /** APIキーの取得を行います。 */
     var apiKey: String = apiKey
-        internal set
+        private set
+
+    /** 未設定確認用変数 */
+    private var _baseUrl: String = ""
+
+    /**
+     * ベースURLの取得を行います。
+     * 設定されたURLにサブパスを付与したものを返します。
+     */
+    var baseUrl: String
+        private set(value) {
+            if (value.isEmpty())
+                return
+            _baseUrl = Uri.withAppendedPath(Uri.parse(value), "v0/native").toString()
+        }
+        get() {
+            if (_baseUrl.isEmpty())
+                return "https://b.karte.io/v0/native"
+            return _baseUrl
+        }
+
+    private var _dataLocation: String = ""
+    /** KARTEプロジェクトのデータロケーションを取得します。 */
+    var dataLocation: String
+        private set(value) {
+            _dataLocation = value
+        }
+        get() {
+            if (_dataLocation.isEmpty())
+                return "tw"
+            return _dataLocation
+        }
+
+    init {
+        this.baseUrl = baseUrl
+    }
 
     /** [Config]クラスの生成を行うためのクラスです。 */
     open class Builder {
-        /**[Config.appKey]を変更します。*/
+        /**
+         * [Config.appKey]を変更します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
+         */
         var appKey: String = "" @JvmSynthetic set
 
-        /**[Config.apiKey]を変更します。*/
+        /**
+         * [Config.apiKey]を変更します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
+         */
         var apiKey: String = "" @JvmSynthetic set
 
-        /**[Config.baseUrl]を変更します。*/
-        var baseUrl: String = "https://api.karte.io/v0/native" @JvmSynthetic set
+        /**
+         * [Config.baseUrl]を変更します。
+         * URLを変更することで、地域や環境を設定することができます。
+         *
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
+         */
+        var baseUrl: String = "" @JvmSynthetic set
 
-        /**[Config.logCollectionUrl]を変更します。*/
-        internal var logCollectionUrl: String =
-            "https://us-central1-production-debug-log-collector.cloudfunctions.net/nativeAppLogUrl"
-            @JvmSynthetic set
+        /**
+         * [Config.dataLocation]を変更します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
+         */
+        var dataLocation: String = "" @JvmSynthetic set
 
         /**[Config.isDryRun]を変更します。*/
         var isDryRun: Boolean = false @JvmSynthetic set
@@ -112,12 +153,31 @@ open class Config protected constructor(
         /**[Config.libraryConfigs]を変更します。*/
         var libraryConfigs: List<LibraryConfig> = listOf() @JvmSynthetic set
 
-        /**[Config.baseUrl]を変更します。*/
+        /**
+         * [Config.appKey]を変更します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
+         */
+        fun appKey(appKey: String): Builder = apply { this.appKey = appKey }
+
+        /**
+         * [Config.apiKey]を変更します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
+         */
+        fun apiKey(apiKey: String): Builder = apply { this.apiKey = apiKey }
+
+        /**
+         * [Config.baseUrl]を変更します。
+         * URLを変更することで、地域や環境を設定することができます。
+         *
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
+         */
         fun baseUrl(baseUrl: String): Builder = apply { this.baseUrl = baseUrl }
 
-        /**[Config.logCollectionUrl]を変更します。*/
-        internal fun logCollectionUrl(logCollectionUrl: String): Builder =
-            apply { this.logCollectionUrl = logCollectionUrl }
+        /**
+         * [Config.dataLocation]を変更します。
+         * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
+         */
+        fun dataLocation(dataLocation: String): Builder = apply { this.dataLocation = dataLocation }
 
         /**[Config.isDryRun]を変更します。*/
         fun isDryRun(isDryRun: Boolean): Builder = apply { this.isDryRun = isDryRun }
@@ -142,12 +202,14 @@ open class Config protected constructor(
             appKey,
             apiKey,
             baseUrl,
-            logCollectionUrl,
+            "",
             isDryRun,
             isOptOut,
             enabledTrackingAaid,
             libraryConfigs
-        )
+        ).also { config ->
+            config.dataLocation = dataLocation
+        }
     }
 
     companion object {
@@ -161,35 +223,47 @@ open class Config protected constructor(
             return builder.build()
         }
 
-        internal fun withAppKey(context: Context, config: Config?): Config {
-            if (config != null && config.appKey.isNotEmpty()) return config
-            return (config ?: build()).apply {
-                this.appKey = appKeyFromResource(context)
-                this.apiKey = apiKeyFromResource(context)
-            }
-        }
-
-        private fun appKeyFromResource(context: Context): String {
-            val res = context.resources
-            val pkg = res.getResourcePackageName(R.id.karte_resources)
-            val id = res.getIdentifier("karte_app_key", "string", pkg)
-            return if (id == 0) {
-                if (BuildConfig.DEBUG) {
+        /**
+         * 初期化済みのconfigのパラメータをresourceから補完する
+         *
+         * * configがnullならデフォルト値で初期化する
+         * * パラメータに空文字以外が設定済みなら上書きしない
+         * * 設定ファイルに存在しなければ補完しない
+         * * **app_keyがここまでで与えられなかった場合、デバッグビルドでは例外をスローする**
+         */
+        internal fun fillFromResource(context: Context, config: Config?): Config {
+            val cfg = config ?: build()
+            if (cfg.appKey.isEmpty()) {
+                val appKeyFromResource = readStringFromResource(context, "karte_app_key")
+                // appKeyに限り 未設定＆resourceにない＆debugビルド 時に例外スロー
+                if (appKeyFromResource == null && BuildConfig.DEBUG)
                     throw KarteException("karte_resources.xml not found.")
-                } else {
-                    ""
-                }
-            } else {
-                res.getString(id)
+                appKeyFromResource?.let { cfg.appKey = it }
             }
+            if (cfg.apiKey.isEmpty()) {
+                readStringFromResource(context, "karte_api_key")?.let {
+                    cfg.apiKey = it
+                }
+            }
+            if (cfg._baseUrl.isEmpty()) {
+                readStringFromResource(context, "karte_base_url")?.let {
+                    cfg.baseUrl = it
+                }
+            }
+            if (cfg._dataLocation.isEmpty()) {
+                readStringFromResource(context, "karte_data_location")?.let {
+                    cfg.dataLocation = it
+                }
+            }
+            return cfg
         }
 
-        private fun apiKeyFromResource(context: Context): String {
+        private fun readStringFromResource(context: Context, name: String): String? {
             val res = context.resources
             val pkg = res.getResourcePackageName(R.id.karte_resources)
-            val id = res.getIdentifier("karte_api_key", "string", pkg)
+            val id = res.getIdentifier(name, "string", pkg)
             return if (id == 0) {
-                ""
+                null
             } else {
                 res.getString(id)
             }

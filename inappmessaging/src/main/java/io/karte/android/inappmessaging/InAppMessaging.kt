@@ -61,6 +61,7 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
         app.application.registerActivityLifecycleCallbacks(this)
         this.app = app
         this.processor = IAMProcessor(app.application, panelWindowManager)
+        this.config = app.libraryConfig(InAppMessagingConfig::class.java) ?: InAppMessagingConfig.build()
         app.register(this)
     }
 
@@ -225,6 +226,7 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
     }
 
     /**InAppMessagingモジュールの設定を保持するクラスです。*/
+    @Deprecated("Use InAppMessagingConfig class.")
     object Config {
         /**
          * 接客用WebViewのキャッシュの有無の取得・設定を行います。
@@ -238,16 +240,21 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
 
     internal lateinit var app: KarteApp
     private lateinit var processor: IAMProcessor
+    private lateinit var config: InAppMessagingConfig
     private val uiThreadHandler: Handler = Handler(Looper.getMainLooper())
     private val panelWindowManager = PanelWindowManager()
-    private val overlayBaseUrl = "https://cf-native.karte.io/v0/native"
+    private val overlayBaseUrl: String
+        get() = config.overlayBaseUrl
 
     private var isSuppressed = false
     private var delegate: InAppMessagingDelegate? = null
 
     internal fun generateOverlayURL(): String {
-        return "$overlayBaseUrl/overlay?app_key=${app.appKey}&_k_vid=${KarteApp.visitorId}" +
-            "&_k_app_prof=${app.appInfo?.json}"
+        return "$overlayBaseUrl/v0/native/overlay" +
+            "?app_key=${app.appKey}" +
+            "&_k_vid=${KarteApp.visitorId}" +
+            "&_k_app_prof=${app.appInfo?.json}" +
+            "&location=${app.config.dataLocation}"
     }
 
     private fun clearWebViewCookies() {
