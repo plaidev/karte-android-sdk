@@ -87,6 +87,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         }
 
         webViewClient = object : WebViewClient() {
+            @Deprecated("Deprecated in Java")
             override fun shouldOverrideUrlLoading(webView: WebView, url: String): Boolean {
                 // 接客内callback用
                 if (url.startsWith(KARTE_CALLBACK_SCHEME)) return true
@@ -142,6 +143,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
             }
 
             // mainpageの失敗時のみ呼ばれる
+            @Deprecated("Deprecated in Java")
             @Suppress("DEPRECATION")
             override fun onReceivedError(
                 view: WebView,
