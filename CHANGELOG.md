@@ -2,40 +2,13 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
-| core | イベントトラッキング機能を提供します。 | 2.24.0 |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.19.0 |
-| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.12.0 |
-| variables | 設定値配信機能を提供します。 | 2.5.0 |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.10.0 |
-| inbox | Push通知の送信履歴を取得する機能を提供します（β版）。 | 0.2.0 |
+| core | イベントトラッキング機能を提供します。 | 2.23.0 |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.18.0 |
+| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.11.0 |
+| variables | 設定値配信機能を提供します。 | 2.4.0 |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.9.0 |
+| inbox | Push通知の送信履歴を取得する機能を提供します（β版）。 | 0.1.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1 |
-
-
-# Releases - xxxx.xx.xx
-
-### Core 2.24.0
-** 🔨CHANGED**
-- pluginの設定をpluginManagement形式で適用するよう変更しました。
-
-### InAppMessaging 2.19.0
-** 🔨CHANGED**
-- pluginの設定をpluginManagement形式で適用するよう変更しました。
-
-### Notifications 2.12.0
-** 🔨CHANGED**
-- pluginの設定をpluginManagement形式で適用するよう変更しました。
-
-### Variables 2.5.0
-** 🔨CHANGED**
-- pluginの設定をpluginManagement形式で適用するよう変更しました。
-
-### VisualTracking 2.10.0
-** 🔨CHANGED**
-- pluginの設定をpluginManagement形式で適用するよう変更しました。
-
-### Inbox 0.2.0
-** 🔨CHANGED**
-- pluginの設定をpluginManagement形式で適用するよう変更しました。
 
 # Releases - 2024.01.31
 
