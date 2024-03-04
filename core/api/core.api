@@ -241,6 +241,7 @@ public final class io/karte/android/core/logger/Logger {
 
 public abstract interface class io/karte/android/core/repository/Repository {
 	public abstract fun get (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun getAllKeys ()Ljava/util/List;
 	public abstract fun put (Ljava/lang/String;Ljava/lang/Object;)V
 	public abstract fun remove (Ljava/lang/String;)V
 	public abstract fun removeAll ()V

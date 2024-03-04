@@ -45,4 +45,9 @@ interface Repository {
      * リポジトリから全てのデータを削除します。
      */
     fun removeAll()
+
+    /**
+     * リポジトリにある全てのデータのキーを取得します
+     */
+    fun getAllKeys(): List<String>
 }

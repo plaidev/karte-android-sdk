@@ -61,6 +61,17 @@ public class Variables {
     }
 
     /**
+     * 全ての設定値のキーの一覧を取得できます。
+     * なお、事前に {@link Variables#fetch()} を呼び出しておく必要があります。
+     *
+     * @return キーに関連付けられた設定値のキーの一覧を返します。
+     */
+    public static @NotNull
+    List<String> getAllKeys() {
+        return VariablesService.getAllKeys();
+    }
+
+    /**
      * 指定された設定値に関連するキャンペーン情報を元に効果測定用のイベント（message_open）を発火します。
      *
      * @param variables 設定値の配列

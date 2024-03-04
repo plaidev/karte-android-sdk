@@ -10,6 +10,16 @@
 | inbox | Push通知の送信履歴を取得する機能を提供します（β版）。 | 0.1.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1 |
 
+# Releases - xxxx.xx.xx 
+
+### Core 2.24.0
+** 🔨CHANGED**
+- Karteが利用しているSharedPreference内の全てのキーを返すメソッドを追加しました
+
+### Variables 2.5.0
+** 🔨CHANGED**
+- 設定値配信で配信している全てのキーを返すgetAllKeysというメソッドを追加しました。
+
 # Releases - 2024.01.31
 
 ### Core 2.23.0

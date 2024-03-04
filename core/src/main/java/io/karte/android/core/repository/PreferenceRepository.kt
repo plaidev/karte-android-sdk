@@ -61,4 +61,6 @@ internal class PreferenceRepository internal constructor(
     override fun removeAll() {
         prefs.edit().clear().apply()
     }
+
+    override fun getAllKeys(): List<String> = prefs.all.keys.toList()
 }

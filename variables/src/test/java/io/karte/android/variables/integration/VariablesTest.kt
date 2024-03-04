@@ -1477,4 +1477,23 @@ class VariablesTest {
             assertThat(Variables.get("hoge").long(0)).isEqualTo(0)
         }
     }
+    class getAllKeys : VariablesTestCase() {
+        @Test
+        fun getAllKeysで現在のkeyの一覧が取得できる() {
+            enqMsgRespAndMsgOpenResp(
+                JSONArray().put(
+                    createRemoteConfigMessage(
+                        variables = arrayOf(
+                            Var("hoge", "3"),
+                            Var("fuga", "test")
+
+                        )
+                    )
+                )
+            )
+            Variables.fetch()
+            proceedBufferedCall()
+            assertThat(Variables.getAllKeys()).isEqualTo(listOf("hoge", "fuga"))
+        }
+    }
 }
