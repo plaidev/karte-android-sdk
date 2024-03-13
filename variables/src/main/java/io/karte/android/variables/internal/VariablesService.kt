@@ -65,6 +65,13 @@ internal class VariablesService : Library, ActionModule, UserModule {
         }
 
         @JvmStatic
+        fun getAllKeys(): List<String> =
+            self?.repository?.getAllKeys() ?: run {
+                Logger.e(LOG_TAG, "Repository not found.")
+                emptyList()
+            }
+
+        @JvmStatic
         @JvmOverloads
         fun trackOpen(variables: List<Variable>, values: Values? = null) {
             self?.track(variables, MessageEventType.Open, values)
