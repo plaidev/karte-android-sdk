@@ -86,20 +86,6 @@ jobs:
       - store_artifacts:
           path: ~/test-results/junit
 
-  ui_test:
-    executor:
-      name: android/android-machine
-      tag: 2023.02.1
-    steps:
-      - checkout
-      - run:
-          name: Request Ui Test
-          command: |
-            curl -u ${CIRCLECI_KEY} \
-                -d build_parameters[CIRCLE_JOB]=e2e-test \
-                -d build_parameters[RELEASE_BRANCH]=${CIRCLE_BRANCH} \
-                ${UI_TEST_ENDPOINT}
-
   publish_docs:
     executor:
       name: android/android-machine
@@ -153,11 +139,6 @@ workflows:
       equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
     jobs:
       - test
-      - ui_test:
-          filters:
-            branches:
-              only:
-                - develop
       - publish_docs:
           filters:
             branches:
