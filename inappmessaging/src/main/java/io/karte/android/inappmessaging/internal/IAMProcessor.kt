@@ -194,13 +194,14 @@ private class WebViewContainer(private val application: Application, private val
     }
 
     private fun setupWebView(url: String? = null) {
-        val targetUrl = url ?: InAppMessaging.self?.generateOverlayURL()
-        if (targetUrl == null) {
-            Logger.e(LOG_TAG, "Failed to construct overlay url.")
-        }
         try {
             _webView = IAMWebView(application, delegate)
-            _webView?.loadUrl(targetUrl)
+            val targetUrl = url ?: InAppMessaging.self?.generateOverlayURL()
+            if (targetUrl != null) {
+                _webView?.loadUrl(targetUrl)
+            } else {
+                Logger.e(LOG_TAG, "Failed to construct overlay url.")
+            }
         } catch (e: PackageManager.NameNotFoundException) {
             // WebViewアップデート中に初期化すると例外発生する可能性がある
             // NOTE: https://stackoverflow.com/questions/29575313/namenotfoundexception-webview

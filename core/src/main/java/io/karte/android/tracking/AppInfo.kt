@@ -183,9 +183,16 @@ private class Screen(context: Context) : Serializable {
     private val height: Int
 
     init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val bounds = windowManager.currentWindowMetrics.bounds
+            val dp = context.resources.displayMetrics.density
+            width = (bounds.width() / dp).toInt()
+            height = (bounds.height() / dp).toInt()
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val metrics = DisplayMetrics()
+            @Suppress("DEPRECATION")
             windowManager.defaultDisplay.getRealMetrics(metrics)
             width = (metrics.widthPixels / metrics.density).toInt()
             height = (metrics.heightPixels / metrics.density).toInt()

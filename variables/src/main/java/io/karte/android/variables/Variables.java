@@ -72,6 +72,20 @@ public class Variables {
     }
 
     /**
+     * 指定したキーの設定値のキャッシュが削除されます。
+     */
+    public static void clearCacheByKey(@NotNull String key) {
+        VariablesService.clearCacheByKey(key);
+    }
+
+    /**
+     * 全ての設定値のキャッシュが削除されます
+     */
+    public static void clearCacheAll() {
+        VariablesService.clearCacheAll();
+    }
+
+    /**
      * 指定された設定値に関連するキャンペーン情報を元に効果測定用のイベント（message_open）を発火します。
      *
      * @param variables 設定値の配列

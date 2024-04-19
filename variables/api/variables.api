@@ -41,6 +41,8 @@ public final class io/karte/android/variables/Variable$Companion {
 }
 
 public class io/karte/android/variables/Variables {
+	public static fun clearCacheAll ()V
+	public static fun clearCacheByKey (Ljava/lang/String;)V
 	public static fun fetch ()V
 	public static fun fetch (Lio/karte/android/variables/FetchCompletion;)V
 	public static fun get (Ljava/lang/String;)Lio/karte/android/variables/Variable;

@@ -1496,4 +1496,43 @@ class VariablesTest {
             assertThat(Variables.getAllKeys()).isEqualTo(listOf("hoge", "fuga"))
         }
     }
+    class clearCacheAll : VariablesTestCase() {
+        @Test
+        fun clearCacheAllでキャッシュが全て削除される() {
+            enqMsgRespAndMsgOpenResp(
+                JSONArray().put(
+                    createRemoteConfigMessage(
+                        variables = arrayOf(
+                            Var("hoge", "3"),
+                            Var("fuga", "test")
+                        )
+                    )
+                )
+            )
+            Variables.fetch()
+            proceedBufferedCall()
+            Variables.clearCacheAll()
+            assertThat(Variables.getAllKeys()).isEqualTo(listOf<String>())
+        }
+    }
+    class clearCacheByKey : VariablesTestCase() {
+        @Test
+        fun clearCacheByKeyでキャッシュが削除される() {
+            enqMsgRespAndMsgOpenResp(
+                JSONArray().put(
+                    createRemoteConfigMessage(
+                        variables = arrayOf(
+                            Var("hoge", "3"),
+                            Var("fuga", "test")
+                        )
+                    )
+                )
+            )
+            Variables.fetch()
+            proceedBufferedCall()
+            Variables.clearCacheByKey("hoge")
+            assertThat(Variables.getAllKeys()).isEqualTo(listOf("fuga"))
+            assertThat(Variables.get("hoge").string("default_value")).isEqualTo("default_value")
+        }
+    }
 }

@@ -39,6 +39,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.Window
+import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.RESULT_HIDDEN
@@ -52,8 +53,10 @@ import org.json.JSONArray
 import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.IAMView"
+@Suppress("DEPRECATION")
 private const val WINDOW_FLAGS_FOCUSED = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
     WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
+@Suppress("DEPRECATION")
 private const val WINDOW_FLAGS_UNFOCUSED = (
     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
         or WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
@@ -93,7 +96,10 @@ internal open class WindowView(
             WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
 
     /** StatusBarがContentViewに被っているか。Split Screen時に上画面であること. */
-    private val isStatusBarOverlaid: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    private val isStatusBarOverlaid: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        (contentView.rootWindowInsets?.getInsets(WindowInsets.Type.systemBars())?.top ?: -1) > 0
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        @Suppress("DEPRECATION")
         (contentView.rootWindowInsets?.systemWindowInsetTop ?: -1) > 0
     } else {
         // API 24未満はSplitScreen未対応のため、常にstatus barがある
@@ -143,7 +149,17 @@ internal open class WindowView(
             // そのためこのケースでは、hideSoftInputFromWindow後にaddViewすることでz-orderをkeyboardより下にし、再度showSoftInputする。（hideSoftInputFromWindowの結果によって元々keyboardが表示されていたかどうかの判定ができる）
             hideAndShowKeyboard()
         }
-        params.systemUiVisibility = decorView.windowSystemUiVisibility
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            this.windowInsetsController?.setSystemBarsAppearance(
+                decorView.windowInsetsController?.systemBarsAppearance ?: 0,
+                decorView.windowInsetsController?.systemBarsAppearance ?: 0
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            params.systemUiVisibility = decorView.windowSystemUiVisibility
+        }
+
         val location = IntArray(2)
         contentView.getLocationOnScreen(location)
 

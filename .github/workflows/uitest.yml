@@ -1,0 +1,25 @@
+name: "UI Test"
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  kick_uitest:
+    runs-on: ubuntu-latest
+    if: ${{ vars.UITEST_REPO }}
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.SHARED_GITHUB_ACCESS_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'plaidev',
+              repo: '${{vars.UITEST_REPO}}',
+              workflow_id: 'uitest.yml',
+              ref: 'master',
+              inputs: {
+                slackChannel: '${{vars.SLACK_CHANNEL}}',
+                notifyOnlyFail: true,
+              },
+            })

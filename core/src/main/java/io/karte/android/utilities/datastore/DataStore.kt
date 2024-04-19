@@ -200,7 +200,8 @@ internal class DataStore private constructor(context: Context) {
                                     else -> s to null
                                 }
                             }.toMap())
-                        persistable.id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))
+                        val index = cursor.getColumnIndex(BaseColumns._ID)
+                        persistable.id = cursor.getLong(index)
                         persistables.add(persistable)
                         instance.cache[persistable.id] = persistable
                     }

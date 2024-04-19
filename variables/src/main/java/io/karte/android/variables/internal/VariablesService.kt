@@ -72,6 +72,16 @@ internal class VariablesService : Library, ActionModule, UserModule {
             }
 
         @JvmStatic
+        fun clearCacheAll() {
+            self?.repository?.removeAll()
+        }
+
+        @JvmStatic
+        fun clearCacheByKey(key: String) {
+            self?.repository?.remove(key)
+        }
+
+        @JvmStatic
         @JvmOverloads
         fun trackOpen(variables: List<Variable>, values: Values? = null) {
             self?.track(variables, MessageEventType.Open, values)

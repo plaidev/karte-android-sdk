@@ -24,6 +24,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.net.http.SslError
 import android.os.Build
+import android.view.Display
 import android.view.DisplayCutout
 import android.view.KeyEvent
 import android.view.WindowManager
@@ -38,6 +39,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.hardware.display.DisplayManagerCompat
 import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.BuildConfig
 import io.karte.android.utilities.asString
@@ -217,7 +219,6 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         Logger.d(LOG_TAG, "destroy")
         super.destroy()
         webChromeClient = null
-        webViewClient = null
     }
 
     private fun handleError(message: String, urlTriedToLoad: String?) {
@@ -238,12 +239,18 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
             return null
         }
 
-        val cutout: DisplayCutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val cutout: DisplayCutout? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            DisplayManagerCompat.getInstance(context).getDisplay(Display.DEFAULT_DISPLAY)?.cutout
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            @Suppress("DEPRECATION")
             windowManager.defaultDisplay.cutout
         } else {
             rootWindowInsets.displayCutout
-        } ?: return null
+        }
+        if (cutout == null) {
+            return null
+        }
 
         val scale = Resources.getSystem().displayMetrics.density
         return SafeInsets(
