@@ -21,7 +21,6 @@ import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
-
 import io.karte.android.variables.internal.VariablesService;
 
 
@@ -70,6 +69,17 @@ public class Variables {
     List<String> getAllKeys() {
         return VariablesService.getAllKeys();
     }
+
+    /**
+     * Predicateに指定したロジックにマッチした変数オブジェクトのリストを返却します
+     * なお、事前に {@link Variables#fetch()} を呼び出しておく必要があります。
+     *
+     * @return 変数オブジェクトのリストを返します
+     */
+    public static @NotNull List<Variable> filter(@NotNull VariablesPredicate<String> predicate) {
+        return VariablesService.filter(predicate);
+    }
+
 
     /**
      * 指定したキーの設定値のキャッシュが削除されます。
@@ -143,3 +153,4 @@ public class Variables {
         VariablesService.trackClick(variables, jsonObject);
     }
 }
+

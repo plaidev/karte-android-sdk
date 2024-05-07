@@ -45,6 +45,7 @@ public class io/karte/android/variables/Variables {
 	public static fun clearCacheByKey (Ljava/lang/String;)V
 	public static fun fetch ()V
 	public static fun fetch (Lio/karte/android/variables/FetchCompletion;)V
+	public static fun filter (Lio/karte/android/variables/VariablesPredicate;)Ljava/util/List;
 	public static fun get (Ljava/lang/String;)Lio/karte/android/variables/Variable;
 	public static fun getAllKeys ()Ljava/util/List;
 	public static fun trackClick (Ljava/util/List;)V
@@ -53,5 +54,9 @@ public class io/karte/android/variables/Variables {
 	public static fun trackOpen (Ljava/util/List;)V
 	public static fun trackOpen (Ljava/util/List;Ljava/util/Map;)V
 	public static fun trackOpen (Ljava/util/List;Lorg/json/JSONObject;)V
+}
+
+public abstract interface class io/karte/android/variables/VariablesPredicate {
+	public abstract fun test (Ljava/lang/Object;)Z
 }
 

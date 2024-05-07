@@ -34,6 +34,7 @@ import io.karte.android.utilities.toValues
 import io.karte.android.variables.BuildConfig
 import io.karte.android.variables.FetchCompletion
 import io.karte.android.variables.Variable
+import io.karte.android.variables.VariablesPredicate
 import org.json.JSONObject
 
 private const val LOG_TAG = "Karte.Variables"
@@ -67,6 +68,17 @@ internal class VariablesService : Library, ActionModule, UserModule {
         @JvmStatic
         fun getAllKeys(): List<String> =
             self?.repository?.getAllKeys() ?: run {
+                Logger.e(LOG_TAG, "Repository not found.")
+                emptyList()
+            }
+
+        @JvmStatic
+        fun filter(predicate: VariablesPredicate<String>): List<Variable> =
+            self?.repository?.getAllKeys()?.filter {
+                predicate.test(it)
+            }?.map {
+                get(it)
+            } ?: run {
                 Logger.e(LOG_TAG, "Repository not found.")
                 emptyList()
             }
