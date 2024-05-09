@@ -1496,6 +1496,27 @@ class VariablesTest {
             assertThat(Variables.getAllKeys()).isEqualTo(listOf("hoge", "fuga"))
         }
     }
+    class filter : VariablesTestCase() {
+        @Test
+        fun filterが正しく動作する() {
+            enqMsgRespAndMsgOpenResp(
+                JSONArray().put(
+                    createRemoteConfigMessage(
+                        variables = arrayOf(
+                            Var("Var1", "変数1"),
+                            Var("Var2", "変数2")
+                        )
+                    )
+                )
+            )
+            Variables.fetch()
+            proceedBufferedCall()
+            val variables = Variables.filter { it == "Var1" }
+            assertThat(variables.size).isEqualTo(1)
+            assertThat(variables[0].string("")).isEqualTo("変数1")
+        }
+    }
+
     class clearCacheAll : VariablesTestCase() {
         @Test
         fun clearCacheAllでキャッシュが全て削除される() {
