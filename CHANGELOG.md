@@ -3,11 +3,17 @@
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
 | core | イベントトラッキング機能を提供します。 | 2.25.0 |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.19.0 |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.19.1 |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.11.0 |
 | variables | 設定値配信機能を提供します。 | 2.7.0 |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.9.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1 |
+
+# Releases - xxxx.xx.xx
+
+### InAppMessaging 2.19.1
+** 🔨FIXED**
+- InAppMessaging利用時に、まれクラッシュする不具合を修正しました
 
 # Releases - 2024.05.09
 
