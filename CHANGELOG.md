@@ -14,6 +14,7 @@
 ### InAppMessaging 2.19.1
 ** 🔨FIXED**
 - InAppMessaging利用時に、まれクラッシュする不具合を修正しました
+- 非階層urlを受け取るとクラッシュする不具合を修正しました
 
 # Releases - 2024.05.09
 
