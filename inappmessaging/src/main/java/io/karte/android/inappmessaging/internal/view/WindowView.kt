@@ -125,9 +125,13 @@ internal open class WindowView(
                 isAttaching = true
                 showInternal()
             } catch (e: Exception) {
+                Logger.w(LOG_TAG, "Failed to attach window: ${e.message}", e)
                 isAttaching = false
-                windowManager.removeView(this)
-                throw e
+                try {
+                    windowManager.removeView(this)
+                } catch (e: Exception) {
+                    Logger.w(LOG_TAG, "Failed to detach from window: ${e.message}", e)
+                }
             }
         }
     }

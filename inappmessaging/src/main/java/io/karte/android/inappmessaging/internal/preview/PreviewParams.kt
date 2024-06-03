@@ -24,9 +24,24 @@ import org.json.JSONObject
 private const val LOG_TAG = "Karte.PreviewParams"
 
 internal class PreviewParams(activity: Activity) {
-    private val shouldShowPreview = activity.intent?.data?.getQueryParameter("__krt_preview")
-    private val previewId = activity.intent?.data?.getQueryParameter("preview_id")
-    private val previewToken = activity.intent?.data?.getQueryParameter("preview_token")
+    private val shouldShowPreview = try {
+        activity.intent?.data?.getQueryParameter("__krt_preview")
+    } catch (e: Exception) {
+        Logger.e(LOG_TAG, "Failed to get query parameter.", e)
+        null
+    }
+    private val previewId = try {
+        activity.intent?.data?.getQueryParameter("preview_id")
+    } catch (e: Exception) {
+        Logger.e(LOG_TAG, "Failed to get query parameter.", e)
+        null
+    }
+    private val previewToken = try {
+        activity.intent?.data?.getQueryParameter("preview_token")
+    } catch (e: Exception) {
+        Logger.e(LOG_TAG, "Failed to get query parameter.", e)
+        null
+    }
 
     fun shouldShowPreview(): Boolean {
         return shouldShowPreview != null && previewId != null && previewToken != null
