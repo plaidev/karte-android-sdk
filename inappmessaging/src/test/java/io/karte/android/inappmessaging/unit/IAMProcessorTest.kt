@@ -39,6 +39,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
 @Suppress("NonAsciiCharacters")
 @RunWith(RobolectricTestRunner::class)
@@ -134,6 +135,7 @@ class IAMProcessorTest {
         assertThat(processor.isPresenting).isFalse()
 
         resumeActivity()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
         assertThat(processor.isPresenting).isTrue()
 
         closeAction()
@@ -146,6 +148,7 @@ class IAMProcessorTest {
         assertThat(processor.isPresenting).isFalse()
 
         resumeActivity()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
         assertThat(processor.isPresenting).isTrue()
 
         pauseActivity()
@@ -157,6 +160,7 @@ class IAMProcessorTest {
         assertThat(processor.isPresenting).isFalse()
 
         resumeActivity()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
         assertThat(processor.isPresenting).isFalse()
 
         openAction()
@@ -171,6 +175,7 @@ class IAMProcessorTest {
         assertThat(processor.isPresenting).isFalse()
 
         resumeActivity()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
         assertThat(processor.isPresenting).isFalse()
 
         openAction()

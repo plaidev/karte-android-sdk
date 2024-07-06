@@ -3,11 +3,17 @@
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
 | core | イベントトラッキング機能を提供します。 | 2.25.0 |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.19.1 |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.19.2 |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.11.0 |
 | variables | 設定値配信機能を提供します。 | 2.7.0 |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.9.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1 |
+
+# Releases - xxxx.xx.xx
+
+### InAppMessaging 2.19.2
+** 🔨CHANGED**
+- IAMWebViewの初期化を、アプリがフォアグラウンドに戻った際に遅延して行うように変更しました
 
 # Releases - 2024.06.03
 

@@ -20,6 +20,8 @@ import android.app.Activity
 import android.app.Application
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.webkit.ValueCallback
 import io.karte.android.KarteApp
 import io.karte.android.core.logger.Logger
@@ -157,11 +159,13 @@ internal class IAMProcessor(application: Application, private val panelWindowMan
 
     //region ActivityLifecycle
     override fun onActivityResumed(activity: Activity) {
-        Logger.d(LOG_TAG, "onActivityResumed: visible? ${webView?.visible}")
-        currentActivity = WeakReference(activity)
-        // アプリフォアグラウンド時にはwebViewが参照され、初期化される
-        if (webView?.visible == true) {
-            show(activity)
+        Handler(Looper.getMainLooper()).post {
+            Logger.d(LOG_TAG, "onActivityResumed: visible? ${webView?.visible}")
+            currentActivity = WeakReference(activity)
+            // アプリフォアグラウンド時にはwebViewが参照され、初期化される
+            if (webView?.visible == true) {
+                show(activity)
+            }
         }
     }
 
