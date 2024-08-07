@@ -154,6 +154,7 @@ internal open class WindowView(
             // NOTE: WindowManager.addViewしたViewはデフォルトでSystemBarsのInsetが考慮されるため明示的に無効化するために0を設定する
             // https://developer.android.com/reference/android/view/WindowManager.LayoutParams#setFitInsetsTypes(int)
             params.fitInsetsTypes = 0
+            params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
 
         if (appSoftInputModeIsNothing) {
