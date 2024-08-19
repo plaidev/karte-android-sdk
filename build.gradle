@@ -37,6 +37,8 @@ configure(subprojects.findAll { !it.name.startsWith("sample_") && !it.name.start
     apply from: '../buildscripts/projectMavenAndroid.gradle'
 }
 ext {
+    ossrhUsername = System.getenv().getOrDefault("MAVEN_USER_NAME", "")
+    ossrhPassword = System.getenv().getOrDefault("MAVEN_PASSWORD", "")
     afterConfigurate = { Project project ->
         project.apply from: '../buildscripts/projectSonatype.gradle'
     }
