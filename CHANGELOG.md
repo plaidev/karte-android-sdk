@@ -16,9 +16,6 @@
 - AndroidのEdge to Edgeによる表示に対応しました
   - Edge to Edgeに対応後にKARTEの接客の表示が正しくされているか検証をお願いします
   - Navigation Barに被ってしまう、接客の表示が下すぎる場合はCSS等を利用して調整してください。テンプレートによってはbottomをいじれるものもあるためそちらで設定することもできます。
-
-### InAppMessaging 2.19.2
-** 🔨CHANGED**
 - IAMWebViewの初期化を、アプリがフォアグラウンドに戻った際に遅延して行うように変更しました
 - suppressed状態で設定値配信を取得した場合に_message_suppressedが発生しないように変更しました
 
