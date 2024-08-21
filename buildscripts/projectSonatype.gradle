@@ -2,8 +2,8 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 def getPropOrDefault(name, defaultValue = "") {
-    if (project.ext.has(name))
-        return project.ext.get(name)
+    if (rootProject.ext.has(name))
+        return rootProject.ext.get(name)
     return defaultValue
 }
 
@@ -39,6 +39,12 @@ publishing {
 
             def sonatypeUsername = getPropOrDefault("ossrhUsername")
             def sonatypePassword = getPropOrDefault("ossrhPassword")
+            if (sonatypeUsername.toString() == "") {
+                println("not set sonatypeUserName")
+            }
+            if (sonatypePassword.toString() == "") {
+                println("not set sonatypePassword")
+            }
             credentials {
                 username = "$sonatypeUsername"
                 password = "$sonatypePassword"
