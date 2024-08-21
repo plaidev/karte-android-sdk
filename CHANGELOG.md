@@ -1,13 +1,24 @@
 # Latest Version
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
-| :-- | :-- | :-- |
-| core | イベントトラッキング機能を提供します。 | 2.25.0 |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.19.1 |
-| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.11.0 |
-| variables | 設定値配信機能を提供します。 | 2.7.0 |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.9.0 |
-| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1 |
+| :-- | :-- |:---------|
+| core | イベントトラッキング機能を提供します。 | 2.25.0   |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.20.0   |
+| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.11.0   |
+| variables | 設定値配信機能を提供します。 | 2.7.0    |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.9.0    |
+| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1    |
+
+# Releases - 2024.08.21
+
+### InAppMessaging 2.20.0
+** 🔨CHANGED**
+- AndroidのEdge to Edgeによる表示に対応しました
+  - Edge to Edgeに対応後にKARTEの接客の表示が正しくされているか検証をお願いします
+  - Navigation Barに被ってしまう、接客の表示が下すぎる場合はCSS等を利用して調整してください。テンプレートによってはbottomをいじれるものもあるためそちらで設定することもできます。
+- IAMWebViewの初期化を、アプリがフォアグラウンドに戻った際に遅延して行うように変更しました
+** 🔨FIXED**
+- suppressed状態で設定値配信を取得した場合に_message_suppressedが発生しないように変更しました
 
 # Releases - 2024.06.03
 

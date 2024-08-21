@@ -53,9 +53,11 @@ import org.json.JSONArray
 import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.IAMView"
+
 @Suppress("DEPRECATION")
 private const val WINDOW_FLAGS_FOCUSED = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
     WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
+
 @Suppress("DEPRECATION")
 private const val WINDOW_FLAGS_UNFOCUSED = (
     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
@@ -147,6 +149,13 @@ internal open class WindowView(
             focusFlag,
             PixelFormat.TRANSLUCENT
         )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // NOTE: WindowManager.addViewしたViewはデフォルトでSystemBarsのInsetが考慮されるため明示的に無効化するために0を設定する
+            // https://developer.android.com/reference/android/view/WindowManager.LayoutParams#setFitInsetsTypes(int)
+            params.fitInsetsTypes = 0
+            params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
 
         if (appSoftInputModeIsNothing) {
             // keyboard表示中に接客が配信された場合、接客のz-ordferがkeyboardより上になる。この時appWindowのsoftInputModeがSOFT_INPUT_ADJUST_NOTHINGだとkeyboardの高さを知る方法がない
@@ -407,6 +416,26 @@ internal open class WindowView(
         }
     }
 
+    private val drawingHeight: Int
+        get() {
+            // NOTE: Edge to edge有効化時にcontentView.heightとcontentViewVisibleRect.bottomの値が異なる(VisibleRectにNavigationBarの高さが含まれない)ため
+            // diffを取って描画すべき領域の高さを決定する
+            // diffがNavigationBarの高さを超える場合はキーボード等が表示されていると判定しvisibleRect.bottomを下限とする
+            // それ以外はcontentView.height=画面の高さを下限とする
+            val diff = contentView.height - contentViewVisibleRect.bottom
+            return if (diff > navbarHeight) contentViewVisibleRect.bottom else contentView.height
+        }
+
+    private val navbarHeight: Int
+        get() {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                windowManager.currentWindowMetrics.windowInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
+            } else {
+                // バージョンに依存せずにNavigationBarの高さを正確に取得する方法がないため画面下2.5%をNavigationBarの高さとして扱う
+                (contentView.height * 0.025).toInt()
+            }
+        }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         try {
             val contentView = contentView
@@ -428,14 +457,14 @@ internal open class WindowView(
                 } else {
                     locationOnScreen[1]
                 }
-                childBottom = iamViewVisibleRect.bottom
+                childBottom = drawingHeight
             } else {
                 childTop = if (isStatusBarOverlaid) {
                     contentView.top + contentView.paddingTop
                 } else {
                     contentViewVisibleRect.top
                 }
-                childBottom = contentViewVisibleRect.bottom
+                childBottom = drawingHeight
             }
 
             Logger.d(
