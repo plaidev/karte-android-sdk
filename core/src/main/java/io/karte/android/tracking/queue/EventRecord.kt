@@ -19,8 +19,10 @@ import android.database.Cursor
 import io.karte.android.tracking.Event
 import io.karte.android.utilities.datastore.Contract
 import io.karte.android.utilities.datastore.Persistable
+import java.util.UUID
 
 internal class EventRecord() : Persistable() {
+    val recordId: UUID get() = UUID.randomUUID()
     val visitorId: String get() = values[EventContract.VISITOR_ID] as String
     val originalPvId: String get() = values[EventContract.ORIGINAL_PV_ID] as String
     val pvId: String get() = values[EventContract.PV_ID] as String
