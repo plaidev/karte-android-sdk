@@ -52,7 +52,7 @@
 ** 🔨CHANGED**
 - targetSdkVersionを 29 -> 31 に変更しました。
 
-## Variables 2.6.0
+### Variables 2.6.0
 ** 🔨CHANGED**
 - 設定値配信のキャッシュを削除するclearCacheAll/clearCacheByKeyというメソッドを追加しました
 
