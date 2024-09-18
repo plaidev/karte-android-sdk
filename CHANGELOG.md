@@ -18,6 +18,10 @@
 ** 🔨CHANGED**
 - イベント送信のログにイベント内容を付与しました。
 
+### InAppMessaging 2.20.1
+** 🔨FIXED **
+- _message_suppressed送信前に、まれにクラッシュする不具合を修正しました。
+
 # Releases - 2024.08.21
 
 ### InAppMessaging 2.20.0
