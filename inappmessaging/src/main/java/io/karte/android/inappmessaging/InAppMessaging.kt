@@ -278,6 +278,11 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
             val action = message.getJSONObject("action")
             val campaignId = action.getString("campaign_id")
             val shortenId = action.getString("shorten_id")
+            val campaign = message.getJSONObject("campaign")
+            val serviceActionType = campaign.getString("service_action_type")
+            if (serviceActionType == "remote_config") {
+                return
+            }
             val values = mapOf("reason" to reason)
             Tracker.track(MessageEvent(MessageEventType.Suppressed, campaignId, shortenId, values))
         } catch (e: JSONException) {
