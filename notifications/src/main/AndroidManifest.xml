@@ -13,6 +13,8 @@
 
     <application>
         <receiver android:name="io.karte.android.notifications.MessageReceiver" />
-        <activity android:name="io.karte.android.notifications.MessageReceiveActivity" />
+        <activity
+            android:name="io.karte.android.notifications.MessageReceiveActivity"
+            android:excludeFromRecents="true" />
     </application>
 </manifest>

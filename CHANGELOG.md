@@ -22,6 +22,11 @@
 ** 🔨FIXED **
 - _message_suppressed送信前に、まれにクラッシュする不具合を修正しました。
 
+
+### notifications 2.12.0
+** 🔨FIXED**
+- タスクキル状態でPush通知を開封した際の不具合を修正しました。
+
 # Releases - 2024.08.21
 
 ### InAppMessaging 2.20.0
