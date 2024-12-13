@@ -1,13 +1,31 @@
 # Latest Version
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
-| :-- | :-- |:---------|
-| core | イベントトラッキング機能を提供します。 | 2.25.0   |
+| :-- | :-- | :-- |
+| core | イベントトラッキング機能を提供します。 | 2.25.1 |
 | inappmessaging | アプリ内メッセージ機能を提供します。 | 2.20.0   |
-| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.11.0   |
-| variables | 設定値配信機能を提供します。 | 2.7.0    |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.9.0    |
-| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1    |
+| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.11.0 |
+| variables | 設定値配信機能を提供します。 | 2.7.0 |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.9.0 |
+| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1 |
+
+# Releases - 2024.12.13
+
+### Core 2.25.1
+** 🔨FIXED **
+- 古い関数の修正を行いました
+
+** 🔨CHANGED**
+- イベント送信のログにイベント内容を付与しました。
+
+### InAppMessaging 2.20.1
+** 🔨FIXED **
+- _message_suppressed送信前に、まれにクラッシュする不具合を修正しました。
+
+
+### notifications 2.12.0
+** 🔨FIXED**
+- タスクキル状態でPush通知を開封した際の不具合を修正しました。
 
 # Releases - 2024.08.21
 
@@ -43,7 +61,7 @@
 ** 🔨CHANGED**
 - targetSdkVersionを 29 -> 31 に変更しました。
 
-## Variables 2.6.0
+### Variables 2.6.0
 ** 🔨CHANGED**
 - 設定値配信のキャッシュを削除するclearCacheAll/clearCacheByKeyというメソッドを追加しました
 

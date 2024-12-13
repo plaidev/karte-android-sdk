@@ -39,7 +39,7 @@ private fun getCursorWindowSize(): Int {
 }
 
 private class DbHelper(context: Context) :
-    SQLiteOpenHelper(context, "krt_cache.db", null, persistableContracts.sumBy { it.version }) {
+    SQLiteOpenHelper(context, "krt_cache.db", null, persistableContracts.sumOf { it.version }) {
     override fun onCreate(db: SQLiteDatabase) {
         persistableContracts.forEach { contract ->
             createTable(db, contract)

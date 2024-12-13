@@ -41,6 +41,7 @@ import io.karte.android.tracking.client.TrackRequest
 import io.karte.android.tracking.client.TrackResponse
 import io.karte.android.tracking.queue.TrackEventRejectionFilterRule
 import io.karte.android.utilities.ActivityLifecycleCallback
+import org.json.JSONException
 import org.json.JSONObject
 
 private const val LOG_TAG = "Karte.InAppMessaging"
@@ -273,15 +274,19 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
     }
 
     private fun trackMessageSuppressed(message: JSONObject, reason: String) {
-        val action = message.getJSONObject("action")
-        val campaignId = action.getString("campaign_id")
-        val shortenId = action.getString("shorten_id")
-        val campaign = message.getJSONObject("campaign")
-        val serviceActionType = campaign.getString("service_action_type")
-        if (serviceActionType == "remote_config") {
-            return
+        try {
+            val action = message.getJSONObject("action")
+            val campaignId = action.getString("campaign_id")
+            val shortenId = action.getString("shorten_id")
+            val campaign = message.getJSONObject("campaign")
+            val serviceActionType = campaign.getString("service_action_type")
+            if (serviceActionType == "remote_config") {
+                return
+            }
+            val values = mapOf("reason" to reason)
+            Tracker.track(MessageEvent(MessageEventType.Suppressed, campaignId, shortenId, values))
+        } catch (e: JSONException) {
+            Logger.d(LOG_TAG, "Failed to parse json.", e)
         }
-        val values = mapOf("reason" to reason)
-        Tracker.track(MessageEvent(MessageEventType.Suppressed, campaignId, shortenId, values))
     }
 }

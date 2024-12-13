@@ -23,7 +23,9 @@ import io.karte.android.KarteApp
 import io.karte.android.core.library.ActionModule
 import io.karte.android.core.library.TrackModule
 import io.karte.android.core.logger.Logger
+import io.karte.android.tracking.BaseEventName
 import io.karte.android.tracking.EventValidator
+import io.karte.android.tracking.MessageEventName
 import io.karte.android.tracking.TrackCompletion
 import io.karte.android.tracking.client.TrackResponse
 import io.karte.android.tracking.client.requestOf
@@ -32,6 +34,7 @@ import io.karte.android.utilities.connectivity.retryIntervalMs
 import io.karte.android.utilities.datastore.DataStore
 import io.karte.android.utilities.datastore.RelationalOperator
 import io.karte.android.utilities.http.Client
+import java.util.UUID
 import kotlin.math.min
 
 private const val LOG_TAG = "Karte.Dispatcher"
@@ -164,6 +167,8 @@ internal class Dispatcher {
     }
 
     private fun request(key: GroupingKey, events: List<EventRecord>) {
+        logRequestEvents(UUID.randomUUID(), events)
+
         rateLimit.increment(events.size)
         val (visitorId, originalPvId, pvId) = key
         var request = requestOf(
@@ -205,6 +210,34 @@ internal class Dispatcher {
             handleFailure(events)
         }
         rateLimit.decrementWithDelay(events.size, ::dequeue)
+    }
+
+    private fun logRequestEvents(requestId: UUID, events: List<EventRecord>) {
+        events.forEach {
+            val eventRecordId = it.recordId
+            val visitorId = it.visitorId
+            val eventName = it.event.eventName.value
+            Logger.v(LOG_TAG, "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId event_name=$eventName ${it.event.values}")
+
+            when (eventName) {
+                BaseEventName.View.value -> {
+                    val viewName = it.event.values.getString("view_name")
+                    val title = it.event.values.getString("title")
+                    Logger.i(LOG_TAG, "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId view_name=$viewName title=$title")
+                }
+                MessageEventName.MessageOpen.value,
+                MessageEventName.MessageSuppressed.value,
+                MessageEventName.MessageReady.value,
+                MessageEventName.MessageClick.value,
+                MessageEventName.MessageClose.value -> {
+                    val message = it.event.values.getJSONObject("message")
+                    val campaignId = message.getString("campaign_id")
+                    val shortenId = message.getString("shorten_id")
+                    Logger.i(LOG_TAG, "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId campaign_id=$campaignId shorten_id=$shortenId")
+                }
+                else -> {}
+            }
+        }
     }
 
     private fun removeFromQueue(events: List<EventRecord>, isSuccessful: Boolean) {
