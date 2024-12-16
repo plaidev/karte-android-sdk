@@ -9,6 +9,13 @@
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.9.0 |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1 |
 
+# Releases - xxxx.xx.xx
+
+### Core 2.26.0
+
+** 🔨FIXED **
+- イベント送信時にまれにクラッシュする不具合を修正しました。
+
 # Releases - 2024.12.13
 
 ### Core 2.25.1

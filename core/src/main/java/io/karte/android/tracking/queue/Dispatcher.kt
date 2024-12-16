@@ -221,8 +221,8 @@ internal class Dispatcher {
 
             when (eventName) {
                 BaseEventName.View.value -> {
-                    val viewName = it.event.values.getString("view_name")
-                    val title = it.event.values.getString("title")
+                    val viewName = it.event.values.optString("view_name", "")
+                    val title = it.event.values.optString("title", "")
                     Logger.i(LOG_TAG, "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId view_name=$viewName title=$title")
                 }
                 MessageEventName.MessageOpen.value,
@@ -230,9 +230,9 @@ internal class Dispatcher {
                 MessageEventName.MessageReady.value,
                 MessageEventName.MessageClick.value,
                 MessageEventName.MessageClose.value -> {
-                    val message = it.event.values.getJSONObject("message")
-                    val campaignId = message.getString("campaign_id")
-                    val shortenId = message.getString("shorten_id")
+                    val message = it.event.values.optJSONObject("message")
+                    val campaignId = message?.optString("campaign_id", "") ?: ""
+                    val shortenId = message?.optString("shorten_id", "") ?: ""
                     Logger.i(LOG_TAG, "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId campaign_id=$campaignId shorten_id=$shortenId")
                 }
                 else -> {}
