@@ -1,7 +1,7 @@
 apply plugin: 'org.jetbrains.dokka'
 
 task javadocJar(type: Jar, dependsOn: 'dokkaJavadoc', group: 'documentation') {
-    classifier = 'javadoc'
+    archiveClassifier.set("javadoc")
     from "$buildDir/dokka/javadoc"
 }
 

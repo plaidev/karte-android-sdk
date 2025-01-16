@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace 'io.karte.sample_java'
     compileSdkVersion 31
 
     defaultConfig {

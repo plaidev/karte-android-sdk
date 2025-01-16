@@ -7,6 +7,7 @@ plugins {
 }
 
 android {
+    namespace 'io.karte.sample_kotlin'
     compileSdkVersion 31
 
     defaultConfig {

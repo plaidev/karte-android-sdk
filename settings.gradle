@@ -20,7 +20,7 @@ include ':sample_java', ':sample_kotlin', ':test_lib'
 rootProject.name='Karte'
 includeBuild('gradle-plugin') {
     dependencySubstitution {
-        substitute module('io.karte.android:local-gradle-plugin') with project(':')
+        substitute module('io.karte.android:local-gradle-plugin') using project(':')
     }
 }
 

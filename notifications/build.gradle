@@ -7,14 +7,27 @@ android {
     namespace 'io.karte.android.notifications'
     compileSdkVersion 33
 
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 19
         //noinspection OldTargetApi
         targetSdkVersion 33
         buildConfigField "String", "LIB_VERSION", "\"$version\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'proguard-rules.pro'
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 
     buildTypes {

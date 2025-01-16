@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.6.21'
+    ext.kotlin_version = '1.8.0'
     repositories {
         google()
         mavenCentral()
@@ -32,7 +32,7 @@ dependencies {
     implementation gradleApi()
     implementation 'org.javassist:javassist:3.24.1-GA'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compileOnly 'com.android.tools.build:gradle:7.0.0'
+    compileOnly 'com.android.tools.build:gradle:8.0.0'
 
     implementation 'org.ow2.asm:asm-util:7.0'
     implementation 'org.ow2.asm:asm-commons:7.0'

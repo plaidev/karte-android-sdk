@@ -19,10 +19,8 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.os.Build
 import android.view.View
 import android.view.ViewTreeObserver
-import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import io.karte.android.visualtracking.ImageProvider
 import org.json.JSONObject
@@ -50,7 +48,6 @@ internal class Trace internal constructor(
         if (view.width == 0 || view.height == 0) {
             view.viewTreeObserver.addOnGlobalLayoutListener(object :
                 ViewTreeObserver.OnGlobalLayoutListener {
-                @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
                 override fun onGlobalLayout() {
                     if (view.width > 0 && view.height > 0) {
                         callback.invoke(getBitmapInternal(view))
