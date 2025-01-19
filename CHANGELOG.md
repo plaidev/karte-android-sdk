@@ -2,12 +2,41 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
-| core | イベントトラッキング機能を提供します。 | 2.26.0 |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.21.0 |
-| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.11.0 |
-| variables | 設定値配信機能を提供します。 | 2.7.0 |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.9.0 |
-| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.5.1 |
+| core | イベントトラッキング機能を提供します。 | 2.27.0 |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.22.0   |
+| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.12.0 |
+| variables | 設定値配信機能を提供します。 | 2.8.0 |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.10.0 |
+| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.6.0 |
+
+
+# Releases - xxxx.xx.xx
+
+### Core 2.27.0
+** 🔨CHANGED**
+- AGPの対応バージョンを8.0.0に上げました 
+- InAppMessagingの画面境界の自動判定のOn/Offを切り替え可能にしました
+
+### InAppMessaging 2.22.0
+** 🔨CHANGED**
+- AGPの対応バージョンを8.0.0に上げました
+- InAppMessagingの画面境界の自動判定のOn/Offを切り替え可能にしました
+
+### Notifications 2.12.0
+** 🔨CHANGED**
+- AGPの対応バージョンを8.0.0に上げました
+
+### Variables 2.8.0
+** 🔨CHANGED**
+- AGPの対応バージョンを8.0.0に上げました
+
+### VisualTracking 2.10.0
+** 🔨CHANGED**
+- AGPの対応バージョンを8.0.0に上げました
+
+### Karte Gradle Plugin 2.6.0
+** 🔨CHANGED**
+- AGPの対応バージョンを8.0.0に上げました
 
 # Releases - 2024.12.16
 
@@ -17,14 +46,6 @@
 - イベント送信時にまれにクラッシュする不具合を修正しました。
 
 # Releases - 2024.12.13
-
-### Core 2.26.0
-** 🔨CHANGED**
-- InAppMessagingの画面境界の自動判定のOn/Offを切り替え可能にしました
-
-### InAppMessaging 2.21.0
-** 🔨CHANGED**
-- InAppMessagingの画面境界の自動判定のOn/Offを切り替え可能にしました
 
 ### Core 2.25.1
 ** 🔨FIXED **
