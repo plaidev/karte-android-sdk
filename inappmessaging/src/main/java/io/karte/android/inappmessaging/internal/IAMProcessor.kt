@@ -35,7 +35,7 @@ import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.IAMProcessor"
 
-internal class IAMProcessor(application: Application, private val panelWindowManager: PanelWindowManager) : ActivityLifecycleCallback(), WebViewDelegate {
+internal class IAMProcessor(application: Application, private val panelWindowManager: PanelWindowManager, private val isAutoScreenBoundaryEnabled: Boolean) : ActivityLifecycleCallback(), WebViewDelegate {
     private val container = WebViewContainer(application, this)
     private val webView: IAMWebView?
         get() = container.get()
@@ -173,7 +173,7 @@ internal class IAMProcessor(application: Application, private val panelWindowMan
         // FileChooser等reset防止時以外はresetする.
         val isPreventReset = ResetPrevent.isPreventReset(activity)
         Logger.d(LOG_TAG, "onActivityPaused: should prevent reset? $isPreventReset")
-        if (!isPreventReset) {
+        if (!isPreventReset && isAutoScreenBoundaryEnabled) {
             reset(false)
             dismiss(true)
         }

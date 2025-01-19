@@ -212,7 +212,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
     override fun onActivityResumed(activity: Activity) {
         val isNextActivity = presentActivityHash != activity.hashCode()
         Logger.v(LOG_TAG, "onActivityResumed $activity isNext:$isNextActivity")
-        if (isNextActivity) {
+        if (isNextActivity && config.isAutoScreenBoundaryEnabled) {
             self.pvIdContainer.renew()
         }
         presentActivityHash = activity.hashCode()
