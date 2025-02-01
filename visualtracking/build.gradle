@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace 'io.karte.android.visualtracking'
-    compileSdkVersion 31
+    compileSdkVersion 34
 
     buildFeatures {
         buildConfig true
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 16
         //noinspection OldTargetApi
-        targetSdkVersion 31
+        targetSdkVersion 34
         buildConfigField "String", "LIB_VERSION", "\"$version\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
