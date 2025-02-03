@@ -3,7 +3,7 @@
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
 | core | イベントトラッキング機能を提供します。 | 2.27.0 |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.22.0   |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.21.0   |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.12.0 |
 | variables | 設定値配信機能を提供します。 | 2.8.0 |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.10.0 |
@@ -18,7 +18,7 @@
 - InAppMessagingの画面境界の自動判定のOn/Offを切り替え可能にしました
 - minSdkVersionを 16 -> 21 に変更しました
 
-### InAppMessaging 2.22.0
+### InAppMessaging 2.21.0
 ** 🔨CHANGED**
 - AGPの対応バージョンを8.0.0に上げました
 - InAppMessagingの画面境界の自動判定のOn/Offを切り替え可能にしました
