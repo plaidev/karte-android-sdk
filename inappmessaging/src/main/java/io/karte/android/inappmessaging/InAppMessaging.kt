@@ -16,7 +16,6 @@
 package io.karte.android.inappmessaging
 
 import android.app.Activity
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Window
@@ -267,18 +266,16 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
     }
 
     private fun clearWebViewCookies() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val cookieManager = CookieManager.getInstance()
-            val allCookies = cookieManager.getCookie(COOKIE_DOMAIN) ?: return
-            allCookies
-                .split("; ")
-                .filter { !it.isBlank() && it.contains("=") }
-                .forEach {
-                    val cookieString = it.substringBefore("=") + "=; Domain=" + COOKIE_DOMAIN
-                    cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
-                }
-            cookieManager.flush()
-        }
+        val cookieManager = CookieManager.getInstance()
+        val allCookies = cookieManager.getCookie(COOKIE_DOMAIN) ?: return
+        allCookies
+            .split("; ")
+            .filter { !it.isBlank() && it.contains("=") }
+            .forEach {
+                val cookieString = it.substringBefore("=") + "=; Domain=" + COOKIE_DOMAIN
+                cookieManager.setCookie(COOKIE_DOMAIN, cookieString)
+            }
+        cookieManager.flush()
     }
 
     private fun trackMessageSuppressed(message: JSONObject, reason: String) {

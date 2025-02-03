@@ -16,7 +16,6 @@
 package io.karte.android.core.usersync
 
 import android.net.Uri
-import android.os.Build
 import android.util.Base64
 import android.webkit.WebView
 import io.karte.android.KarteApp
@@ -102,10 +101,8 @@ object UserSync {
     fun setUserSyncScript(
         webView: WebView
     ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val syncScript = getUserSyncScript() ?: return
-            webView.evaluateJavascript(syncScript) { }
-        }
+        val syncScript = getUserSyncScript() ?: return
+        webView.evaluateJavascript(syncScript) { }
     }
 
     private fun buildUserSyncParameter(): String? {

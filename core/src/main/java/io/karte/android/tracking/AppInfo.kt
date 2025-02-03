@@ -157,11 +157,7 @@ private class SystemInfo(val enabledTrackingAaid: Boolean, val screen: Screen) :
     private val model: String? = Build.MODEL
     private val product: String? = Build.PRODUCT
     internal var advertisingId: String? = null
-    val language: String? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        Locale.getDefault().toLanguageTag()
-    } else {
-        null
-    }
+    val language: String? = Locale.getDefault().toLanguageTag()
 
     override fun serialize(): JSONObject {
         val values = JSONObject()
@@ -189,17 +185,13 @@ private class Screen(context: Context) : Serializable {
             val dp = context.resources.displayMetrics.density
             width = (bounds.width() / dp).toInt()
             height = (bounds.height() / dp).toInt()
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        } else {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val metrics = DisplayMetrics()
             @Suppress("DEPRECATION")
             windowManager.defaultDisplay.getRealMetrics(metrics)
             width = (metrics.widthPixels / metrics.density).toInt()
             height = (metrics.heightPixels / metrics.density).toInt()
-        } else {
-            // SDKの対応バージョンはAndroid 4.4以上なので、ここはケアしなくて良い
-            width = 0
-            height = 0
         }
     }
 

@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
         //noinspection OldTargetApi
         targetSdkVersion 32
         buildConfigField "String", "LIB_VERSION", "\"$version\""
