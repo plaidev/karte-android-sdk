@@ -37,7 +37,7 @@ configure(subprojects.filter { !it.name.startsWith("sample_") && !it.name.starts
 
 extra["ossrhUsername"] = System.getenv().getOrDefault("MAVEN_USER_NAME", "")
 extra["ossrhPassword"] = System.getenv().getOrDefault("MAVEN_PASSWORD", "")
-extra["afterConfigurate"] = { project: Project ->
+extra["afterConfigure"] = { project: Project ->
     project.apply(from = "../buildscripts/projectSonatype.gradle")
 }
 
