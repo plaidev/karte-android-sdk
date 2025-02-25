@@ -254,25 +254,53 @@
 
 ### PanelWindowManager
 
-`PanelWindowManager`クラスはパネルウィンドウを管理するクラスです。
+`PanelWindowManager`クラスはアプリ内メッセージとアプリ自身のウィンドウ間のタッチイベント調整を行う重要なクラスです。
 
 #### クラスの目的と責任
-- PopupWindowとWindowの登録と管理
-- タッチイベントの分配
+- アプリが表示している`PopupWindow`と`Window`（特に`TYPE_APPLICATION_PANEL`タイプ）を登録・管理する
+- アプリ内メッセージ表示中に、登録されたウィンドウへのタッチイベントを適切に分配する
+- アプリ内メッセージとアプリのポップアップウィンドウが同時に表示されている場合のタッチイベントの衝突を解決する
+- ウィンドウの表示状態やタッチ可能状態に基づいてイベントをフィルタリングする
+
+#### 技術的な詳細
+- 弱参照（`WeakReference`）を使用してメモリリークを防止しながらウィンドウを管理
+- タッチイベントの座標変換を行い、正確なイベント配信を実現
+- `ACTION_DOWN`イベントを受け取ったウィンドウを記録し、後続のタッチイベント（移動、アップなど）を同じウィンドウに送信
+- ウィンドウの可視性や有効性を確認し、無効なウィンドウへのイベント送信を防止
+- Androidバージョンに応じた互換性処理を実装
 
 #### メンバー変数
-- `lastActionDownWindow`: 最後にアクションダウンイベントを受け取ったウィンドウ
-- `windows`: 登録されたウィンドウのリスト
+- `lastActionDownWindow`: 最後に`ACTION_DOWN`イベントを受け取ったウィンドウのラッパー
+- `windows`: 登録されたウィンドウラッパーのリスト（新しいウィンドウはリストの先頭に追加される）
 
 #### メソッド
-- `registerPopupWindow(popupWindow: PopupWindow)`: PopupWindowを登録する
-- `registerWindow(window: Window)`: Windowを登録する
-- `dispatchTouch(event: MotionEvent)`: タッチイベントを分配する
+- `registerPopupWindow(popupWindow: PopupWindow)`: アプリのPopupWindowを登録する
+- `registerWindow(window: Window)`: アプリのWindowを登録する
+- `dispatchTouch(event: MotionEvent)`: タッチイベントを適切なウィンドウに分配する
+  - `ACTION_DOWN`以外のイベントは最後に`ACTION_DOWN`を受け取ったウィンドウに送信
+  - `ACTION_DOWN`イベントの場合は登録されたすべてのウィンドウを順番にチェックし、イベントを処理できるウィンドウを探す
+  - 無効な参照を持つウィンドウは自動的にリストから削除
 
 #### 内部クラス
 - `BaseWindowWrapper`: ウィンドウラッパーの基本インターフェース
-- `WindowWrapper`: Windowのラッパークラス
-- `PopupWindowWrapper`: PopupWindowのラッパークラス
+  - `hasStaleReference()`: 参照が無効になったかどうかを確認
+  - `dispatchTouch(event: MotionEvent)`: タッチイベントの処理を試みる
+  - `dispatchTouchForce(event: MotionEvent)`: 強制的にタッチイベントを処理
+
+- `WindowWrapper`: Androidの`Window`クラスのラッパー
+  - ウィンドウの状態（アクティブなパネルかどうか）を確認
+  - ウィンドウのタッチ設定（`FLAG_NOT_TOUCHABLE`、`FLAG_NOT_TOUCH_MODAL`）に基づいてイベント処理
+  - タッチ座標がウィンドウ内かどうかを判定
+  - 座標変換を行ってイベントを正確に配信
+
+- `PopupWindowWrapper`: Androidの`PopupWindow`クラスのラッパー
+  - ポップアップウィンドウの状態（表示中、タッチ可能など）を確認
+  - `isOutsideTouchable`設定に基づいてウィンドウ外のタッチを処理
+  - タッチ座標がポップアップウィンドウ内かどうかを判定
+  - 座標変換を行ってイベントを正確に配信
+
+#### 使用例
+アプリ内メッセージが表示されている状態で、アプリ自身もポップアップウィンドウやダイアログを表示している場合、`PanelWindowManager`はユーザーのタッチ操作が適切なウィンドウに届くように調整します。これにより、アプリ内メッセージとアプリのUIが同時に表示されていても、ユーザー体験を損なわずに操作できます。
 
 ### ResetPrevent
 
