@@ -55,6 +55,11 @@ class MainActivity : AppCompatActivity() {
                 fetchInboxMessages()
             }
         }
+        
+        button_touch_visualizer.setOnClickListener {
+            val intent = android.content.Intent(this, TouchVisualizerActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun sendIdentifyEvent() {

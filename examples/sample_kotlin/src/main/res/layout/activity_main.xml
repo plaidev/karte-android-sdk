@@ -89,6 +89,13 @@
                     android:text="Fetch Inbox"
                     android:textAllCaps="false" />
 
+                <Button
+                    android:id="@+id/button_touch_visualizer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="タッチ視覚化デモ"
+                    android:textAllCaps="false" />
+
                 <TextView
                     android:id="@+id/inbox_content"
                     android:layout_width="match_parent"
