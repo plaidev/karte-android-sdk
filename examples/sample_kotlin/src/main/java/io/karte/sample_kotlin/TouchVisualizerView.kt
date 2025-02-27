@@ -5,12 +5,14 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
-import java.util.concurrent.ConcurrentHashMap
+import java.util.Collections
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * タッチイベントを視覚的に表示するカスタムビュー
@@ -22,15 +24,21 @@ class TouchVisualizerView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
-    // タッチポイントを保持するマップ
-    private val touchPoints = ConcurrentHashMap<Int, TouchPoint>()
+    // タッチポイントを保持するマップ（スレッドセーフ）
+    private val touchPoints = Collections.synchronizedMap(HashMap<Int, TouchPoint>())
+    
+    // 描画用のタッチポイントリスト（スレッドセーフ）
+    private val drawingPoints = CopyOnWriteArrayList<TouchPoint>()
+    
+    // UIスレッドでの処理用ハンドラ
+    private val mainHandler = Handler(Looper.getMainLooper())
     
     // タッチポイントの描画用ペイント
     private val paint = Paint().apply {
         isAntiAlias = true
         color = Color.BLUE
         alpha = 128
-        style = Paint.STYLE.FILL
+        style = Paint.Style.FILL
     }
 
     init {
@@ -50,28 +58,46 @@ class TouchVisualizerView @JvmOverloads constructor(
 
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
-                // 新しいタッチポイントを追加
-                val touchPoint = TouchPoint(x, y)
-                touchPoints[pointerId] = touchPoint
-                touchPoint.startAnimation()
+                // 新しいタッチポイントを追加（UIスレッドで実行）
+                mainHandler.post {
+                    val touchPoint = TouchPoint(x, y)
+                    synchronized(touchPoints) {
+                        touchPoints[pointerId] = touchPoint
+                        // 描画用リストにも追加
+                        drawingPoints.add(touchPoint)
+                    }
+                    touchPoint.startAnimation()
+                }
             }
             MotionEvent.ACTION_MOVE -> {
-                // 既存のポインターすべての位置を更新
-                for (i in 0 until event.pointerCount) {
-                    val id = event.getPointerId(i)
-                    touchPoints[id]?.apply {
-                        this.x = event.getX(i)
-                        this.y = event.getY(i)
+                // 既存のポインターすべての位置を更新（UIスレッドで実行）
+                mainHandler.post {
+                    synchronized(touchPoints) {
+                        for (i in 0 until event.pointerCount) {
+                            val id = event.getPointerId(i)
+                            touchPoints[id]?.apply {
+                                this.x = event.getX(i)
+                                this.y = event.getY(i)
+                            }
+                        }
                     }
+                    // 再描画を要求
+                    postInvalidateOnAnimation()
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_CANCEL -> {
-                // タッチポイントをフェードアウト
-                touchPoints[pointerId]?.startFadeOut()
+                // タッチポイントをフェードアウト（UIスレッドで実行）
+                mainHandler.post {
+                    synchronized(touchPoints) {
+                        touchPoints[pointerId]?.startFadeOut()
+                    }
+                }
             }
         }
         
-        invalidate()
+        // 再描画を要求
+        postInvalidateOnAnimation()
+        
         // 子ビューにイベントを渡す
         return super.dispatchTouchEvent(event)
     }
@@ -79,8 +105,8 @@ class TouchVisualizerView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         
-        // すべてのタッチポイントを描画
-        for (touchPoint in touchPoints.values) {
+        // スレッドセーフなリストからすべてのタッチポイントを描画
+        for (touchPoint in drawingPoints) {
             paint.alpha = touchPoint.alpha
             canvas.drawCircle(touchPoint.x, touchPoint.y, touchPoint.radius, paint)
         }
@@ -90,10 +116,10 @@ class TouchVisualizerView @JvmOverloads constructor(
      * タッチポイントを表すデータクラス
      */
     private inner class TouchPoint(
-        var x: Float,
-        var y: Float,
-        var radius: Float = 0f,
-        var alpha: Int = 0
+        @Volatile var x: Float,
+        @Volatile var y: Float,
+        @Volatile var radius: Float = 0f,
+        @Volatile var alpha: Int = 0
     ) {
         private var animator: ValueAnimator? = null
         private var fadeOutAnimator: ValueAnimator? = null
@@ -113,7 +139,8 @@ class TouchVisualizerView @JvmOverloads constructor(
                 addUpdateListener { animation ->
                     radius = animation.animatedValue as Float
                     alpha = 128
-                    invalidate()
+                    // UIスレッドで再描画を要求
+                    postInvalidateOnAnimation()
                 }
                 start()
             }
@@ -127,10 +154,21 @@ class TouchVisualizerView @JvmOverloads constructor(
                 duration = 500
                 addUpdateListener { animation ->
                     alpha = animation.animatedValue as Int
-                    invalidate()
+                    // UIスレッドで再描画を要求
+                    postInvalidateOnAnimation()
+                    
                     if (alpha == 0) {
-                        // アニメーション終了時にマップから削除
-                        touchPoints.values.removeIf { it === this@TouchPoint }
+                        // アニメーション終了時にマップから削除（UIスレッドで実行）
+                        mainHandler.post {
+                            synchronized(touchPoints) {
+                                // IDでの削除
+                                val idToRemove = touchPoints.entries.find { it.value === this@TouchPoint }?.key
+                                idToRemove?.let { touchPoints.remove(it) }
+                                
+                                // 描画用リストからも削除
+                                drawingPoints.remove(this@TouchPoint)
+                            }
+                        }
                     }
                 }
                 start()
