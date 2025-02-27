@@ -95,9 +95,6 @@ class TouchVisualizerView @JvmOverloads constructor(
             }
         }
         
-        // 再描画を要求
-        postInvalidateOnAnimation()
-        
         // 子ビューにイベントを渡す
         return super.dispatchTouchEvent(event)
     }
