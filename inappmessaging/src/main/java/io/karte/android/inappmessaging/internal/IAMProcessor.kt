@@ -39,7 +39,7 @@ internal class IAMProcessor(application: Application, private val panelWindowMan
     private val container = WebViewContainer(application, this)
     private val webView: IAMWebView?
         get() = container.get()
-    private var window: IAMWindow? = null
+    private var window: TouchVisualizerIAMWindow? = null
     private var currentActivity: WeakReference<Activity>? = null
     private var isWindowFocusByCross = false
     private var isWindowFocus = false
@@ -102,7 +102,7 @@ internal class IAMProcessor(application: Application, private val panelWindowMan
         }
         dismiss()
 
-        window = IAMWindow(activity, panelWindowManager)
+        window = TouchVisualizerIAMWindow(activity, panelWindowManager)
         window?.show(isWindowFocus, webView)
     }
 
