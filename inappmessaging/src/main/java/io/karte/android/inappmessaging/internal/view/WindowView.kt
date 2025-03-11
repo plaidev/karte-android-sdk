@@ -16,7 +16,6 @@
 package io.karte.android.inappmessaging.internal.view
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
@@ -66,7 +65,6 @@ private const val WINDOW_FLAGS_UNFOCUSED = (
         or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
 
 @SuppressLint("ViewConstructor")
-@TargetApi(Build.VERSION_CODES.KITKAT)
 internal open class WindowView(
     activity: Activity,
     private val panelWindowManager: PanelWindowManager
@@ -244,13 +242,6 @@ internal open class WindowView(
                     it.recycle()
                 }
             }
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            Logger.e(
-                LOG_TAG,
-                "Tried to create bitmap but ${Build.VERSION.SDK_INT} is not supported."
-            )
-            return
         }
         try {
             val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

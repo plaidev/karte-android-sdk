@@ -25,7 +25,9 @@ class AndroidManifestTransform(private val androidManifestPath: String) {
     }
 
     init {
-        document = documentBuilder.parse(androidManifestPath)
+        synchronized(documentBuilder) {
+            document = documentBuilder.parse(androidManifestPath)
+        }
         androidNsPrefix = document.lookupPrefix(ANDROID_NS)
     }
 

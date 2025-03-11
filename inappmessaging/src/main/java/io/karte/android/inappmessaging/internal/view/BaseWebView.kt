@@ -75,12 +75,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         isVerticalScrollBarEnabled = false
         isHorizontalScrollBarEnabled = false
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            @Suppress("DEPRECATION")
-            settings.databasePath =
-                getContext().filesDir.path + getContext().packageName + "/databases/"
-        }
-        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (BuildConfig.DEBUG) {
             setWebContentsDebuggingEnabled(true)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

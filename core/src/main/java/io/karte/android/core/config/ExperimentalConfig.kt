@@ -36,6 +36,7 @@ class ExperimentalConfig private constructor(
     logCollectionUrl: String,
     isDryRun: Boolean,
     isOptOut: Boolean,
+    isAutoScreenBoundaryEnabled: Boolean,
     enabledTrackingAaid: Boolean,
     libraryConfigs: List<LibraryConfig>
 ) : Config(
@@ -45,6 +46,7 @@ class ExperimentalConfig private constructor(
     logCollectionUrl,
     isDryRun,
     isOptOut,
+    isAutoScreenBoundaryEnabled,
     enabledTrackingAaid,
     libraryConfigs
 ) {
@@ -67,6 +69,7 @@ class ExperimentalConfig private constructor(
             "",
             isDryRun,
             isOptOut,
+            isAutoScreenBoundaryEnabled,
             enabledTrackingAaid,
             libraryConfigs
         )

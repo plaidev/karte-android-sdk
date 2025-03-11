@@ -17,9 +17,7 @@
 package io.karte.android.inappmessaging.internal
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.app.Activity
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import io.karte.android.core.logger.Logger
@@ -29,7 +27,6 @@ import io.karte.android.inappmessaging.internal.view.WindowView
 private const val LOG_TAG = "Karte.IAMView"
 
 @SuppressLint("ViewConstructor")
-@TargetApi(Build.VERSION_CODES.KITKAT)
 internal class IAMWindow(val activity: Activity, panelWindowManager: PanelWindowManager) : WindowView(activity, panelWindowManager) {
     val isShowing: Boolean
         get() = visibility == VISIBLE && isAttachedToWindow

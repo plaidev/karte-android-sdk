@@ -5,7 +5,7 @@ jacoco {
 }
 
 task jacocoMerge(
-        type: JacocoMerge,
+        type: JacocoReport,
         group: "verification",
         dependsOn: [
                 "core:jacocoTestReport",

@@ -77,13 +77,14 @@ public final class io/karte/android/KarteServerException : io/karte/android/Kart
 
 public class io/karte/android/core/config/Config {
 	public static final field Companion Lio/karte/android/core/config/Config$Companion;
-	protected fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZZLjava/util/List;)V
+	protected fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZZZLjava/util/List;)V
 	public final fun getApiKey ()Ljava/lang/String;
 	public final fun getAppKey ()Ljava/lang/String;
 	public final fun getBaseUrl ()Ljava/lang/String;
 	public final fun getDataLocation ()Ljava/lang/String;
 	public final fun getEnabledTrackingAaid ()Z
 	public final fun getLibraryConfigs ()Ljava/util/List;
+	public final fun isAutoScreenBoundaryEnabled ()Z
 	public final fun isDryRun ()Z
 	public final fun isOptOut ()Z
 }
@@ -102,6 +103,8 @@ public class io/karte/android/core/config/Config$Builder {
 	public final fun getDataLocation ()Ljava/lang/String;
 	public final fun getEnabledTrackingAaid ()Z
 	public final fun getLibraryConfigs ()Ljava/util/List;
+	public final fun isAutoScreenBoundaryEnabled ()Z
+	public final fun isAutoScreenBoundaryEnabled (Z)Lio/karte/android/core/config/Config$Builder;
 	public final fun isDryRun ()Z
 	public final fun isDryRun (Z)Lio/karte/android/core/config/Config$Builder;
 	public final fun isOptOut ()Z
@@ -110,6 +113,7 @@ public class io/karte/android/core/config/Config$Builder {
 	public final fun libraryConfigs ([Lio/karte/android/core/library/LibraryConfig;)Lio/karte/android/core/config/Config$Builder;
 	public final synthetic fun setApiKey (Ljava/lang/String;)V
 	public final synthetic fun setAppKey (Ljava/lang/String;)V
+	public final synthetic fun setAutoScreenBoundaryEnabled (Z)V
 	public final synthetic fun setBaseUrl (Ljava/lang/String;)V
 	public final synthetic fun setDataLocation (Ljava/lang/String;)V
 	public final synthetic fun setDryRun (Z)V
@@ -125,7 +129,7 @@ public final class io/karte/android/core/config/Config$Companion {
 
 public final class io/karte/android/core/config/ExperimentalConfig : io/karte/android/core/config/Config {
 	public static final field Companion Lio/karte/android/core/config/ExperimentalConfig$Companion;
-	public synthetic fun <init> (Lio/karte/android/core/config/OperationMode;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZZLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lio/karte/android/core/config/OperationMode;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZZZLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getOperationMode ()Lio/karte/android/core/config/OperationMode;
 }
 

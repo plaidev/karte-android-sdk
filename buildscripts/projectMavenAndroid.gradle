@@ -1,4 +1,4 @@
 task sourcesJar(type: Jar) {
     from "${projectDir}/src/main/java"
-    classifier = 'sources'
+    archiveClassifier.set("sources")
 }

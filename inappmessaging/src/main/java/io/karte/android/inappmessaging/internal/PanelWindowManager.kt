@@ -22,7 +22,6 @@ import android.view.Window
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
 import android.widget.PopupWindow
-import androidx.annotation.RequiresApi
 import io.karte.android.core.logger.Logger
 import java.lang.ref.WeakReference
 
@@ -86,7 +85,6 @@ internal class PanelWindowManager {
             return windowRef.get() == null
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         override fun dispatchTouch(event: MotionEvent): Boolean {
             val window = windowRef.get() ?: return false
             if (!isActivePanel(window)) return false
@@ -120,7 +118,6 @@ internal class PanelWindowManager {
             return false
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         override fun dispatchTouchForce(event: MotionEvent) {
             val window = windowRef.get() ?: return
             if (!isActivePanel(window)) return
@@ -129,7 +126,6 @@ internal class PanelWindowManager {
             window.injectInputEvent(event)
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         private fun isActivePanel(window: Window?): Boolean {
             if (window == null) return false
             if (window.attributes.type != TYPE_APPLICATION_PANEL) return false

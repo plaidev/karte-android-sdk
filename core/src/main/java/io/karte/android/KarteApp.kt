@@ -21,7 +21,6 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import io.karte.android.core.config.Config
 import io.karte.android.core.library.ActionModule
@@ -103,8 +102,6 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
 
     internal val libraries: MutableList<Library> = mutableListOf()
     internal val modules: MutableList<Module> = mutableListOf()
-    private val isUnsupportedOsVersion: Boolean =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
     internal val isInitialized get() = this.appKey.isNotEmpty()
 
     /** 現在のオリジナルページビューIDを返します。 */
@@ -212,7 +209,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
     override fun onActivityResumed(activity: Activity) {
         val isNextActivity = presentActivityHash != activity.hashCode()
         Logger.v(LOG_TAG, "onActivityResumed $activity isNext:$isNextActivity")
-        if (isNextActivity) {
+        if (isNextActivity && config.isAutoScreenBoundaryEnabled) {
             self.pvIdContainer.renew()
         }
         presentActivityHash = activity.hashCode()
@@ -278,10 +275,6 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             val configWithAppKey = Config.fillFromResource(context, config)
             if (!configWithAppKey.isValidAppKey) {
                 Logger.w(LOG_TAG, "Invalid APP_KEY is set. ${configWithAppKey.appKey}")
-                return
-            }
-            if (self.isUnsupportedOsVersion) {
-                Logger.i(LOG_TAG, "Initializing was canceled because os version is under 5.0.")
                 return
             }
             if (configWithAppKey.isDryRun) {

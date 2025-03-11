@@ -18,8 +18,6 @@ package io.karte.android.notifications
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import androidx.annotation.RequiresApi
 import io.karte.android.core.logger.Logger
 import io.karte.android.notifications.internal.track.ClickTracker
 import io.karte.android.notifications.internal.track.IgnoreTracker
@@ -28,7 +26,6 @@ import io.karte.android.notifications.internal.wrapper.IntentWrapper
 
 private const val LOG_TAG = "Karte.MessageReceiver"
 
-@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 internal class MessageReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {

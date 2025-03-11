@@ -69,7 +69,7 @@ class IAMProcessorTest {
             true
         }
 
-        processor = IAMProcessor(application(), panelWindowManager)
+        processor = IAMProcessor(application(), panelWindowManager, isAutoScreenBoundaryEnabled = true)
         activity = Robolectric.buildActivity(Activity::class.java).create().start()
     }
 

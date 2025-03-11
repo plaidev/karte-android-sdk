@@ -5,13 +5,12 @@ plugins {
 
 android {
     namespace 'io.karte.android.inbox'
-    compileSdkVersion 31
+    compileSdkVersion 34
 
     defaultConfig {
         minSdkVersion 21
         //noinspection OldTargetApi
-        targetSdkVersion 31
-        versionName version
+        targetSdkVersion 34
         buildConfigField "String", "LIB_VERSION", "\"$version\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

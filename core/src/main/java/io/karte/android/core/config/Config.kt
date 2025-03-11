@@ -65,6 +65,7 @@ open class Config protected constructor(
     internal val logCollectionUrl: String,
     val isDryRun: Boolean,
     val isOptOut: Boolean,
+    val isAutoScreenBoundaryEnabled: Boolean,
     val enabledTrackingAaid: Boolean,
     val libraryConfigs: List<LibraryConfig>
 ) {
@@ -147,6 +148,9 @@ open class Config protected constructor(
         /**[Config.isOptOut]を変更します。*/
         var isOptOut: Boolean = false @JvmSynthetic set
 
+        /**[Config.isAutoScreenBoundaryEnabled]を変更します。*/
+        var isAutoScreenBoundaryEnabled: Boolean = true @JvmSynthetic set
+
         /**[Config.enabledTrackingAaid]を変更します。*/
         var enabledTrackingAaid: Boolean = false @JvmSynthetic set
 
@@ -185,6 +189,10 @@ open class Config protected constructor(
         /**[Config.isOptOut]を変更します。*/
         fun isOptOut(isOptOut: Boolean): Builder = apply { this.isOptOut = isOptOut }
 
+        /**[Config.isAutoScreenBoundaryEnabled]を変更します。*/
+        fun isAutoScreenBoundaryEnabled(isAutoScreenBoundaryEnabled: Boolean): Builder =
+            apply { this.isAutoScreenBoundaryEnabled = isAutoScreenBoundaryEnabled }
+
         /**[Config.enabledTrackingAaid]を変更します。*/
         fun enabledTrackingAaid(enabledTrackingAaid: Boolean): Builder =
             apply { this.enabledTrackingAaid = enabledTrackingAaid }
@@ -205,6 +213,7 @@ open class Config protected constructor(
             "",
             isDryRun,
             isOptOut,
+            isAutoScreenBoundaryEnabled,
             enabledTrackingAaid,
             libraryConfigs
         ).also { config ->
