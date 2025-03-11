@@ -10,7 +10,7 @@
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.6.0 |
 
 
-# Releases - xxxx.xx.xx
+# Releases - 2025.03.11
 
 ### Core 2.27.0
 ** 🔨CHANGED**
