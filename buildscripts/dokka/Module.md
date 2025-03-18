@@ -21,3 +21,7 @@
 # Module inbox
 
 @README@
+
+# Module inappframe
+
+@README@

@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
 }
 
-include(":core", ":inappmessaging", ":notifications", ":variables", ":visualtracking", ":inbox")
+include(":core", ":inappmessaging", ":notifications", ":variables", ":visualtracking", ":inbox", ":inappframe")
 include(":sample_java", ":sample_kotlin", ":test_lib")
 rootProject.name = "Karte"
 includeBuild("gradle-plugin") {

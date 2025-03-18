@@ -36,6 +36,7 @@ Please fill in as much of the template below as you can.
 - variables x.x.x
 - visualtracking x.x.x
 - inbox x.x.x
+- inappframe x.x.x
 - Karte Gradle Plugin x.x.x
 ## Android Version
 

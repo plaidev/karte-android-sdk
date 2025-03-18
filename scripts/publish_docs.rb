@@ -173,7 +173,7 @@ class Command
 
     docs_dir = File.join(git.workspace, 'docs', 'android')
     FileUtils.mkdir_p(docs_dir)
-    modules = ['core', 'inappmessaging', 'notifications', 'variables', 'visualtracking']
+    modules = ['core', 'inappmessaging', 'notifications', 'variables', 'visualtracking', 'inappframe']
     modules.each do |mod|
       docs = Documents.new(mod, 'android', @workspace)
       if docs.publish(@force)

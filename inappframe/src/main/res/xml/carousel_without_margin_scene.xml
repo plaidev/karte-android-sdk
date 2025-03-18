@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        android:id="@+id/carousel_without_margin_forward"
+        motion:constraintSetEnd="@+id/carousel_without_margin_next"
+        motion:constraintSetStart="@id/carousel_without_margin_base_state">
+        <OnSwipe
+            motion:dragDirection="dragLeft"
+            motion:touchAnchorSide="left" />
+    </Transition>
+
+    <Transition
+        android:id="@+id/carousel_without_margin_backward"
+        motion:constraintSetEnd="@+id/carousel_without_margin_previous"
+        motion:constraintSetStart="@+id/carousel_without_margin_base_state">
+        <OnSwipe
+            motion:dragDirection="dragRight"
+            motion:touchAnchorSide="right" />
+    </Transition>
+
+    <!-- ベースとなるViewの状態を定義する -->
+    <ConstraintSet android:id="@+id/carousel_without_margin_base_state">
+        <Constraint
+            android:id="@+id/carousel_without_margin_imageView0"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toStartOf="@id/carousel_without_margin_imageView1"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/carousel_without_margin_imageView1"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintStart_toEndOf="@id/carousel_without_margin_guideline"
+            motion:layout_constraintEnd_toStartOf="@id/carousel_without_margin_guideline2"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/carousel_without_margin_imageView2"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            motion:layout_constraintStart_toEndOf="@+id/carousel_without_margin_imageView1"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+    </ConstraintSet>
+
+    <!-- 左へスワイプした時のViewの状態を定義する -->
+    <ConstraintSet android:id="@+id/carousel_without_margin_next">
+        <Constraint
+            android:id="@+id/carousel_without_margin_imageView0"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toStartOf="@id/carousel_without_margin_imageView1"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/carousel_without_margin_imageView1"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toStartOf="@id/carousel_without_margin_guideline"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/carousel_without_margin_imageView2"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintStart_toEndOf="@id/carousel_without_margin_guideline"
+            motion:layout_constraintEnd_toStartOf="@id/carousel_without_margin_guideline2"
+            motion:layout_constraintTop_toTopOf="parent" />
+    </ConstraintSet>
+
+    <!-- 右へスワイプした時のViewの状態を定義する -->
+    <ConstraintSet android:id="@+id/carousel_without_margin_previous">
+        <Constraint
+            android:id="@+id/carousel_without_margin_imageView0"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintStart_toEndOf="@id/carousel_without_margin_guideline"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/carousel_without_margin_imageView1"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintStart_toEndOf="@id/carousel_without_margin_imageView0"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/carousel_without_margin_imageView2"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintStart_toEndOf="@id/carousel_without_margin_imageView1"
+            motion:layout_constraintTop_toTopOf="parent" />
+    </ConstraintSet>
+</MotionScene>
