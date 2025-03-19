@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,14 +56,12 @@ internal fun SimpleBannerCompose(
             .fillMaxWidth()
             // Use aspectRatio to calculate height based on the width of the component
             .aspectRatio(ratio = content.config.ratio / 100f)
-            .clickable {
-                content.data.getOrNull(0)?.linkUrl?.let { url ->
-                    if (url.isNotEmpty()) {
-                        tracker.trackClick(0, url)
-                        onBannerClick(url)
-                    }
-                }
-            }
+            .conditionalClickable(
+                url = content.data.getOrNull(0)?.linkUrl,
+                tracker = tracker,
+                index = 0,
+                onBannerClick = onBannerClick
+            )
     ) {
         content.data.getOrNull(0)?.image?.let { image ->
             Image(

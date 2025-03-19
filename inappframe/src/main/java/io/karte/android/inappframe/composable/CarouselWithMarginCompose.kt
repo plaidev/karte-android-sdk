@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -186,13 +185,13 @@ internal fun CarouselWithMarginCompose(
                         modifier = Modifier
                             .width(itemWidth)
                             .height(itemHeight)
-                            .clickable {
-                                userInteracted = true
-                                if (image.linkUrl.isNotEmpty()) {
-                                    tracker.trackClick(page, image.linkUrl)
-                                    onBannerClick(image.linkUrl)
-                                }
-                            }
+                            .conditionalClickable(
+                                url = image.linkUrl,
+                                tracker = tracker,
+                                index = page,
+                                onBannerClick = onBannerClick,
+                                onInteraction = { userInteracted = true }
+                            )
                     ) {
                         image.image?.let { bitmap ->
                             Image(

@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -63,12 +62,12 @@ internal fun CarouselWithoutPagingCompose(
                 modifier = Modifier
                     .width((content.config.bannerHeight * (content.config.ratio / 100f)).toInt().dp)
                     .height(content.config.bannerHeight.dp)
-                    .clickable {
-                        if (image.linkUrl.isNotEmpty()) {
-                            tracker.trackClick(index, image.linkUrl)
-                            onBannerClick(image.linkUrl)
-                        }
-                    }
+                    .conditionalClickable(
+                        url = image.linkUrl,
+                        tracker = tracker,
+                        index = index,
+                        onBannerClick = onBannerClick
+                    )
             ) {
                 image.image?.let { bitmap ->
                     Image(
