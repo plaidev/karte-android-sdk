@@ -32,17 +32,18 @@ android {
     }
 
     buildTypes {
-        getByName("release") {
+        release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
     testOptions {
-        unitTests {
+        unitTests.apply {
             isIncludeAndroidResources = true
         }
     }
+
     tasks.withType<Test> {
         systemProperty("robolectric.sqliteMode", "NATIVE")
     }
@@ -53,13 +54,16 @@ android {
     }
 }
 
+val kotlin_version: String by rootProject.extra
+
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.extra["kotlin_version"]}")
-    //noinspection GradleDependency
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+
     compileOnly("androidx.core:core-ktx:1.2.0")
     compileOnly("androidx.ads:ads-identifier:1.0.0-alpha04")
     compileOnly("com.google.android.gms:play-services-ads-identifier:17.0.0")
+
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test:core:1.3.0")
     testImplementation("com.google.truth:truth:1.0.1")
@@ -72,7 +76,7 @@ dependencies {
 }
 
 afterEvaluate {
-    if (rootProject.hasProperty("afterConfigurate")) {
-        (rootProject.property("afterConfigurate") as? (org.gradle.api.Project) -> Unit)?.invoke(project)
+    rootProject.findProperty("afterConfigurate")?.let {
+        (it as? (Project) -> Unit)?.invoke(project)
     }
 }

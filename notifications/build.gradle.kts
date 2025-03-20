@@ -4,21 +4,20 @@ plugins {
 }
 
 android {
-    namespace = "io.karte.android.inappmessaging"
-    compileSdk = 32
-
-    buildFeatures {
-        buildConfig = true
-    }
+    namespace = "io.karte.android.notifications"
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 21
         //noinspection OldTargetApi
-        targetSdk = 32
+        targetSdk = 34
         buildConfigField("String", "LIB_VERSION", "\"$version\"")
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("proguard-rules.pro")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     compileOptions {
@@ -34,14 +33,15 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
     testOptions {
-        unitTests.apply {
-            isIncludeAndroidResources = true
-        }
+        unitTests.isIncludeAndroidResources = true
     }
 
     lint {
@@ -53,15 +53,15 @@ android {
 val kotlin_version: String by rootProject.extra
 
 dependencies {
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
-    implementation(project(":core"))
+    implementation("com.google.firebase:firebase-messaging:20.3.0")
+    api(project(":core"))
 
-    compileOnly("androidx.appcompat:appcompat:1.2.0")
-    compileOnly("androidx.core:core-ktx:1.2.0")
-
+    testImplementation("com.google.firebase:firebase-messaging:20.3.0")
     testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test:core:1.3.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("androidx.test:core:1.4.0")
     testImplementation("com.google.truth:truth:1.0.1")
     testImplementation("io.mockk:mockk:1.10.0")
     testImplementation("org.robolectric:robolectric:4.8")
@@ -70,7 +70,5 @@ dependencies {
 }
 
 afterEvaluate {
-    rootProject.findProperty("afterConfigurate")?.let {
-        (it as? (Project) -> Unit)?.invoke(project)
-    }
+    (rootProject.findProperty("afterConfigurate") as? (Project) -> Unit)?.invoke(project)
 }
