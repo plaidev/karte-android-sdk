@@ -86,6 +86,6 @@ git config --global user.email "${GITHUB_USER_EMAIL}"
 
 set_remote_repository
 
-DIFF_TARGETS=(`git diff --name-only sync_repo/master | grep version`)
+DIFF_TARGETS=($(git diff --name-only sync_repo/master | grep -E '^(version$|.*/version$)'))
 
 publish ${DIFF_TARGETS[@]}
