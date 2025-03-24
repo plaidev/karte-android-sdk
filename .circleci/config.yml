@@ -7,8 +7,10 @@ orbs:
 
 executors:
   test-executor:
-    machine:
-      image: android:2024.01.1
+    docker:
+      - image: cimg/android:2024.01.1
+        environment:
+          GRADLE_OPTS: -Xmx6G
     resource_class: large
 
 

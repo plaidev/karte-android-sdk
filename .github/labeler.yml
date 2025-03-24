@@ -18,6 +18,9 @@
 'Module:Inbox':
   - inbox/*
   - inbox/src/main/**
+'Module:InAppFrame':
+  - inappframe/*
+  - inappframe/src/main/**
 'Test':
   - core/src/test/**
   - inappmessaging/src/test/**

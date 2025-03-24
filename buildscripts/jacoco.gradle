@@ -13,7 +13,8 @@ task jacocoMerge(
                 "notifications:jacocoTestReport",
                 "variables:jacocoTestReport",
                 "visualtracking:jacocoTestReport",
-                "inbox:jacocoTestReport"
+                "inbox:jacocoTestReport",
+                "inappframe:jacocoTestReport"
         ]
 ) {
     gradle.afterProject { project, _ ->

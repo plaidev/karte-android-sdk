@@ -1,0 +1,78 @@
+public final class io/karte/android/inappframe/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public static final field LIB_VERSION Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public final class io/karte/android/inappframe/InAppFrame : android/widget/LinearLayout {
+	public static final field $stable I
+	public static final field Companion Lio/karte/android/inappframe/InAppFrame$Companion;
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;)V
+	public fun <init> (Landroid/content/Context;Ljava/lang/String;)V
+}
+
+public final class io/karte/android/inappframe/InAppFrame$Companion {
+}
+
+public final class io/karte/android/inappframe/InAppFrameComposeKt {
+	public static final fun InAppFrameCompose (Ljava/lang/String;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public static final fun loadComposeContent (Lio/karte/android/inappframe/InAppFrame$Companion;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/karte/android/inappframe/InAppFrameKt {
+	public static final field IN_APP_FRAME_ROOT_LOG Ljava/lang/String;
+	public static final field PREFIX Ljava/lang/String;
+}
+
+public final class io/karte/android/inappframe/databinding/CarouselWithMarginBinding : androidx/viewbinding/ViewBinding {
+	public final field carouselWithMarginCarousel Landroidx/constraintlayout/helper/widget/Carousel;
+	public final field carouselWithMarginGuideline Landroidx/constraintlayout/widget/Guideline;
+	public final field carouselWithMarginGuideline2 Landroidx/constraintlayout/widget/Guideline;
+	public final field carouselWithMarginImageView0 Landroid/widget/ImageView;
+	public final field carouselWithMarginImageView1 Landroid/widget/ImageView;
+	public final field carouselWithMarginImageView2 Landroid/widget/ImageView;
+	public final field carouselWithMarginImageView3 Landroid/widget/ImageView;
+	public final field carouselWithMarginImageView4 Landroid/widget/ImageView;
+	public final field carouselWithMarginMotionLayout Landroidx/constraintlayout/motion/widget/MotionLayout;
+	public static fun bind (Landroid/view/View;)Lio/karte/android/inappframe/databinding/CarouselWithMarginBinding;
+	public synthetic fun getRoot ()Landroid/view/View;
+	public fun getRoot ()Landroidx/constraintlayout/widget/ConstraintLayout;
+	public static fun inflate (Landroid/view/LayoutInflater;)Lio/karte/android/inappframe/databinding/CarouselWithMarginBinding;
+	public static fun inflate (Landroid/view/LayoutInflater;Landroid/view/ViewGroup;Z)Lio/karte/android/inappframe/databinding/CarouselWithMarginBinding;
+}
+
+public final class io/karte/android/inappframe/databinding/CarouselWithoutMarginBinding : androidx/viewbinding/ViewBinding {
+	public final field carouselWithoutMarginCarousel Landroidx/constraintlayout/helper/widget/Carousel;
+	public final field carouselWithoutMarginGuideline Landroidx/constraintlayout/widget/Guideline;
+	public final field carouselWithoutMarginGuideline2 Landroidx/constraintlayout/widget/Guideline;
+	public final field carouselWithoutMarginImageView0 Landroid/widget/ImageView;
+	public final field carouselWithoutMarginImageView1 Landroid/widget/ImageView;
+	public final field carouselWithoutMarginImageView2 Landroid/widget/ImageView;
+	public final field carouselWithoutMarginMotionLayout Landroidx/constraintlayout/motion/widget/MotionLayout;
+	public static fun bind (Landroid/view/View;)Lio/karte/android/inappframe/databinding/CarouselWithoutMarginBinding;
+	public synthetic fun getRoot ()Landroid/view/View;
+	public fun getRoot ()Landroidx/constraintlayout/widget/ConstraintLayout;
+	public static fun inflate (Landroid/view/LayoutInflater;)Lio/karte/android/inappframe/databinding/CarouselWithoutMarginBinding;
+	public static fun inflate (Landroid/view/LayoutInflater;Landroid/view/ViewGroup;Z)Lio/karte/android/inappframe/databinding/CarouselWithoutMarginBinding;
+}
+
+public final class io/karte/android/inappframe/databinding/CarouselWithoutPagingBinding : androidx/viewbinding/ViewBinding {
+	public final field carouselWithoutPagingContainer Landroidx/appcompat/widget/LinearLayoutCompat;
+	public static fun bind (Landroid/view/View;)Lio/karte/android/inappframe/databinding/CarouselWithoutPagingBinding;
+	public synthetic fun getRoot ()Landroid/view/View;
+	public fun getRoot ()Landroid/widget/HorizontalScrollView;
+	public static fun inflate (Landroid/view/LayoutInflater;)Lio/karte/android/inappframe/databinding/CarouselWithoutPagingBinding;
+	public static fun inflate (Landroid/view/LayoutInflater;Landroid/view/ViewGroup;Z)Lio/karte/android/inappframe/databinding/CarouselWithoutPagingBinding;
+}
+
+public final class io/karte/android/inappframe/databinding/InappFrameBinding : androidx/viewbinding/ViewBinding {
+	public final field inAppFrameWrapper Landroidx/constraintlayout/widget/ConstraintLayout;
+	public static fun bind (Landroid/view/View;)Lio/karte/android/inappframe/databinding/InappFrameBinding;
+	public synthetic fun getRoot ()Landroid/view/View;
+	public fun getRoot ()Landroidx/constraintlayout/widget/ConstraintLayout;
+	public static fun inflate (Landroid/view/LayoutInflater;)Lio/karte/android/inappframe/databinding/InappFrameBinding;
+	public static fun inflate (Landroid/view/LayoutInflater;Landroid/view/ViewGroup;Z)Lio/karte/android/inappframe/databinding/InappFrameBinding;
+}
+

@@ -39,7 +39,7 @@ import kotlin.math.min
 
 private const val LOG_TAG = "Karte.Dispatcher"
 private const val MAX_RETRY_COUNT = 3
-private const val DEFAULT_DELAY_MS = 500L
+private const val DEFAULT_DELAY_MS = 100L
 
 private data class GroupingKey(
     val visitorId: String,

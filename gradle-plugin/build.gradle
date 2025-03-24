@@ -1,5 +1,9 @@
 buildscript {
-    ext.kotlin_version = '1.8.0'
+    ext {
+        kotlin_version = '1.8.0'
+        ossrhUsername = System.getenv().getOrDefault("MAVEN_USER_NAME", "")
+        ossrhPassword = System.getenv().getOrDefault("MAVEN_PASSWORD", "")
+    }
     repositories {
         google()
         mavenCentral()
