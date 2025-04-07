@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Outline
 import android.net.Uri
+import io.karte.android.inappframe.InAppFrame
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.widget.HorizontalScrollView
@@ -75,8 +76,12 @@ internal class CarouselWithoutPagingView private constructor(context: Context) :
                 setOnClickListener {
                     if (data.linkUrl.isEmpty()) return@setOnClickListener
                     iafTracker.trackClick(index, data.linkUrl)
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(data.linkUrl))
-                    startActivity(context, intent, null)
+                    val uri = Uri.parse(data.linkUrl)
+                    // InAppFrameからURLを処理すべきか確認
+                    if (InAppFrame.shouldHandleUrl(uri)) {
+                        val intent = Intent(Intent.ACTION_VIEW, uri)
+                        startActivity(context, intent, null)
+                    }
                 }
             }
             innerLinearLayout.addView(imageView) // Add ImageView to inner LinearLayout

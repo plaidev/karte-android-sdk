@@ -90,9 +90,13 @@ private fun InAppFrameContent(
     val context = androidx.compose.ui.platform.LocalContext.current
 
     val onBannerClick = { url: String ->
-        // バナークリック時のデフォルト動作
-        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
-        context.startActivity(intent)
+        // URLをパース
+        val uri = android.net.Uri.parse(url)
+        // InAppFrameからURLを処理すべきか確認
+        if (InAppFrame.shouldHandleUrl(uri)) {
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri)
+            context.startActivity(intent)
+        }
     }
 
     Row(modifier) {

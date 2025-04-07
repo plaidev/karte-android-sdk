@@ -7,8 +7,15 @@
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.14.0 |
 | variables | 設定値配信機能を提供します。 | 2.9.0 |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.11.0 |
-| inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.1.0    |
+| inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.2.0    |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.6.0 |
+
+# Releases - xxxx.xx.xx
+
+### InAppFrame 0.2.0
+** 🎉 FEATURE**
+- InAppFrameにItemTapListener機能を追加し、URLタップ時の処理をカスタマイズできるようになりました
+- アプリ側でURLを処理した場合はSDKのデフォルト処理をキャンセルできます
 
 # Releases - 2025.03.21
 

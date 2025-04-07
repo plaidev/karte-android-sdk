@@ -1,6 +1,7 @@
 package io.karte.android.inappframe
 
 import android.content.Context
+import android.net.Uri
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -90,5 +91,35 @@ class InAppFrame : LinearLayout {
             }
         }
     }
-    companion object
+    companion object {
+        /**
+         * InAppFrameのデリゲートオブジェクト
+         */
+        private var delegate: InAppFrameDelegate? = null
+            private set
+
+        /**
+         * InAppFrameのデリゲートを設定します。
+         * @param delegate デリゲート
+         */
+        @JvmStatic
+        fun setDelegate(delegate: InAppFrameDelegate?) {
+            this.delegate = delegate
+        }
+
+        /**
+         * URLを処理するためのリスナーを取得します。
+         * @param url 処理するURL
+         * @return SDKがURLを処理すべき場合はtrue、そうでない場合はfalse
+         */
+        @JvmStatic
+        internal fun shouldHandleUrl(url: Uri): Boolean {
+            // デリゲートがある場合はそちらを優先
+            delegate?.let {
+                return it.shouldOpenURL(url)
+            }
+            // デフォルトではSDKが処理する
+            return true
+        }
+    }
 }
