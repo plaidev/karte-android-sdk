@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Handler
+import io.karte.android.inappframe.InAppFrame
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewTreeObserver
@@ -148,7 +149,11 @@ internal class CarouselWithMarginView private constructor(context: Context) : Ta
         val linkUrl = data.content.data[currentIndex].linkUrl
         if (linkUrl.isEmpty()) return
         tracker.trackClick(currentIndex, linkUrl)
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(linkUrl))
-        startActivity(context, intent, null)
+        val uri = Uri.parse(linkUrl)
+        // InAppFrameからURLを処理すべきか確認
+        if (InAppFrame.shouldHandleUrl(uri)) {
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            startActivity(context, intent, null)
+        }
     }
 }

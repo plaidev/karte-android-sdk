@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat.startActivity
+import io.karte.android.inappframe.InAppFrame
 import io.karte.android.inappframe.components.shared.DensityConvertible
 import io.karte.android.inappframe.model.IAFTracker
 import io.karte.android.inappframe.model.SimpleBannerV1
@@ -62,8 +63,12 @@ internal class SimpleBannerView private constructor(context: Context) : LinearLa
                 content.data.getOrNull(0)?.linkUrl?.let { url ->
                     if (url.isEmpty()) return@setOnClickListener
                     tracker.trackClick(0, url)
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    startActivity(context, intent, null)
+                    val uri = Uri.parse(url)
+                    // InAppFrameからURLを処理すべきか確認
+                    if (InAppFrame.shouldHandleUrl(uri)) {
+                        val intent = Intent(Intent.ACTION_VIEW, uri)
+                        startActivity(context, intent, null)
+                    }
                 }
             }
         }
