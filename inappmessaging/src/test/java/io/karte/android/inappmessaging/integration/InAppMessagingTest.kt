@@ -37,7 +37,6 @@ import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.IAMWindow
 import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.test_lib.RobolectricTestCase
-import io.karte.android.test_lib.assertThat
 import io.karte.android.test_lib.createControlGroupMessage
 import io.karte.android.test_lib.createMessage
 import io.karte.android.test_lib.createMessageOpen

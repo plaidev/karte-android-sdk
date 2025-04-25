@@ -23,9 +23,12 @@ private const val OVERLAY_DEFAULT_URL = "https://cf-native.karte.io"
 /**
  * InAppMessagingモジュールの設定を保持するクラスです。
  */
-class InAppMessagingConfig private constructor(overlayBaseUrl: String) : LibraryConfig {
+class InAppMessagingConfig private constructor(overlayBaseUrl: String, isEdgeToEdgeEnabled: Boolean) : LibraryConfig {
 
     private var _overlayBaseUrl: String = ""
+
+    // FIXME: 後方互換対応。E2Eが普及したら消す
+    private var _isEdgeToEdgeEnabled = false
 
     /**
      * overlayBaseUrl overlayベースURLの取得を行います。
@@ -42,8 +45,18 @@ class InAppMessagingConfig private constructor(overlayBaseUrl: String) : Library
             return _overlayBaseUrl
         }
 
+    /**
+     * isEdgeToEdgeEnabled 接客表示をEdge to Edge有効化時用の設定にします。
+     */
+    var isEdgeToEdgeEnabled: Boolean
+        private set(value) {
+            _isEdgeToEdgeEnabled = value
+        }
+        get() = _isEdgeToEdgeEnabled
+
     init {
         this.overlayBaseUrl = overlayBaseUrl
+        this.isEdgeToEdgeEnabled = isEdgeToEdgeEnabled
     }
 
     /**
@@ -58,6 +71,7 @@ class InAppMessagingConfig private constructor(overlayBaseUrl: String) : Library
          * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
          */
         var overlayBaseUrl: String = "" @JvmSynthetic set
+        var isEdgeToEdgeEnabled: Boolean = false @JvmSynthetic set
 
         /**
          * [InAppMessagingConfig.overlayBaseUrl]を変更します。
@@ -68,8 +82,11 @@ class InAppMessagingConfig private constructor(overlayBaseUrl: String) : Library
         fun overlayBaseUrl(overlayBaseUrl: String): Builder =
             apply { this.overlayBaseUrl = overlayBaseUrl }
 
+        fun isEdgeToEdgeEnabled(isEdgeToEdgeEnabled: Boolean): Builder =
+            apply { this.isEdgeToEdgeEnabled = isEdgeToEdgeEnabled }
+
         /**[InAppMessagingConfig]クラスのインスタンスを生成します。*/
-        fun build(): InAppMessagingConfig = InAppMessagingConfig(overlayBaseUrl)
+        fun build(): InAppMessagingConfig = InAppMessagingConfig(overlayBaseUrl, isEdgeToEdgeEnabled)
     }
 
     companion object {

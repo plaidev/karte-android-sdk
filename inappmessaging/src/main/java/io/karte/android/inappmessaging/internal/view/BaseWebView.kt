@@ -27,6 +27,7 @@ import android.os.Build
 import android.view.Display
 import android.view.DisplayCutout
 import android.view.KeyEvent
+import android.view.WindowInsets.Type.ime
 import android.view.WindowManager
 import android.webkit.ConsoleMessage
 import android.webkit.JsResult
@@ -42,11 +43,13 @@ import android.webkit.WebViewClient
 import androidx.core.hardware.display.DisplayManagerCompat
 import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.BuildConfig
+import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.utilities.asString
 import java.io.IOException
+import kotlin.math.max
 import kotlin.math.roundToInt
 
-private const val LOG_TAG = "Karte.IAMWebView"
+private const val LOG_TAG = "Karte.BaseWebView"
 private const val FILE_SCHEME = "file://"
 private const val KARTE_CALLBACK_SCHEME = "karte-tracker-callback://"
 
@@ -67,9 +70,10 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         @Suppress("DEPRECATION")
         settings.savePassword = false
         settings.domStorageEnabled = true
+        @Suppress("DEPRECATION")
         settings.databaseEnabled = true
 
-        setBackgroundColor(Color.TRANSPARENT)
+        this.setBackgroundColor(Color.TRANSPARENT)
 
         // 初回表示時にスクロールバーが画面端にちらつく現象の回避
         isVerticalScrollBarEnabled = false
@@ -80,6 +84,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // Web版も合わせて接客側で対応ができるまではダークモードはオフにする
+            @Suppress("DEPRECATION")
             settings.forceDark = WebSettings.FORCE_DARK_OFF
         }
 
@@ -197,6 +202,9 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         this.safeInsets = getSafeInsets()
+        if (InAppMessaging.isEdgeToEdgeEnabled) {
+            injectSafeAreaInsetCSS()
+        }
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -260,6 +268,54 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         val location = IntArray(2)
         getLocationOnScreen(location)
         return location[1] == 0
+    }
+
+    @Suppress("DEPRECATION")
+    private fun injectSafeAreaInsetCSS() {
+        setOnApplyWindowInsetsListener { _, insets ->
+            val density = resources.displayMetrics.density
+
+            // STEP 1: 古い API で取れるシステムバーのインセット
+            var left = insets.systemWindowInsetLeft
+            var top = insets.systemWindowInsetTop
+            var right = insets.systemWindowInsetRight
+            var bottom = insets.systemWindowInsetBottom
+
+            // STEP 2: API 28+ でノッチ（DisplayCutout）の安全域も考慮
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                insets.displayCutout?.let { cutout ->
+                    left = max(left, cutout.safeInsetLeft)
+                    top = max(top, cutout.safeInsetTop)
+                    right = max(right, cutout.safeInsetRight)
+                    bottom = max(bottom, cutout.safeInsetBottom)
+                }
+            }
+
+            // STEP 3: API 30+ でソフトキーボード（IME）のインセットをマージ
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val imeInset = insets.getInsets(ime()).bottom
+                bottom = max(bottom, imeInset)
+            }
+
+            // STEP 4: ピクセル→dp に換算して SafeInsets に
+            val safeInsets = SafeInsets(
+                (left / density).roundToInt(),
+                (top / density).roundToInt(),
+                (right / density).roundToInt(),
+                (bottom / density).roundToInt()
+            )
+
+            // STEP 5: CSS 変数を埋め込み
+            val safeAreaCSS = """
+            document.documentElement.style.setProperty('--krt-safe-area-inset-left', '${safeInsets.left}px');
+            document.documentElement.style.setProperty('--krt-safe-area-inset-top', '${safeInsets.top}px');
+            document.documentElement.style.setProperty('--krt-safe-area-inset-right', '${safeInsets.right}px');
+            document.documentElement.style.setProperty('--krt-safe-area-inset-bottom', '${safeInsets.bottom}px');
+        """.trimIndent()
+
+            evaluateJavascript(safeAreaCSS, null)
+            insets
+        }
     }
 
     abstract fun setSafeAreaInset(top: Int)

@@ -43,15 +43,18 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.RESULT_HIDDEN
 import android.widget.FrameLayout
+import androidx.core.view.isNotEmpty
 import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.BuildConfig
+import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.R
+import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.PanelWindowManager
 import io.karte.android.utilities.toList
 import org.json.JSONArray
 import java.lang.ref.WeakReference
 
-private const val LOG_TAG = "Karte.IAMView"
+private const val LOG_TAG = "Karte.WindowView"
 
 @Suppress("DEPRECATION")
 private const val WINDOW_FLAGS_FOCUSED = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
@@ -80,20 +83,31 @@ internal open class WindowView(
     private var lastActionDownIsInClientApp: Boolean = false
     private var knownTouchableRegions: List<RectF> = ArrayList()
 
-    private var contentViewVisibleRect = Rect()
+    private var decorViewVisibleRect = Rect()
     private var iamViewVisibleRect = Rect()
 
-    private val locationOnScreen = IntArray(2)
-    private val contentViewLocationOnScreen = IntArray(2)
+    private val decorView: View?
+        get() = (appWindow.peekDecorView() as? ViewGroup)
 
-    private val contentView: View
-        get() = (appWindow.peekDecorView() as ViewGroup).getChildAt(0)
     private var focusFlag: Int = WINDOW_FLAGS_UNFOCUSED
 
     private val appSoftInputModeIsNothing: Boolean
         get() = appWindow.attributes.softInputMode and
             WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST ==
             WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+
+    private val drawingArea: View?
+        get() = if (InAppMessaging.isEdgeToEdgeEnabled) {
+            decorView
+        } else {
+            contentView
+        }
+
+    private var contentViewVisibleRect = Rect()
+    private val locationOnScreen = IntArray(2)
+    private val contentViewLocationOnScreen = IntArray(2)
+    private val contentView: View
+        get() = (appWindow.peekDecorView() as ViewGroup).getChildAt(0)
 
     /** StatusBarがContentViewに被っているか。Split Screen時に上画面であること. */
     private val isStatusBarOverlaid: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -115,11 +129,11 @@ internal open class WindowView(
 
     init {
         id = R.id.karte_overlay_view
-        appWindow.peekDecorView().viewTreeObserver.addOnGlobalLayoutListener(this)
+        decorView?.viewTreeObserver?.addOnGlobalLayoutListener(this)
     }
 
     open fun show() {
-        appWindow.peekDecorView().post {
+        decorView?.post {
             if (isAttachedToWindow || isAttaching) return@post
             try {
                 isAttaching = true
@@ -137,12 +151,14 @@ internal open class WindowView(
     }
 
     private fun showInternal() {
-        val decorView = appWindow.peekDecorView()
-            ?: throw IllegalStateException("Decor view has not yet created.")
-        val contentView = contentView
+        val drawingArea = drawingArea
+            ?: throw IllegalStateException("View has not yet been created.")
+        val w = drawingArea.width
+        val h = drawingArea.height
+
         val params = WindowManager.LayoutParams(
-            contentView.width,
-            contentView.height,
+            w,
+            h,
             WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
             focusFlag,
             PixelFormat.TRANSLUCENT
@@ -163,16 +179,16 @@ internal open class WindowView(
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             this.windowInsetsController?.setSystemBarsAppearance(
-                decorView.windowInsetsController?.systemBarsAppearance ?: 0,
-                decorView.windowInsetsController?.systemBarsAppearance ?: 0
+                drawingArea.windowInsetsController?.systemBarsAppearance ?: 0,
+                drawingArea.windowInsetsController?.systemBarsAppearance ?: 0
             )
         } else {
             @Suppress("DEPRECATION")
-            params.systemUiVisibility = decorView.windowSystemUiVisibility
+            params.systemUiVisibility = drawingArea.windowSystemUiVisibility
         }
 
         val location = IntArray(2)
-        contentView.getLocationOnScreen(location)
+        drawingArea.getLocationOnScreen(location)
 
         params.gravity = Gravity.START or Gravity.TOP
         params.x = location[0]
@@ -224,7 +240,14 @@ internal open class WindowView(
         if (visibility == View.VISIBLE && childCount > 0) {
             setupBitmapAndCanvas()
         }
-        requestLayout()
+
+        if (InAppMessaging.isEdgeToEdgeEnabled) {
+            if (childCount > 0 && getChildAt(0) is IAMWebView) {
+                getChildAt(0).layout(left, top, right, drawingHeight)
+            }
+        } else {
+            requestLayout()
+        }
     }
 
     private fun setupBitmapAndCanvas() {
@@ -261,21 +284,31 @@ internal open class WindowView(
         if (ev.action == MotionEvent.ACTION_DOWN) {
             lastActionDownIsInClientApp = touchIsInClientApp(ev)
             setFocus(!lastActionDownIsInClientApp)
-            getLocationOnScreen(locationOnScreen)
+            if (!InAppMessaging.isEdgeToEdgeEnabled) {
+                getLocationOnScreen(locationOnScreen)
+            }
         }
 
         if (lastActionDownIsInClientApp) {
-            val copiedEvent = MotionEvent.obtain(ev)
-            copiedEvent.offsetLocation(locationOnScreen[0].toFloat(), locationOnScreen[1].toFloat())
-            val dispatchedToPanel = panelWindowManager.dispatchTouch(copiedEvent)
+            val dispatchedToPanel = if (InAppMessaging.isEdgeToEdgeEnabled) {
+                panelWindowManager.dispatchTouch(ev)
+            } else {
+                val copiedEvent = MotionEvent.obtain(ev)
+                copiedEvent.offsetLocation(locationOnScreen[0].toFloat(), locationOnScreen[1].toFloat())
+                panelWindowManager.dispatchTouch(copiedEvent)
+            }
+
             if (!dispatchedToPanel) {
-                // contentViewとWindowViewは同じ座標にある想定だが、フルスクリーンモードによっては座標が変わる場合があるため、ズレを補正しておく
-                val contentViewLocation = IntArray(2)
-                contentView.getLocationOnScreen(contentViewLocation)
-                val offsetX = (locationOnScreen[0] - contentViewLocation[0]).toFloat()
-                val offsetY = (locationOnScreen[1] - contentViewLocation[1]).toFloat()
                 val eventOnAppWindow = MotionEvent.obtain(ev)
-                eventOnAppWindow.offsetLocation(offsetX, offsetY)
+                if (!InAppMessaging.isEdgeToEdgeEnabled) {
+                    // contentViewとWindowViewは同じ座標にある想定だが、フルスクリーンモードによっては座標が変わる場合があるため、ズレを補正しておく
+                    val contentViewLocation = IntArray(2)
+                    contentView.getLocationOnScreen(contentViewLocation)
+                    val offsetX = (locationOnScreen[0] - contentViewLocation[0]).toFloat()
+                    val offsetY = (locationOnScreen[1] - contentViewLocation[1]).toFloat()
+                    eventOnAppWindow.offsetLocation(offsetX, offsetY)
+                }
+
                 appWindow.injectInputEvent(eventOnAppWindow)
             }
             return false
@@ -292,7 +325,7 @@ internal open class WindowView(
                 if (child.dispatchKeyEvent(event))
                     return true
             }
-            appWindow.peekDecorView().dispatchKeyEvent(KeyEvent(event))
+            decorView?.dispatchKeyEvent(KeyEvent(event))
             // Check ACTION_UP because when changing focus during event sequence, event not handled properly.
             if (event.action == ACTION_UP) setFocus(false)
             return true
@@ -387,16 +420,28 @@ internal open class WindowView(
                 iamViewVisibleRect = rect
             } else {
                 val rect = Rect()
-                contentView.getWindowVisibleDisplayFrame(rect)
-                if (rect == contentViewVisibleRect) {
-                    // 画面回転時にActivityが再生成されない場合はrequestLayoutを呼ぶ
-                    // この処理が無いとUnityで回転時にレイアウトが崩れることがある
-                    if (isActivityNotRenewedOnRotate) {
-                        requestLayout()
+                drawingArea?.getWindowVisibleDisplayFrame(rect)
+                if (InAppMessaging.isEdgeToEdgeEnabled) {
+                    if (rect == decorViewVisibleRect) {
+                        // 画面回転時にActivityが再生成されない場合はrequestLayoutを呼ぶ
+                        // この処理が無いとUnityで回転時にレイアウトが崩れることがある
+                        if (isActivityNotRenewedOnRotate) {
+                            requestLayout()
+                        }
+                        return
                     }
-                    return
+                    decorViewVisibleRect = rect
+                } else {
+                    if (rect == contentViewVisibleRect) {
+                        // 画面回転時にActivityが再生成されない場合はrequestLayoutを呼ぶ
+                        // この処理が無いとUnityで回転時にレイアウトが崩れることがある
+                        if (isActivityNotRenewedOnRotate) {
+                            requestLayout()
+                        }
+                        return
+                    }
+                    contentViewVisibleRect = rect
                 }
-                contentViewVisibleRect = rect
             }
 
             logWindowSize("requestLayout at onGlobalLayout")
@@ -413,8 +458,15 @@ internal open class WindowView(
             // diffを取って描画すべき領域の高さを決定する
             // diffがNavigationBarの高さを超える場合はキーボード等が表示されていると判定しvisibleRect.bottomを下限とする
             // それ以外はcontentView.height=画面の高さを下限とする
-            val diff = contentView.height - contentViewVisibleRect.bottom
-            return if (diff > navbarHeight) contentViewVisibleRect.bottom else contentView.height
+            // IAM2.23.0のEdge to edge対応で描画領域が変更となるが後方互換性のためにフラグで以前の処理に分岐させる
+            if (InAppMessaging.isEdgeToEdgeEnabled) {
+                val height = decorView?.height ?: 0
+                val diff = height - decorViewVisibleRect.bottom
+                return if (diff > navbarHeight) decorViewVisibleRect.bottom else height
+            } else {
+                val diff = contentView.height - contentViewVisibleRect.bottom
+                return if (diff > navbarHeight) contentViewVisibleRect.bottom else contentView.height
+            }
         }
 
     private val navbarHeight: Int
@@ -423,20 +475,39 @@ internal open class WindowView(
                 windowManager.currentWindowMetrics.windowInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
             } else {
                 // バージョンに依存せずにNavigationBarの高さを正確に取得する方法がないため画面下2.5%をNavigationBarの高さとして扱う
-                (contentView.height * 0.025).toInt()
+                val height = drawingArea?.height ?: 0
+                (height * 0.025).toInt()
             }
         }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         try {
-            val contentView = contentView
+            val drawingArea = drawingArea ?: throw IllegalStateException("View has not yet been created.")
             updateRectAndLocation()
-            val width = contentView.width
-            val height = contentView.height
+            val width = drawingArea.width
+            val height = drawingArea.height
             Logger.d(LOG_TAG, "onMeasure window:($width,$height)")
             syncPadding()
             setMeasuredDimension(width, height)
 
+            val measuringHeight = calcMeasuringHeight()
+            for (i in 0 until childCount)
+                getChildAt(i).measure(
+                    MeasureSpec.makeMeasureSpec(
+                        width - paddingLeft - paddingRight,
+                        MeasureSpec.EXACTLY
+                    ),
+                    MeasureSpec.makeMeasureSpec(measuringHeight, MeasureSpec.EXACTLY)
+                )
+        } catch (e: Exception) {
+            Logger.e(LOG_TAG, "Failed to measure", e)
+        }
+    }
+
+    private fun calcMeasuringHeight(): Int {
+        return if (InAppMessaging.isEdgeToEdgeEnabled) {
+            drawingHeight
+        } else {
             val childTop: Int
             val childBottom: Int
             if (appSoftInputModeIsNothing) {
@@ -458,42 +529,30 @@ internal open class WindowView(
                 childBottom = drawingHeight
             }
 
-            Logger.d(
-                LOG_TAG,
-                "onMeasure child: top:$childTop, bottom:$childBottom," +
-                    " height:${childBottom - childTop}"
-            )
-
             // フルスクリーンでcutout modeがSHORT_EDGESの場合にIAMWindowとcontentViewの位置に差ができて、その分だけ接客が画面下に見切れてしまうため差の分だけheightを低くする。
             contentView.getLocationOnScreen(contentViewLocationOnScreen)
             val gapY = locationOnScreen[1] - contentViewLocationOnScreen[1]
-
-            for (i in 0 until childCount)
-                getChildAt(i).measure(
-                    MeasureSpec.makeMeasureSpec(
-                        width - paddingLeft - paddingRight,
-                        MeasureSpec.EXACTLY
-                    ),
-                    MeasureSpec.makeMeasureSpec(childBottom - childTop - gapY, MeasureSpec.EXACTLY)
-                )
-        } catch (e: Exception) {
-            Logger.e(LOG_TAG, "Failed to measure", e)
+            childBottom - childTop - gapY
         }
     }
 
     private fun syncPadding() {
         setPadding(
-            contentView.paddingLeft,
-            contentView.paddingTop,
-            contentView.paddingRight,
-            contentView.paddingBottom
+            drawingArea?.paddingLeft ?: 0,
+            drawingArea?.paddingTop ?: 0,
+            drawingArea?.paddingRight ?: 0,
+            drawingArea?.paddingBottom ?: 0
         )
     }
 
     private fun updateRectAndLocation() {
         getWindowVisibleDisplayFrame(iamViewVisibleRect)
         getLocationOnScreen(locationOnScreen)
-        contentView.getWindowVisibleDisplayFrame(contentViewVisibleRect)
+        if (InAppMessaging.isEdgeToEdgeEnabled) {
+            decorView?.getWindowVisibleDisplayFrame(decorViewVisibleRect)
+        } else {
+            contentView.getWindowVisibleDisplayFrame(contentViewVisibleRect)
+        }
     }
 
     private fun logWindowSize(message: String) {
@@ -501,9 +560,9 @@ internal open class WindowView(
 
         Logger.v(
             LOG_TAG, "$message\n" +
-                "ContentView: ${contentView.log()}\n" +
+                "ContentArea: ${drawingArea?.log()}\n" +
                 "IAMWindow  : ${log()}\n" +
-                "WebView    : ${if (childCount > 0) getChildAt(0).log() else ""}\n" +
+                "WebView    : ${if (isNotEmpty()) getChildAt(0).log() else ""}\n" +
                 "params=$layoutParams"
         )
     }
