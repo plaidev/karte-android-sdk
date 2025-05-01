@@ -15,6 +15,7 @@
 //
 package io.karte.android.core.config
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import io.karte.android.BuildConfig
@@ -270,6 +271,7 @@ open class Config protected constructor(
         private fun readStringFromResource(context: Context, name: String): String? {
             val res = context.resources
             val pkg = res.getResourcePackageName(R.id.karte_resources)
+            @SuppressLint("DiscouragedApi")
             val id = res.getIdentifier(name, "string", pkg)
             return if (id == 0) {
                 null

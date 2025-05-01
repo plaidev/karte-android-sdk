@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "io.karte.android.inappmessaging"
-    compileSdk = 32
+    compileSdk = 34
 
     buildFeatures {
         buildConfig = true
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdk = 21
         //noinspection OldTargetApi
-        targetSdk = 32
+        targetSdk = 34
         buildConfigField("String", "LIB_VERSION", "\"$version\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -54,17 +54,17 @@ val kotlin_version: String by rootProject.extra
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     implementation(project(":core"))
 
     compileOnly("androidx.appcompat:appcompat:1.2.0")
-    compileOnly("androidx.core:core-ktx:1.2.0")
+    implementation("androidx.core:core-ktx:1.10.1")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test:core:1.3.0")
     testImplementation("com.google.truth:truth:1.0.1")
     testImplementation("io.mockk:mockk:1.10.0")
-    testImplementation("org.robolectric:robolectric:4.8")
+    testImplementation("org.robolectric:robolectric:4.11.1")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.8.0")
     testImplementation(project(":test_lib"))
 }

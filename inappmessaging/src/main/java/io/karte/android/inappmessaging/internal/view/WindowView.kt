@@ -360,7 +360,7 @@ internal open class WindowView(
         }
         // There might be dirty bitmap cache (e.g. when dragging chat icon) so clear with transparent color.
         webViewDrawingBitmap?.eraseColor(Color.TRANSPARENT)
-        draw(canvas)
+        canvas?.let { draw(it) }
 
         // If transparent, pass to app. Otherwise, pass to WebView.
         val pixel = webViewDrawingBitmap?.getPixel(touchedX.toInt(), touchedY.toInt()) ?: 0

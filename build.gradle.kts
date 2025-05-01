@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    val kotlin_version by extra("1.4.32")
-    val coroutine_version by extra("1.4.3")
+    val kotlin_version by extra("1.8.10")
+    val coroutine_version by extra("1.7.3")
     dependencies {
         // for apply karte plugin to example project
         classpath("io.karte.android:local-gradle-plugin")
@@ -12,7 +12,7 @@ buildscript {
 plugins {
     id("com.android.application") version "8.1.1" apply false
     id("com.android.library") version "8.1.1" apply false
-    id("org.jetbrains.kotlin.android") version "1.7.20" apply false
+    id("org.jetbrains.kotlin.android") version "1.8.10" apply false
     id("org.jetbrains.dokka") version "1.9.20"
     // for upload maven repo
     id("com.github.dcendents.android-maven") version "2.1" apply false

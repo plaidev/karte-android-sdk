@@ -4,13 +4,15 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.InAppMessagingDelegate
 import io.karte.android.inbox.Inbox
 import io.karte.android.tracking.Tracker
 import io.karte.android.visualtracking.VisualTracking
 import io.karte.android.visualtracking.VisualTrackingDelegate
-import kotlinx.android.synthetic.main.activity_main.*
+import io.karte.sample_kotlin.databinding.ActivityMainBinding
+
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,12 +23,16 @@ class MainActivity : AppCompatActivity() {
     val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
     }
+    private var binding: ActivityMainBinding? = null
     private val scope = CoroutineScope(Job() + Dispatchers.IO + exceptionHandler)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.tool_bar))
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
         supportActionBar?.title = "SampleApplication"
         setEventListeners()
         InAppMessaging.delegate = object : InAppMessagingDelegate() {
@@ -44,13 +50,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setEventListeners() {
-        send_identify_event.setOnClickListener { sendIdentifyEvent() }
+        binding!!.sendIdentifyEvent.setOnClickListener { sendIdentifyEvent() }
 
-        send_view_event.setOnClickListener { sendViewEvent() }
+        binding!!.sendViewEvent.setOnClickListener { sendViewEvent() }
 
-        send_buy_event.setOnClickListener { sendBuyEvent() }
+        binding!!.sendBuyEvent.setOnClickListener { sendBuyEvent() }
 
-        button_fetch_inbox.setOnClickListener {
+        binding!!.buttonFetchInbox.setOnClickListener {
             scope.launch {
                 fetchInboxMessages()
             }
@@ -58,7 +64,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendIdentifyEvent() {
-        val user_id = edit_user_id.getText().toString()
+        val user_id = binding!!.editUserId.getText().toString()
         if (user_id.length > 0) {
             val values = HashMap<String, Any>()
             values["is_app_user"] = true
@@ -70,7 +76,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendViewEvent() {
         Log.i(TAG, "view event button clicked")
-        val viewName = view_name_edit.text.toString()
+        val viewName = binding!!.viewNameEdit.text.toString()
         val values = HashMap<String, Any>()
         values["title"] = viewName
         Tracker.view(viewName, values)
@@ -105,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                 for (item in it) {
                     content += "${item}\n"
                 }
-                inbox_content.text = content
+                binding!!.inboxContent.text = content
             }
         }
         Log.d(TAG, result.toString())

@@ -41,12 +41,13 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.hardware.display.DisplayManagerCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.BuildConfig
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.utilities.asString
 import java.io.IOException
-import kotlin.math.max
 import kotlin.math.roundToInt
 
 private const val LOG_TAG = "Karte.BaseWebView"
@@ -272,49 +273,35 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
 
     @Suppress("DEPRECATION")
     private fun injectSafeAreaInsetCSS() {
-        setOnApplyWindowInsetsListener { _, insets ->
-            val density = resources.displayMetrics.density
+        ViewCompat.setOnApplyWindowInsetsListener(this) { view, insetsCompat ->
+            // Compat API でマスクを組み合わせ
+            val mask = WindowInsetsCompat.Type.systemBars() or
+                WindowInsetsCompat.Type.displayCutout() or
+                WindowInsetsCompat.Type.ime()
 
-            // STEP 1: 古い API で取れるシステムバーのインセット
-            var left = insets.systemWindowInsetLeft
-            var top = insets.systemWindowInsetTop
-            var right = insets.systemWindowInsetRight
-            var bottom = insets.systemWindowInsetBottom
+            // Compat Insets を取得
+            val raw = insetsCompat.getInsets(mask)
 
-            // STEP 2: API 28+ でノッチ（DisplayCutout）の安全域も考慮
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                insets.displayCutout?.let { cutout ->
-                    left = max(left, cutout.safeInsetLeft)
-                    top = max(top, cutout.safeInsetTop)
-                    right = max(right, cutout.safeInsetRight)
-                    bottom = max(bottom, cutout.safeInsetBottom)
-                }
-            }
-
-            // STEP 3: API 30+ でソフトキーボード（IME）のインセットをマージ
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val imeInset = insets.getInsets(ime()).bottom
-                bottom = max(bottom, imeInset)
-            }
-
-            // STEP 4: ピクセル→dp に換算して SafeInsets に
+            // dp 換算
+            val density = view.resources.displayMetrics.density
             val safeInsets = SafeInsets(
-                (left / density).roundToInt(),
-                (top / density).roundToInt(),
-                (right / density).roundToInt(),
-                (bottom / density).roundToInt()
+                (raw.left / density).roundToInt(),
+                (raw.top / density).roundToInt(),
+                (raw.right / density).roundToInt(),
+                (raw.bottom / density).roundToInt()
             )
 
-            // STEP 5: CSS 変数を埋め込み
+            // CSS 注入などの後続処理
             val safeAreaCSS = """
-            document.documentElement.style.setProperty('--krt-safe-area-inset-left', '${safeInsets.left}px');
-            document.documentElement.style.setProperty('--krt-safe-area-inset-top', '${safeInsets.top}px');
-            document.documentElement.style.setProperty('--krt-safe-area-inset-right', '${safeInsets.right}px');
-            document.documentElement.style.setProperty('--krt-safe-area-inset-bottom', '${safeInsets.bottom}px');
-        """.trimIndent()
-
+      document.documentElement.style.setProperty("--krt-safe-area-inset-left",   "${safeInsets.left}px");
+      document.documentElement.style.setProperty("--krt-safe-area-inset-top",    "${safeInsets.top}px");
+      document.documentElement.style.setProperty("--krt-safe-area-inset-right",  "${safeInsets.right}px");
+      document.documentElement.style.setProperty("--krt-safe-area-inset-bottom","${safeInsets.bottom}px");
+    """
             evaluateJavascript(safeAreaCSS, null)
-            insets
+
+            // 必要に応じて Compat インセットを返す
+            insetsCompat
         }
     }
 

@@ -10,7 +10,7 @@ android {
     defaultConfig {
         minSdk = 21
         //noinspection OldTargetApi
-        targetSdk = 32
+        targetSdk = 34
         buildConfigField("String", "LIB_VERSION", "\"$version\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("proguard-rules.pro")
@@ -54,7 +54,7 @@ val kotlin_version: String by rootProject.extra
 
 dependencies {
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     api(project(":core"))
 
     // Suppressed Gradle warnings in the original are simply left as is for reference
@@ -67,7 +67,7 @@ dependencies {
     testImplementation("androidx.test:core:1.4.0") // Note: Cannot upgrade due to kotlin-stdlib dependency issues
     testImplementation("com.google.truth:truth:1.0.1")
     testImplementation("io.mockk:mockk:1.10.0")
-    testImplementation("org.robolectric:robolectric:4.8")
+    testImplementation("org.robolectric:robolectric:4.11.1")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.8.0")
     testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.6.1")
     testImplementation(project(":test_lib"))
