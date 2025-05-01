@@ -276,8 +276,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         ViewCompat.setOnApplyWindowInsetsListener(this) { view, insetsCompat ->
             // Compat API でマスクを組み合わせ
             val mask = WindowInsetsCompat.Type.systemBars() or
-                WindowInsetsCompat.Type.displayCutout() or
-                WindowInsetsCompat.Type.ime()
+                WindowInsetsCompat.Type.displayCutout()
 
             // Compat Insets を取得
             val raw = insetsCompat.getInsets(mask)
