@@ -2,20 +2,49 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- | :-- |
-| core | イベントトラッキング機能を提供します。 | 2.28.0 |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.23.0   |
-| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.14.0 |
-| variables | 設定値配信機能を提供します。 | 2.9.0 |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.11.0 |
-| inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.2.0    |
-| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.6.0 |
+| core | イベントトラッキング機能を提供します。 | 2.29.0 |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.24.0   |
+| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.15.0 |
+| variables | 設定値配信機能を提供します。 | 2.10.0 |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.12.0 |
+| inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.3.0    |
+| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.7.0 |
 
 # Releases - xxxx.xx.xx
+
+### Core 2.29.0
+** 🔨CHANGED**
+- ビルド時のKotlinのバージョンを1.8.10に上げました
+- targetSdkを34に上げました
 
 ### InAppMessaging 2.23.0
 ** 🔨FIXED **
 - Edge to edge有効時、`Window.decorView.rootView`にWindowInsetsを設定すると接客表示時にタップ位置がずれる問題を修正しました。
   - Edge to edge有効時の接客表示については[サポートサイト](https://support.karte.io/post/6c5lnLcQSHfSBKfH4waAJC)もご参照ください。
+
+** 🔨CHANGED**
+- ビルド時のKotlinのバージョンを1.8.10に上げました
+- targetSdkを34に上げました
+
+### Notifications 2.14.0
+** 🔨CHANGED**
+- ビルド時のKotlinのバージョンを1.8.10に上げました
+
+### Variables 2.10.0
+** 🔨CHANGED**
+- ビルド時のKotlinのバージョンを1.8.10に上げました
+
+### VisualTracking 2.12.0
+** 🔨CHANGED**
+- ビルド時のKotlinのバージョンを1.8.10に上げました
+
+### Karte Gradle Plugin 2.7.0
+** 🔨CHANGED**
+- ビルド時のKotlinのバージョンを1.8.10に上げました
+
+### InAppFrame 0.3.0
+** 🔨CHANGED**
+- ビルド時のKotlinのバージョンを1.8.10に上げました
 
 # Releases - 2025.04.07
 
