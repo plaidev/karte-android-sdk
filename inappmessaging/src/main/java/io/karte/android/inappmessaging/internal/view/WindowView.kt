@@ -474,9 +474,11 @@ internal open class WindowView(
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 windowManager.currentWindowMetrics.windowInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
             } else {
-                // バージョンに依存せずにNavigationBarの高さを正確に取得する方法がないため画面下2.5%をNavigationBarの高さとして扱う
+                // バージョンに依存せずにNavigationBarの高さを正確に取得する方法がないため画面下10%をNavigationBarの高さとして扱う
+                // ジェスチャーナビゲーションの場合はおそらく2.5%程度だが、ここでやりたいことはKeyboard等が表示されてるかの確認なので、
+                // スリーボタンナビゲーションなども考慮して画面下10%としている
                 val height = drawingArea?.height ?: 0
-                (height * 0.025).toInt()
+                (height * 0.1).toInt()
             }
         }
 
