@@ -54,7 +54,7 @@ class IntentProcessorTest : RobolectricTestCase() {
             IntentProcessor.forClick(application, message, intent).pendingIntent(100)
         val shadow = shadowOf(pendingIntent)
         assertThat(shadow.requestCode).isEqualTo(100)
-        assertThat(shadow.isBroadcastIntent).isTrue()
+        assertThat(shadow.isBroadcast).isTrue()
         assertThat(shadow.flags and PendingIntent.FLAG_IMMUTABLE)
             .isEqualTo(PendingIntent.FLAG_IMMUTABLE)
         assertThat(shadow.flags and PendingIntent.FLAG_ONE_SHOT)
@@ -76,7 +76,7 @@ class IntentProcessorTest : RobolectricTestCase() {
 
         val shadow = shadowOf(pendingIntent)
         assertThat(shadow.requestCode).isEqualTo(101)
-        assertThat(shadow.isBroadcastIntent).isTrue()
+        assertThat(shadow.isBroadcast).isTrue()
         assertThat(shadow.flags and PendingIntent.FLAG_IMMUTABLE)
             .isEqualTo(PendingIntent.FLAG_IMMUTABLE)
         assertThat(shadow.flags and PendingIntent.FLAG_ONE_SHOT)
@@ -102,7 +102,7 @@ class IntentProcessorTest : RobolectricTestCase() {
             IntentProcessor.forClick(application, message, intent).pendingIntent(100)
         val shadow = shadowOf(pendingIntent)
         // Activityで受け取る
-        assertThat(shadow.isActivityIntent).isTrue()
+        assertThat(shadow.isActivity).isTrue()
         assertThat(shadow.savedIntent.component)
             .isEqualTo(ComponentName(application, MessageReceiveActivity::class.java))
 
@@ -117,7 +117,7 @@ class IntentProcessorTest : RobolectricTestCase() {
         val pendingIntent = IntentProcessor.forIgnore(application, message).pendingIntent(100)
         val shadow = shadowOf(pendingIntent)
         // Receiverのまま
-        assertThat(shadow.isBroadcastIntent).isTrue()
+        assertThat(shadow.isBroadcast).isTrue()
         assertThat(shadow.savedIntent.component)
             .isEqualTo(ComponentName(application, MessageReceiver::class.java))
 

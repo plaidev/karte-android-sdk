@@ -16,6 +16,7 @@ public final class io/karte/android/inappmessaging/InAppMessaging : io/karte/and
 	public fun getName ()Ljava/lang/String;
 	public fun getVersion ()Ljava/lang/String;
 	public fun intercept (Lio/karte/android/tracking/client/TrackRequest;)Lio/karte/android/tracking/client/TrackRequest;
+	public static final fun isEdgeToEdgeEnabled ()Z
 	public static final fun isPresenting ()Z
 	public fun isPublic ()Z
 	public fun onActivityStarted (Landroid/app/Activity;)V
@@ -35,6 +36,7 @@ public final class io/karte/android/inappmessaging/InAppMessaging : io/karte/and
 public final class io/karte/android/inappmessaging/InAppMessaging$Companion {
 	public final fun dismiss ()V
 	public final fun getDelegate ()Lio/karte/android/inappmessaging/InAppMessagingDelegate;
+	public final fun isEdgeToEdgeEnabled ()Z
 	public final fun isPresenting ()Z
 	public final fun registerPopupWindow (Landroid/widget/PopupWindow;)V
 	public final fun registerWindow (Landroid/view/Window;)V
@@ -51,15 +53,19 @@ public final class io/karte/android/inappmessaging/InAppMessaging$Config {
 
 public final class io/karte/android/inappmessaging/InAppMessagingConfig : io/karte/android/core/library/LibraryConfig {
 	public static final field Companion Lio/karte/android/inappmessaging/InAppMessagingConfig$Companion;
-	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getOverlayBaseUrl ()Ljava/lang/String;
+	public final fun isEdgeToEdgeEnabled ()Z
 }
 
 public final class io/karte/android/inappmessaging/InAppMessagingConfig$Builder {
 	public fun <init> ()V
 	public final fun build ()Lio/karte/android/inappmessaging/InAppMessagingConfig;
 	public final fun getOverlayBaseUrl ()Ljava/lang/String;
+	public final fun isEdgeToEdgeEnabled ()Z
+	public final fun isEdgeToEdgeEnabled (Z)Lio/karte/android/inappmessaging/InAppMessagingConfig$Builder;
 	public final fun overlayBaseUrl (Ljava/lang/String;)Lio/karte/android/inappmessaging/InAppMessagingConfig$Builder;
+	public final synthetic fun setEdgeToEdgeEnabled (Z)V
 	public final synthetic fun setOverlayBaseUrl (Ljava/lang/String;)V
 }
 

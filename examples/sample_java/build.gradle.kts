@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "io.karte.sample_java"
-    compileSdkVersion(31)
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "io.karte.tracker_sample"
-        minSdkVersion(21)
-        targetSdkVersion(31)
+        minSdk = 21
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -40,5 +40,6 @@ dependencies {
 
     testImplementation("junit:junit:4.12")
     androidTestImplementation("androidx.test:runner:1.2.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
 }

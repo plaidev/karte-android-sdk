@@ -31,25 +31,4 @@ afterEvaluate {
     }
     dokkaHtml.dependsOn rootProject.dokkaModuleMd
     rootProject.publishDocs.dependsOn dokkaHtml
-
-    dokkaHtml.doLast {
-        file("$buildDir/dokka/html/index.html").write(
-                """
-        <!DOCTYPE HTML>
-        <html lang="en-US">
-            <head>
-                <meta charset="UTF-8">
-                <meta http-equiv="refresh" content="0; url=$project.name/index.html">
-                <script type="text/javascript">
-                    window.location.href = "$project.name/index.html"
-                </script>
-                <title>Documentation</title>
-            </head>
-            <body>
-                If you are not redirected automatically, follow <a href="$project.name/index.html">this link</a>.
-            </body>
-        </html>
-                """.stripIndent().trim()
-        )
-    }
 }

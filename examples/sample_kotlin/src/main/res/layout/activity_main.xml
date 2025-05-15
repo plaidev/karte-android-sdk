@@ -1,103 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/tool_bar"
+    <data>
+
+    </data>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/tool_bar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/space_x"
-                android:layout_marginTop="@dimen/space_x"
-                android:layout_marginRight="@dimen/space_x"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="User Profile"
-                    android:textSize="20dp" />
+                    android:layout_marginLeft="@dimen/space_x"
+                    android:layout_marginTop="@dimen/space_x"
+                    android:layout_marginRight="@dimen/space_x"
+                    android:orientation="vertical">
 
-                <EditText
-                    android:id="@+id/edit_user_id"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="User Profile"
+                        android:textSize="20dp" />
+
+                    <EditText
+                        android:id="@+id/edit_user_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="user_id" />
+
+                    <Button
+                        android:id="@+id/send_identify_event"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:text="Identify"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="user_id" />
+                    android:layout_marginLeft="@dimen/space_x"
+                    android:layout_marginTop="@dimen/space_x"
+                    android:layout_marginRight="@dimen/space_x"
+                    android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/send_identify_event"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:text="Identify"
-                    android:textAllCaps="false" />
+
+                    <EditText
+                        android:id="@+id/view_name_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="view_name"
+                        android:lines="1" />
+
+                    <Button
+                        android:id="@+id/send_view_event"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Send View"
+                        android:textAllCaps="false" />
+
+                    <Button
+                        android:id="@+id/send_buy_event"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Send Buy"
+                        android:textAllCaps="false" />
+
+
+                    <Button
+                        android:id="@+id/button_fetch_inbox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Fetch Inbox"
+                        android:textAllCaps="false" />
+
+                    <TextView
+                        android:id="@+id/inbox_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Inbox response"
+                        android:textSize="16dp" />
+                </LinearLayout>
+
             </LinearLayout>
+        </ScrollView>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/space_x"
-                android:layout_marginTop="@dimen/space_x"
-                android:layout_marginRight="@dimen/space_x"
-                android:orientation="vertical">
-
-
-                <EditText
-                    android:id="@+id/view_name_edit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="view_name"
-                    android:lines="1" />
-
-                <Button
-                    android:id="@+id/send_view_event"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Send View"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/send_buy_event"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Send Buy"
-                    android:textAllCaps="false" />
-
-
-                <Button
-                    android:id="@+id/button_fetch_inbox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Fetch Inbox"
-                    android:textAllCaps="false" />
-
-                <TextView
-                    android:id="@+id/inbox_content"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Inbox response"
-                    android:textSize="16dp" />
-            </LinearLayout>
-
-        </LinearLayout>
-    </ScrollView>
-
-</LinearLayout>
+    </LinearLayout>
+</layout>

@@ -31,7 +31,7 @@ dependencies {
     implementation("io.mockk:mockk:1.10.0")
     implementation("com.squareup.okhttp3:mockwebserver:4.8.0")
     implementation("com.google.truth:truth:1.0.1")
-    implementation("org.robolectric:robolectric:4.8")
+    implementation("org.robolectric:robolectric:4.11.1")
     implementation("org.objenesis:objenesis:3.2") { 
         version { 
             strictly("3.2") 

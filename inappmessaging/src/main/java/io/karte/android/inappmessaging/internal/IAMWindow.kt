@@ -24,7 +24,7 @@ import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.view.WindowView
 
-private const val LOG_TAG = "Karte.IAMView"
+private const val LOG_TAG = "Karte.IAMWindow"
 
 @SuppressLint("ViewConstructor")
 internal class IAMWindow(val activity: Activity, panelWindowManager: PanelWindowManager) : WindowView(activity, panelWindowManager) {

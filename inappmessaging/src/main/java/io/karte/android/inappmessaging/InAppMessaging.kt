@@ -171,6 +171,10 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
         val isPresenting: Boolean
             get() = self?.processor?.isPresenting == true
 
+        @JvmStatic
+        val isEdgeToEdgeEnabled: Boolean
+            get() = self?.config?.isEdgeToEdgeEnabled ?: false
+
         /**
          * アプリ内メッセージで発生するイベント等を委譲するためのデリゲートインスタンスを取得・設定します。
          */

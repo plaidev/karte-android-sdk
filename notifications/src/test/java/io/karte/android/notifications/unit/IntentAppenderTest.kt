@@ -45,7 +45,7 @@ class IntentAppenderTest : RobolectricTestCase() {
 
         assertThat(notification.contentIntent).isNotNull()
         Shadows.shadowOf(notification.contentIntent).run {
-            assertThat(isBroadcastIntent).isTrue()
+            assertThat(isBroadcast).isTrue()
             assertThat(requestCode).isEqualTo(0)
             savedIntent.run {
                 assertThat(action).isEqualTo(Intent.ACTION_VIEW)
@@ -53,7 +53,7 @@ class IntentAppenderTest : RobolectricTestCase() {
             }
         }
         Shadows.shadowOf(notification.deleteIntent).run {
-            assertThat(isBroadcastIntent).isTrue()
+            assertThat(isBroadcast).isTrue()
             assertThat(requestCode).isEqualTo(0)
             savedIntent.run {
                 assertThat(getStringExtra("krt_event_name")).isEqualTo("message_ignore")

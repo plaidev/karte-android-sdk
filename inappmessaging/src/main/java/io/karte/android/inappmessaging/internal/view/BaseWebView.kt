@@ -40,13 +40,16 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.hardware.display.DisplayManagerCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import io.karte.android.core.logger.Logger
 import io.karte.android.inappmessaging.BuildConfig
+import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.utilities.asString
 import java.io.IOException
 import kotlin.math.roundToInt
 
-private const val LOG_TAG = "Karte.IAMWebView"
+private const val LOG_TAG = "Karte.BaseWebView"
 private const val FILE_SCHEME = "file://"
 private const val KARTE_CALLBACK_SCHEME = "karte-tracker-callback://"
 
@@ -67,9 +70,10 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         @Suppress("DEPRECATION")
         settings.savePassword = false
         settings.domStorageEnabled = true
+        @Suppress("DEPRECATION")
         settings.databaseEnabled = true
 
-        setBackgroundColor(Color.TRANSPARENT)
+        this.setBackgroundColor(Color.TRANSPARENT)
 
         // 初回表示時にスクロールバーが画面端にちらつく現象の回避
         isVerticalScrollBarEnabled = false
@@ -80,6 +84,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // Web版も合わせて接客側で対応ができるまではダークモードはオフにする
+            @Suppress("DEPRECATION")
             settings.forceDark = WebSettings.FORCE_DARK_OFF
         }
 
@@ -197,6 +202,9 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         this.safeInsets = getSafeInsets()
+        if (InAppMessaging.isEdgeToEdgeEnabled) {
+            injectSafeAreaInsetCSS()
+        }
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -260,6 +268,39 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         val location = IntArray(2)
         getLocationOnScreen(location)
         return location[1] == 0
+    }
+
+    @Suppress("DEPRECATION")
+    private fun injectSafeAreaInsetCSS() {
+        ViewCompat.setOnApplyWindowInsetsListener(this) { view, insetsCompat ->
+            // Compat API でマスクを組み合わせ
+            val mask = WindowInsetsCompat.Type.systemBars() or
+                WindowInsetsCompat.Type.displayCutout()
+
+            // Compat Insets を取得
+            val raw = insetsCompat.getInsets(mask)
+
+            // dp 換算
+            val density = view.resources.displayMetrics.density
+            val safeInsets = SafeInsets(
+                (raw.left / density).roundToInt(),
+                (raw.top / density).roundToInt(),
+                (raw.right / density).roundToInt(),
+                (raw.bottom / density).roundToInt()
+            )
+
+            // CSS 注入などの後続処理
+            val safeAreaCSS = """
+      document.documentElement.style.setProperty("--krt-safe-area-inset-left",   "${safeInsets.left}px");
+      document.documentElement.style.setProperty("--krt-safe-area-inset-top",    "${safeInsets.top}px");
+      document.documentElement.style.setProperty("--krt-safe-area-inset-right",  "${safeInsets.right}px");
+      document.documentElement.style.setProperty("--krt-safe-area-inset-bottom","${safeInsets.bottom}px");
+    """
+            evaluateJavascript(safeAreaCSS, null)
+
+            // 必要に応じて Compat インセットを返す
+            insetsCompat
+        }
     }
 
     abstract fun setSafeAreaInset(top: Int)

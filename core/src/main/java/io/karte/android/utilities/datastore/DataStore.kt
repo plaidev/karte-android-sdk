@@ -15,6 +15,7 @@
 //
 package io.karte.android.utilities.datastore
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.content.res.Resources
@@ -29,6 +30,7 @@ import io.karte.android.core.logger.Logger
 
 private const val LOG_TAG = "Karte.DataStore"
 
+@SuppressLint("DiscouragedApi")
 private fun getCursorWindowSize(): Int {
     return runCatching {
         Resources.getSystem().getInteger(
