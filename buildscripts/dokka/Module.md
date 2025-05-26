@@ -22,6 +22,9 @@
 
 @README@
 
+# Module debugger
+
+@README@
 # Module inappframe
 
 @README@

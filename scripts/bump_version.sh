@@ -11,6 +11,7 @@ MODULES=(
   "variables"
   "visualtracking"
   "inbox"
+  "debugger"
   "inappframe"
   "gradle-plugin"
 )

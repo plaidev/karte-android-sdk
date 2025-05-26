@@ -51,7 +51,7 @@ object Client {
                 if (request.hasBody) {
                     conn.doOutput = true
                     var written = false
-                    if (request is JSONRequest) {
+                    if (request is JSONRequest && request.gzip) {
                         val tmpStream = ByteArrayOutputStream()
                         request.writeBody(tmpStream)
                         gzip(tmpStream.toString("UTF-8"))?.let {

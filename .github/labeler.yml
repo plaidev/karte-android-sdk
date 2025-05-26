@@ -18,6 +18,9 @@
 'Module:Inbox':
   - inbox/*
   - inbox/src/main/**
+'Module:EventgViewer':
+  - debugger/*
+  - debugger/src/main/**
 'Module:InAppFrame':
   - inappframe/*
   - inappframe/src/main/**
@@ -28,6 +31,7 @@
   - variables/src/test/**
   - visualtracking/src/test/**
   - inbox/src/test/**
+  - debugger/src/test/**
 'Examples':
   - examples/**
 'Gradle-Plugin':
