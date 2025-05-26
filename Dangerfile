@@ -1,7 +1,7 @@
 github.dismiss_out_of_range_messages
 
 $diff_files = (git.added_files + git.modified_files + git.deleted_files)
-$modules = ["core", "inappmessaging", "notifications", "variables", "visualtracking", "inbox", "inappframe", "gradle-plugin"]
+$modules = ["core", "inappmessaging", "notifications", "variables", "visualtracking", "inbox", "inappframe", "gradle-plugin", "debugger"]
 $formatted_tags = git.tags.map { |tag| tag.strip }
 
 $is_develop_pr = github.branch_for_base == "develop" && github.branch_for_head.start_with?("feature/")

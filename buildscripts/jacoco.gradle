@@ -14,6 +14,7 @@ task jacocoMerge(
                 "variables:jacocoTestReport",
                 "visualtracking:jacocoTestReport",
                 "inbox:jacocoTestReport",
+                "debugger:jacocoTestReport",
                 "inappframe:jacocoTestReport"
         ]
 ) {

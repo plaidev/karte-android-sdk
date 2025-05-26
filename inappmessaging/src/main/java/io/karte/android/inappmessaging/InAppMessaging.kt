@@ -131,6 +131,7 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
             MessageEventName.MessageOpen.value,
             MessageEventName.MessageClick.value -> {
                 event.values.put("_is_auto_screen_boundary_enabled", app.config.isAutoScreenBoundaryEnabled)
+                event.values.put("_is_edge_to_edge_enabled", config.isEdgeToEdgeEnabled)
             }
         }
         if (event.eventName.value == "view") {

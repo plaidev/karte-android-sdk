@@ -20,6 +20,7 @@ The API references are located at
 - [Notifications](https://plaidev.github.io/karte-sdk-docs/android/notifications/latest/index.html)
 - [Variables](https://plaidev.github.io/karte-sdk-docs/android/variables/latest/index.html)
 - [VisualTracking](https://plaidev.github.io/karte-sdk-docs/android/visualtracking/latest/index.html)
+- [Debugger](https://plaidev.github.io/karte-sdk-docs/android/debugger/latest/index.html)
 - [InAppFrame](https://plaidev.github.io/karte-sdk-docs/android/inappframe/latest/index.html)
 
 ## Getting Help

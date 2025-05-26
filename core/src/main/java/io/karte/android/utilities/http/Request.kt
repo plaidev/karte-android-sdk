@@ -73,12 +73,15 @@ abstract class Request<T> internal constructor(
 /** JSON Body Request. */
 open class JSONRequest(
     url: String,
-    method: String
+    method: String,
+    gzip: Boolean = true
 ) : Request<String>(url, method) {
     override var body: String? = null
+    val gzip: Boolean
 
     init {
         headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_JSON
+        this.gzip = gzip
     }
 
     @Throws(IOException::class)
