@@ -1,14 +1,14 @@
 # Latest Version
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
-| :-- | :-- | :-- |
-| core | イベントトラッキング機能を提供します。 | 2.29.0 |
+| :-- | :-- |:---------|
+| core | イベントトラッキング機能を提供します。 | 2.30.0   |
 | inappmessaging | アプリ内メッセージ機能を提供します。 | 2.24.0   |
-| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.15.0 |
-| variables | 設定値配信機能を提供します。 | 2.10.0 |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.12.0 |
+| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.15.0   |
+| variables | 設定値配信機能を提供します。 | 2.10.0   |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.12.0   |
 | inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.3.0    |
-| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.7.0 |
+| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.7.0    |
 | debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.0.0    |
 
 # Releases - 2025.05.26
@@ -17,9 +17,13 @@
 ** 🎉 FEATURE**
 - イベントをわかりやすく管理画面で確認できるモジュールを公開しました
 
-### inappmessaging 2.24.0
+### In App Messaging 2.24.0
 ** 🔨CHANGED**
 - _is_edge_to_edge_enabledをイベント送信時に送るように変更しました
+
+### Core 2.30.0
+** 🔨CHANGED**
+- Debuggerの実装のため、JSONRequestにgzipの有無のフラグを付与しました
 
 # Releases - 2025.05.14
 
