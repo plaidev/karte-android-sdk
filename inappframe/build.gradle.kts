@@ -51,6 +51,11 @@ android {
     lint {
         lintConfig = file("../lint.xml")
         warningsAsErrors = true
+        // FIXME: ObsoleteLintCustomCheckをdisableしないとlintでエラーが出てしまっていた。
+        // jetified-activity-compose-1.10.1/jars/lint.jar: Error: Library lint checks reference invalid APIs; these checks will be skipped!
+        // このObsoleteLintCustomCheckをdisableにしてしまうことで、本来なされるべきComposeのLintが走らないという問題が起きる。
+        // Kotlinが1.9.10以上になったら消せるかもなのでその後また試すこと。
+        disable += "ObsoleteLintCustomCheck"
     }
 
     compileOptions {
@@ -67,18 +72,20 @@ android {
 dependencies {
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation(project(":core"))
     implementation(project(":variables"))
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.cardview:cardview:1.0.0")
 
-    implementation("androidx.compose.foundation:foundation:1.5.0")
-    implementation("androidx.compose.ui:ui:1.3.2")
-    implementation("androidx.compose.material:material:1.3.1")
-    implementation("androidx.compose.ui:ui-tooling:1.3.2")
-    implementation("androidx.activity:activity-compose:1.3.2")
-    implementation("androidx.compose.runtime:runtime-livedata:1.3.2")
+    implementation(platform("androidx.compose:compose-bom:2024.11.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.material:material")
+    implementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.runtime:runtime-livedata")
+
+    implementation("androidx.activity:activity-compose:1.7.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
 
     testImplementation("junit:junit:4.13.2")

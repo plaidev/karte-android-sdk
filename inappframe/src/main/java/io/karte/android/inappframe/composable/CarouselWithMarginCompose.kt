@@ -171,7 +171,7 @@ internal fun CarouselWithMarginCompose(
                     .height(itemHeight),
                 pageSpacing = content.config.spacing.dp,
                 pageSize = PageSize.Fixed(itemWidth),
-                beyondBoundsPageCount = 5,
+                beyondViewportPageCount = 5,
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(
                     start = horizontalPadding,
                     end = horizontalPadding
