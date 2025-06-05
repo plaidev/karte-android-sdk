@@ -85,7 +85,7 @@ internal fun CarouselWithoutMarginCompose(
                 bottom = content.config.paddingBottom.dp
             )
             .fillMaxWidth(),
-        beyondBoundsPageCount = 2
+        beyondViewportPageCount = 2
     ) { page ->
         val image = content.data.getOrNull(page) ?: return@HorizontalPager
         Card(

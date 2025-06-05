@@ -18,7 +18,7 @@
 'Module:Inbox':
   - inbox/*
   - inbox/src/main/**
-'Module:EventViewer':
+'Module:Debugger':
   - debugger/*
   - debugger/src/main/**
 'Module:InAppFrame':
