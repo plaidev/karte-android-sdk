@@ -58,6 +58,7 @@ internal class SimpleBannerView private constructor(context: Context) : LinearLa
 
         val cardView = CardView(context).apply {
             radius = dpToPx(context, content.config.radius).toFloat()
+            cardElevation = 0f
             layoutParams = LayoutParams(availableWidth, height)
             setOnClickListener {
                 content.data.getOrNull(0)?.linkUrl?.let { url ->
