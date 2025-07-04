@@ -1,0 +1,40 @@
+apply plugin: 'com.vanniktech.maven.publish'
+
+def getPropOrDefault(name, defaultValue = "") {
+    if (rootProject.ext.has(name))
+        return rootProject.ext.get(name)
+    return defaultValue
+}
+
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    
+    pom {
+        name = "KARTE SDK ${project.name}"
+        description = "${project.name} module for KARTE Android SDK"
+        url = gitUrl
+        
+        licenses {
+            license {
+                name = "The Apache Software License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "repo"
+            }
+        }
+        
+        developers {
+            developer {
+                id = "kartetaro"
+                name = "Taro Karte"
+                email = "dev.share@plaid.co.jp"
+            }
+        }
+        
+        scm {
+            connection = "scm:git:https://github.com/plaidev/karte-android-sdk.git"
+            developerConnection = "scm:git:ssh://github.com/plaidev/karte-android-sdk.git"
+            url = gitUrl
+        }
+    }
+}

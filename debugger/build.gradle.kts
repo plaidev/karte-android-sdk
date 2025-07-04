@@ -1,6 +1,7 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("com.vanniktech.maven.publish")
 }
 
 android {
@@ -65,8 +66,5 @@ dependencies {
     testImplementation(project(":debugger"))
 }
 
-afterEvaluate {
-    rootProject.findProperty("afterConfigurate")?.let {
-        (it as? (Project) -> Unit)?.invoke(project)
-    }
-} 
+apply(from = "../buildscripts/projectMaven.gradle")
+apply(from = "../buildscripts/projectPublishing.gradle") 

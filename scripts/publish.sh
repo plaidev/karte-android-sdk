@@ -1,91 +1,51 @@
-#!/bin/bash -e
+#!/bin/bash
 
 ##################################################
-# Functions (Sub command functions)
+# KARTE Android SDK 自動パブリッシュスクリプト
+# 
+# このスクリプトは、変更されたモジュールを自動的に検出し、
+# Maven Central にパブリッシュするためのスクリプトです。
 ##################################################
 
-function set_remote_repository() {
-  EXIST_REMOTE_REPO=`git remote | grep sync_repo | echo $?`
-  if [[ $EXIST_REMOTE_REPO == 0 ]]; then
-    git remote add sync_repo ${GITHUB_REMOTE_ADDRESS}
-    git fetch sync_repo
-  fi
-}
+# 共通ライブラリを読み込み
+source "$(dirname $0)/lib/common.sh"
 
-function set_tag() {
-  local TAG=$1
-  git tag $TAG
-  git push origin $TAG
-  git push sync_repo $TAG
-}
-
-function has_tag() {
-  local TAG=$1
-  REMOTE_TAGS=(`git tag`)
-  for REMOTE_TAG in ${REMOTE_TAGS[@]}; do
-    if [[ $REMOTE_TAG == $TAG ]]; then
-      return 1
-    fi
-  done
-  return 0
-}
-
-function sync_repository() {
-  git push -f sync_repo master
-}
+##################################################
+# パブリッシュメイン関数
+##################################################
 
 function publish() {
   local TARGETS_MODULES=($@)
+  
+  # 対象モジュールが存在しない場合は終了
   if [ -z $TARGETS_MODULES ]; then
     echo "Module is not updated"
     exit 1
   fi
 
-  sync_repository
+  # リポジトリ同期
+  echo "Force pushing master to sync_repo..."
+  git push -f sync_repo master
 
-  for MODULE in ${TARGETS_MODULES[@]}; do
-    local TARGET=`echo $MODULE | sed -e "s/\/version//"`
-    TAG_VERSION=`ruby scripts/bump_version.rb current-tag -t $TARGET`
+  # 各モジュールに対してタグ作成処理を実行
+  create_modules_tags "${TARGETS_MODULES[@]}"
 
-    has_tag $TAG_VERSION
-    if [ $? -eq 1 ]; then
-      echo "This tag is already exist: $TAG_VERSION"
-    else
-      set_tag $TAG_VERSION
-    fi
-  done
+  # 各モジュールに対してMaven Centralパブリッシュ処理を実行
+  publish_modules "${TARGETS_MODULES[@]}"
 
-  for MODULE in ${TARGETS_MODULES[@]}; do
-    local TARGET=`echo $MODULE | sed -e "s/\/version//"`
-    if [ $TARGET = "gradle-plugin" ]; then
-      ./gradlew -p gradle-plugin/ publish
-    else
-      ./gradlew $TARGET:publish
-    fi
-  done
-  ./gradlew closeAndReleaseRepository
-
-  # Publish release node
+  # リリースノートの公開
   ruby scripts/publish_changelog.rb
 }
 
 ##################################################
-# Checkout
+# メイン処理
 ##################################################
 
-set -e
-cd `dirname $0`
-cd ../
+# 初期化
+init_github_operations
 
-##################################################
-# Commands
-##################################################
-
-git config --global user.name "${GITHUB_USER_NAME}"
-git config --global user.email "${GITHUB_USER_EMAIL}"
-
-set_remote_repository
-
+# sync_repo/masterとの差分から変更されたバージョンファイルを特定
 DIFF_TARGETS=($(git diff --name-only sync_repo/master | grep -E '^(version$|.*/version$)'))
 
+# 特定されたターゲットモジュールをパブリッシュ
 publish ${DIFF_TARGETS[@]}

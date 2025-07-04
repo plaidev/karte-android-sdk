@@ -2,6 +2,15 @@
 #
 version: 2.1
 
+# Pipeline parameters for manual workflows
+parameters:
+  workflow_name:
+    type: string
+    default: ""
+  modules:
+    type: string
+    default: ""
+
 orbs:
   android: circleci/android@2.2.0
 
@@ -135,6 +144,61 @@ jobs:
           command: bash ./scripts/publish.sh
       - android/save-gradle-cache
 
+  # Manual operation jobs for publish recovery
+  manual_create_tags:
+    executor:
+      name: android/android-machine
+      tag: 2024.01.1
+    parameters:
+      modules:
+        type: string
+        default: ""
+        description: "Space-separated list of modules to tag (e.g., 'core debugger notifications')"
+    steps:
+      - checkout
+      - run:
+          name: Create and push tags
+          command: |
+            if [ -z "<< parameters.modules >>" ]; then
+              echo "No modules specified. Please provide modules parameter."
+              exit 1
+            fi
+            
+            bash ./scripts/create_tags.sh << parameters.modules >>
+
+  manual_maven_publish:
+    executor:
+      name: android/android-machine
+      tag: 2024.01.1
+    parameters:
+      modules:
+        type: string
+        default: ""
+        description: "Space-separated list of modules to publish (e.g., 'core debugger notifications')"
+    steps:
+      - checkout
+      - android/restore-gradle-cache
+      - run:
+          name: Maven publish
+          command: |
+            if [ -z "<< parameters.modules >>" ]; then
+              echo "No modules specified. Please provide modules parameter."
+              exit 1
+            fi
+            
+            bash ./scripts/maven_publish.sh << parameters.modules >>
+      - android/save-gradle-cache
+
+  manual_sync_repo:
+    executor:
+      name: android/android-machine
+      tag: 2024.01.1
+    steps:
+      - checkout
+      - run:
+          name: Sync repository
+          command: bash ./scripts/sync_repo.sh
+
 workflows:
   build_and_test:
     when: # Execute only public repository
@@ -158,3 +222,33 @@ workflows:
             branches:
               only:
                 - master
+
+  # Manual workflows for publish recovery
+  manual_tag_workflow:
+    when:
+      and:
+        - not:
+            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
+        - equal: [ manual_tag, << pipeline.parameters.workflow_name >> ]
+    jobs:
+      - manual_create_tags:
+          modules: << pipeline.parameters.modules >>
+
+  manual_publish_workflow:
+    when:
+      and:
+        - not:
+            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
+        - equal: [ manual_publish, << pipeline.parameters.workflow_name >> ]
+    jobs:
+      - manual_maven_publish:
+          modules: << pipeline.parameters.modules >>
+
+  manual_sync_workflow:
+    when:
+      and:
+        - not:
+            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
+        - equal: [ manual_sync, << pipeline.parameters.workflow_name >> ]
+    jobs:
+      - manual_sync_repo
