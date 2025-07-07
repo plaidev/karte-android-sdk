@@ -206,8 +206,11 @@ workflows:
     jobs:
       - test
   build_and_deploy:
-    unless: # Don't execute public repository
-      equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
+    when:
+      and:
+        - not: # Don't execute public repository
+            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
+        - equal: [ "", << pipeline.parameters.workflow_name >> ] # Don't execute when manual workflow is triggered
     jobs:
       - test
       - publish_docs:
