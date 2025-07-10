@@ -14,7 +14,7 @@ jobs:
       completed: ${{ steps.check_completion.outputs.completed }}
     steps:
     - name: Cancel Previous Runs
-      uses: styfle/cancel-workflow-action@0.9.1
+      uses: styfle/cancel-workflow-action@a40b8845c0683271d9f53dfcb887a7e181d3918b # 0.9.1
       with:
         access_token: ${{ secrets.GH_ACCESS_TOKEN }}
         all_but_latest: true
@@ -37,7 +37,7 @@ jobs:
     if: needs.check_that_current_pr_is_complete.outputs.completed == 'true'
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
     - name: Configure Git
       run: |
         git config user.email "git@users.noreply.github.com"
@@ -48,7 +48,7 @@ jobs:
         git checkout develop
         git merge origin/${{ github.head_ref }} --no-ff -m "Merge ${{ github.head_ref }} into develop"
     - name: Push to develop
-      uses: CasperWA/push-protected@v2
+      uses: CasperWA/push-protected@74d25b8aa10e0c29024138735d32f3c0b75f9279 # v2.16.0
       with:
         token: ${{ secrets.GH_ACCESS_TOKEN }}
         branch: develop
@@ -57,7 +57,7 @@ jobs:
         git checkout master
         git merge origin/${{ github.head_ref }} --no-ff -m "Merge ${{ github.head_ref }} into master"
     - name: Push to master
-      uses: CasperWA/push-protected@v2
+      uses: CasperWA/push-protected@74d25b8aa10e0c29024138735d32f3c0b75f9279 # v2.16.0
       with:
         token: ${{ secrets.GH_ACCESS_TOKEN }}
         branch: master
