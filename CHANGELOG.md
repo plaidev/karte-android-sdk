@@ -9,7 +9,7 @@
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.12.0   |
 | inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.5.0    |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.7.0    |
-| debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.0.0    |
+| debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.1.0    |
 
 # Releases - xxxx.xx.xx
 
@@ -17,6 +17,10 @@
 ** 🎉 FEATURE**
 - WebViewの情報を送るようになりました。
   詳細は [イベントに自動追加されるフィールド](doc:appendix-fields-android-sdk-v2) をご覧ください。
+
+### Debugger 1.1.0
+** 🔨CHANGED**
+- Debuggerのバージョン情報が正しく送信されるように修正しました。
 
 # Releases - 2025.07.01
 
