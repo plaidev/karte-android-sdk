@@ -15,12 +15,15 @@
 //
 package io.karte.android.tracking
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.NameNotFoundException
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.WindowManager
+import android.webkit.WebView
 import io.karte.android.BuildConfig
 import io.karte.android.KarteApp
 import io.karte.android.core.config.Config
@@ -46,7 +49,7 @@ class AppInfo(context: Context, repository: Repository, config: Config) : Serial
     private val versionName: String?
     private val versionCode: Int?
     private val karteSdkVersion = BuildConfig.LIB_VERSION
-    private val systemInfo = SystemInfo(config.enabledTrackingAaid, Screen(context))
+    private val systemInfo = SystemInfo(config.enabledTrackingAaid, Screen(context), getWebViewInfo(context))
     private val moduleInfo = ModuleInfo()
     private val packageName = context.packageName
 
@@ -136,6 +139,21 @@ class AppInfo(context: Context, repository: Repository, config: Config) : Serial
     private fun updateSystemInfo() {
         json.put("system_info", systemInfo.serialize())
     }
+
+    @SuppressLint("WebViewApiAvailability")
+    private fun getWebViewInfo(context: Context): WebViewInfo {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return WebViewInfo(packageName = "unknown (Below Android 8)")
+        }
+        val packageName = WebView.getCurrentWebViewPackage()?.packageName ?: return WebViewInfo(packageName = "unknown (Current WebView not found)")
+        return try {
+            val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
+            WebViewInfo(packageName = packageInfo.packageName, version = packageInfo.versionName)
+        } catch (e: NameNotFoundException) {
+            Logger.e(LOG_TAG, "Failed to get current WebView package info.", e)
+            WebViewInfo(packageName = "unknown (Package not found)")
+        }
+    }
 }
 
 private class ModuleInfo : Serializable {
@@ -149,7 +167,11 @@ private class ModuleInfo : Serializable {
     }
 }
 
-private class SystemInfo(val enabledTrackingAaid: Boolean, val screen: Screen) : Serializable {
+private class SystemInfo(
+    val enabledTrackingAaid: Boolean,
+    val screen: Screen,
+    private val webViewInfo: WebViewInfo
+) : Serializable {
     private val os: String = "Android"
     private val osVersion: String? = Build.VERSION.RELEASE
     private val device: String? = Build.DEVICE
@@ -170,6 +192,8 @@ private class SystemInfo(val enabledTrackingAaid: Boolean, val screen: Screen) :
         if (enabledTrackingAaid) advertisingId?.let { values.put("aaid", it) }
         language?.let { values.put("language", it) }
         values.put("screen", screen.serialize())
+        values.put("android_webview_package_name", webViewInfo.packageName)
+        webViewInfo.version?.let { values.put("android_webview_version", it) }
         return values
     }
 }
@@ -197,3 +221,5 @@ private class Screen(context: Context) : Serializable {
 
     override fun serialize(): JSONObject = JSONObject().put("width", width).put("height", height)
 }
+
+private class WebViewInfo(val packageName: String, val version: String? = null)

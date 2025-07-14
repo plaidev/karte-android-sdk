@@ -1,11 +1,11 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("com.vanniktech.maven.publish")
 }
 
 android {
     namespace = "io.karte.android.variables"
-    compileSdk = 34
     compileSdk = 34
 
     buildFeatures {
@@ -67,8 +67,5 @@ dependencies {
     testImplementation(project(":test_lib"))
 }
 
-afterEvaluate {
-    rootProject.findProperty("afterConfigurate")?.let {
-        (it as? (org.gradle.api.Project) -> Unit)?.invoke(project)
-    }
-}
+apply(from = "../buildscripts/projectMaven.gradle")
+apply(from = "../buildscripts/projectPublishing.gradle")

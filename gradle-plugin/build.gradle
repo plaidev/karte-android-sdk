@@ -1,19 +1,7 @@
-buildscript {
-    ext {
-        kotlin_version = '1.8.10'
-        ossrhUsername = System.getenv().getOrDefault("MAVEN_USER_NAME", "")
-        ossrhPassword = System.getenv().getOrDefault("MAVEN_PASSWORD", "")
-    }
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.8.10'
+    id 'com.vanniktech.maven.publish' version '0.25.3'
 }
-
-apply plugin: 'kotlin'
 
 repositories {
     mavenCentral()
@@ -49,5 +37,36 @@ dependencies {
 println "configure plugin: $project.name"
 
 apply from: '../buildscripts/projectMaven.gradle'
-apply from: '../buildscripts/projectMavenPlugin.gradle'
-apply from: '../buildscripts/projectSonatype.gradle'
+
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    
+    pom {
+        name = "KARTE Gradle Plugin"
+        description = "Gradle plugin for KARTE Android SDK"
+        url = "https://github.com/plaidev/karte-android-sdk"
+        
+        licenses {
+            license {
+                name = "The Apache Software License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "repo"
+            }
+        }
+        
+        developers {
+            developer {
+                id = "kartetaro"
+                name = "Taro Karte"
+                email = "dev.share@plaid.co.jp"
+            }
+        }
+        
+        scm {
+            connection = "scm:git:https://github.com/plaidev/karte-android-sdk.git"
+            developerConnection = "scm:git:ssh://github.com/plaidev/karte-android-sdk.git"
+            url = "https://github.com/plaidev/karte-android-sdk"
+        }
+    }
+}

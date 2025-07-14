@@ -1,7 +1,6 @@
 package io.karte.android.debugger
 
 import android.content.Intent
-import io.karte.android.BuildConfig
 import io.karte.android.KarteApp
 import io.karte.android.core.library.DeepLinkModule
 import io.karte.android.core.library.Library

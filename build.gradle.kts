@@ -14,9 +14,8 @@ plugins {
     id("com.android.library") version "8.1.1" apply false
     id("org.jetbrains.kotlin.android") version "1.8.10" apply false
     id("org.jetbrains.dokka") version "1.9.20"
-    // for upload maven repo
-    id("com.github.dcendents.android-maven") version "2.1" apply false
-    id("io.codearte.nexus-staging") version "0.22.0"
+    // for upload maven repo via Central Portal
+    id("com.vanniktech.maven.publish") version "0.33.0" apply false
     id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.13.2"
 }
 
@@ -34,13 +33,6 @@ configure(subprojects.filter { !it.name.startsWith("sample_") && !it.name.starts
     apply(from = "../buildscripts/projectMavenAndroid.gradle")
 }
 
-ext {
-    set("ossrhUsername", System.getenv().getOrDefault("MAVEN_USER_NAME", ""))
-    set("ossrhPassword", System.getenv().getOrDefault("MAVEN_PASSWORD", ""))
-    set("afterConfigurate", { project: Project ->
-        project.apply(from = "../buildscripts/projectSonatype.gradle")
-    })
-}
 
 tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
@@ -49,4 +41,3 @@ tasks.register("clean", Delete::class) {
 apply(from = "buildscripts/ktlint.gradle")
 apply(from = "buildscripts/dokka.gradle")
 apply(from = "buildscripts/jacoco.gradle")
-apply(from = "buildscripts/sonatype.gradle")
