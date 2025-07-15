@@ -7,9 +7,15 @@
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.15.0   |
 | variables | 設定値配信機能を提供します。 | 2.10.0   |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.12.0   |
-| inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.5.0    |
+| inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.5.1    |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.7.0    |
 | debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.1.0    |
+
+# Releases - xxxx.xx.xx
+
+### InAppFrame 0.5.1
+** 🔨CHANGED**
+- LegacyViewにおいて、InAppFrameを非表示にする際に、View削除ではなくVisibilityを変更するようにしました(NullPointerExceptionの回避のため)
 
 # Releases - 2025.07.14
 
