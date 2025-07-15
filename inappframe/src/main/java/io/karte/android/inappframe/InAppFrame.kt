@@ -5,7 +5,6 @@ import android.net.Uri
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import io.karte.android.inappframe.components.CarouselWithMarginView
 import io.karte.android.inappframe.components.CarouselWithoutMarginView
@@ -21,18 +20,20 @@ import io.karte.android.inappframe.model.InAppFrameData
 import io.karte.android.inappframe.model.InAppFrameDeserializer
 import io.karte.android.inappframe.model.SimpleBannerV1
 import io.karte.android.variables.Variables
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 
 const val IN_APP_FRAME_ROOT_LOG = "In-App Frame"
 const val PREFIX = "KRT_IN_APP_FRAME$"
 
 class InAppFrame : LinearLayout {
     private val placeId: String
-    private var inAppFrameData: InAppFrameData? = null
-    private var iafTracker: IAFTracker? = null
+    private val scope = MainScope()
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         val attr = context.obtainStyledAttributes(attrs, R.styleable.InAppFrame, 0, 0)
@@ -48,35 +49,37 @@ class InAppFrame : LinearLayout {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        loadInAppFrameContent()
+    }
 
-        // 事前にデシリアライズされたデータがある場合は、それを使用
-        if (inAppFrameData != null && iafTracker != null) {
-            CoroutineScope(Dispatchers.Main).launch {
-                renderIAF(inAppFrameData!!, iafTracker!!)
-            }
-            return
-        }
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        scope.cancel()
+        Log.d(IN_APP_FRAME_ROOT_LOG, "InAppFrame detached and cleaned up")
+    }
 
-        // 従来の処理
-        runCatching {
-            val variable = Variables.get("$PREFIX$placeId")
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
+    private fun loadInAppFrameContent() {
+        val variable = Variables.get("$PREFIX$placeId")
+
+        scope.launch {
+            try {
+                coroutineScope {
                     val (inAppFrame, iafTracker) = InAppFrameDeserializer.deserialize(variable)
                     renderIAF(inAppFrame, iafTracker)
-                } catch (e: Exception) {
-                    Log.d(IN_APP_FRAME_ROOT_LOG, "render failed $e")
-                    removeSelf()
                 }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                Log.d(IN_APP_FRAME_ROOT_LOG, "Failed to load InAppFrame content: $e")
+                hideSelf()
             }
-        }.onFailure {
-            Log.d(IN_APP_FRAME_ROOT_LOG, "init failed")
-            removeSelf()
         }
     }
 
-    private fun removeSelf() {
-        (parent as ViewGroup?)?.removeView(this)
+    private suspend fun hideSelf() = withContext(Dispatchers.Main) {
+        // Viewを非表示にして安全に処理
+        visibility = GONE
+        Log.d(IN_APP_FRAME_ROOT_LOG, "InAppFrame hidden due to error")
     }
 
     private suspend fun renderIAF(inAppFrame: InAppFrameData, tracker: IAFTracker): Unit = withContext(Dispatchers.Main) {
@@ -96,7 +99,6 @@ class InAppFrame : LinearLayout {
          * InAppFrameのデリゲートオブジェクト
          */
         private var delegate: InAppFrameDelegate? = null
-            private set
 
         /**
          * InAppFrameのデリゲートを設定します。

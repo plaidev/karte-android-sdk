@@ -1,10 +1,12 @@
 package io.karte.android.inappframe.model
 
 import io.karte.android.variables.Variable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 internal object InAppFrameDeserializer {
-    suspend fun deserialize(variable: Variable): Pair<InAppFrameData, IAFTracker> {
+    suspend fun deserialize(variable: Variable): Pair<InAppFrameData, IAFTracker> = withContext(Dispatchers.IO) {
         val json = variable.jsonObject(JSONObject())
         val templateType = json
             .getJSONObject("content")
@@ -25,7 +27,6 @@ internal object InAppFrameDeserializer {
             }
             IAFVersion.UNKNOWN -> throw Exception("IAFVersion is unknown.")
         }
-
-        return Pair(inAppFrameData, iafTracker)
+        Pair(inAppFrameData, iafTracker)
     }
 }
