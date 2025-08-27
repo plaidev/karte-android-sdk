@@ -76,6 +76,8 @@ open class JSONRequest(
     method: String,
     gzip: Boolean = true
 ) : Request<String>(url, method) {
+    constructor(url: String, method: String) : this(url, method, true)
+
     override var body: String? = null
     val gzip: Boolean
 
