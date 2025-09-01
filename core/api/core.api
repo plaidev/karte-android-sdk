@@ -520,6 +520,7 @@ public final class io/karte/android/utilities/http/Client {
 }
 
 public class io/karte/android/utilities/http/JSONRequest : io/karte/android/utilities/http/Request {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Z)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun getBody ()Ljava/lang/Object;
