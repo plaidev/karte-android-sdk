@@ -4,7 +4,7 @@ require 'openssl'
 require 'json'
 
 request_body = {
-    "title" => "リリースノート",
+    "title" => "[Android]リリースノート",
     "category" => "5b56efc676674700034d9318"
 }
 
