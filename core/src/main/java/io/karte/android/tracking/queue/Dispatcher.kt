@@ -171,13 +171,16 @@ internal class Dispatcher {
 
         rateLimit.increment(events.size)
         val (visitorId, originalPvId, pvId) = key
+        val appInfo = KarteApp.self.appInfo?.json
         var request = requestOf(
             visitorId,
             originalPvId,
             pvId,
             events
                 .filterNot { filter.reject(it.event) }
-                .map { it.event.apply { isRetry = it.retry > 0 } })
+                .map { it.event.apply { isRetry = it.retry > 0 } },
+            appInfo
+        )
         KarteApp.self.modules.filterIsInstance<TrackModule>()
             .forEach { request = it.intercept(request) }
         try {

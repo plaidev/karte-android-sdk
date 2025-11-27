@@ -464,6 +464,7 @@ public final class io/karte/android/tracking/Trigger : io/karte/android/tracking
 
 public final class io/karte/android/tracking/client/TrackRequest : io/karte/android/utilities/http/JSONRequest {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lorg/json/JSONObject;)V
 	public final fun contains (Lio/karte/android/tracking/EventName;)Z
 	public synthetic fun getBody ()Ljava/lang/Object;
 	public fun getBody ()Ljava/lang/String;

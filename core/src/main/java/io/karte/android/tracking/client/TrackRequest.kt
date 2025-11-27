@@ -30,7 +30,8 @@ internal fun requestOf(
     visitorId: String,
     originalPvId: String,
     pvId: String,
-    events: List<Event>
+    events: List<Event>,
+    appInfo: JSONObject?
 ): TrackRequest {
     val trackEndpointPath =
         (KarteApp.self.config as? ExperimentalConfig)?.operationMode?.trackEndpointPath
@@ -40,7 +41,8 @@ internal fun requestOf(
         visitorId,
         originalPvId,
         pvId,
-        events
+        events,
+        appInfo
     )
 }
 
@@ -61,8 +63,17 @@ class TrackRequest(
     private val visitorId: String,
     val originalPvId: String,
     val pvId: String,
-    private val events: List<Event>
+    private val events: List<Event>,
+    private val appInfo: JSONObject?
 ) : JSONRequest(url, METHOD_POST) {
+    constructor(
+        url: String,
+        visitorId: String,
+        originalPvId: String,
+        pvId: String,
+        events: List<Event>
+    ) : this(url, visitorId, originalPvId, pvId, events, null)
+
     /** bodyに書き込む内容を[JSONObject]として返します。 */
     val json: JSONObject
         get() {
@@ -73,7 +84,9 @@ class TrackRequest(
                         .put("original_pv_id", originalPvId)
                         .put("pv_id", pvId)
                 )
-                .put("app_info", KarteApp.self.appInfo?.json)
+                .apply {
+                    appInfo?.let { put("app_info", it) }
+                }
                 .put("events", JSONArray(events.map { it.toJSON() }))
         }
     override var body: String?
