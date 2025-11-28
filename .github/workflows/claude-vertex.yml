@@ -34,14 +34,14 @@ jobs:
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         id: auth_gcp
         with:
-          workload_identity_provider: 'projects/707161537700/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
-          service_account: 'github-actions@plaid-devenv-ai.iam.gserviceaccount.com'
+          workload_identity_provider: ${{ secrets.CLAUDE_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.CLAUDE_GCP_SERVICE_ACCOUNT }}
       # Github App Tokenの取得
       # secrets.GITHUB_TOKENを使うとcommitした際にCIが走らないため、Github AppのTokenを使用する
       - uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
         id: app-token
         with:
-          app-id: 135171 # https://github.com/organizations/plaidev/settings/apps/plaidev-github-actions-agent
+          app-id: ${{ secrets.CLAUDE_GITHUB_APP_ID }}
           private-key: ${{ secrets.SHARED_GITHUB_ACTION_AGENT_APP_PRIVATE_KEY }}
       # Claude Code Actionの実行
       - uses: anthropics/claude-code-action@f4d737af0b61a79741d8246c5207da5887746212 # v1.0.15
@@ -49,10 +49,10 @@ jobs:
         continue-on-error: true
         env:
           # Vertex AI設定
-          ANTHROPIC_VERTEX_PROJECT_ID: 'plaid-devenv-ai'
-          ANTHROPIC_VERTEX_REGION: us-east5
+          ANTHROPIC_VERTEX_PROJECT_ID: ${{ secrets.CLAUDE_VERTEX_PROJECT_ID }}
+          ANTHROPIC_VERTEX_REGION: ${{ secrets.CLAUDE_VERTEX_REGION }}
           CLAUDE_CODE_ENDPOINT: vertex
-          CLOUD_ML_REGION: us-east5
+          CLOUD_ML_REGION: ${{ secrets.CLAUDE_CLOUD_ML_REGION }}
           # モデル設定（動的に選択）
           CLAUDE_CODE_PRIMARY_MODEL: ${{ steps.select_model.outputs.model }}
           CLAUDE_CODE_ASSISTANT_MODEL: claude-sonnet-4-20250514
