@@ -53,7 +53,7 @@ commands:
     steps:
       - run:
           name: Doc check
-          command: ./gradlew dokkaHtml --parallel --max-workers=4
+          command: ./gradlew dokkaHtmlMultiModule --parallel --max-workers=4
 
   run_api_check:
     steps:

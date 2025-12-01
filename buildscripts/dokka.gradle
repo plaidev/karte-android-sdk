@@ -7,7 +7,18 @@ task dokkaModuleMd(type: Copy, group: 'documentation') {
     filteringCharset = 'UTF-8'
 }
 
+dokkaHtmlMultiModule {
+    def dir = "$rootDir/buildscripts/dokka"
+    def configJson = """
+        {
+            "customStyleSheets":["${file("$dir/logo-styles.css")}","${file("$dir/custom-style-to-add.css")}"],
+            "customAssets":["${file("$dir/logo-icon.svg")}"]
+        }""".stripIndent().trim()
+    pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": configJson])
+}
+
 task publishDocs(type: Exec, group: 'documentation') {
+    dependsOn dokkaHtmlMultiModule
     commandLine "ruby", "scripts/publish_docs.rb"
     standardOutput = new ByteArrayOutputStream()
     ext.output = {
