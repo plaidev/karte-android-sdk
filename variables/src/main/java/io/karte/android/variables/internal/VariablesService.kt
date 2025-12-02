@@ -206,11 +206,13 @@ internal class VariablesService : Library, ActionModule, UserModule {
         if (trackRequest.contains(VariablesEventName.FetchVariables)) {
             repository.removeAll()
         }
-
         val messages = trackResponse.messages
             .mapNotNull { parse(it) }
             .filter { it.isEnabled }
-            .reversed()
+            // 元々reversedが使われていたが、compileSDK=36で、java.lang.NoSuchMethodErrorが出るようになった。
+            // kotlinのバグではないかという指摘があるが、解決していない。
+            // https://issuetracker.google.com/issues/350432371#comment23
+            .asReversed()
         messages.forEach messages@{ message ->
             val shortenId = message.action.shortenId?.let { it } ?: return@messages
             val campaignId = message.campaign.campaignId?.let { it } ?: return@messages

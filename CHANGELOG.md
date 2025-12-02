@@ -3,19 +3,53 @@
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- |:---------|
 | core | イベントトラッキング機能を提供します。 | 2.32.0   |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.24.0   |
-| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.15.0   |
-| variables | 設定値配信機能を提供します。 | 2.10.0   |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.12.0   |
-| inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.5.1    |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.25.0   |
+| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.16.0   |
+| variables | 設定値配信機能を提供します。 | 2.11.0   |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.13.0   |
+| inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.6.0    |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.7.0    |
-| debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.1.0    |
+| debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.2.0    |
 
 # Releases - xxxx.xx.xx
 
 ### Core 2.32.0
-** 💊FIXED **
+**🔨CHANGED**
+- compileSdkを36にしました。
+
+**💊FIXED**
 - native_app_installおよびnative_app_updateのログに、system_infoとmodule_infoなどの情報が重複して出力されていた不具合を修正しました。
+
+### InAppMessaging 2.25.0
+**🔨CHANGED**
+- compileSdkを36にしました。
+
+**💊FIXED**
+- lintの警告を修正しました。
+
+### Notifications 2.16.0
+**🔨CHANGED**
+- compileSdkを36にしました。
+
+### Variables 2.11.0
+**🔨CHANGED**
+- compileSdkを36にしました。
+- compileSdk36でListの`reversed`を実行するとRuntimeErrorが発生する問題があるため`asReversed`に変更しました。
+  - https://issuetracker.google.com/issues/350432371#comment23
+
+### VisualTracking 2.13.0
+**🔨CHANGED**
+- compileSdkを36にしました。
+- compileSdk36でListの`reversed`を実行するとRuntimeErrorが発生する問題があるため`asReversed`に変更しました。
+  - https://issuetracker.google.com/issues/350432371#comment23
+
+### InAppFrame 0.6.0
+**🔨CHANGED**
+- compileSdkを36にしました。
+
+### Debugger 1.2.0
+**🔨CHANGED**
+- compileSdkを36にしました。
 
 # Releases - 2025.09.01
 
@@ -43,9 +77,8 @@
 # Releases - 2025.07.01
 
 ### InAppFrame 0.5.0
-**🔨FIXED**
+**💊FIXED**
 - LegacyViewのSimpleBannerにシャドウがあたっているのを修正しました
-
 
 # Releases - 2025.06.05
 
@@ -59,7 +92,7 @@
 **🎉FEATURE**
 - イベントをわかりやすく管理画面で確認できるモジュールを公開しました
 
-### In App Messaging 2.24.0
+### InAppMessaging 2.24.0
 **🔨CHANGED**
 - _is_edge_to_edge_enabledをイベント送信時に送るように変更しました
 
@@ -75,7 +108,7 @@
 - targetSdkを34に上げました
 
 ### InAppMessaging 2.23.0
-**🔨FIXED**
+**💊FIXED**
 - Edge to edge有効時、`Window.decorView.rootView`にWindowInsetsを設定すると接客表示時にタップ位置がずれる問題を修正しました。
   - Edge to edge有効時の接客表示については[サポートサイト](https://support.karte.io/post/6c5lnLcQSHfSBKfH4waAJC)もご参照ください。
 
@@ -83,7 +116,7 @@
 - ビルド時のKotlinのバージョンを1.8.10に上げました
 - targetSdkを34に上げました
 
-### Notifications 2.14.0
+### Notifications 2.15.0
 **🔨CHANGED**
 - ビルド時のKotlinのバージョンを1.8.10に上げました
 
@@ -102,7 +135,6 @@
 ### InAppFrame 0.3.0
 **🔨CHANGED**
 - ビルド時のKotlinのバージョンを1.8.10に上げました
-
 
 # Releases - 2025.04.07
 
@@ -180,26 +212,24 @@
 
 ### Core 2.26.0
 
-**🔨FIXED**
+**💊FIXED**
 - イベント送信時にまれにクラッシュする不具合を修正しました。
 
 # Releases - 2024.12.13
 
-
 ### Core 2.25.1
-**🔨FIXED**
+**💊FIXED**
 - 古い関数の修正を行いました
 
 **🔨CHANGED**
 - イベント送信のログにイベント内容を付与しました。
 
 ### InAppMessaging 2.20.1
-**🔨FIXED**
+**💊FIXED**
 - _message_suppressed送信前に、まれにクラッシュする不具合を修正しました。
 
-
 ### notifications 2.12.0
-**🔨FIXED**
+**💊FIXED**
 - タスクキル状態でPush通知を開封した際の不具合を修正しました。
 
 # Releases - 2024.08.21
@@ -210,13 +240,14 @@
   - Edge to Edgeに対応後にKARTEの接客の表示が正しくされているか検証をお願いします
   - Navigation Barに被ってしまう、接客の表示が下すぎる場合はCSS等を利用して調整してください。テンプレートによってはbottomをいじれるものもあるためそちらで設定することもできます。
 - IAMWebViewの初期化を、アプリがフォアグラウンドに戻った際に遅延して行うように変更しました
-**🔨FIXED**
+
+**💊FIXED**
 - suppressed状態で設定値配信を取得した場合に_message_suppressedが発生しないように変更しました
 
 # Releases - 2024.06.03
 
 ### InAppMessaging 2.19.1
-**🔨FIXED**
+**💊FIXED**
 - InAppMessaging利用時に、まれクラッシュする不具合を修正しました
 - 非階層urlを受け取るとクラッシュする不具合を修正しました
 

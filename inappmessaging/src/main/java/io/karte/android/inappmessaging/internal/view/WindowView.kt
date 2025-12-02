@@ -374,6 +374,8 @@ internal open class WindowView(
 
         val view = appWindow.currentFocus
         if (view != null) {
+            // TODO: Fix Deprecation
+            @Suppress("DEPRECATION")
             inputMethodManager.hideSoftInputFromWindow(
                 view.windowToken,
                 InputMethodManager.HIDE_NOT_ALWAYS,

@@ -79,6 +79,12 @@ jobs:
       GRADLE_OPTS: -Xmx6G
     steps:
       - checkout
+      - run:
+          name: Print Java environment
+          command: |
+            echo "JAVA_HOME: $JAVA_HOME"
+            echo "which java: $(which java)"
+            java -version
       - add_google_services
       - android/restore-gradle-cache
       - android/restore-build-cache

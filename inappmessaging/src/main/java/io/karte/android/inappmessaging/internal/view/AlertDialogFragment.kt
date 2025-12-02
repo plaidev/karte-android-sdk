@@ -22,9 +22,11 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.app.DialogFragment
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 
-internal class AlertDialogFragment : DialogFragment() {
-
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+class AlertDialogFragment : DialogFragment() {
+    @Deprecated("OVERRIDE_DEPRECATION")
     override fun onCreateDialog(savedInstanceState: Bundle): Dialog {
         val builder = AlertDialog.Builder(activity)
         val message = arguments.getString("message")

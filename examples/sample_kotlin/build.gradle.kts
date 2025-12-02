@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "io.karte.sample_kotlin"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.karte.tracker_sample"

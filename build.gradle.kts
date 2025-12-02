@@ -10,8 +10,8 @@ buildscript {
 }
 
 plugins {
-    id("com.android.application") version "8.1.1" apply false
-    id("com.android.library") version "8.1.1" apply false
+    id("com.android.application") version "8.8.2" apply false
+    id("com.android.library") version "8.8.2" apply false
     id("org.jetbrains.kotlin.android") version "1.8.10" apply false
     id("org.jetbrains.dokka") version "1.9.20"
     // for upload maven repo via Central Portal
@@ -23,6 +23,15 @@ apiValidation {
     ignoredProjects.add("test_lib")
     ignoredProjects.add("sample_kotlin")
     ignoredProjects.add("sample_java")
+}
+
+// Configure Java toolchain for all Android projects
+subprojects {
+    pluginManager.withPlugin("org.jetbrains.kotlin.android") {
+        extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension> {
+            jvmToolchain(17)
+        }
+    }
 }
 
 configure(subprojects.filter { !it.name.startsWith("sample_") && !it.name.startsWith("test") }) {
