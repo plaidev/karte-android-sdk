@@ -6,8 +6,8 @@ task javadocJar(type: Jar, dependsOn: 'dokkaJavadoc', group: 'documentation') {
 }
 
 afterEvaluate {
-    dokkaHtml {
-//        failOnWarning.set(true)
+    // Configuration for dokkaHtmlPartial
+    dokkaHtmlPartial {
         dokkaSourceSets {
             named("main") {
                 includeNonPublic.set(false)
@@ -29,6 +29,5 @@ afterEvaluate {
             }""".stripIndent().trim()
         pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": configJson])
     }
-    dokkaHtml.dependsOn rootProject.dokkaModuleMd
-    rootProject.publishDocs.dependsOn dokkaHtml
+    dokkaHtmlPartial.dependsOn rootProject.dokkaModuleMd
 }

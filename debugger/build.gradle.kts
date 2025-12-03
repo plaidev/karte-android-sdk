@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "io.karte.android.debugger"
-    compileSdk = 34
+    compileSdk = 36
     
     buildFeatures {
         buildConfig = true
@@ -50,9 +50,11 @@ android {
     }
 }
 
+val kotlin_version: String by rootProject.extra
+
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
 
     compileOnly("androidx.annotation:annotation:1.3.0")
     implementation(project(":core"))

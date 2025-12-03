@@ -99,16 +99,25 @@ class IAMProcessorTest {
 
     @Test
     fun receive時にはhandleを呼ぶ() {
+        // webviewが生成される前にprocessorのメソッドが呼ばれてしまうことがあるので、mockしておく
+        justRun { anyConstructed<IAMWebView>().handleResponseData(any()) }
+
         val message = createMessagePopup()
         processor.handle(message)
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
 
         verify(exactly = 1) { anyConstructed<IAMWebView>().handleResponseData(message.string) }
     }
 
     @Test
     fun pv_idのreset時にはhandleChangePvする() {
+        // webviewが生成される前にprocessorのメソッドが呼ばれてしまうことがあるので、mockしておく
+        justRun { anyConstructed<IAMWebView>().handleChangePv() }
+        justRun { anyConstructed<IAMWebView>().reset(any()) }
+
         processor.handleChangePv()
         processor.reset(false)
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
 
         verify(exactly = 1) { anyConstructed<IAMWebView>().handleChangePv() }
         verify(exactly = 1) { anyConstructed<IAMWebView>().reset(false) }
@@ -116,15 +125,23 @@ class IAMProcessorTest {
 
     @Test
     fun view送信時にはhandleViewする() {
+        // webviewが生成される前にprocessorのメソッドが呼ばれてしまうことがあるので、mockしておく
+        justRun { anyConstructed<IAMWebView>().handleView(any()) }
+
         val values = JSONObject()
         processor.handleView(values)
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
 
         verify(exactly = 1) { anyConstructed<IAMWebView>().handleView(values) }
     }
 
     @Test
     fun dismiss時にはresetする() {
+        // webviewが生成される前にprocessorのメソッドが呼ばれてしまうことがあるので、mockしておく
+        justRun { anyConstructed<IAMWebView>().reset(any()) }
+
         processor.reset(true)
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
 
         verify(exactly = 1) { anyConstructed<IAMWebView>().reset(true) }
     }

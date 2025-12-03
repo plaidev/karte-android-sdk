@@ -8,7 +8,7 @@ apply(from = "../buildscripts/ktlint.gradle")
 
 android {
     namespace = "io.karte.android.inappframe"
-    compileSdk = 34
+    compileSdk = 36
 
     buildFeatures {
         viewBinding = true
@@ -43,10 +43,6 @@ android {
             isReturnDefaultValues = true
             isIncludeAndroidResources = true
         }
-    }
-
-    kotlinOptions {
-        allWarningsAsErrors = true
     }
 
     lint {

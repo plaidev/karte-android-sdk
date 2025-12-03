@@ -1,38 +1,60 @@
 # Pull Requestの変更に対応するラベルの定義
 # https://github.com/actions/labeler
 'Module:Core':
-  - core/*
-  - core/src/main/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - core/*
+      - core/src/main/**
 'Module:IAM':
-  - inappmessaging/* 
-  - inappmessaging/src/main/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - inappmessaging/*
+      - inappmessaging/src/main/**
 'Module:Notification':
-  - notifications/*
-  - notifications/src/main/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - notifications/*
+      - notifications/src/main/**
 'Module:Variables':
-  - variables/*
-  - variables/src/main/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - variables/*
+      - variables/src/main/**
 'Module:VT':
-  - visualtracking/*
-  - visualtracking/src/main/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - visualtracking/*
+      - visualtracking/src/main/**
 'Module:Inbox':
-  - inbox/*
-  - inbox/src/main/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - inbox/*
+      - inbox/src/main/**
 'Module:Debugger':
-  - debugger/*
-  - debugger/src/main/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - debugger/*
+      - debugger/src/main/**
 'Module:InAppFrame':
-  - inappframe/*
-  - inappframe/src/main/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - inappframe/*
+      - inappframe/src/main/**
 'Test':
-  - core/src/test/**
-  - inappmessaging/src/test/**
-  - notifications/src/test/**
-  - variables/src/test/**
-  - visualtracking/src/test/**
-  - inbox/src/test/**
-  - debugger/src/test/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - core/src/test/**
+      - inappmessaging/src/test/**
+      - notifications/src/test/**
+      - variables/src/test/**
+      - visualtracking/src/test/**
+      - inbox/src/test/**
+      - debugger/src/test/**
 'Examples':
-  - examples/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - examples/**
 'Gradle-Plugin':
-  - gradle-plugin/**
+  - changed-files:
+    - any-glob-to-any-file:
+      - gradle-plugin/**

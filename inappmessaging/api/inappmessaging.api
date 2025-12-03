@@ -83,3 +83,12 @@ public abstract class io/karte/android/inappmessaging/InAppMessagingDelegate {
 	public fun shouldOpenURL (Landroid/net/Uri;)Z
 }
 
+public final class io/karte/android/inappmessaging/internal/view/AlertDialogFragment : android/app/DialogFragment {
+	public static final field Companion Lio/karte/android/inappmessaging/internal/view/AlertDialogFragment$Companion;
+	public fun <init> ()V
+	public fun onCreateDialog (Landroid/os/Bundle;)Landroid/app/Dialog;
+}
+
+public final class io/karte/android/inappmessaging/internal/view/AlertDialogFragment$Companion {
+}
+

@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "io.karte.android.inbox"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21

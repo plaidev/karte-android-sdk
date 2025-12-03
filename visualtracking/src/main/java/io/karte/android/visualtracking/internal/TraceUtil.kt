@@ -29,7 +29,10 @@ private val NUM_MATCHER = "[0-9]+".toRegex()
 internal fun viewPathIndices(actionId: String?): IntArray? {
     return actionId?.let { id ->
         NUM_MATCHER.findAll(id).mapNotNull { it.value.toIntOrNull() }
-            .toList().reversed().toIntArray()
+            // 元々reversedが使われていたが、compileSDK=36で、java.lang.NoSuchMethodErrorが出るようになった。
+            // kotlinのバグではないかという指摘があるが、解決していない。
+            // https://issuetracker.google.com/issues/350432371#comment23
+            .toList().asReversed().toIntArray()
     }
 }
 

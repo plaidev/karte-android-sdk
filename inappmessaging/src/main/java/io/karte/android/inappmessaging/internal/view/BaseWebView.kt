@@ -146,13 +146,14 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
 
             // mainpageの失敗時のみ呼ばれる
             @Deprecated("Deprecated in Java")
-            @Suppress("DEPRECATION")
             override fun onReceivedError(
                 view: WebView,
                 errorCode: Int,
                 description: String,
                 failingUrl: String
             ) {
+                // TODO: FIX DEPRECATION
+                @Suppress("DEPRECATION")
                 super.onReceivedError(view, errorCode, description, failingUrl)
                 handleError("Error $errorCode occurred in WebView. $description", failingUrl)
             }

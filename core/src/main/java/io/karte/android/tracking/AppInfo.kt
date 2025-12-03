@@ -80,6 +80,7 @@ class AppInfo(context: Context, repository: Repository, config: Config) : Serial
         }
 
         systemInfo.advertisingId = repository.get<String?>(ADVERTISING_ID_KEY, null)
+        json = serialize()
         if (config.enabledTrackingAaid) {
             AdvertisingId.getAdvertisingId(context) { aaid ->
                 Logger.d(LOG_TAG, "getAdvertisingId $aaid")
@@ -88,7 +89,6 @@ class AppInfo(context: Context, repository: Repository, config: Config) : Serial
                 updateSystemInfo()
             }
         }
-        json = serialize()
         Logger.v(LOG_TAG, "Constructed App info: $json")
     }
 
@@ -107,9 +107,13 @@ class AppInfo(context: Context, repository: Repository, config: Config) : Serial
         }
     }
 
+    private fun serializeForInstall(): JSONObject {
+        return JSONObject()
+    }
+
     private fun serializeForUpdate(): JSONObject {
         return try {
-            JSONObject(json, json.keys().asSequence().toList().toTypedArray())
+            JSONObject()
                 .put("prev_version_name", prevVersionName)
                 .put("prev_version_code", prevVersionCode.toString())
         } catch (e: JSONException) {
@@ -125,7 +129,7 @@ class AppInfo(context: Context, repository: Repository, config: Config) : Serial
 
         if (prevVersionCode == -1) {
             // application installed
-            Tracker.track(Event(AutoEventName.NativeAppInstall, json))
+            Tracker.track(Event(AutoEventName.NativeAppInstall, serializeForInstall()))
         } else if (prevVersionCode != versionCode) {
             // application updated
             Tracker.track(Event(AutoEventName.NativeAppUpdate, serializeForUpdate()))

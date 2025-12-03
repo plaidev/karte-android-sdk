@@ -20,6 +20,12 @@ compileKotlin {
     kotlinOptions.allWarningsAsErrors = true
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 dependencies {
     implementation gradleApi()
     implementation 'org.javassist:javassist:3.24.1-GA'

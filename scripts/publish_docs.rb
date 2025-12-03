@@ -102,7 +102,7 @@ class Documents
   end
 
   def _get_generated_docs_dir
-    File.join(@module_name, "build", "dokka", "html")
+    File.join("build", "dokka", "htmlMultiModule", @module_name)
   end
 
   def _get_latest_dir

@@ -6,6 +6,10 @@ pluginManagement {
     }
 }
 
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -27,3 +31,4 @@ includeBuild("gradle-plugin") {
 project(":test_lib").projectDir = File(settingsDir, "core/test_lib")
 project(":sample_java").projectDir = File(settingsDir, "examples/sample_java")
 project(":sample_kotlin").projectDir = File(settingsDir, "examples/sample_kotlin")
+

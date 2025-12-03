@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "io.karte.android.inappmessaging"
-    compileSdk = 34
+    compileSdk = 36
 
     buildFeatures {
         buildConfig = true
