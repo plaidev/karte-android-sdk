@@ -124,7 +124,7 @@ end
 
 
 class Command
-  attr_reader :force
+  attr_reader :force, :branch
 
   def self.release_proc(dir)
     proc {
@@ -141,11 +141,12 @@ class Command
 
       opt.separator ''
       opt.separator 'Examples:'
-      opt.separator "    % #{opt.program_name} [-f]"
+      opt.separator "    % #{opt.program_name} [-f] [--branch BRANCH_NAME]"
 
       opt.separator ''
       opt.separator 'Specific options:'
       opt.on('-f', '--force', 'Force override docs') { |v| @force = v }
+      opt.on('-b', '--branch BRANCH', 'Branch name to publish docs to (default: master)') { |v| @branch = v }
 
       opt.separator ''
       opt.separator 'Common options:'
@@ -170,6 +171,9 @@ class Command
       $stderr.puts 'Failed to clone git repository.'
       exit 1
     end
+
+    # Checkout to the specified branch if provided
+    git.checkout(@branch) if @branch
 
     docs_dir = File.join(git.workspace, 'docs', 'android')
     FileUtils.mkdir_p(docs_dir)

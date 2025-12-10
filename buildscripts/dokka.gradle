@@ -19,7 +19,12 @@ dokkaHtmlMultiModule {
 
 task publishDocs(type: Exec, group: 'documentation') {
     dependsOn dokkaHtmlMultiModule
-    commandLine "ruby", "scripts/publish_docs.rb"
+    def branch = findProperty('branch')
+    def args = ["ruby", "scripts/publish_docs.rb"]
+    if (branch != null) {
+        args.addAll(["--branch", branch])
+    }
+    commandLine args
     standardOutput = new ByteArrayOutputStream()
     ext.output = {
         return standardOutput.toString()
