@@ -108,24 +108,6 @@ jobs:
       - store_artifacts:
           path: ~/test-results/junit
 
-  publish_docs:
-    executor:
-      name: android/android-machine
-      tag: 2024.01.1
-    steps:
-      - checkout
-      - android/restore-gradle-cache
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - run:
-          name: Generate and Publish docs
-          command: |
-            git config --global user.name "${GITHUB_USER_NAME}"
-            git config --global user.email "${GITHUB_USER_EMAIL}"
-            ./gradlew publishDocs
-      - android/save-gradle-cache
-
   publish:
     executor:
       name: android/android-machine
@@ -218,11 +200,6 @@ workflows:
         - equal: [ "", << pipeline.parameters.workflow_name >> ] # Don't execute when manual workflow is triggered
     jobs:
       - test
-      - publish_docs:
-          filters:
-            branches:
-              only:
-                - master
       - publish:
           requires:
             - test

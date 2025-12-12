@@ -1,8 +1,7 @@
 name: Publish Documentation
 on:
-  # TODO: Enable this when migrating from CircleCI.
-  # push:
-  #   branches: ["master"]
+  push:
+    branches: ["master"]
   workflow_dispatch:
 jobs:
   publish_docs:
@@ -65,7 +64,6 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_MESSAGE: 'Documentation for KARTE Android SDK was published successfully!'
           SLACK_COLOR: success
-          SLACK_ICON_EMOJI: ':android:'
       - name: Notify Slack on failure
         if: failure()
         uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
@@ -73,4 +71,3 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_MESSAGE: 'Failed to publish documentation for KARTE Android SDK'
           SLACK_COLOR: failure
-          SLACK_ICON_EMOJI: ':android:'
