@@ -60,17 +60,17 @@ dependencies {
 
     // Suppressed Gradle warnings in the original are simply left as is for reference
     //noinspection GradleCompatible
-    compileOnly("androidx.core:core-ktx:1.2.0")
+    compileOnly("androidx.core:core-ktx:1.16.0")
     //noinspection GradleCompatible
-    compileOnly("com.android.support:design:22.0.0")
+    compileOnly("com.android.support:design:28.0.0")
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test:core:1.4.0") // Note: Cannot upgrade due to kotlin-stdlib dependency issues
-    testImplementation("com.google.truth:truth:1.0.1")
-    testImplementation("io.mockk:mockk:1.10.0")
-    testImplementation("org.robolectric:robolectric:4.11.1")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.8.0")
-    testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.6.1")
+    testImplementation("androidx.test:core:1.6.1")
+    testImplementation("com.google.truth:truth:1.4.5")
+    testImplementation("io.mockk:mockk:1.13.5")
+    testImplementation("org.robolectric:robolectric:4.16")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.5.0")
     testImplementation(project(":test_lib"))
 }
 

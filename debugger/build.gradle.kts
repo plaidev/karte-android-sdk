@@ -56,15 +56,15 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
 
-    compileOnly("androidx.annotation:annotation:1.3.0")
+    compileOnly("androidx.annotation:annotation:1.9.1")
     implementation(project(":core"))
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test:core:1.4.0")
-    testImplementation("io.mockk:mockk:1.10.0")
-    testImplementation("com.google.truth:truth:1.0.1")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.8.0")
-    testImplementation("org.json:json:20180813")
+    testImplementation("androidx.test:core:1.6.1")
+    testImplementation("io.mockk:mockk:1.13.5")
+    testImplementation("com.google.truth:truth:1.4.5")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("org.json:json:20250517")
     testImplementation(project(":debugger"))
 }
 

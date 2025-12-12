@@ -43,7 +43,7 @@ private const val JSON_KEY_EVENT_HASH = "event_hash"
  *
  * 設定値が未定義の場合は`null`を返します。
  */
-data class Variable internal constructor(
+data class Variable internal constructor (
     val name: String,
     val campaignId: String? = null,
     val shortenId: String? = null,

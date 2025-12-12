@@ -34,12 +34,12 @@ dependencies {
     implementation(project(":variables"))
     implementation(project(":visualtracking"))
 
-    implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation("com.google.firebase:firebase-core:17.2.2")
-    implementation("com.google.firebase:firebase-messaging:20.1.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("com.google.firebase:firebase-analytics:22.1.2")
+    implementation("com.google.firebase:firebase-messaging:24.1.2")
 
-    testImplementation("junit:junit:4.12")
-    androidTestImplementation("androidx.test:runner:1.2.0")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test:runner:1.7.0")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
 }

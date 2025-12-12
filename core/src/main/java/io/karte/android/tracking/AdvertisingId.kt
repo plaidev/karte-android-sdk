@@ -41,6 +41,7 @@ internal object AdvertisingId {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun getByAndroidX(context: Context, completion: (String) -> Unit) {
         if (androidx.ads.identifier.AdvertisingIdClient.isAdvertisingIdProviderAvailable(context)) {
             Logger.d(LOG_TAG, "Try to get advertising id by androidx.ads.")
@@ -68,8 +69,13 @@ internal object AdvertisingId {
                         context
                     )
                 if (!info.isLimitAdTrackingEnabled) {
-                    Logger.d(LOG_TAG, "Got advertising id: ${info.id}")
-                    completion(info.id)
+                    val id = info.id
+                    if (id != null) {
+                        Logger.d(LOG_TAG, "Got advertising id: $id")
+                        completion(id)
+                    } else {
+                        Logger.w(LOG_TAG, "Advertising id is null.")
+                    }
                 } else {
                     Logger.w(LOG_TAG, "Advertising id is opt outed.")
                 }
