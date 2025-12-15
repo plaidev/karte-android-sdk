@@ -100,7 +100,7 @@
 
 # Releases - 2025.07.14
 
-### core 2.31.0
+### Core 2.31.0
 **🎉FEATURE**
 - WebViewの情報を送るようになりました。
   詳細は [イベントに自動追加されるフィールド](doc:appendix-fields-android-sdk-v2) をご覧ください。
@@ -263,7 +263,7 @@
 **💊FIXED**
 - _message_suppressed送信前に、まれにクラッシュする不具合を修正しました。
 
-### notifications 2.12.0
+### Notifications 2.12.0
 **💊FIXED**
 - タスクキル状態でPush通知を開封した際の不具合を修正しました。
 
@@ -732,6 +732,7 @@
 - SDK内部で参照しているライブラリ名が難読化時に意図しない形式になってしまう不具合を修正しました。
 
 # Releases - 2020.09.16
+
 ### Core 2.5.0
 **🔨CHANGED**
 - サポート改善のため、SDKのログを一時保持・収集するようにしました。
@@ -746,11 +747,13 @@
 - SDK内部で参照しているライブラリ名を変更しました。
 
 # Releases - 2020.08.21
+
 ### InAppMessaging 2.5.1
 **💊FIXED**
 - 接客表示中の画面遷移時やviewイベント発火時に、クラッシュする可能性がある不具合を修正しました。([issue](https://github.com/plaidev/karte-android-sdk/issues/1))
 
 # Releases - 2020.07.22
+
 ### InAppMessaging 2.5.0
 **🎉FEATURE**
 - アクションを常駐させるオプションに対応しました。
@@ -765,6 +768,7 @@
 - Java9以降のモジュール機能に対応したライブラリを参照するとビルドができない不具合を修正しました。
 
 # Releases - 2020.07.08
+
 ### Core 2.4.0
 **🎉FEATURE**
 - KARTE固有のURLスキームからNative機能の呼び出しが出来るようになりました。
@@ -779,6 +783,7 @@
 - Coreの機能追加に伴う内部処理の変更を行いました。
 
 # Releases - 2020.07.06
+
 ### Core 2.3.2
 **💊FIXED**
 - SDK初期化時にネットワーク状態の切り替えが起こると、クラッシュする可能性がある不具合を修正しました。([issue](https://github.com/plaidev/karte-android-sdk/issues/2))
@@ -788,11 +793,13 @@
 - Android Gradle Plugin 4.0.0を使用しているとビルドできない問題を修正しました。
 
 # Releases - 2020.06.25
+
 ### Core 2.3.1
 **💊FIXED**
 - AndroidManifestにandroid:sharedUserIdを指定した際にライブラリがロードできなくなる問題を修正しました。
 
 # Releases - 2020.06.23
+
 ### Core 2.3.0
 **🎉FEATURE**
 - ディープリンクによるアプリ流入時に自動で送信するイベントを追加しました。
@@ -807,6 +814,7 @@
 
 
 # Releases - 2020.05.29
+
 ### Core 2.2.0
 **💊FIXED**
 - SDK初期化時にネットワーク状態の切り替えが起こると、クラッシュする可能性がある不具合を修正しました。
@@ -825,6 +833,7 @@
 - trackOpen / trackClick のAPIにJSONObjectを受け入れるインターフェースを追加しました。
 
 # Releases - 2020.04.24
+
 ### Core 2.1.0
 **🔨CHANGED**
 - イベント送信時のリクエストボディをgzip圧縮するよう変更しました。
@@ -844,8 +853,8 @@
 **🔨CHANGED**
 - Androidxへの実行時の依存を廃止しました。
 
-
 # Releases - 2020.04.07
+
 ### Core 2.0.0
 **🎉FEATURE**
 - イベントの送信失敗時に再送が行われるようになりました。
