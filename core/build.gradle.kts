@@ -62,8 +62,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
 
     compileOnly("androidx.core:core-ktx:1.16.0")
-    compileOnly("androidx.ads:ads-identifier:1.0.0-alpha05")
-    compileOnly("com.google.android.gms:play-services-ads-identifier:18.2.0")
+
+    // 18.1.0 is the last version supporting API Level 21 (18.2.0+ requires API 26+)
+    compileOnly("com.google.android.gms:play-services-ads-identifier:18.1.0")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test:core:1.7.0")

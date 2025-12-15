@@ -16,6 +16,7 @@
 ### Core 2.33.0
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
+- Deprecatedとなったandroidx.ads:ads-identifierライブラリの使用箇所を削除しました。
 
 ### InAppMessaging 2.26.0
 **🔨CHANGED**
