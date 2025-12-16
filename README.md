@@ -24,8 +24,6 @@ The API references are located at
 - [InAppFrame](https://plaidev.github.io/karte-sdk-docs/android/inappframe/latest/index.html)
 
 ## Getting Help
-- **Got a question?**
-  If you have questions, ask in the [KARTE forum](https://forum.karte.io/).
 - **Have a bug to report?**
   [Open a GitHub issue](https://github.com/plaidev/karte-android-sdk/issues/new?assignees=&labels=&template=bug_report.md). If possible, include the OS version, SDK version and full logs.
 - **Have a feature request?**
