@@ -10,6 +10,15 @@ This repository holds the source code for the Android version of KARTE SDK.
 ## Getting Started
 Please see the detailed instructions in our docs to add [KARTE Android SDK](https://developers.karte.io/docs/android-sdk-v2) to your Android Studio project.
 
+## Requirements
+To integrate the KARTE Android SDK, the following requirements must be met:
+
+- Kotlin 1.8.10 or higher
+- Gradle 8.0.0 or higher
+- Android Gradle Plugin: 8.1.1 or higher
+- Optimizer: R8
+- minSdkVersion 21 or higher
+
 ## Documentation
 The developer guide is located at
 - [Developer Portal - KARTE Android SDK](https://developers.karte.io/docs/android-sdk-v2)
