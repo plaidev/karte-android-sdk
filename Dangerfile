@@ -57,8 +57,13 @@ end
 #
 # Check CHANGELOG.md modification
 #
-if ($is_develop_pr || $is_hotfix_pr)
+# モジュール（versionファイル）の変更がある場合のみCHANGELOG.mdの更新を必須とする
+$has_module_changes = $modules.any? { |module_name|
+    git.modified_files.include?("#{module_name}/version")
+}
+
+if ($is_develop_pr || $is_hotfix_pr) && $has_module_changes
     if !git.modified_files.include?("CHANGELOG.md")
         warn "Please update CHANGELOG.md"
-    end    
+    end
 end

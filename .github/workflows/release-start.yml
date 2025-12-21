@@ -1,6 +1,11 @@
 name: "Get Ready for Release"
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run mode (skip PR creation and beta release request)'
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -26,29 +31,55 @@ jobs:
     - name: Find Release Targets
       id: find-release-targets
       run: |
-        MODULES=`git diff remotes/origin/master --name-only | grep -e '.*/version$'`
-        for MODULE in ${MODULES[@]}; do
-            RELEASE_TARGETS+="${MODULE%/version}, "
-        done
-        echo "::set-output name=targets::${RELEASE_TARGETS}"
+        VERSION_CHANGES=$(git diff remotes/origin/master..HEAD --name-only | grep -e '.*/version$' || true)
+        if [ -n "$VERSION_CHANGES" ]; then
+          echo "Module release detected"
+          echo "Changed version files:"
+          echo "$VERSION_CHANGES" | sed 's/^/  - /'
+          echo "RELEASE_TYPE=module" >> "$GITHUB_OUTPUT"
+          TARGETS=""
+          for version_file in $VERSION_CHANGES; do
+            TARGETS+="${version_file%/version}, "
+          done
+          echo "TARGETS=${TARGETS%, }" >> "$GITHUB_OUTPUT"
+        else
+          echo "Non-module release detected"
+          echo "RELEASE_TYPE=non-module" >> "$GITHUB_OUTPUT"
+          echo "TARGETS=" >> "$GITHUB_OUTPUT"
+        fi
     - name: Create release branch
       run: |
         git checkout -b release/${{ steps.date.outputs.date }}
     - name: Update CHANGELOG.md
       run: |
-        sed -i "0,/# Releases - xxxx.xx.xx/ s/# Releases - xxxx.xx.xx/# Releases - $(date '+%Y.%m.%d')/g" ./CHANGELOG.md
-        git add ./CHANGELOG.md
-        git commit -m "Update CHANGELOG.md"
+        if [ "${{ steps.find-release-targets.outputs.RELEASE_TYPE }}" = "module" ]; then
+          echo "Updating CHANGELOG.md for module release"
+          sed -i "0,/# Releases - xxxx.xx.xx/ s/# Releases - xxxx.xx.xx/# Releases - $(date '+%Y.%m.%d')/g" ./CHANGELOG.md
+          git add ./CHANGELOG.md
+          git commit -m "Update CHANGELOG.md"
+        else
+          echo "Skipping CHANGELOG.md update for non-module release"
+          if git diff --name-only remotes/origin/master..HEAD | grep -q '^CHANGELOG.md$'; then
+            echo "Error: CHANGELOG.md should not be modified in non-module release"
+            exit 1
+          fi
+          git commit --allow-empty -m "Non-module release - no CHANGELOG update"
+        fi
     - name: Push release branch
+      if: inputs.dry_run != true
       run: git push origin -u release/${{ steps.date.outputs.date }}
     - name: Generate GitHub App token
+      if: inputs.dry_run != true
       uses: actions/create-github-app-token@7e473efe3cb98aa54f8d4bac15400b15fad77d94 # v2.2.0
       id: app-token
       with:
         app-id: ${{ secrets.SHARED_GITHUB_ACTION_AGENT_APP_ID }}
         private-key: ${{ secrets.SHARED_GITHUB_ACTION_AGENT_APP_PRIVATE_KEY }}
-    - name: Create Pull Request
-      id: create_pr
+    # NOTE: deploy-release-feed.yml checks commit message for "Merge release" pattern
+    #       to determine whether to deploy RSS feed. This title affects that behavior.
+    - name: Create Pull Request (Module Release)
+      if: steps.find-release-targets.outputs.RELEASE_TYPE == 'module' && inputs.dry_run != true
+      id: create_pr_module
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
         PR_BODY: |
@@ -59,14 +90,37 @@ jobs:
           - [ ] 全てのチェックボックスを埋めると自動的にマージ作業を開始します
 
           ### Update
-          ${{ steps.find-release-targets.outputs.targets }}
+          ${{ steps.find-release-targets.outputs.TARGETS }}
       run: |
         gh pr create \
           --title "Deploy to production by ${{ github.actor }}" \
           --body "$PR_BODY" \
           --base master \
           --head release/${{ steps.date.outputs.date }}
+    # NOTE: deploy-release-feed.yml checks commit message for "Non-module release" pattern
+    #       to skip RSS feed deployment. This title must contain "Non-module release".
+    - name: Create Pull Request (Non-Module Release)
+      if: steps.find-release-targets.outputs.RELEASE_TYPE == 'non-module' && inputs.dry_run != true
+      id: create_pr_non_module
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        PR_BODY: |
+          ### 非モジュールリリース
+          このリリースにはモジュール（versionファイル）の変更は含まれません。
+          CI/CD、ドキュメント、設定ファイルなどの変更のみを公開リポジトリに同期します。
+
+          ### 以下の項目を確認してください
+          - [ ] 変更内容が意図したものであること
+          - [ ] 公開リポジトリに同期しても問題ないこと
+          - [ ] 全てのチェックボックスを埋めると自動的にマージ作業を開始します
+      run: |
+        gh pr create \
+          --title "Non-module release by ${{ github.actor }}" \
+          --body "$PR_BODY" \
+          --base master \
+          --head release/${{ steps.date.outputs.date }}
     - name: Generate GitHub App token for triggering workflows
+      if: inputs.dry_run != true
       uses: actions/create-github-app-token@7e473efe3cb98aa54f8d4bac15400b15fad77d94 # v2.2.0
       id: app-team-app-token
       with:
@@ -75,6 +129,7 @@ jobs:
         owner: plaidev
         repositories: ${{ vars.UITEST_REPO }}
     - name: Request beta release
+      if: inputs.dry_run != true
       uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       with:
         github-token: ${{ steps.app-team-app-token.outputs.token }}
