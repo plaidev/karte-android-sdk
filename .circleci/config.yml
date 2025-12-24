@@ -167,16 +167,6 @@ jobs:
             
             bash ./scripts/create_tags.sh << parameters.modules >>
 
-  manual_sync_repo:
-    executor:
-      name: android/android-machine
-      tag: 2024.01.1
-    steps:
-      - checkout
-      - run:
-          name: Sync repository
-          command: bash ./scripts/sync_repo.sh
-
 workflows:
   build_and_test:
     when: # Execute only public repository
@@ -209,12 +199,3 @@ workflows:
     jobs:
       - manual_create_tags:
           modules: << pipeline.parameters.modules >>
-
-  manual_sync_workflow:
-    when:
-      and:
-        - not:
-            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
-        - equal: [ manual_sync, << pipeline.parameters.workflow_name >> ]
-    jobs:
-      - manual_sync_repo
