@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "io.karte.sample_java"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "io.karte.tracker_sample"
-        minSdk = 21
-        targetSdk = 34
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
 
@@ -34,12 +34,12 @@ dependencies {
     implementation(project(":variables"))
     implementation(project(":visualtracking"))
 
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("com.google.firebase:firebase-analytics:22.1.2")
-    implementation("com.google.firebase:firebase-messaging:24.1.2")
+    implementation(libs.androidx.appcompat)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
 
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test:runner:1.7.0")
-    androidTestImplementation("androidx.test.ext:junit:1.3.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
 }

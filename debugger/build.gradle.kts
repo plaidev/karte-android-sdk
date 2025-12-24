@@ -6,14 +6,14 @@ plugins {
 
 android {
     namespace = "io.karte.android.debugger"
-    compileSdk = 36
-    
+    compileSdk = libs.versions.compileSdk.get().toInt()
+
     buildFeatures {
         buildConfig = true
     }
 
     defaultConfig {
-        minSdk = 21
+        minSdk = libs.versions.minSdk.get().toInt()
         buildConfigField("String", "LIB_VERSION", "\"$version\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -54,17 +54,17 @@ val kotlin_version: String by rootProject.extra
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+    implementation(libs.kotlin.stdlib)
 
-    compileOnly("androidx.annotation:annotation:1.9.1")
+    compileOnly(libs.androidx.annotation)
     implementation(project(":core"))
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test:core:1.6.1")
-    testImplementation("io.mockk:mockk:1.13.5")
-    testImplementation("com.google.truth:truth:1.4.5")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    testImplementation("org.json:json:20250517")
+    testImplementation(libs.junit)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.mockk)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockwebserver)
+    testImplementation(libs.json)
     testImplementation(project(":debugger"))
 }
 

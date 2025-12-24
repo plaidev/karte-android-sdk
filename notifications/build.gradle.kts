@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "io.karte.android.notifications"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 21
+        minSdk = libs.versions.minSdk.get().toInt()
         //noinspection OldTargetApi
-        targetSdk = 34
+        targetSdk = libs.versions.targetSdk.get().toInt()
         buildConfigField("String", "LIB_VERSION", "\"$version\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("proguard-rules.pro")
@@ -51,22 +51,20 @@ android {
     }
 }
 
-val kotlin_version: String by rootProject.extra
-
 dependencies {
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
-    implementation("com.google.firebase:firebase-messaging:24.1.2")
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.firebase.messaging)
     api(project(":core"))
 
-    testImplementation("com.google.firebase:firebase-messaging:24.1.2")
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("androidx.test:core:1.7.0")
-    testImplementation("com.google.truth:truth:1.4.5")
-    testImplementation("io.mockk:mockk:1.13.5")
-    testImplementation("org.robolectric:robolectric:4.16")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation(libs.firebase.messaging)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockk)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockwebserver)
     testImplementation(project(":test_lib"))
 }
 

@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "io.karte.android.visualtracking"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 21
+        minSdk = libs.versions.minSdk.get().toInt()
         //noinspection OldTargetApi
-        targetSdk = 34
+        targetSdk = libs.versions.targetSdk.get().toInt()
         buildConfigField("String", "LIB_VERSION", "\"$version\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("proguard-rules.pro")
@@ -51,26 +51,24 @@ android {
     }
 }
 
-val kotlin_version: String by rootProject.extra
-
 dependencies {
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+    implementation(libs.kotlin.stdlib)
     api(project(":core"))
 
     // Suppressed Gradle warnings in the original are simply left as is for reference
-    //noinspection GradleCompatible
-    compileOnly("androidx.core:core-ktx:1.16.0")
-    //noinspection GradleCompatible
-    compileOnly("com.android.support:design:28.0.0")
+    // noinspection GradleCompatible
+    compileOnly(libs.androidx.core.ktx)
+    // noinspection GradleCompatible
+    compileOnly(libs.support.design)
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test:core:1.6.1")
-    testImplementation("com.google.truth:truth:1.4.5")
-    testImplementation("io.mockk:mockk:1.13.5")
-    testImplementation("org.robolectric:robolectric:4.16")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.5.0")
+    testImplementation(libs.junit)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockk)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockwebserver)
+    testImplementation(libs.json.unit.assertj)
     testImplementation(project(":test_lib"))
 }
 

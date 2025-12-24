@@ -17,34 +17,42 @@
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
 - Deprecatedとなったandroidx.ads:ads-identifierライブラリの使用箇所を削除しました。
+- Version Catalogに対応しました。
 
 ### InAppMessaging 2.26.0
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
+- Version Catalogに対応しました。
 
 ### Notifications 2.17.0
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
+- Version Catalogに対応しました。
 
 ### Variables 2.12.0
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
+- Version Catalogに対応しました。
 
 ### VisualTracking 2.14.0
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
+- Version Catalogに対応しました。
 
 ### InAppFrame 0.7.0
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
+- Version Catalogに対応しました。
 
 ### Karte Gradle Plugin 2.8.0
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
+- Version Catalogに対応しました。
 
 ### Debugger 1.3.0
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
+- Version Catalogに対応しました。
 
 # Releases - 2025.12.03
 

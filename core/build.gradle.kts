@@ -6,16 +6,16 @@ plugins {
 
 android {
     namespace = "io.karte.android"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     buildFeatures {
         buildConfig = true
     }
 
     defaultConfig {
-        minSdk = 21
+        minSdk = libs.versions.minSdk.get().toInt()
         //noinspection OldTargetApi
-        targetSdk = 34
+        targetSdk = libs.versions.targetSdk.get().toInt()
         buildConfigField("String", "LIB_VERSION", "\"$version\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -55,25 +55,23 @@ android {
     }
 }
 
-val kotlin_version: String by rootProject.extra
-
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+    implementation(libs.kotlin.stdlib)
 
-    compileOnly("androidx.core:core-ktx:1.16.0")
+    compileOnly(libs.androidx.core.ktx)
 
     // 18.1.0 is the last version supporting API Level 21 (18.2.0+ requires API 26+)
-    compileOnly("com.google.android.gms:play-services-ads-identifier:18.1.0")
+    compileOnly(libs.gms.ads.identifier)
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test:core:1.7.0")
-    testImplementation("com.google.truth:truth:1.4.5")
-    testImplementation("io.mockk:mockk:1.13.5")
-    testRuntimeOnly("net.bytebuddy:byte-buddy:1.18.2")
-    testImplementation("org.robolectric:robolectric:4.16")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    testImplementation("com.google.android.gms:play-services-ads-identifier:18.2.0")
+    testImplementation(libs.junit)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockk)
+    testRuntimeOnly(libs.byte.buddy)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockwebserver)
+    testImplementation(libs.gms.ads.identifier)
     testImplementation(project(":test_lib"))
 }
 

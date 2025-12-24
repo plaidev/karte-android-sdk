@@ -5,15 +5,15 @@ plugins {
 
 android {
     namespace = "io.karte.android.test_lib"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 34
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         multiDexEnabled = true
     }
-    lintOptions {
-        isAbortOnError = false
+    lint {
+        abortOnError = false
     }
 
     compileOptions {
@@ -28,10 +28,15 @@ android {
 
 dependencies {
     implementation(project(":core"))
-    implementation("androidx.test:core:1.7.0")
-    implementation("io.mockk:mockk:1.13.5")
-    implementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    implementation("com.google.truth:truth:1.4.5")
-    implementation("org.robolectric:robolectric:4.16")
-    implementation("net.bytebuddy:byte-buddy:1.18.2")
+    implementation(libs.androidx.test.core)
+    implementation(libs.byte.buddy)
+    implementation(libs.mockk)
+    implementation(libs.mockwebserver)
+    implementation(libs.truth)
+    implementation(libs.robolectric)
+    implementation(libs.objenesis) {
+        version {
+            strictly(libs.versions.objenesis.get())
+        }
+    }
 }
