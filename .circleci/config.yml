@@ -167,28 +167,6 @@ jobs:
             
             bash ./scripts/create_tags.sh << parameters.modules >>
 
-  manual_maven_publish:
-    executor:
-      name: android/android-machine
-      tag: 2024.01.1
-    parameters:
-      modules:
-        type: string
-        default: ""
-        description: "Space-separated list of modules to publish (e.g., 'core debugger notifications')"
-    steps:
-      - checkout
-      - android/restore-gradle-cache
-      - run:
-          name: Maven publish
-          command: |
-            if [ -z "<< parameters.modules >>" ]; then
-              echo "No modules specified. Please provide modules parameter."
-              exit 1
-            fi
-            bash ./scripts/maven_publish.sh << parameters.modules >>
-      - android/save-gradle-cache
-
   manual_sync_repo:
     executor:
       name: android/android-machine
@@ -230,16 +208,6 @@ workflows:
         - equal: [ manual_tag, << pipeline.parameters.workflow_name >> ]
     jobs:
       - manual_create_tags:
-          modules: << pipeline.parameters.modules >>
-
-  manual_publish_workflow:
-    when:
-      and:
-        - not:
-            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
-        - equal: [ manual_publish, << pipeline.parameters.workflow_name >> ]
-    jobs:
-      - manual_maven_publish:
           modules: << pipeline.parameters.modules >>
 
   manual_sync_workflow:
