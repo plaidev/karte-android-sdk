@@ -7,9 +7,6 @@ parameters:
   workflow_name:
     type: string
     default: ""
-  modules:
-    type: string
-    default: ""
 
 orbs:
   android: circleci/android@2.2.0
@@ -145,28 +142,6 @@ jobs:
             fi
       - android/save-gradle-cache
 
-  # Manual operation jobs for publish recovery
-  manual_create_tags:
-    executor:
-      name: android/android-machine
-      tag: 2024.01.1
-    parameters:
-      modules:
-        type: string
-        default: ""
-        description: "Space-separated list of modules to tag (e.g., 'core debugger notifications')"
-    steps:
-      - checkout
-      - run:
-          name: Create and push tags
-          command: |
-            if [ -z "<< parameters.modules >>" ]; then
-              echo "No modules specified. Please provide modules parameter."
-              exit 1
-            fi
-            
-            bash ./scripts/create_tags.sh << parameters.modules >>
-
 workflows:
   build_and_test:
     when: # Execute only public repository
@@ -181,17 +156,6 @@ workflows:
         - equal: [ "", << pipeline.parameters.workflow_name >> ] # Don't execute when manual workflow is triggered
     jobs:
       - test
-
-  # Manual workflows for publish recovery
-  manual_tag_workflow:
-    when:
-      and:
-        - not:
-            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
-        - equal: [ manual_tag, << pipeline.parameters.workflow_name >> ]
-    jobs:
-      - manual_create_tags:
-          modules: << pipeline.parameters.modules >>
 
   manual_release:
     when:
