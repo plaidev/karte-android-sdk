@@ -2,6 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("com.vanniktech.maven.publish")
+    id("com.dropbox.dependency-guard")
 }
 
 android {
@@ -52,6 +53,12 @@ android {
     lint {
         lintConfig = file("../lint.xml")
         warningsAsErrors = true
+    }
+}
+
+dependencyGuard {
+    configuration("releaseRuntimeClasspath") {
+        tree = true
     }
 }
 

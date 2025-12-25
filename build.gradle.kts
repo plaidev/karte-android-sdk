@@ -15,6 +15,7 @@ plugins {
     // for upload maven repo via Central Portal
     alias(libs.plugins.maven.publish) apply false
     alias(libs.plugins.binary.compatibility.validator)
+    alias(libs.plugins.dependency.guard) apply false
 }
 
 apiValidation {

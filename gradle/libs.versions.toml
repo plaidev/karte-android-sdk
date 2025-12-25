@@ -60,6 +60,7 @@ objenesis = "3.3"
 dokka = "1.9.20"
 maven-publish = "0.35.0"
 binary-compatibility-validator = "0.18.1"
+dependency-guard = "0.5.0"
 
 [libraries]
 # Kotlin
@@ -127,3 +128,4 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
 binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binary-compatibility-validator" }
+dependency-guard = { id = "com.dropbox.dependency-guard", version.ref = "dependency-guard" }

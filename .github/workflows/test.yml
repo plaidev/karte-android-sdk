@@ -36,6 +36,9 @@ jobs:
           cp examples/sample_java/google-services.json examples/sample_kotlin/google-services.json
       - name: Download Dependencies
         run: ./gradlew androidDependencies
+      - name: Dependency Guard check
+        run: |
+          ./gradlew dependencyGuard || (echo "❌ dependencyGuard failed. Dependencies have changed from the baseline. If this is intentional, run './gradlew dependencyGuardBaseline' locally and commit the updated baseline files. See https://github.com/dropbox/dependency-guard for details." && exit 1)
       - name: Build modules
         run: ./gradlew --stacktrace assembleDebug assembleRelease --parallel
       - name: Lint

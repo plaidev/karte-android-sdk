@@ -2,6 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("com.vanniktech.maven.publish")
+    id("com.dropbox.dependency-guard")
 }
 
 apply(from = "../buildscripts/ktlint.gradle")
@@ -63,6 +64,12 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
         allWarningsAsErrors = true
+    }
+}
+
+dependencyGuard {
+    configuration("releaseRuntimeClasspath") {
+        tree = true
     }
 }
 
