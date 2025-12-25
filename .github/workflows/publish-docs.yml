@@ -1,7 +1,6 @@
 name: Publish Documentation
 on:
-  push:
-    branches: ["master"]
+  # Called when `publish` is completed.
   workflow_dispatch:
 jobs:
   publish_docs:

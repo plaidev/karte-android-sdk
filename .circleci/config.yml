@@ -181,13 +181,6 @@ workflows:
         - equal: [ "", << pipeline.parameters.workflow_name >> ] # Don't execute when manual workflow is triggered
     jobs:
       - test
-      - publish:
-          requires:
-            - test
-          filters:
-            branches:
-              only:
-                - master
 
   # Manual workflows for publish recovery
   manual_tag_workflow:
@@ -199,3 +192,19 @@ workflows:
     jobs:
       - manual_create_tags:
           modules: << pipeline.parameters.modules >>
+
+  manual_release:
+    when:
+      and:
+        - not:
+            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
+        - equal: [ manual_release, << pipeline.parameters.workflow_name >> ]
+    jobs:
+      - test
+      - publish:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master

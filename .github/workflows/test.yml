@@ -1,14 +1,13 @@
 name: Test
 on:
-  # TODO: Migrate from CircleCI.
-  # push:
-  #   branches:
-  #     - develop
-  #     - master
-  # pull_request:
-  #   branches:
-  #     - develop
-  #     - master
+  push:
+    branches:
+      # `master` is tested in `publish.yml`.
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
