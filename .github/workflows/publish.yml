@@ -116,8 +116,8 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/plaidev/karte-android-sdk.git".insteadOf "https://github.com/plaidev/karte-android-sdk.git"
-          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/plaidev/karte-android-dev.git".insteadOf "https://github.com/plaidev/karte-android-dev.git"
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/plaidev/karte-android-sdk".insteadOf "https://github.com/plaidev/karte-android-sdk"
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/plaidev/karte-android-dev".insteadOf "https://github.com/plaidev/karte-android-dev"
           git config --global user.name "github actions"
           git config --global user.email "git@users.noreply.github.com"
       # NOTE: publish.sh executes `ruby scripts/publish_changelog.rb` for publishing release notes
