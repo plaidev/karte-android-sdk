@@ -79,6 +79,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0 # Fetch all history for all branches and tags
       - name: Set up JDK 17
         uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
@@ -124,6 +125,21 @@ jobs:
         uses: ruby/setup-ruby@ed55d55e820a01da7d3e4863a8c51a61d73c3228 # v1.274.0
         with:
           ruby-version: '3.4'
+      # NOTE: Verify Git authentication and push permissions before actual publish.
+      - name: Dry run (Git authentication check)
+        if: env.MODE == 'dry-run'
+        env:
+          GITHUB_REMOTE_ADDRESS: https://github.com/plaidev/karte-android-sdk.git
+          TEMP_BRANCH: ci-auth-test-${{ github.run_id }}
+          TEMP_TAG: ci-auth-test-tag-${{ github.run_id }}
+        run: |
+          git remote add sync_repo ${GITHUB_REMOTE_ADDRESS} || true
+          git fetch sync_repo
+          git push --dry-run sync_repo HEAD:refs/heads/${TEMP_BRANCH}
+          git tag ${TEMP_TAG}
+          git push --dry-run origin ${TEMP_TAG}
+          git push --dry-run sync_repo ${TEMP_TAG}
+          git tag -d ${TEMP_TAG}
       - name: Publish
         if: env.MODE == 'release'
         env:

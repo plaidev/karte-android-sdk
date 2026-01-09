@@ -1,18 +1,25 @@
 name: Sync Repository
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Skip actual push (dry-run mode)'
+        required: true
+        type: boolean
+        default: false
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   sync:
-    if: github.repository != 'plaidev/karte-android-sdk' && github.ref == 'refs/heads/master'
+    if: github.repository != 'plaidev/karte-android-sdk' && (github.event.inputs.dry_run == 'true' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
+          persist-credentials: false
           ref: master
           fetch-depth: 0 # Fetch all history for all branches and tags
       - name: Generate GitHub App token
@@ -33,7 +40,16 @@ jobs:
           git config --global user.email "git@users.noreply.github.com"
       - name: Add sync_repo remote
         run: git remote add sync_repo https://github.com/plaidev/karte-android-sdk.git
+      # NOTE: Verify Git authentication and push permissions before actual sync.
+      - name: Dry run (Git authentication check)
+        if: github.event.inputs.dry_run == 'true'
+        env:
+          TEMP_BRANCH: ci-auth-test-${{ github.run_id }}
+        run: |
+          git fetch sync_repo
+          git push --dry-run sync_repo HEAD:refs/heads/${TEMP_BRANCH}
       - name: Push to sync_repo
+        if: github.event.inputs.dry_run != 'true'
         run: git push sync_repo master
       - name: Notify Slack on success
         if: success()
