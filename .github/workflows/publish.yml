@@ -106,6 +106,11 @@ jobs:
           git config --global url."https://x-access-token:${GH_TOKEN}@github.com/plaidev/karte-android-dev".insteadOf "https://github.com/plaidev/karte-android-dev"
           git config --global user.name "github actions"
           git config --global user.email "git@users.noreply.github.com"
+      # NOTE: common.sh executes `ruby scripts/bump_version.rb`.
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@ed55d55e820a01da7d3e4863a8c51a61d73c3228 # v1.274.0
+        with:
+          ruby-version: '3.4'
       # NOTE: Verify Git authentication and push permissions before actual publish.
       - name: Dry run (Git authentication check)
         if: env.MODE == 'dry-run'
