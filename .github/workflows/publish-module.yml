@@ -34,21 +34,14 @@ jobs:
         uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
         with:
           cache-read-only: false
-      - name: Decrypt properties
-        env:
-          ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
-        run: |
-          mkdir -p ~/.gradle
-          openssl aes-256-cbc -d -md sha512 -pbkdf2 -iter 100000 -salt \
-            -in buildscripts/encrypted.properties -k $ENCRYPT_KEY >> ~/.gradle/gradle.properties
-      - name: Decrypt GPG key
-        env:
-          GPG_KEY: ${{ secrets.GPG_KEY }}
-        run: |
-          echo "$GPG_KEY" | base64 -d > secret-keys.gpg
       - name: Maven publish
         env:
           MODULE: ${{ inputs.module }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
         run: |
           echo "Publishing module: $MODULE"
           if [ "$MODULE" = "gradle-plugin" ]; then
@@ -57,8 +50,3 @@ jobs:
             ./gradlew $MODULE:publishAndReleaseToMavenCentral --no-configuration-cache
           fi
           echo "Maven publish completed for module: $MODULE"
-      - name: Cleanup secrets
-        if: always()
-        run: |
-          rm -f ~/.gradle/gradle.properties
-          rm -f secret-keys.gpg

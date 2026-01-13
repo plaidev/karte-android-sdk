@@ -88,20 +88,6 @@ jobs:
           java-version: '21'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
-      - name: Decrypt properties
-        env:
-          ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
-        # encrypt to update(OpenSSL 1.1.1):
-        # openssl aes-256-cbc -e -md sha512 -pbkdf2 -iter 100000 -salt -in buildscripts/gradle.properties -out buildscripts/encrypted.properties -k $ENCRYPT_KEY
-        run: |
-          mkdir -p ~/.gradle
-          openssl aes-256-cbc -d -md sha512 -pbkdf2 -iter 100000 -salt -in buildscripts/encrypted.properties -k $ENCRYPT_KEY >> ~/.gradle/gradle.properties
-      - name: Decrypt GPG key
-        env:
-          GPG_KEY: ${{ secrets.GPG_KEY }}
-        # export gpg private key:
-        # gpg --export-secret-keys <key_id> | base64 | pbcopy
-        run: echo "$GPG_KEY" | base64 -d > secret-keys.gpg
       - name: Generate GitHub App token
         uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: app-token
@@ -147,6 +133,11 @@ jobs:
           GITHUB_USER_NAME: 'github actions'
           GITHUB_USER_EMAIL: 'git@users.noreply.github.com'
           README_API_KEY: ${{ secrets.README_API_KEY }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
         run: |
           VERSION_CHANGES=$(git diff HEAD~1..HEAD --name-only | grep -E '^(version$|.*/version$)' || true)
           if [ -n "$VERSION_CHANGES" ]; then
@@ -173,8 +164,3 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_MESSAGE: 'Publish workflow: Publish job failed'
           SLACK_COLOR: failure
-      - name: Cleanup secrets
-        if: always()
-        run: |
-          rm -f ~/.gradle/gradle.properties
-          rm -f secret-keys.gpg
