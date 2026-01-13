@@ -32,9 +32,6 @@ function publish() {
 
   # 各モジュールに対してMaven Centralパブリッシュ処理を実行
   publish_modules "${TARGETS_MODULES[@]}"
-
-  # リリースノートの公開
-  ruby scripts/publish_changelog.rb
 }
 
 ##################################################

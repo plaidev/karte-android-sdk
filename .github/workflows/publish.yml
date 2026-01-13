@@ -106,11 +106,6 @@ jobs:
           git config --global url."https://x-access-token:${GH_TOKEN}@github.com/plaidev/karte-android-dev".insteadOf "https://github.com/plaidev/karte-android-dev"
           git config --global user.name "github actions"
           git config --global user.email "git@users.noreply.github.com"
-      # NOTE: publish.sh executes `ruby scripts/publish_changelog.rb` for publishing release notes
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@ed55d55e820a01da7d3e4863a8c51a61d73c3228 # v1.274.0
-        with:
-          ruby-version: '3.4'
       # NOTE: Verify Git authentication and push permissions before actual publish.
       - name: Dry run (Git authentication check)
         if: env.MODE == 'dry-run'
@@ -132,7 +127,6 @@ jobs:
           GITHUB_REMOTE_ADDRESS: 'https://github.com/plaidev/karte-android-sdk.git'
           GITHUB_USER_NAME: 'github actions'
           GITHUB_USER_EMAIL: 'git@users.noreply.github.com'
-          README_API_KEY: ${{ secrets.README_API_KEY }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
@@ -150,6 +144,12 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: gh workflow run publish-docs.yml --ref master
+      - name: Trigger release notes publish
+        if: env.MODE == 'release' && success()
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh workflow run publish-release-notes.yml --ref master
       - name: Notify Slack on publish success
         if: success()
         uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
