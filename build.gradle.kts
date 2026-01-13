@@ -28,7 +28,7 @@ apiValidation {
 subprojects {
     pluginManager.withPlugin("org.jetbrains.kotlin.android") {
         extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension> {
-            jvmToolchain(17)
+            jvmToolchain(21)
         }
     }
 }

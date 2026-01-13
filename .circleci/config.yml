@@ -14,7 +14,7 @@ orbs:
 executors:
   test-executor:
     docker:
-      - image: index.docker.io/cimg/android@sha256:8c5b2edf12d33ba159d154ad6eb58162c36e240a8bf04d66fb1e3dd2e5352119 # cimg/android:2024.01.1
+      - image: index.docker.io/cimg/android@sha256:03df23106e90a4f2d4db57d38dbdd98bcca323e10257b6ae6936973b5a376236 # cimg/android:2025.01.1
         environment:
           GRADLE_OPTS: -Xmx6G
     resource_class: large

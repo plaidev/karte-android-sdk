@@ -7,7 +7,7 @@ androidGradlePlugin = "8.8.2"
 # SDK Versions
 compileSdk = "36"
 minSdk = "21"
-targetSdk = "34"
+targetSdk = "36"
 
 # AndroidX
 androidx-core = "1.16.0"

@@ -24,6 +24,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 java {
     toolchain {
+        // Keep Java 17: Kotlin 1.8.10 doesn't support JVM target 21
+        // (Android modules use Java 21 via jvmToolchain in root build.gradle.kts)
         languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
