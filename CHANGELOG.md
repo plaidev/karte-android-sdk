@@ -11,7 +11,7 @@
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.8.0    |
 | debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.3.0    |
 
-# Releases - xxxx.xx.xx
+# Releases - 2026.01.14
 
 ### Core 2.33.0
 **🔨CHANGED**
