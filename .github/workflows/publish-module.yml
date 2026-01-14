@@ -50,6 +50,9 @@ jobs:
         if: ${{ inputs.dry_run }}
         env:
           MODULE: ${{ inputs.module }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
         run: |
           echo "DRY RUN: Publishing module $MODULE to Maven Local"
           if [ "$MODULE" = "gradle-plugin" ]; then
