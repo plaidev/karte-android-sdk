@@ -1,8 +1,9 @@
 name: Deploy release feed to Pages
 
 on:
-  push:
-    branches: ["master"]
+  # TODO: Trigger this workflow when `Publish` is completed.
+  # push:
+  #   branches: ["master"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
