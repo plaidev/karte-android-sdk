@@ -41,7 +41,7 @@ jobs:
       - uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
         id: app-token
         with:
-          app-id: ${{ secrets.CLAUDE_GITHUB_APP_ID }}
+          app-id: ${{ secrets.SHARED_GITHUB_ACTION_AGENT_APP_ID }}
           private-key: ${{ secrets.SHARED_GITHUB_ACTION_AGENT_APP_PRIVATE_KEY }}
       # Claude Code Actionの実行
       - uses: anthropics/claude-code-action@f4d737af0b61a79741d8246c5207da5887746212 # v1.0.15

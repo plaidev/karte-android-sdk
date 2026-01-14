@@ -17,6 +17,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("io.karte.sample_kotlin", appContext.packageName)
+        assertEquals("io.karte.tracker_sample", appContext.packageName)
     }
 }

@@ -1,0 +1,52 @@
+name: Publish Module
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: 'Module to publish'
+        required: true
+        type: choice
+        options:
+          - core
+          - debugger
+          - gradle-plugin
+          - inbox
+          - inappframe
+          - inappmessaging
+          - notifications
+          - variables
+          - visualtracking
+jobs:
+  publish:
+    if: github.repository != 'plaidev/karte-android-sdk' && github.ref == 'refs/heads/master'
+    # NOTE: Using larger runner since this workflow runs infrequently and should complete quickly.
+    runs-on: ubuntu-22.04-8core
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - name: Set up JDK 21
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
+        with:
+          cache-read-only: false
+      - name: Maven publish
+        env:
+          MODULE: ${{ inputs.module }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+        run: |
+          echo "Publishing module: $MODULE"
+          if [ "$MODULE" = "gradle-plugin" ]; then
+            ./gradlew -p gradle-plugin/ publishAndReleaseToMavenCentral --no-configuration-cache
+          else
+            ./gradlew $MODULE:publishAndReleaseToMavenCentral --no-configuration-cache
+          fi
+          echo "Maven publish completed for module: $MODULE"

@@ -1,0 +1,15 @@
++--- project :core
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.9.21
+|         \--- org.jetbrains:annotations:13.0 -> 23.0.0
++--- org.jetbrains.kotlin:kotlin-stdlib:1.8.10 -> 1.9.21 (*)
+\--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1
+     |         +--- org.jetbrains:annotations:23.0.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1 (c)
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1 (c)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1 (*)
+     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.21 (*)

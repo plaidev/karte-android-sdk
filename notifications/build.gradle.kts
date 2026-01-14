@@ -2,16 +2,17 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("com.vanniktech.maven.publish")
+    id("com.dropbox.dependency-guard")
 }
 
 android {
     namespace = "io.karte.android.notifications"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 21
+        minSdk = libs.versions.minSdk.get().toInt()
         //noinspection OldTargetApi
-        targetSdk = 34
+        targetSdk = libs.versions.targetSdk.get().toInt()
         buildConfigField("String", "LIB_VERSION", "\"$version\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("proguard-rules.pro")
@@ -51,22 +52,26 @@ android {
     }
 }
 
-val kotlin_version: String by rootProject.extra
+dependencyGuard {
+    configuration("releaseRuntimeClasspath") {
+        tree = true
+    }
+}
 
 dependencies {
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
-    implementation("com.google.firebase:firebase-messaging:20.3.0")
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.firebase.messaging)
     api(project(":core"))
 
-    testImplementation("com.google.firebase:firebase-messaging:20.3.0")
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("androidx.test:core:1.4.0")
-    testImplementation("com.google.truth:truth:1.0.1")
-    testImplementation("io.mockk:mockk:1.10.0")
-    testImplementation("org.robolectric:robolectric:4.11.1")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.8.0")
+    testImplementation(libs.firebase.messaging)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockk)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockwebserver)
     testImplementation(project(":test_lib"))
 }
 

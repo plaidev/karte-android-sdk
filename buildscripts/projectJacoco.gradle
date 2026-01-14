@@ -6,7 +6,8 @@ tasks.withType(Test) {
 }
 
 jacoco {
-    toolVersion = "0.8.7"
+    // 0.8.11+ required for Java 21 support (class file major version 65)
+    toolVersion = "0.8.12"
 }
 
 task jacocoTestReport(

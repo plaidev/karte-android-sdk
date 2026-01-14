@@ -17,19 +17,12 @@ package io.karte.android.tracking
 
 import android.content.Context
 import io.karte.android.core.logger.Logger
-import java.util.concurrent.Executors
 
 private const val LOG_TAG = "Karte.AdvertisingId"
 
 internal object AdvertisingId {
     fun getAdvertisingId(context: Context, completion: (String) -> Unit) {
         try {
-            try {
-                getByAndroidX(context, completion)
-                return
-            } catch (e: NoClassDefFoundError) {
-                Logger.d(LOG_TAG, "Not found package: androidx.ads.identifier.")
-            }
             try {
                 getByGms(context, completion)
                 return
@@ -38,20 +31,6 @@ internal object AdvertisingId {
             }
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to get AdvertisingId: '${e.message}'")
-        }
-    }
-
-    private fun getByAndroidX(context: Context, completion: (String) -> Unit) {
-        if (androidx.ads.identifier.AdvertisingIdClient.isAdvertisingIdProviderAvailable(context)) {
-            Logger.d(LOG_TAG, "Try to get advertising id by androidx.ads.")
-            val future = androidx.ads.identifier.AdvertisingIdClient.getAdvertisingIdInfo(context)
-            future.addListener(Runnable {
-                val info = future.get()
-                Logger.d(LOG_TAG, "Got advertising id: ${info.id}")
-                completion(info.id)
-            }, Executors.newSingleThreadExecutor())
-        } else {
-            Logger.w(LOG_TAG, "Advertising id is opt outed.")
         }
     }
 
@@ -68,8 +47,13 @@ internal object AdvertisingId {
                         context
                     )
                 if (!info.isLimitAdTrackingEnabled) {
-                    Logger.d(LOG_TAG, "Got advertising id: ${info.id}")
-                    completion(info.id)
+                    val id = info.id
+                    if (id != null) {
+                        Logger.d(LOG_TAG, "Got advertising id: $id")
+                        completion(id)
+                    } else {
+                        Logger.w(LOG_TAG, "Advertising id is null.")
+                    }
                 } else {
                     Logger.w(LOG_TAG, "Advertising id is opt outed.")
                 }

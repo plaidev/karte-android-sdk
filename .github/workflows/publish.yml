@@ -1,0 +1,178 @@
+name: Publish
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Publish mode'
+        required: false
+        type: choice
+        options:
+          - dry-run
+          - release
+        default: dry-run
+env:
+  # Set mode to `release` when pushed to master, otherwise use the input value.
+  MODE: ${{ github.event.inputs.mode || 'release' }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  test:
+    if: github.repository != 'plaidev/karte-android-sdk' && (github.ref == 'refs/heads/master' || github.event.inputs.mode == 'dry-run')
+    # NOTE: Using larger runner since this workflow runs infrequently and should complete quickly.
+    runs-on: ubuntu-22.04-8core
+    timeout-minutes: 30
+    # `test` is same as `test.yml`.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - name: Set up JDK 21
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      # Using the default caching strategy.
+      # https://github.com/gradle/actions/blob/main/docs/setup-gradle.md#caching-build-state-between-jobs
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
+      # NOTE: Sample app requires google-services.json for building/testing.
+      - name: Write dummy google-services.json
+        run: |
+          echo '{"project_info":{"project_number":"xxx","project_id":"xxx"},"client":[{"client_info":{"mobilesdk_app_id":"xxx","android_client_info":{"package_name":"io.karte.tracker_sample"}},"api_key":[{"current_key":"xxx"}]}]}' > examples/sample_java/google-services.json
+          cp examples/sample_java/google-services.json examples/sample_kotlin/google-services.json
+      - name: Download Dependencies
+        run: ./gradlew androidDependencies
+      - name: Dependency Guard check
+        run: |
+          ./gradlew dependencyGuard || (echo "❌ dependencyGuard failed. Dependencies have changed from the baseline. If this is intentional, run './gradlew dependencyGuardBaseline' locally and commit the updated baseline files. See https://github.com/dropbox/dependency-guard for details." && exit 1)
+      - name: Build modules
+        run: ./gradlew --stacktrace assembleDebug assembleRelease --parallel
+      - name: Lint
+        run: |
+          ./gradlew --stacktrace lintRelease
+          ./gradlew --stacktrace ktlint
+      - name: Doc check
+        run: ./gradlew dokkaHtmlMultiModule --parallel
+      - name: API check
+        run: |
+          ./gradlew apiCheck -q || (echo "❌ apiCheck failed, If there are intended differences in the public API, you can run ./gradlew apiDump and commit the output. See more details https://github.com/Kotlin/binary-compatibility-validator." && exit 1)
+      - name: Run tests
+        id: run-tests
+        run: ./gradlew --stacktrace --info testDebug --parallel
+      - name: Notify Slack on test failure
+        if: failure()
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: 'Publish workflow: Test job failed. Aborting publish.'
+          SLACK_COLOR: failure
+  publish:
+    needs: test
+    if: github.repository != 'plaidev/karte-android-sdk' && (github.ref == 'refs/heads/master' || github.event.inputs.mode == 'dry-run')
+    # NOTE: Using larger runner since publish runs infrequently and should complete quickly.
+    runs-on: ubuntu-22.04-8core
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # Fetch all history for all branches and tags
+      - name: Set up JDK 21
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
+      - name: Generate GitHub App token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_TEAM_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_TEAM_GITHUB_APP_PRIVATE_KEY }}
+          owner: plaidev
+          repositories: |
+            karte-android-sdk
+            karte-android-dev
+      - name: Configure Git
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/plaidev/karte-android-sdk".insteadOf "https://github.com/plaidev/karte-android-sdk"
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/plaidev/karte-android-dev".insteadOf "https://github.com/plaidev/karte-android-dev"
+          git config --global user.name "github actions"
+          git config --global user.email "git@users.noreply.github.com"
+      # NOTE: common.sh executes `ruby scripts/bump_version.rb`.
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@ed55d55e820a01da7d3e4863a8c51a61d73c3228 # v1.274.0
+        with:
+          ruby-version: '3.4'
+      # NOTE: Verify Git authentication and push permissions before actual publish.
+      - name: Dry run (Git authentication check)
+        if: env.MODE == 'dry-run'
+        env:
+          GITHUB_REMOTE_ADDRESS: https://github.com/plaidev/karte-android-sdk.git
+          TEMP_BRANCH: ci-auth-test-${{ github.run_id }}
+          TEMP_TAG: ci-auth-test-tag-${{ github.run_id }}
+        run: |
+          git remote add sync_repo ${GITHUB_REMOTE_ADDRESS} || true
+          git fetch sync_repo
+          git push --dry-run sync_repo HEAD:refs/heads/${TEMP_BRANCH}
+          git tag ${TEMP_TAG}
+          git push --dry-run origin ${TEMP_TAG}
+          git push --dry-run sync_repo ${TEMP_TAG}
+          git tag -d ${TEMP_TAG}
+      - name: Dry run (Publish to Maven Local)
+        if: env.MODE == 'dry-run'
+        env:
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+        run: ./gradlew publishToMavenLocal
+      - name: Publish
+        if: env.MODE == 'release'
+        env:
+          GITHUB_REMOTE_ADDRESS: 'https://github.com/plaidev/karte-android-sdk.git'
+          GITHUB_USER_NAME: 'github actions'
+          GITHUB_USER_EMAIL: 'git@users.noreply.github.com'
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+        run: |
+          VERSION_CHANGES=$(git diff HEAD~1..HEAD --name-only | grep -E '^(version$|.*/version$)' || true)
+          if [ -n "$VERSION_CHANGES" ]; then
+            bash ./scripts/publish.sh
+          else
+            bash ./scripts/sync_repo.sh
+          fi
+      - name: Trigger publish-docs workflow
+        if: env.MODE == 'release'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: gh workflow run publish-docs.yml --ref master
+      - name: Trigger release notes publish
+        if: env.MODE == 'release' && success()
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh workflow run publish-release-notes.yml --ref master
+      - name: Notify Slack on publish success
+        if: success()
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: 'Publish workflow completed successfully'
+          SLACK_COLOR: success
+      - name: Notify Slack on publish failure
+        if: failure()
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: 'Publish workflow: Publish job failed'
+          SLACK_COLOR: failure

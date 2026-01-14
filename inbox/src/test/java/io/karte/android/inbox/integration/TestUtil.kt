@@ -55,7 +55,7 @@ internal val dummyRawResponse = """
                 "customPayload": {
                     "keyStr": "Dummy",
                     "keyInt": 10,
-                    "keyDouble": 1.11,
+                    "keyDouble": 1.11d,
                     "keyArray": [1, 2, 3],
                     "keyMap": {
                         "prop1": "hoge",

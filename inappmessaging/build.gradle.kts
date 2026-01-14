@@ -2,20 +2,21 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("com.vanniktech.maven.publish")
+    id("com.dropbox.dependency-guard")
 }
 
 android {
     namespace = "io.karte.android.inappmessaging"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     buildFeatures {
         buildConfig = true
     }
 
     defaultConfig {
-        minSdk = 21
+        minSdk = libs.versions.minSdk.get().toInt()
         //noinspection OldTargetApi
-        targetSdk = 34
+        targetSdk = libs.versions.targetSdk.get().toInt()
         buildConfigField("String", "LIB_VERSION", "\"$version\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -51,22 +52,26 @@ android {
     }
 }
 
-val kotlin_version: String by rootProject.extra
+dependencyGuard {
+    configuration("releaseRuntimeClasspath") {
+        tree = true
+    }
+}
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+    implementation(libs.kotlin.stdlib)
     implementation(project(":core"))
 
-    compileOnly("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.core:core-ktx:1.10.1")
+    compileOnly(libs.androidx.appcompat)
+    implementation(libs.androidx.core.ktx)
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test:core:1.3.0")
-    testImplementation("com.google.truth:truth:1.0.1")
-    testImplementation("io.mockk:mockk:1.10.0")
-    testImplementation("org.robolectric:robolectric:4.11.1")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.8.0")
+    testImplementation(libs.junit)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockk)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockwebserver)
     testImplementation(project(":test_lib"))
 }
 

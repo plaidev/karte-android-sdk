@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("io.karte.sample_java", appContext.getPackageName());
+        assertEquals("io.karte.tracker_sample", appContext.getPackageName());
     }
 }

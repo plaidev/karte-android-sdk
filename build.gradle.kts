@@ -1,22 +1,21 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    val kotlin_version by extra("1.8.10")
-    val coroutine_version by extra("1.7.3")
     dependencies {
         // for apply karte plugin to example project
         classpath("io.karte.android:local-gradle-plugin")
-        classpath("com.google.gms:google-services:4.3.3")
+        classpath(libs.gms.google.services)
     }
 }
 
 plugins {
-    id("com.android.application") version "8.8.2" apply false
-    id("com.android.library") version "8.8.2" apply false
-    id("org.jetbrains.kotlin.android") version "1.8.10" apply false
-    id("org.jetbrains.dokka") version "1.9.20"
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.dokka)
     // for upload maven repo via Central Portal
-    id("com.vanniktech.maven.publish") version "0.33.0" apply false
-    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.13.2"
+    alias(libs.plugins.maven.publish) apply false
+    alias(libs.plugins.binary.compatibility.validator)
+    alias(libs.plugins.dependency.guard) apply false
 }
 
 apiValidation {
@@ -29,7 +28,7 @@ apiValidation {
 subprojects {
     pluginManager.withPlugin("org.jetbrains.kotlin.android") {
         extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension> {
-            jvmToolchain(17)
+            jvmToolchain(21)
         }
     }
 }

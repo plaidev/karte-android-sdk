@@ -1,0 +1,72 @@
+name: Publish Documentation
+on:
+  # Called when `publish` is completed.
+  workflow_dispatch:
+jobs:
+  publish_docs:
+    # NOTE: Run on private repo.
+    if: github.repository != 'plaidev/karte-android-sdk'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - name: Set up JDK 21
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
+        with:
+          cache-read-only: false
+      # NOTE: Fixing Ruby version since `./gradlew publishDocs` uses `publish_docs.rb`.
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
+        with:
+          ruby-version: '3.4'
+      - name: Download Dependencies
+        run: ./gradlew androidDependencies
+      - name: Generate GitHub App token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        id: app-token
+        with:
+          app-id: ${{ secrets.SHARED_GITHUB_ACTION_AGENT_APP_ID }}
+          private-key: ${{ secrets.SHARED_GITHUB_ACTION_AGENT_APP_PRIVATE_KEY }}
+          owner: plaidev
+          repositories: |
+            karte-sdk-docs
+      - name: Configure Git
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/plaidev/karte-sdk-docs".insteadOf "https://github.com/plaidev/karte-sdk-docs"
+          git config --global user.name "github actions"
+          git config --global user.email "git@users.noreply.github.com"
+      - name: Generate and publish docs
+        # Only publish to master when executed on the master branch.
+        env:
+          BRANCH_REF: ${{ github.ref_name }}
+        run: |
+          if [ "$BRANCH_REF" = "master" ]; then
+            ./gradlew publishDocs
+          else
+            BRANCH_NAME="docs-$(date +%Y%m%d-%H%M%S)"
+            ./gradlew publishDocs -Pbranch="$BRANCH_NAME"
+          fi
+      - name: Notify Slack on success
+        if: success()
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: 'Documentation for KARTE Android SDK was published successfully!'
+          SLACK_COLOR: success
+      - name: Notify Slack on failure
+        if: failure()
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: 'Failed to publish documentation for KARTE Android SDK'
+          SLACK_COLOR: failure

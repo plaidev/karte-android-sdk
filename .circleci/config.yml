@@ -7,9 +7,6 @@ parameters:
   workflow_name:
     type: string
     default: ""
-  modules:
-    type: string
-    default: ""
 
 orbs:
   android: circleci/android@2.2.0
@@ -17,7 +14,7 @@ orbs:
 executors:
   test-executor:
     docker:
-      - image: index.docker.io/cimg/android@sha256:8c5b2edf12d33ba159d154ad6eb58162c36e240a8bf04d66fb1e3dd2e5352119 # cimg/android:2024.01.1
+      - image: index.docker.io/cimg/android@sha256:03df23106e90a4f2d4db57d38dbdd98bcca323e10257b6ae6936973b5a376236 # cimg/android:2025.01.1
         environment:
           GRADLE_OPTS: -Xmx6G
     resource_class: large
@@ -108,24 +105,6 @@ jobs:
       - store_artifacts:
           path: ~/test-results/junit
 
-  publish_docs:
-    executor:
-      name: android/android-machine
-      tag: 2024.01.1
-    steps:
-      - checkout
-      - android/restore-gradle-cache
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - run:
-          name: Generate and Publish docs
-          command: |
-            git config --global user.name "${GITHUB_USER_NAME}"
-            git config --global user.email "${GITHUB_USER_EMAIL}"
-            ./gradlew publishDocs
-      - android/save-gradle-cache
-
   publish:
     executor:
       name: android/android-machine
@@ -146,63 +125,22 @@ jobs:
           # gpg --export-secret-keys <key_id> | base64 | pbcopy
           command: echo "$GPG_KEY" | base64 -d > secret-keys.gpg
       - run:
-          name: Publish
-          command: bash ./scripts/publish.sh
-      - android/save-gradle-cache
-
-  # Manual operation jobs for publish recovery
-  manual_create_tags:
-    executor:
-      name: android/android-machine
-      tag: 2024.01.1
-    parameters:
-      modules:
-        type: string
-        default: ""
-        description: "Space-separated list of modules to tag (e.g., 'core debugger notifications')"
-    steps:
-      - checkout
-      - run:
-          name: Create and push tags
+          name: Detect release type and execute
           command: |
-            if [ -z "<< parameters.modules >>" ]; then
-              echo "No modules specified. Please provide modules parameter."
-              exit 1
+            # Detect module release by checking version file changes
+            VERSION_CHANGES=$(git diff HEAD~1..HEAD --name-only | grep -E '^(version$|.*/version$)' || true)
+            if [ -n "$VERSION_CHANGES" ]; then
+              echo "Module release detected"
+              echo "Changed version files:"
+              echo "$VERSION_CHANGES" | sed 's/^/  - /'
+              echo "Running full publish flow..."
+              bash ./scripts/publish.sh
+            else
+              echo "Non-module release detected"
+              echo "Running sync only..."
+              bash ./scripts/sync_repo.sh
             fi
-            
-            bash ./scripts/create_tags.sh << parameters.modules >>
-
-  manual_maven_publish:
-    executor:
-      name: android/android-machine
-      tag: 2024.01.1
-    parameters:
-      modules:
-        type: string
-        default: ""
-        description: "Space-separated list of modules to publish (e.g., 'core debugger notifications')"
-    steps:
-      - checkout
-      - android/restore-gradle-cache
-      - run:
-          name: Maven publish
-          command: |
-            if [ -z "<< parameters.modules >>" ]; then
-              echo "No modules specified. Please provide modules parameter."
-              exit 1
-            fi
-            bash ./scripts/maven_publish.sh << parameters.modules >>
       - android/save-gradle-cache
-
-  manual_sync_repo:
-    executor:
-      name: android/android-machine
-      tag: 2024.01.1
-    steps:
-      - checkout
-      - run:
-          name: Sync repository
-          command: bash ./scripts/sync_repo.sh
 
 workflows:
   build_and_test:
@@ -218,11 +156,15 @@ workflows:
         - equal: [ "", << pipeline.parameters.workflow_name >> ] # Don't execute when manual workflow is triggered
     jobs:
       - test
-      - publish_docs:
-          filters:
-            branches:
-              only:
-                - master
+
+  manual_release:
+    when:
+      and:
+        - not:
+            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
+        - equal: [ manual_release, << pipeline.parameters.workflow_name >> ]
+    jobs:
+      - test
       - publish:
           requires:
             - test
@@ -230,33 +172,3 @@ workflows:
             branches:
               only:
                 - master
-
-  # Manual workflows for publish recovery
-  manual_tag_workflow:
-    when:
-      and:
-        - not:
-            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
-        - equal: [ manual_tag, << pipeline.parameters.workflow_name >> ]
-    jobs:
-      - manual_create_tags:
-          modules: << pipeline.parameters.modules >>
-
-  manual_publish_workflow:
-    when:
-      and:
-        - not:
-            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
-        - equal: [ manual_publish, << pipeline.parameters.workflow_name >> ]
-    jobs:
-      - manual_maven_publish:
-          modules: << pipeline.parameters.modules >>
-
-  manual_sync_workflow:
-    when:
-      and:
-        - not:
-            equal: [ "https://github.com/plaidev/karte-android-sdk", << pipeline.project.git_url >> ]
-        - equal: [ manual_sync, << pipeline.parameters.workflow_name >> ]
-    jobs:
-      - manual_sync_repo

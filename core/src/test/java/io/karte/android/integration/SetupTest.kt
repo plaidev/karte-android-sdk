@@ -261,6 +261,8 @@ class SetupTest {
         /** [isLimitAdTrackingEnabled] がfalseの時、trackingを許可している. */
         private fun mockAdvertisingId(isLimitAdTrackingEnabled: Boolean) {
             mockkStatic(AdvertisingIdClient::class)
+            // TODO: FIX DEPRECATION
+            @Suppress("DEPRECATION")
             val info = AdvertisingIdClient.Info(advertisingId, isLimitAdTrackingEnabled)
             every { AdvertisingIdClient.getAdvertisingIdInfo(any()) }.returns(info)
         }

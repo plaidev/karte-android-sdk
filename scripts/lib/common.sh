@@ -66,36 +66,6 @@ function check_github_env() {
   done
 }
 
-# 暗号化関連環境変数チェック
-function check_encryption_env() {
-  local required_vars=("ENCRYPT_KEY" "GPG_KEY")
-  
-  for var in "${required_vars[@]}"; do
-    if [ -z "${!var}" ]; then
-      echo "Error: $var environment variable is required"
-      exit 1
-    fi
-  done
-}
-
-##################################################
-# 暗号化関連関数
-##################################################
-
-# プロパティファイル復号化
-function decrypt_properties() {
-  echo "Decrypting properties..."
-  mkdir -p ~/.gradle
-  openssl aes-256-cbc -d -md sha512 -pbkdf2 -iter 100000 -salt \
-    -in buildscripts/encrypted.properties -k $ENCRYPT_KEY >> ~/.gradle/gradle.properties
-}
-
-# GPGキー復号化
-function decrypt_gpg_key() {
-  echo "Decrypting GPG key..."
-  echo "$GPG_KEY" | base64 -d > secret-keys.gpg
-}
-
 ##################################################
 # パブリッシュ関連関数
 ##################################################
@@ -178,12 +148,4 @@ function init_github_operations() {
   check_github_env
   setup_git
   setup_remote_repository
-}
-
-# パブリッシュ系操作の標準初期化  
-function init_publish_operations() {
-  init_script
-  check_encryption_env
-  decrypt_properties
-  decrypt_gpg_key
 }
