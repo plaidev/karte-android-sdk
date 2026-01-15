@@ -2,13 +2,87 @@
 
 ##################################################
 # KARTE Android SDK 自動パブリッシュスクリプト
-# 
+#
 # このスクリプトは、変更されたモジュールを自動的に検出し、
 # Maven Central にパブリッシュするためのスクリプトです。
 ##################################################
 
-# 共通ライブラリを読み込み
-source "$(dirname $0)/lib/common.sh"
+##################################################
+# Git関連関数
+##################################################
+
+# タグ存在確認関数
+function has_tag() {
+  git tag -l "$1" | grep -Fxq "$1"
+}
+
+# タグ作成関数
+function create_tag() {
+  local TAG=$1
+
+  git tag $TAG || echo "Tag $TAG already exists locally"
+  git push origin $TAG || echo "Failed to push tag $TAG to origin"
+  git push sync_repo $TAG || echo "Failed to push tag $TAG to sync_repo"
+}
+
+##################################################
+# パブリッシュ関連関数
+##################################################
+
+# モジュール名からターゲット名取得
+function get_target_name() {
+  local MODULE=$1
+  echo $MODULE | sed -e "s/\/version//"
+}
+
+# Maven パブリッシュ実行
+function publish_module() {
+  local MODULE=$1
+
+  echo "Publishing module: $MODULE"
+
+  if [ "$MODULE" = "gradle-plugin" ]; then
+    ./gradlew -p gradle-plugin/ publishAndReleaseToMavenCentral --no-configuration-cache
+  else
+    ./gradlew $MODULE:publishAndReleaseToMavenCentral --no-configuration-cache
+  fi
+}
+
+# モジュールのタグ作成処理
+function create_module_tag() {
+  local MODULE=$1
+  local TARGET=`get_target_name $MODULE`
+
+  echo "Processing module: $TARGET"
+
+  TAG_VERSION=`ruby scripts/bump_version.rb current-tag -t $TARGET`
+  echo "Creating tag: $TAG_VERSION for module: $TARGET"
+
+  if has_tag "$TAG_VERSION"; then
+    echo "Tag $TAG_VERSION already exists"
+  else
+    create_tag "$TAG_VERSION"
+  fi
+}
+
+# 複数モジュールのタグ作成
+function create_modules_tags() {
+  local MODULES=("$@")
+
+  for MODULE in "${MODULES[@]}"; do
+    create_module_tag "$MODULE"
+  done
+}
+
+# 複数モジュールのMavenパブリッシュ
+function publish_modules() {
+  local MODULES=("$@")
+
+  for MODULE in "${MODULES[@]}"; do
+    local TARGET=`get_target_name $MODULE`
+    publish_module "$TARGET"
+  done
+}
 
 ##################################################
 # パブリッシュメイン関数
@@ -16,16 +90,10 @@ source "$(dirname $0)/lib/common.sh"
 
 function publish() {
   local TARGETS_MODULES=($@)
-  
-  # 対象モジュールが存在しない場合は終了
-  if [ -z $TARGETS_MODULES ]; then
-    echo "Module is not updated"
-    exit 1
-  fi
 
   # リポジトリ同期
-  echo "Force pushing master to sync_repo..."
-  git push -f sync_repo master
+  echo "Pushing master to sync_repo..."
+  git push sync_repo master
 
   # 各モジュールに対してタグ作成処理を実行
   create_modules_tags "${TARGETS_MODULES[@]}"
@@ -37,9 +105,6 @@ function publish() {
 ##################################################
 # メイン処理
 ##################################################
-
-# 初期化
-init_github_operations
 
 # sync_repo/masterとの差分から変更されたバージョンファイルを特定
 DIFF_TARGETS=($(git diff --name-only sync_repo/master | grep -E '^(version$|.*/version$)'))

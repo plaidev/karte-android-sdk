@@ -106,6 +106,10 @@ jobs:
           git config --global url."https://x-access-token:${GH_TOKEN}@github.com/plaidev/karte-android-dev".insteadOf "https://github.com/plaidev/karte-android-dev"
           git config --global user.name "github actions"
           git config --global user.email "git@users.noreply.github.com"
+      - name: Setup sync repository
+        run: |
+          git remote add sync_repo https://github.com/plaidev/karte-android-sdk.git
+          git fetch sync_repo
       # NOTE: common.sh executes `ruby scripts/bump_version.rb`.
       - name: Set up Ruby
         uses: ruby/setup-ruby@ed55d55e820a01da7d3e4863a8c51a61d73c3228 # v1.274.0
@@ -115,12 +119,9 @@ jobs:
       - name: Dry run (Git authentication check)
         if: env.MODE == 'dry-run'
         env:
-          GITHUB_REMOTE_ADDRESS: https://github.com/plaidev/karte-android-sdk.git
           TEMP_BRANCH: ci-auth-test-${{ github.run_id }}
           TEMP_TAG: ci-auth-test-tag-${{ github.run_id }}
         run: |
-          git remote add sync_repo ${GITHUB_REMOTE_ADDRESS} || true
-          git fetch sync_repo
           git push --dry-run sync_repo HEAD:refs/heads/${TEMP_BRANCH}
           git tag ${TEMP_TAG}
           git push --dry-run origin ${TEMP_TAG}
@@ -136,9 +137,6 @@ jobs:
       - name: Publish
         if: env.MODE == 'release'
         env:
-          GITHUB_REMOTE_ADDRESS: 'https://github.com/plaidev/karte-android-sdk.git'
-          GITHUB_USER_NAME: 'github actions'
-          GITHUB_USER_EMAIL: 'git@users.noreply.github.com'
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
@@ -149,7 +147,8 @@ jobs:
           if [ -n "$VERSION_CHANGES" ]; then
             bash ./scripts/publish.sh
           else
-            bash ./scripts/sync_repo.sh
+            echo "Syncing master to sync_repo..."
+            git push sync_repo master
           fi
       - name: Trigger publish-docs workflow
         if: env.MODE == 'release'
