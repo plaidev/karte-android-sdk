@@ -7,7 +7,7 @@ def getPropOrDefault(name, defaultValue = "") {
 }
 
 mavenPublishing {
-    publishToMavenCentral(true, false) // automaticRelease = true, validateDeployment = false
+    publishToMavenCentral()
     signAllPublications()
     
     pom {
