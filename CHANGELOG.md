@@ -8,7 +8,7 @@
 | variables | 設定値配信機能を提供します。 | 2.12.0   |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.14.0   |
 | inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.7.0    |
-| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.8.0    |
+| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.7.0    |
 | debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.3.0    |
 
 # Releases - 2026.01.14
@@ -45,12 +45,6 @@
 - targetSdkを36にしました。
 
 ### InAppFrame 0.7.0
-**🔨CHANGED**
-- 依存ライブラリをアップデートしました。
-- Version Catalogに対応しました。
-- targetSdkを36にしました。
-
-### Karte Gradle Plugin 2.8.0
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
 - Version Catalogに対応しました。
