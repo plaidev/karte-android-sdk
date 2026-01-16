@@ -135,6 +135,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
         run: ./gradlew publishToMavenLocal
       - name: Publish
+        id: publish
         if: env.MODE == 'release'
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
@@ -143,12 +144,14 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
         run: |
-          VERSION_CHANGES=$(git diff HEAD~1..HEAD --name-only | grep -E '^(version$|.*/version$)' || true)
+          VERSION_CHANGES=$(git diff --name-only sync_repo/master | grep -E '^(version$|.*/version$)' || true)
           if [ -n "$VERSION_CHANGES" ]; then
             bash ./scripts/publish.sh
+            echo "published=true" >> $GITHUB_OUTPUT
           else
             echo "Syncing master to sync_repo..."
             git push sync_repo master
+            echo "published=false" >> $GITHUB_OUTPUT
           fi
       - name: Trigger publish-docs workflow
         if: env.MODE == 'release'
@@ -156,11 +159,17 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: gh workflow run publish-docs.yml --ref master
       - name: Trigger release notes publish
-        if: env.MODE == 'release' && success()
+        if: env.MODE == 'release'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           gh workflow run publish-release-notes.yml --ref master
+      - name: Trigger deploy-release-feed workflow
+        if: env.MODE == 'release' && steps.publish.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh workflow run deploy-release-feed.yml --repo plaidev/karte-android-sdk --ref master
       - name: Notify Slack on publish success
         if: success()
         uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3

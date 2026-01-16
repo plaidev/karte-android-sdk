@@ -97,8 +97,6 @@ jobs:
           --body "$PR_BODY" \
           --base master \
           --head release/${{ steps.date.outputs.date }}
-    # NOTE: deploy-release-feed.yml checks commit message for "Non-module release" pattern
-    #       to skip RSS feed deployment. This title must contain "Non-module release".
     - name: Create Pull Request (Non-Module Release)
       if: steps.find-release-targets.outputs.RELEASE_TYPE == 'non-module' && inputs.dry_run != true
       id: create_pr_non_module
