@@ -35,13 +35,6 @@ compose-compiler = "1.4.4"
 # 2.7 以降は kotlin 2 系でコンパイルされているので 2.6 で止める
 coil-compose = "2.6.0"
 
-# Gradle Plugin dependencies
-javassist = "3.30.2-GA"
-asm = "9.9"
-android-tools-build-gradle = "7.0.0"
-android-tools-common = "31.13.2"
-commons-io = "2.21.0"
-
 # Testing
 junit = "4.13.2"
 androidx-test-runner = "1.7.0"
@@ -96,14 +89,6 @@ support-design = { module = "com.android.support:design", version.ref = "support
 
 # Other Libraries
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
-
-# Gradle Plugin dependencies
-javassist = { module = "org.javassist:javassist", version.ref = "javassist" }
-asm-util = { module = "org.ow2.asm:asm-util", version.ref = "asm" }
-asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
-android-tools-build-gradle = { module = "com.android.tools.build:gradle", version.ref = "android-tools-build-gradle" }
-android-tools-common = { module = "com.android.tools:common", version.ref = "android-tools-common" }
-commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 
 # Testing
 junit = { module = "junit:junit", version.ref = "junit" }

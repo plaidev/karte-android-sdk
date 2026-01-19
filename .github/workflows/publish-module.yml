@@ -16,15 +16,27 @@ on:
           - notifications
           - variables
           - visualtracking
+      dry_run:
+        description: 'Dry run mode (publish to Maven Local only)'
+        required: false
+        type: boolean
+        default: false
 jobs:
   publish:
-    if: github.repository != 'plaidev/karte-android-sdk' && github.ref == 'refs/heads/master'
+    if: github.repository != 'plaidev/karte-android-sdk'
     # NOTE: Using larger runner since this workflow runs infrequently and should complete quickly.
     runs-on: ubuntu-22.04-8core
     timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: master
+      - name: Show release HEAD
+        run: |
+          echo "Releasing from commit:"
+          git log -1 --format='%H %s' HEAD
+          echo "Branch: $(git rev-parse --abbrev-ref HEAD)"
       - name: Set up JDK 21
         uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
         with:
@@ -34,7 +46,23 @@ jobs:
         uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
         with:
           cache-read-only: false
+      - name: Maven publish (Dry Run)
+        if: ${{ inputs.dry_run }}
+        env:
+          MODULE: ${{ inputs.module }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+        run: |
+          echo "DRY RUN: Publishing module $MODULE to Maven Local"
+          if [ "$MODULE" = "gradle-plugin" ]; then
+            ./gradlew -p gradle-plugin/ publishToMavenLocal --no-configuration-cache
+          else
+            ./gradlew $MODULE:publishToMavenLocal --no-configuration-cache
+          fi
+          echo "DRY RUN: Maven Local publish completed for module: $MODULE"
       - name: Maven publish
+        if: ${{ !inputs.dry_run }}
         env:
           MODULE: ${{ inputs.module }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}

@@ -11,6 +11,15 @@
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.8.0    |
 | debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.3.0    |
 
+# Releases - 2026.01.19
+
+### Karte Gradle Plugin 2.8.0
+**🔨CHANGED**
+- 依存ライブラリをアップデートしました。
+- Version Catalogに対応しました。
+- targetSdkを36にしました。
+- ビルド時のKotlinのバージョンを1.9.25に上げました。
+
 # Releases - 2026.01.14
 
 ### Core 2.33.0
@@ -45,12 +54,6 @@
 - targetSdkを36にしました。
 
 ### InAppFrame 0.7.0
-**🔨CHANGED**
-- 依存ライブラリをアップデートしました。
-- Version Catalogに対応しました。
-- targetSdkを36にしました。
-
-### Karte Gradle Plugin 2.8.0
 **🔨CHANGED**
 - 依存ライブラリをアップデートしました。
 - Version Catalogに対応しました。
