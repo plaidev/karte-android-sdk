@@ -73,9 +73,7 @@ jobs:
         run: |
           echo "Publishing module: $MODULE"
           if [ "$MODULE" = "gradle-plugin" ]; then
-            # gradle-plugin uses maven-publish 0.25.3 (due to Kotlin version constraint)
-            # which doesn't have publishAndReleaseToMavenCentral task
-            ./gradlew -p gradle-plugin/ publishAllPublicationsToMavenCentralRepository --no-configuration-cache
+            ./gradlew -p gradle-plugin/ publishAndReleaseToMavenCentral --no-configuration-cache
           else
             ./gradlew $MODULE:publishAndReleaseToMavenCentral --no-configuration-cache
           fi
