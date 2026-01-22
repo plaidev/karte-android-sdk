@@ -18,6 +18,7 @@ package io.karte.android.notifications.internal
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessaging
+import io.karte.android.KarteApp
 import io.karte.android.core.library.NotificationModule
 import io.karte.android.core.library.UserModule
 import io.karte.android.core.logger.Logger
@@ -51,6 +52,10 @@ internal class TokenRegistrar(private val context: Context) : UserModule, Notifi
     private var subscribe = false
 
     fun registerFCMToken(token: String? = null) {
+        if (KarteApp.isOptOut) {
+            Logger.i(LOG_TAG, "KARTE has been opted out, skipping FCM registration")
+            return
+        }
         if (token == null) {
             thread(name = THREAD_NAME) { getToken { _token -> registerFCMTokenInternal(_token) } }
         } else {
