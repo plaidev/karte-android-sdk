@@ -65,9 +65,7 @@ fun InAppFrameCompose(
  *
  * @param placeId 表示場所ID
  */
-/* ktlint-disable */
 suspend fun InAppFrame.Companion.loadComposeContent(placeId: String): (@Composable (Modifier) -> Unit)? {
-/* ktlint-enable */
     val variable = Variables.get("$PREFIX$placeId")
     try {
         val (inAppFrameData, iafTracker) = withContext(Dispatchers.IO) {

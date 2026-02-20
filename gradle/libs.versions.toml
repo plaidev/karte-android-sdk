@@ -49,6 +49,9 @@ json-unit = "3.5.0"
 json = "20250517"
 objenesis = "3.3"
 
+# Code Quality
+ktlint = "1.8.0"
+
 # Plugins
 dokka = "1.9.20"
 maven-publish = "0.35.0"
@@ -104,6 +107,9 @@ byte-buddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byte-buddy" }
 json-unit-assertj = { module = "net.javacrumbs.json-unit:json-unit-assertj", version.ref = "json-unit" }
 json = { module = "org.json:json", version.ref = "json" }
 objenesis = { module = "org.objenesis:objenesis", version.ref = "objenesis" }
+
+# Code Quality
+ktlint = { module = "com.pinterest.ktlint:ktlint-cli", version.ref = "ktlint" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
