@@ -61,10 +61,12 @@ private const val WINDOW_FLAGS_FOCUSED = WindowManager.LayoutParams.FLAG_LAYOUT_
     WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
 
 @Suppress("DEPRECATION")
-private const val WINDOW_FLAGS_UNFOCUSED = (WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-    or WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
-    or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-    or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+private const val WINDOW_FLAGS_UNFOCUSED = (
+    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+        or WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
+        or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+        or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+    )
 
 @SuppressLint("ViewConstructor")
 internal open class WindowView(
@@ -120,10 +122,12 @@ internal open class WindowView(
     }
 
     private val isActivityNotRenewedOnRotate: Boolean = runCatching {
-        (activity.packageManager.getActivityInfo(
-            activity.componentName,
-            PackageManager.GET_META_DATA
-        ).configChanges and ActivityInfo.CONFIG_ORIENTATION) == ActivityInfo.CONFIG_ORIENTATION
+        (
+            activity.packageManager.getActivityInfo(
+                activity.componentName,
+                PackageManager.GET_META_DATA
+            ).configChanges and ActivityInfo.CONFIG_ORIENTATION
+            ) == ActivityInfo.CONFIG_ORIENTATION
     }.getOrDefault(false)
 
     init {
@@ -321,8 +325,9 @@ internal open class WindowView(
             // childrenがconsumeするか確認する
             for (i in 0 until childCount) {
                 val child = getChildAt(i)
-                if (child.dispatchKeyEvent(event))
+                if (child.dispatchKeyEvent(event)) {
                     return true
+                }
             }
             decorView?.dispatchKeyEvent(KeyEvent(event))
             // Check ACTION_UP because when changing focus during event sequence, event not handled properly.
@@ -563,7 +568,8 @@ internal open class WindowView(
         if (!BuildConfig.DEBUG) return
 
         Logger.v(
-            LOG_TAG, "$message\n" +
+            LOG_TAG,
+            "$message\n" +
                 "ContentArea: ${drawingArea?.log()}\n" +
                 "IAMWindow  : ${log()}\n" +
                 "WebView    : ${if (isNotEmpty()) getChildAt(0).log() else ""}\n" +
@@ -582,7 +588,9 @@ private fun View.log(): String {
     getLocationOnScreen(location)
     val insets = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         rootWindowInsets
-    } else null
+    } else {
+        null
+    }
     return "$rect, location:${location.log()}, padding:${logPadding()}, size:${logSize()}\n" +
         "\t insets:$insets"
 }

@@ -86,9 +86,13 @@ class InAppFrame : LinearLayout {
         inAppFrameWrapper.removeAllViews()
         when (inAppFrame) {
             is CarouselWithMarginV1 -> inAppFrameWrapper.addView(CarouselWithMarginView(context, inAppFrame, tracker))
+
             is CarouselWithoutMarginV1 -> inAppFrameWrapper.addView(CarouselWithoutMarginView(context, inAppFrame, tracker))
+
             is CarouselWithoutPagingV1 -> inAppFrameWrapper.addView(CarouselWithoutPagingView(context, inAppFrame, tracker))
+
             is SimpleBannerV1 -> inAppFrameWrapper.addView(SimpleBannerView(context, inAppFrame, tracker))
+
             is Empty -> {
                 throw Exception("emptyView")
             }

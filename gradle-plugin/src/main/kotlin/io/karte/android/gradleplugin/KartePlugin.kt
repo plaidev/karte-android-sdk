@@ -111,11 +111,14 @@ class KartePlugin : Plugin<Project> {
             return when (dir) {
                 // [3.5.0, 4.1.0)
                 is DirectoryProperty -> dir.get().asFileTree.files
+
                 // [3.3.0, 3.5.0)
                 is Provider<*> -> (dir.get() as Directory).asFileTree.files
+
                 // [3.1.0, 3.3.0)
                 // Greater than or equal to 3.3.0, there isn't even a deprecated method of getManifestOutputDirectory returning File.
                 is File -> dir.walkTopDown().toSet()
+
                 // (, 3.1.0)
                 else -> throw NoSuchMethodError(
                     "Not found expected return type method: getManifestOutputDirectory."

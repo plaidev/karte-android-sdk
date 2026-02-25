@@ -25,6 +25,7 @@ internal object InAppFrameDeserializer {
                 SimpleBannerV1.TEMPLATE_TYPE -> SimpleBannerV1.parseOrThrow(json)
                 else -> throw Exception("No templateType Matched.")
             }
+
             IAFVersion.UNKNOWN -> throw Exception("IAFVersion is unknown.")
         }
         Pair(inAppFrameData, iafTracker)

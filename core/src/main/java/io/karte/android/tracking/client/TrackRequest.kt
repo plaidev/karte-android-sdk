@@ -79,7 +79,8 @@ class TrackRequest(
         get() {
             return JSONObject()
                 .put(
-                    "keys", JSONObject()
+                    "keys",
+                    JSONObject()
                         .put("visitor_id", visitorId)
                         .put("original_pv_id", originalPvId)
                         .put("pv_id", pvId)

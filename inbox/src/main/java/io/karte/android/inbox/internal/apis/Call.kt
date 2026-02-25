@@ -56,6 +56,7 @@ internal class Call(private val request: BaseApiRequest) {
                         JSONObject(it.readText())
                     }
                 }
+
                 HttpURLConnection.HTTP_BAD_REQUEST,
                 HttpURLConnection.HTTP_UNAUTHORIZED,
                 HttpURLConnection.HTTP_INTERNAL_ERROR -> {
@@ -63,6 +64,7 @@ internal class Call(private val request: BaseApiRequest) {
                     Logger.e(LOG_TAG, "Response error: ${conn.responseCode}: $e")
                     null
                 }
+
                 else -> {
                     Logger.e(LOG_TAG, "Invalid response: ${conn.responseCode}")
                     null

@@ -101,8 +101,9 @@ internal class IAMWebView(context: Context, private val delegate: WebViewDelegat
     }
 
     private fun changeState(newState: State) {
-        if (state == newState)
+        if (state == newState) {
             return
+        }
         state = newState
         if (isReady) {
             Logger.d(LOG_TAG, "Js state: $newState")
@@ -134,14 +135,17 @@ internal class IAMWebView(context: Context, private val delegate: WebViewDelegat
                     Tracker.track(Event(CustomEventName(message.eventName), message.values, libraryName = InAppMessaging.name))
                     notifyCampaignOpenOrClose(message.eventName, message.values)
                 }
+
                 is JsMessage.StateChanged -> {
                     Logger.d(LOG_TAG, "Received state_change callback: state=${message.state}")
                     changeState(State.of(message.state))
                 }
+
                 is JsMessage.OpenUrl -> {
                     Logger.d(LOG_TAG, "Received open_url callback: url=${message.uri}")
                     tryOpenUrl(message.uri, message.withReset)
                 }
+
                 is JsMessage.DocumentChanged -> {
                     Logger.d(
                         LOG_TAG,
@@ -149,6 +153,7 @@ internal class IAMWebView(context: Context, private val delegate: WebViewDelegat
                     )
                     delegate.onUpdateTouchableRegions(message.regions)
                 }
+
                 is JsMessage.Visibility -> {
                     Logger.d(LOG_TAG, "Received visibility callback: visible=${message.visible}")
                     if (message.visible) {
@@ -159,6 +164,7 @@ internal class IAMWebView(context: Context, private val delegate: WebViewDelegat
                         delegate.onWebViewInvisible()
                     }
                 }
+
                 else -> Logger.w(
                     LOG_TAG,
                     "Unknown callback $name was passed from WebView"
@@ -178,6 +184,7 @@ internal class IAMWebView(context: Context, private val delegate: WebViewDelegat
         when (eventName) {
             MessageEventName.MessageOpen.value ->
                 InAppMessaging.delegate?.onPresented(campaignId, shortenId)
+
             MessageEventName.MessageClose.value ->
                 InAppMessaging.delegate?.onDismissed(campaignId, shortenId)
         }

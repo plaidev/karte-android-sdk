@@ -1322,7 +1322,8 @@ class VariablesTest {
                 HashMap<String, Any?>().apply {
                     put("hoge", "fuga")
                     put("date", dateParam)
-                })
+                }
+            )
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
@@ -1385,7 +1386,8 @@ class VariablesTest {
                 HashMap<String, Any?>().apply {
                     put("hoge", "fuga")
                     put("date", dateParam)
-                })
+                }
+            )
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")

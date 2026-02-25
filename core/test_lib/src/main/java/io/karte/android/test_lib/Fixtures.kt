@@ -74,9 +74,11 @@ fun createMessageOpen(
 ): JSONObject = JSONObject()
     .put("event_name", "message_open")
     .put(
-        "values", JSONObject()
+        "values",
+        JSONObject()
             .put(
-                "message", JSONObject()
+                "message",
+                JSONObject()
                     .put("campaign_id", campaignId).put("shorten_id", shortenId)
             )
     )

@@ -192,16 +192,18 @@ internal class DataStore private constructor(context: Context) {
                     repeat(cursor.count) {
                         cursor.moveToPosition(it)
                         val persistable =
-                            contract.create(cursor.columnNames.mapIndexed { index, s ->
-                                if (index == -1) return@mapIndexed s to null
-                                when (contract.columns[s]) {
-                                    Cursor.FIELD_TYPE_INTEGER -> s to cursor.getInt(index)
-                                    Cursor.FIELD_TYPE_STRING -> s to cursor.getString(index)
-                                    Cursor.FIELD_TYPE_FLOAT -> s to cursor.getDouble(index)
-                                    Cursor.FIELD_TYPE_BLOB -> s to cursor.getBlob(index)
-                                    else -> s to null
-                                }
-                            }.toMap())
+                            contract.create(
+                                cursor.columnNames.mapIndexed { index, s ->
+                                    if (index == -1) return@mapIndexed s to null
+                                    when (contract.columns[s]) {
+                                        Cursor.FIELD_TYPE_INTEGER -> s to cursor.getInt(index)
+                                        Cursor.FIELD_TYPE_STRING -> s to cursor.getString(index)
+                                        Cursor.FIELD_TYPE_FLOAT -> s to cursor.getDouble(index)
+                                        Cursor.FIELD_TYPE_BLOB -> s to cursor.getBlob(index)
+                                        else -> s to null
+                                    }
+                                }.toMap()
+                            )
                         val index = cursor.getColumnIndex(BaseColumns._ID)
                         persistable.id = cursor.getLong(index)
                         persistables.add(persistable)

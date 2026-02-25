@@ -79,6 +79,7 @@ class TokenResendTest(private val pattern: MockPattern) : NotificationSetupTestC
     private fun mockToken(token: String) {
         when (pattern) {
             MockPattern.MESSAGING -> mockFirebaseMessaging(token)
+
             MockPattern.NONE -> {
             }
         }
@@ -87,6 +88,7 @@ class TokenResendTest(private val pattern: MockPattern) : NotificationSetupTestC
     private fun unmockToken() {
         when (pattern) {
             MockPattern.MESSAGING -> unmockFirebaseMessaging()
+
             MockPattern.NONE -> {
             }
         }

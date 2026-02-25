@@ -137,29 +137,35 @@ internal class VariablesService : Library, ActionModule, UserModule {
     }
 
     private fun track(type: MessageEventType, campaignId: String, shortenId: String, values: Values?, timestamp: String?, eventHash: String?) {
-        var base = (values ?: mapOf()).merge(mapOf(
-            "message" to mapOf(
-                "frequency_type" to "access"
+        var base = (values ?: mapOf()).merge(
+            mapOf(
+                "message" to mapOf(
+                    "frequency_type" to "access"
+                )
             )
-        ))
+        )
 
         timestamp?.let {
-            base = base.merge(mapOf(
-                "message" to mapOf(
-                    "response_id" to "${it}_$shortenId",
-                    "response_timestamp" to it
+            base = base.merge(
+                mapOf(
+                    "message" to mapOf(
+                        "response_id" to "${it}_$shortenId",
+                        "response_timestamp" to it
+                    )
                 )
-            ))
+            )
         }
 
         eventHash?.let {
-            base = base.merge(mapOf(
-                "message" to mapOf(
-                    "trigger" to mapOf(
-                        "event_hashes" to eventHash
+            base = base.merge(
+                mapOf(
+                    "message" to mapOf(
+                        "trigger" to mapOf(
+                            "event_hashes" to eventHash
+                        )
                     )
                 )
-            ))
+            )
         }
 
         Tracker.track(MessageEvent(type, campaignId, shortenId, base))
@@ -253,5 +259,5 @@ private class FetchVariablesEvent :
     Event(VariablesEventName.FetchVariables, values = null, isRetryable = false)
 
 private enum class VariablesEventName(override val value: String) : EventName {
-    FetchVariables("_fetch_variables"),
+    FetchVariables("_fetch_variables")
 }

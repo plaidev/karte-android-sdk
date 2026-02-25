@@ -90,8 +90,9 @@ internal class PanelWindowManager {
             if (!isActivePanel(window)) return false
 
             val params = window.attributes
-            if (params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE != 0)
+            if (params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE != 0) {
                 return false
+            }
 
             var shouldDispatch = false
             if (params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL != 0) {
@@ -144,8 +145,11 @@ internal class PanelWindowManager {
             if (!popupWindow.isShowing) return false
             if (popupWindow.contentView == null) return false
 
-            return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) true
-            else popupWindow.windowLayoutType == TYPE_APPLICATION_PANEL
+            return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                true
+            } else {
+                popupWindow.windowLayoutType == TYPE_APPLICATION_PANEL
+            }
         }
 
         override fun hasStaleReference(): Boolean {

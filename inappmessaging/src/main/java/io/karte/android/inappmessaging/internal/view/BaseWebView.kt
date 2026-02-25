@@ -229,8 +229,9 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
     private fun handleError(message: String, urlTriedToLoad: String?) {
         Logger.e(LOG_TAG, "$message, url: $urlTriedToLoad")
         // 現在のページのエラー時には空htmlを読み込む
-        if (url != null && url == urlTriedToLoad)
+        if (url != null && url == urlTriedToLoad) {
             loadData("<html></html>", "text/html", "utf-8")
+        }
         if (urlTriedToLoad == null || urlTriedToLoad.contains("/native/overlay") ||
             urlTriedToLoad.contains("native_tracker")
         ) {

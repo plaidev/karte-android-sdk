@@ -104,21 +104,25 @@ private fun InAppFrameContent(
                 tracker = iafTracker,
                 onBannerClick = onBannerClick
             )
+
             is CarouselWithMarginV1 -> CarouselWithMarginCompose(
                 carouselWithMargin = inAppFrameData,
                 tracker = iafTracker,
                 onBannerClick = onBannerClick
             )
+
             is CarouselWithoutMarginV1 -> CarouselWithoutMarginCompose(
                 carouselWithoutMargin = inAppFrameData,
                 tracker = iafTracker,
                 onBannerClick = onBannerClick
             )
+
             is CarouselWithoutPagingV1 -> CarouselWithoutPagingCompose(
                 carouselWithoutPaging = inAppFrameData,
                 tracker = iafTracker,
                 onBannerClick = onBannerClick
             )
+
             is Empty -> {
                 // Empty component, nothing to render
             }

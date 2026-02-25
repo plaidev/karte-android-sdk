@@ -89,13 +89,15 @@ open class Config protected constructor(
      */
     var baseUrl: String
         private set(value) {
-            if (value.isEmpty())
+            if (value.isEmpty()) {
                 return
+            }
             _baseUrl = Uri.withAppendedPath(Uri.parse(value), "v0/native").toString()
         }
         get() {
-            if (_baseUrl.isEmpty())
+            if (_baseUrl.isEmpty()) {
                 return "https://b.karte.io/v0/native"
+            }
             return _baseUrl
         }
 
@@ -107,8 +109,9 @@ open class Config protected constructor(
             _dataLocation = value
         }
         get() {
-            if (_dataLocation.isEmpty())
+            if (_dataLocation.isEmpty()) {
                 return "tw"
+            }
             return _dataLocation
         }
 
@@ -247,8 +250,9 @@ open class Config protected constructor(
             if (cfg.appKey.isEmpty()) {
                 val appKeyFromResource = readStringFromResource(context, "karte_app_key")
                 // appKeyに限り 未設定＆resourceにない＆debugビルド 時に例外スロー
-                if (appKeyFromResource == null && BuildConfig.DEBUG)
+                if (appKeyFromResource == null && BuildConfig.DEBUG) {
                     throw KarteException("karte_resources.xml not found.")
+                }
                 appKeyFromResource?.let { cfg.appKey = it }
             }
             if (cfg.apiKey.isEmpty()) {

@@ -24,8 +24,11 @@ internal object VTHook {
     @JvmStatic
     fun hookAction(name: String, args: Array<Any>) {
         try {
-            Logger.d(LOG_TAG, "hookAction name=$name, " +
-                "args=${args.joinToString(transform = Any::toString)}")
+            Logger.d(
+                LOG_TAG,
+                "hookAction name=$name, " +
+                    "args=${args.joinToString(transform = Any::toString)}"
+            )
             val instance = VisualTracking.self
             if (instance == null) {
                 Logger.e(LOG_TAG, "Tried to hook action but VisualTracking is not enabled.")

@@ -111,9 +111,11 @@ open class Event {
     internal fun toJSON(forSerialize: Boolean = false): JSONObject {
         return JSONObject()
             .put("event_name", eventName.value)
-            .put("values", values
-                .put("_local_event_date", date)
-                .apply { if (isRetry) put("_retry", true) }
+            .put(
+                "values",
+                values
+                    .put("_local_event_date", date)
+                    .apply { if (isRetry) put("_retry", true) }
             ).apply {
                 if (forSerialize) {
                     put("_is_retryable", isRetryable)
@@ -180,6 +182,7 @@ open class Event {
                     return true
                 }
             }
+
             BaseEventName.Identify.value -> {
                 val userId = values.optString("user_id")
                 if (userId.isEmpty()) {
@@ -196,7 +199,8 @@ internal class IdentifyEvent(
     userId: String,
     values: Values? = null
 ) : Event(
-    BaseEventName.Identify, valuesOf(values) {
+    BaseEventName.Identify,
+    valuesOf(values) {
         this["user_id"] = userId
     }
 )
@@ -207,11 +211,14 @@ internal class ViewEvent(
     viewId: String? = null,
     title: String? = null,
     values: Values? = null
-) : Event(BaseEventName.View, valuesOf(values) {
-    this["view_name"] = viewName
-    this.getOrPut("title", { title ?: viewName })
-    if (!this.contains("view_id") && viewId != null) this["view_id"] = viewId
-})
+) : Event(
+    BaseEventName.View,
+    valuesOf(values) {
+        this["view_name"] = viewName
+        this.getOrPut("title", { title ?: viewName })
+        if (!this.contains("view_id") && viewId != null) this["view_id"] = viewId
+    }
+)
 
 /** `attribute` イベント */
 internal class AttributeEvent(values: Values? = null) : Event(BaseEventName.Attribute, values)
@@ -219,7 +226,8 @@ internal class AttributeEvent(values: Values? = null) : Event(BaseEventName.Attr
 /** `native_app_renew_visitor_id` イベント */
 internal class RenewVisitorIdEvent(newVisitorId: String? = null, oldVisitorId: String? = null) :
     Event(
-        AutoEventName.NativeAppRenewVisitorId, valuesOf {
+        AutoEventName.NativeAppRenewVisitorId,
+        valuesOf {
             newVisitorId?.let { this["new_visitor_id"] = it }
             oldVisitorId?.let { this["old_visitor_id"] = it }
         }
@@ -236,17 +244,21 @@ class MessageEvent(
     val shortenId: String,
     values: Values? = null,
     libraryName: String? = null
-) : Event(CustomEventName(type.eventNameStr), valuesOf(values) {
-    val merged = merge(
-        mapOf(
-            "message" to mapOf(
-                "campaign_id" to campaignId,
-                "shorten_id" to shortenId
+) : Event(
+    CustomEventName(type.eventNameStr),
+    valuesOf(values) {
+        val merged = merge(
+            mapOf(
+                "message" to mapOf(
+                    "campaign_id" to campaignId,
+                    "shorten_id" to shortenId
+                )
             )
         )
-    )
-    putAll(merged)
-}, libraryName = libraryName) {
+        putAll(merged)
+    },
+    libraryName = libraryName
+) {
     constructor(type: MessageEventType, campaignId: String, shortenId: String, values: Values?) : this(type, campaignId, shortenId, values, null)
 }
 
@@ -268,7 +280,7 @@ internal enum class AutoEventName(override val value: String) : EventName {
     NativeAppOpen("native_app_open"),
     NativeAppForeground("native_app_foreground"),
     NativeAppBackground("native_app_background"),
-    NativeAppRenewVisitorId("native_app_renew_visitor_id"),
+    NativeAppRenewVisitorId("native_app_renew_visitor_id")
 }
 
 /**message_xxx イベント名を定義した列挙型です。*/
@@ -286,7 +298,7 @@ enum class MessageEventName(override val value: String) : EventName {
     MessageClick("message_click"),
 
     /** _message_suppressed イベント */
-    MessageSuppressed("_message_suppressed"),
+    MessageSuppressed("_message_suppressed")
 }
 
 /**カスタムイベント名を保持するクラスです。*/

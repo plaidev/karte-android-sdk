@@ -88,8 +88,9 @@ internal class ConnectivityObserver(private val context: Context) {
         }
         val builder = NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M)
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             builder.addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        }
         val request = builder.build()
         connectivityManager.registerNetworkCallback(request, callback)
     }

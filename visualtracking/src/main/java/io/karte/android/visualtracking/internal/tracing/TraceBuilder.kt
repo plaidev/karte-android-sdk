@@ -76,18 +76,22 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
             "android.app.ListActivity#onListItemClick",
             "android.widget.AdapterView\$OnItemClickListener#onItemClick" ->
                 args[1] as View
+
             "com.google.android.material.tabs.TabLayout\$OnTabSelectedListener#onTabSelected",
             "android.support.design.widget.TabLayout\$OnTabSelectedListener#onTabSelected" -> {
                 val tab = args[0] as TabLayout.Tab
                 @Suppress("INACCESSIBLE_TYPE")
                 tab.customView ?: tab.view
             }
+
             HookTargetMethodFromDynamicInvoke.VIEW_CLICK.actionName -> {
                 args.lastOrNull { it is View } as? View
             }
+
             HookTargetMethodFromDynamicInvoke.ADAPTER_VIEW_ITEM_CLICK.actionName -> {
                 args.lastOrNull { it is View } as? View
             }
+
             else -> args.firstOrNull { it is View } as? View
         }
     }

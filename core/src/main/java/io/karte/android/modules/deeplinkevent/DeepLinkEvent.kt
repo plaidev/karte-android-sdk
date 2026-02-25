@@ -57,5 +57,5 @@ private class DeepLinkAppEvent(eventName: DeepLinkEventName, url: String) :
     Event(eventName, values = mapOf("url" to url))
 
 private enum class DeepLinkEventName(override val value: String) : EventName {
-    AppOpen("deep_link_app_open"),
+    AppOpen("deep_link_app_open")
 }

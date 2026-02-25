@@ -109,7 +109,8 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
                 val action = message.optJSONObject("action")
                 JSONObject()
                     .put(
-                        "action", JSONObject()
+                        "action",
+                        JSONObject()
                             .put("_id", action?.optString("_id"))
                             .put("shorten_id", action?.optString("shorten_id"))
                     )

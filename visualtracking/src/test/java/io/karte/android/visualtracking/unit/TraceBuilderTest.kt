@@ -153,8 +153,10 @@ class TraceBuilderTest : RobolectricTestCase() {
         val activity = Robolectric.buildActivity(Activity::class.java).get()
         val layout = createLinearLayoutWithText(activity, "hoge")
         val values = traceBuilder.buildTrace(
-            "android.app.ListActivity#onListItemClick", args = arrayOf(
-                ListView(activity), layout
+            "android.app.ListActivity#onListItemClick",
+            args = arrayOf(
+                ListView(activity),
+                layout
             )
         ).values
         assertThatJson(values).isObject.containsAllEntriesOf(
@@ -179,8 +181,13 @@ class TraceBuilderTest : RobolectricTestCase() {
         val activity = Robolectric.buildActivity(Activity::class.java).get()
         val layout = createLinearLayoutWithText(activity, "hoge")
         val values = traceBuilder.buildTrace(
-            HookTargetMethodFromDynamicInvoke.VIEW_CLICK.actionName, args = arrayOf(
-                ListView(activity), View(activity), View(activity), layout, "string"
+            HookTargetMethodFromDynamicInvoke.VIEW_CLICK.actionName,
+            args = arrayOf(
+                ListView(activity),
+                View(activity),
+                View(activity),
+                layout,
+                "string"
             )
         ).values
         assertThatJson(values).isObject.containsAllEntriesOf(
@@ -205,8 +212,13 @@ class TraceBuilderTest : RobolectricTestCase() {
         val activity = Robolectric.buildActivity(Activity::class.java).get()
         val layout = createLinearLayoutWithText(activity, "hoge")
         val values = traceBuilder.buildTrace(
-            HookTargetMethodFromDynamicInvoke.ADAPTER_VIEW_ITEM_CLICK.actionName, args = arrayOf(
-                ListView(activity), View(activity), View(activity), layout, "string"
+            HookTargetMethodFromDynamicInvoke.ADAPTER_VIEW_ITEM_CLICK.actionName,
+            args = arrayOf(
+                ListView(activity),
+                View(activity),
+                View(activity),
+                layout,
+                "string"
             )
         ).values
         assertThatJson(values).isObject.containsAllEntriesOf(

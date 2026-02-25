@@ -152,29 +152,31 @@ class VisualTracking : Library, ActionModule, TrackModule {
         if (definitions == null) return
 
         val traceValues = trace.values
-        executor.execute(Runnable {
-            Logger.d(LOG_TAG, "Handling trace: $traceValues")
-            val events: List<JSONObject>
-            try {
-                synchronized(DefinitionList::class.java) {
-                    events = definitions!!.traceToEvents(
-                        traceValues,
-                        currentActiveActivity?.get()?.window
-                    )
-                }
-            } catch (e: Exception) {
-                Logger.w(LOG_TAG, "Failed to check VT event.", e)
-                return@Runnable
-            }
-
-            for (event in events) {
+        executor.execute(
+            Runnable {
+                Logger.d(LOG_TAG, "Handling trace: $traceValues")
+                val events: List<JSONObject>
                 try {
-                    Tracker.track(event.getString("event_name"), event.getJSONObject("values"))
+                    synchronized(DefinitionList::class.java) {
+                        events = definitions!!.traceToEvents(
+                            traceValues,
+                            currentActiveActivity?.get()?.window
+                        )
+                    }
                 } catch (e: Exception) {
-                    Logger.e(LOG_TAG, "Failed to send VT event.", e)
+                    Logger.w(LOG_TAG, "Failed to check VT event.", e)
+                    return@Runnable
+                }
+
+                for (event in events) {
+                    try {
+                        Tracker.track(event.getString("event_name"), event.getJSONObject("values"))
+                    } catch (e: Exception) {
+                        Logger.e(LOG_TAG, "Failed to send VT event.", e)
+                    }
                 }
             }
-        })
+        )
     }
 
     /** DefinitionList取得APIを1秒の遅延実行. リトライはしない. */

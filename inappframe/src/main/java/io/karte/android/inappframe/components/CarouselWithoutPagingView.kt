@@ -59,6 +59,7 @@ internal class CarouselWithoutPagingView private constructor(context: Context) :
                         0 -> {
                             setMargins(0, 0, 0, 0) // Set margins between images
                         }
+
                         else -> {
                             setMargins(dpToPx(context, carouselWithoutPaging.content.config.spacing), 0, 0, 0) // Set margins between images
                         }

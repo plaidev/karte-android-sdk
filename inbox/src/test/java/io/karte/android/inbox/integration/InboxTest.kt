@@ -27,10 +27,12 @@ public class InboxTest {
 
     @Test
     public fun testInboxClientShouldReturnValidResponse(): Unit = runBlocking {
-        server.enqueue(MockResponse().apply {
-            setResponseCode(200)
-            setBody(dummyRawResponse)
-        })
+        server.enqueue(
+            MockResponse().apply {
+                setResponseCode(200)
+                setBody(dummyRawResponse)
+            }
+        )
 
         val dummyVisitorId = "dummy_visitor"
         val res = client.fetchMessages(dummyVisitorId, null, null)
@@ -59,10 +61,12 @@ public class InboxTest {
 
     @Test
     public fun testCustomPayloadShouldBeParsedProperly(): Unit = runBlocking {
-        server.enqueue(MockResponse().apply {
-            setResponseCode(200)
-            setBody(dummyRawResponse)
-        })
+        server.enqueue(
+            MockResponse().apply {
+                setResponseCode(200)
+                setBody(dummyRawResponse)
+            }
+        )
 
         val dummyVisitorId = "dummy_visitor"
         val res = client.fetchMessages(dummyVisitorId, null, null)
@@ -103,33 +107,39 @@ public class InboxTest {
 
     @Test
     public fun testInboxClientShouldReturnNullIfResponseCodeIs400(): Unit = runBlocking {
-        server.enqueue(MockResponse().apply {
-            val errorMessage = JSONObject().apply { put("error", "Bad request") }
-            setResponseCode(400)
-            setBody(errorMessage.toString())
-        })
+        server.enqueue(
+            MockResponse().apply {
+                val errorMessage = JSONObject().apply { put("error", "Bad request") }
+                setResponseCode(400)
+                setBody(errorMessage.toString())
+            }
+        )
         val res = client.fetchMessages("", null, null)
         assertThat(res).isNull()
     }
 
     @Test
     public fun testInboxClientShouldReturnNullIfResponseCodeIs401(): Unit = runBlocking {
-        server.enqueue(MockResponse().apply {
-            val errorMessage = JSONObject().apply { put("error", "Can't found project") }
-            setResponseCode(401)
-            setBody(errorMessage.toString())
-        })
+        server.enqueue(
+            MockResponse().apply {
+                val errorMessage = JSONObject().apply { put("error", "Can't found project") }
+                setResponseCode(401)
+                setBody(errorMessage.toString())
+            }
+        )
         val res = client.fetchMessages("", null, null)
         assertThat(res).isNull()
     }
 
     @Test
     public fun testInboxClientShouldReturnNullIfResponseCodeIs500(): Unit = runBlocking {
-        server.enqueue(MockResponse().apply {
-            val errorMessage = JSONObject().apply { put("error", "Server error") }
-            setResponseCode(500)
-            setBody(errorMessage.toString())
-        })
+        server.enqueue(
+            MockResponse().apply {
+                val errorMessage = JSONObject().apply { put("error", "Server error") }
+                setResponseCode(500)
+                setBody(errorMessage.toString())
+            }
+        )
         val res = client.fetchMessages("", null, null)
         assertThat(res).isNull()
     }

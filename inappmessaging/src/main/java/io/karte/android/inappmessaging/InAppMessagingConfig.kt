@@ -35,13 +35,15 @@ class InAppMessagingConfig private constructor(overlayBaseUrl: String, isEdgeToE
      */
     var overlayBaseUrl: String
         private set(value) {
-            if (value.isEmpty())
+            if (value.isEmpty()) {
                 return
+            }
             _overlayBaseUrl = value
         }
         get() {
-            if (_overlayBaseUrl.isEmpty())
+            if (_overlayBaseUrl.isEmpty()) {
                 return OVERLAY_DEFAULT_URL
+            }
             return _overlayBaseUrl
         }
 

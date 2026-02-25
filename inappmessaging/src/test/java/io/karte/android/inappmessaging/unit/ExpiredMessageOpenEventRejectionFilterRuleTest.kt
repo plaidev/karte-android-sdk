@@ -18,11 +18,16 @@ class ExpiredMessageOpenEventRejectionFilterRuleTest {
     private lateinit var now: Date
     private lateinit var rule: TrackEventRejectionFilterRule
     private fun runTest(responseTimestamp: Date): Boolean {
-        val event = MessageEvent(MessageEventType.Open, "cid", "sid", mapOf(
-            "message" to mapOf(
-                "response_timestamp" to ExpiredMessageOpenEventRejectionFilterRule.dateFormatter.format(responseTimestamp)
+        val event = MessageEvent(
+            MessageEventType.Open,
+            "cid",
+            "sid",
+            mapOf(
+                "message" to mapOf(
+                    "response_timestamp" to ExpiredMessageOpenEventRejectionFilterRule.dateFormatter.format(responseTimestamp)
+                )
             )
-        ))
+        )
         return rule.reject(event)
     }
 

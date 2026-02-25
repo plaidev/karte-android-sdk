@@ -58,8 +58,11 @@ internal class Dispatcher {
     private val completions = mutableMapOf<Long, TrackCompletion>()
     private var isSuspend: Boolean = false
         set(value) {
-            if (value) handler.removeCallbacks(::dequeue)
-            else handler.postDelayed(::dequeue, DEFAULT_DELAY_MS)
+            if (value) {
+                handler.removeCallbacks(::dequeue)
+            } else {
+                handler.postDelayed(::dequeue, DEFAULT_DELAY_MS)
+            }
             field = value
         }
     private val rateLimit = RateLimit(handler)
@@ -158,7 +161,8 @@ internal class Dispatcher {
             .filter { retryCircuitBreaker.canRequest || it.retry == 0 }
             .groupBy(
                 { GroupingKey(it.visitorId, it.originalPvId, it.pvId, it.retry > 0) },
-                { it })
+                { it }
+            )
             .forEach { (key, events) ->
                 Logger.d(LOG_TAG, "request events: ${events.size}")
                 // 10 events per request
@@ -196,6 +200,7 @@ internal class Dispatcher {
 
                     removeFromQueue(events, true)
                 }
+
                 response.code in 400..499 -> {
                     Logger.e(
                         LOG_TAG,
@@ -203,6 +208,7 @@ internal class Dispatcher {
                     )
                     removeFromQueue(events, false)
                 }
+
                 else -> {
                     Logger.e(LOG_TAG, "Failed to request. ${response.code}: '${response.body}'")
                     handleFailure(events)
@@ -228,6 +234,7 @@ internal class Dispatcher {
                     val title = it.event.values.optString("title", "")
                     Logger.i(LOG_TAG, "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId view_name=$viewName title=$title")
                 }
+
                 MessageEventName.MessageOpen.value,
                 MessageEventName.MessageSuppressed.value,
                 MessageEventName.MessageReady.value,
@@ -238,6 +245,7 @@ internal class Dispatcher {
                     val shortenId = message?.optString("shorten_id", "") ?: ""
                     Logger.i(LOG_TAG, "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId campaign_id=$campaignId shorten_id=$shortenId")
                 }
+
                 else -> {}
             }
         }
@@ -257,15 +265,20 @@ internal class Dispatcher {
         events.forEach {
             val nextRetryCount = it.retry + 1
             if (nextRetryCount <= MAX_RETRY_COUNT && it.event.isRetryable) {
-                DataStore.update(it.apply {
-                    state = EventRecord.State.Failed
-                    retry = nextRetryCount
-                })
+                DataStore.update(
+                    it.apply {
+                        state = EventRecord.State.Failed
+                        retry = nextRetryCount
+                    }
+                )
                 minRetryCount = min(it.retry, minRetryCount)
             } else {
                 val logMessage =
-                    if (it.event.isRetryable) "The maximum number of retries has been reached."
-                    else "This event is not retryable."
+                    if (it.event.isRetryable) {
+                        "The maximum number of retries has been reached."
+                    } else {
+                        "This event is not retryable."
+                    }
                 Logger.w(LOG_TAG, logMessage)
                 DataStore.delete(it)
             }

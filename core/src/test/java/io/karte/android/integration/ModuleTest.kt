@@ -113,7 +113,8 @@ class ModuleTest {
 
             // Tracker.trackの場合
             Tracker.track(
-                "view", mapOf(
+                "view",
+                mapOf(
                     "view_name" to "test",
                     "title" to "テスト"
                 )

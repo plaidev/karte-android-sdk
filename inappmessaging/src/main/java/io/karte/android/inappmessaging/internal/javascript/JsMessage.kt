@@ -60,14 +60,19 @@ internal sealed class JsMessage {
                         val values = dataJson.getJSONObject("values")
                         Event(eventName, values)
                     }
+
                     STATE_CHANGE -> StateChanged(dataJson.getString("state"))
+
                     OPEN_URL -> {
                         val uri = Uri.parse(dataJson.getString("url"))
                         val target = dataJson.optString("target")
                         OpenUrl(uri, target)
                     }
+
                     VISIBILITY -> Visibility(dataJson.getString("state") == "visible")
+
                     DOCUMENT_CHANGED -> DocumentChanged(dataJson.getJSONArray("touchable_regions"))
+
                     else -> null
                 }
             } catch (_: Exception) {

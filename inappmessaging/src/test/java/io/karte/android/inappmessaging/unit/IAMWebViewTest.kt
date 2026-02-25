@@ -157,7 +157,8 @@ class IAMWebViewTest {
     @Test
     fun StateChange_errorでstateがDESTROYEDに変更されること() {
         webViewReceivedMessage(
-            "state_changed", JSONObject()
+            "state_changed",
+            JSONObject()
                 .put("state", "error")
                 .put("message", "samplemessage")
         )
@@ -190,9 +191,11 @@ class IAMWebViewTest {
     @Test
     fun DocumentChangedでonUpdateTouchableRegionsが呼ばれること() {
         webViewReceivedMessage(
-            "document_changed", JSONObject()
+            "document_changed",
+            JSONObject()
                 .put(
-                    "touchable_regions", JSONArray().put(
+                    "touchable_regions",
+                    JSONArray().put(
                         JSONObject()
                             .put("top", 10.0)
                             .put("bottom", 10.0)

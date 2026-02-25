@@ -10,13 +10,7 @@ ktlint_standard_class-signature = disabled
 ktlint_standard_function-naming = disabled
 ktlint_standard_function-signature = disabled
 ktlint_standard_function-expression-body = disabled
-ktlint_standard_wrapping = disabled
-ktlint_standard_class-naming = disabled
-ktlint_standard_blank-line-between-when-conditions = disabled
-ktlint_standard_argument-list-wrapping = disabled
-ktlint_standard_multiline-if-else = disabled
+ktlint_standard_class-naming = disabled # Requires manual fix
 ktlint_standard_package-name = disabled # Requires manual fix
 ktlint_standard_property-naming = disabled # Requires manual fix
-ktlint_standard_trailing-comma-on-declaration-site = disabled # requires rule with id 'RuleId(value=standard:wrapping)' to be loaded
-ktlint_standard_trailing-comma-on-call-site = disabled # requires rule with id 'RuleId(value=standard:wrapping)' to be loaded
 ktlint_standard_filename = disabled # Requires manual fix

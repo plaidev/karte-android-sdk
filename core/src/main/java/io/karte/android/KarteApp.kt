@@ -311,7 +311,8 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
                 ServiceLoader.load(Library::class.java, KarteApp::class.java.classLoader)
             libraries.forEach { register(it) }
             Logger.v(
-                LOG_TAG, "auto loaded libraries: ${libraries.count()}, " +
+                LOG_TAG,
+                "auto loaded libraries: ${libraries.count()}, " +
                     "all libraries: ${self.libraries.count()}. start configure."
             )
             self.libraries.forEach { it.configure(self) }

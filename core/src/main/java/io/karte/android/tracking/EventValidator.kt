@@ -55,31 +55,35 @@ internal object EventValidator {
         val eventName = event.eventName.value
         val messages = mutableListOf<String>()
 
-        if (!eventName.isAscii())
+        if (!eventName.isAscii()) {
             messages.add("Multi-byte character in event name is deprecated: Event=$eventName")
+        }
 
-        if (validateEventName(eventName))
+        if (validateEventName(eventName)) {
             messages.add(
                 "[^a-z0-9_] or starting with _ in event name is deprecated:" +
                     " Event=$eventName"
             )
+        }
 
-        if (validateEventFieldName(event.values))
+        if (validateEventFieldName(event.values)) {
             messages.add(
                 "Contains dots(.) or stating with $ or $INVALID_FIELD_NAMES" +
                     " in event field name is deprecated:" +
                     " EventName=$eventName,FieldName=${event.values}"
             )
+        }
         return messages
     }
 
     internal fun getInvalidMessages(event: Event): List<String> {
         val messages = mutableListOf<String>()
-        if (validateEventFieldValue(event.eventName.value, event.values))
+        if (validateEventFieldValue(event.eventName.value, event.values)) {
             messages.add(
                 "view_name or user_id is empty:" +
                     " EventName=${event.eventName.value},FieldName=${event.values}"
             )
+        }
         return messages
     }
 
@@ -122,6 +126,7 @@ internal object EventValidator {
                     return true
                 }
             }
+
             BaseEventName.Identify.value -> {
                 if (values.has("user_id") && values.optString("user_id").isEmpty()) {
                     return true

@@ -39,11 +39,12 @@ internal class PluginNativeAppIdentifyEvent(subscribe: Boolean, token: String? =
         PushEventName.PluginNativeAppIdentify,
         values = mutableMapOf<String, Any>("subscribe" to subscribe).apply {
             if (token != null) this["fcm_token"] = token
-        })
+        }
+    )
 
 private enum class PushEventName(override val value: String) : EventName {
     MessageReached("_message_reached"),
     MessageIgnored("_message_ignored"),
     MassPushClick("mass_push_click"),
-    PluginNativeAppIdentify("plugin_native_app_identify"),
+    PluginNativeAppIdentify("plugin_native_app_identify")
 }

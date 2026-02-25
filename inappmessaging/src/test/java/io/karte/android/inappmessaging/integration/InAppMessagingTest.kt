@@ -460,10 +460,12 @@ class InAppMessagingTest {
             // trackerのthreadも動かす必要がある
             proceedBufferedCall()
 
-            assertThat(dispatcher.trackedEvents().filter {
-                it.getString("event_name") == "from_overlay" &&
-                    it.getJSONObject("values").getString("foo") == "bar"
-            }).isNotEmpty()
+            assertThat(
+                dispatcher.trackedEvents().filter {
+                    it.getString("event_name") == "from_overlay" &&
+                        it.getJSONObject("values").getString("foo") == "bar"
+                }
+            ).isNotEmpty()
         }
 
         @Test
@@ -634,16 +636,20 @@ class InAppMessagingTest {
     class MessageSuppressedの発火 : InAppMessagingTestCase() {
 
         private fun assertNotSuppressed() {
-            assertThat(dispatcher.trackedEvents()
-                .filter { it.getString("event_name") == "_message_suppressed" })
+            assertThat(
+                dispatcher.trackedEvents()
+                    .filter { it.getString("event_name") == "_message_suppressed" }
+            )
                 .isEmpty()
         }
 
         private fun assertSuppressed(reasonMatch: String) {
-            assertThat(dispatcher.trackedEvents().filter {
-                it.getString("event_name") == "_message_suppressed" &&
-                    it.getJSONObject("values").getString("reason").contains(reasonMatch)
-            }).hasSize(1)
+            assertThat(
+                dispatcher.trackedEvents().filter {
+                    it.getString("event_name") == "_message_suppressed" &&
+                        it.getJSONObject("values").getString("reason").contains(reasonMatch)
+                }
+            ).hasSize(1)
         }
 
         @Test

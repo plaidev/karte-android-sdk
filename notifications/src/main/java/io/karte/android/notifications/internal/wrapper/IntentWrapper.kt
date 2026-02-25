@@ -122,8 +122,9 @@ internal class IntentProcessor(
 
     fun pendingIntent(uniqueId: Int): PendingIntent {
         var flag = PendingIntent.FLAG_ONE_SHOT
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M)
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             flag = flag.or(PendingIntent.FLAG_IMMUTABLE)
+        }
 
         return if (useActivity) {
             PendingIntent.getActivity(context, uniqueId, intent, flag)

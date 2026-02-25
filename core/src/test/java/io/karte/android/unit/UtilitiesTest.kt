@@ -96,7 +96,9 @@ class UtilitiesTest {
         val components = path.split(".", ignoreCase = false, limit = 2)
         return when (components.size) {
             0 -> null
+
             1 -> values[components[0]]
+
             else -> {
                 val v = values[components[0]]
                 if (v is Map<*, *>) {

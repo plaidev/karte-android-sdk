@@ -88,18 +88,21 @@ internal fun getActionId(view: View?): String? {
             var i = 0
             while (i < parent.childCount) {
                 val v = parent.getChildAt(i)
-                if (v === target)
+                if (v === target) {
                     sb.append(i)
+                }
                 i++
             }
         }
 
         target = when (parent) {
             is View -> parent
+
             is ViewParent -> {
                 sb.append(parent.javaClass.name)
                 null
             }
+
             else -> null
         }
     }

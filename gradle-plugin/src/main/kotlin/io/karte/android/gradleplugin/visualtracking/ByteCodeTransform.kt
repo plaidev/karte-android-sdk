@@ -302,6 +302,7 @@ class ByteCodeTransform(private val project: Project) : Transform() {
                             val name = operation.name
                             ctMethod.insertBefore("$HOOK_ACTION_METHOD(\"$name\",\$args);")
                         }
+
                         is Operation.Lambda -> {
                             ctMethod.insertBefore("$HOOK_DYNAMIC_INVOKE_METHOD(\$args);")
                         }
