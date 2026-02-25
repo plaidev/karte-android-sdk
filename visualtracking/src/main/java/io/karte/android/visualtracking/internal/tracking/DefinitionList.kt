@@ -106,7 +106,8 @@ internal class DefinitionList private constructor(
         }
     }
 
-    internal class Trigger @Throws(JSONException::class)
+    internal class Trigger
+    @Throws(JSONException::class)
     constructor(
         internal val fields: JSONObject?,
         condition: JSONObject,

@@ -207,12 +207,11 @@ internal class ViewEvent(
     viewId: String? = null,
     title: String? = null,
     values: Values? = null
-) : Event(
-    BaseEventName.View, valuesOf(values) {
-        this["view_name"] = viewName
-        this.getOrPut("title", { title ?: viewName })
-        if (!this.contains("view_id") && viewId != null) this["view_id"] = viewId
-    })
+) : Event(BaseEventName.View, valuesOf(values) {
+    this["view_name"] = viewName
+    this.getOrPut("title", { title ?: viewName })
+    if (!this.contains("view_id") && viewId != null) this["view_id"] = viewId
+})
 
 /** `attribute` イベント */
 internal class AttributeEvent(values: Values? = null) : Event(BaseEventName.Attribute, values)

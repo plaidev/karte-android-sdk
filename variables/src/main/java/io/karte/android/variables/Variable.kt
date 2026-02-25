@@ -43,7 +43,7 @@ private const val JSON_KEY_EVENT_HASH = "event_hash"
  *
  * 設定値が未定義の場合は`null`を返します。
  */
-data class Variable internal constructor (
+data class Variable internal constructor(
     val name: String,
     val campaignId: String? = null,
     val shortenId: String? = null,
@@ -80,6 +80,7 @@ data class Variable internal constructor (
             Logger.e(LOG_TAG, "Failed to parse JSON: $e")
             null
         }
+
     /**
      * 設定値（辞書）を返します。
      *

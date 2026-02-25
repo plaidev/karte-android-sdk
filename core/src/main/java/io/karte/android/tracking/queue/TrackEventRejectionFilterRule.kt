@@ -9,6 +9,7 @@ import io.karte.android.tracking.EventName
 interface TrackEventRejectionFilterRule {
     /** 送信拒絶対象イベントの発火元ライブラリ名 */
     var libraryName: String
+
     /** 送信拒絶対象イベントのイベント名 */
     var eventName: EventName
 

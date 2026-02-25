@@ -634,9 +634,8 @@ class InAppMessagingTest {
     class MessageSuppressedの発火 : InAppMessagingTestCase() {
 
         private fun assertNotSuppressed() {
-            assertThat(
-                dispatcher.trackedEvents()
-                    .filter { it.getString("event_name") == "_message_suppressed" })
+            assertThat(dispatcher.trackedEvents()
+                .filter { it.getString("event_name") == "_message_suppressed" })
                 .isEmpty()
         }
 

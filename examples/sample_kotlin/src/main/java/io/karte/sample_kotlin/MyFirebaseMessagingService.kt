@@ -16,7 +16,6 @@ import io.karte.android.notifications.registerFCMToken
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-
         val handled = MessageHandler.handleMessage(this, remoteMessage)
         if (!handled) {
             val data = remoteMessage.data
@@ -31,7 +30,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         body: String?,
         channel: String?
     ) {
-
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 

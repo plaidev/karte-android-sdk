@@ -49,10 +49,12 @@ internal class CarouselWithoutPagingView private constructor(context: Context) :
         val radiusInPixels = dpToPx(context, carouselWithoutPaging.content.config.radius)
 
         // Add dummy ImageViews to the inner LinearLayout
-        carouselWithoutPaging.content.data.forEachIndexed { index, data -> // Change the range for more or fewer images
+        carouselWithoutPaging.content.data.forEachIndexed { index, data ->
+            // Change the range for more or fewer images
             val imageView = ImageView(context).apply {
                 setImageBitmap(data.image)
-                layoutParams = LayoutParams(width, bannerHeightPx).apply { // Set width and height
+                layoutParams = LayoutParams(width, bannerHeightPx).apply {
+                    // Set width and height
                     when (index) {
                         0 -> {
                             setMargins(0, 0, 0, 0) // Set margins between images

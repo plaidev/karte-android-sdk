@@ -61,11 +61,10 @@ private const val WINDOW_FLAGS_FOCUSED = WindowManager.LayoutParams.FLAG_LAYOUT_
     WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
 
 @Suppress("DEPRECATION")
-private const val WINDOW_FLAGS_UNFOCUSED = (
-    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-        or WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
-        or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-        or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+private const val WINDOW_FLAGS_UNFOCUSED = (WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+    or WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
+    or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+    or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
 
 @SuppressLint("ViewConstructor")
 internal open class WindowView(
@@ -495,7 +494,7 @@ internal open class WindowView(
             setMeasuredDimension(width, height)
 
             val measuringHeight = calcMeasuringHeight()
-            for (i in 0 until childCount)
+            for (i in 0 until childCount) {
                 getChildAt(i).measure(
                     MeasureSpec.makeMeasureSpec(
                         width - paddingLeft - paddingRight,
@@ -503,6 +502,7 @@ internal open class WindowView(
                     ),
                     MeasureSpec.makeMeasureSpec(measuringHeight, MeasureSpec.EXACTLY)
                 )
+            }
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to measure", e)
         }

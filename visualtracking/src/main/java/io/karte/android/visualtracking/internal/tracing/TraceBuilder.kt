@@ -31,7 +31,6 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
 
     @Throws(JSONException::class)
     fun buildTrace(actionName: String, args: Array<Any>): Trace {
-
         val jsonObject = JSONObject()
             .put("action", actionName)
             .put("app_info", appInfo)

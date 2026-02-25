@@ -100,6 +100,7 @@ open class Config protected constructor(
         }
 
     private var _dataLocation: String = ""
+
     /** KARTEプロジェクトのデータロケーションを取得します。 */
     var dataLocation: String
         private set(value) {
@@ -271,6 +272,7 @@ open class Config protected constructor(
         private fun readStringFromResource(context: Context, name: String): String? {
             val res = context.resources
             val pkg = res.getResourcePackageName(R.id.karte_resources)
+
             @SuppressLint("DiscouragedApi")
             val id = res.getIdentifier(name, "string", pkg)
             return if (id == 0) {

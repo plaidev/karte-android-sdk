@@ -33,7 +33,7 @@ internal class CircuitBreaker(
         }
 
     fun recordFailure() {
-        failureCount ++
+        failureCount++
         lastFailedAt = getCurrentTimeMillisCB()
     }
 

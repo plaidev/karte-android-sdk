@@ -23,6 +23,7 @@ enum class OperationMode {
     DEFAULT {
         override val trackEndpointPath: String = "track"
     },
+
     /** イベント解析なし */
     INGEST {
         override val trackEndpointPath: String = "ingest"

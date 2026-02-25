@@ -15,22 +15,8 @@ ktlint_standard_class-naming = disabled
 ktlint_standard_blank-line-between-when-conditions = disabled
 ktlint_standard_argument-list-wrapping = disabled
 ktlint_standard_multiline-if-else = disabled
-ktlint_standard_package-name = disabled
-ktlint_standard_property-naming = disabled
-ktlint_standard_spacing-between-declarations-with-comments = disabled
-ktlint_standard_no-empty-first-line-in-method-block = disabled
-ktlint_standard_statement-wrapping = disabled
-ktlint_standard_trailing-comma-on-declaration-site = disabled
-ktlint_standard_trailing-comma-on-call-site = disabled
-ktlint_standard_annotation = disabled
-ktlint_standard_paren-spacing = disabled
-ktlint_standard_filename = disabled
-ktlint_standard_function-literal = disabled
-ktlint_standard_multiline-loop = disabled
-ktlint_standard_backing-property-naming = disabled
-ktlint_standard_enum-wrapping = disabled
-ktlint_standard_function-return-type-spacing = disabled
-ktlint_standard_kdoc = disabled
-ktlint_standard_spacing-between-declarations-with-annotations = disabled
-ktlint_standard_square-brackets-spacing = disabled
-ktlint_standard_unary-op-spacing = disabled
+ktlint_standard_package-name = disabled # Requires manual fix
+ktlint_standard_property-naming = disabled # Requires manual fix
+ktlint_standard_trailing-comma-on-declaration-site = disabled # requires rule with id 'RuleId(value=standard:wrapping)' to be loaded
+ktlint_standard_trailing-comma-on-call-site = disabled # requires rule with id 'RuleId(value=standard:wrapping)' to be loaded
+ktlint_standard_filename = disabled # Requires manual fix

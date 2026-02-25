@@ -2,23 +2,50 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- |:---------|
-| core | イベントトラッキング機能を提供します。 | 2.33.0   |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.26.0   |
+| core | イベントトラッキング機能を提供します。 | 2.34.0   |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.27.0   |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.18.0   |
-| variables | 設定値配信機能を提供します。 | 2.12.0   |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.14.0   |
+| variables | 設定値配信機能を提供します。 | 2.13.0   |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.15.0   |
 | inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.8.0    |
-| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.8.0    |
-| debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.3.0    |
+| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.9.0    |
+| debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.4.0    |
 
 # Releases - xxxx.xx.xx
+
+### Core 2.34.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+
+### InAppMessaging 2.27.0
+**🔨CHANGED**
+- lintの警告を修正しました。
 
 ### Notifications 2.18.0
 **💊FIXED**
 - オプトアウト時にKARTE経由でFCMトークンの更新を行わないよう修正しました。
 
+**🔨CHANGED**
+- lintの警告を修正しました。
+
+### Variables 2.13.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+
+### VisualTracking 2.15.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+
 ### InAppFrame 0.8.0
-**💊FIXED**
+**🔨CHANGED**
+- lintの警告を修正しました。
+
+### Karte Gradle Plugin 2.9.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+
+### Debugger 1.4.0
+**🔨CHANGED**
 - lintの警告を修正しました。
 
 # Releases - 2026.01.19

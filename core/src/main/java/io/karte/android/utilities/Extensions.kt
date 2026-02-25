@@ -54,6 +54,7 @@ internal fun <K, V> Map<K, V?>.filterNotNull(): Map<K, V> {
 }
 
 //region Any
+
 /** クラスの小文字表現を返します。 */
 @Deprecated("Does not return the name you expect when obfuscated", ReplaceWith(""))
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -81,6 +82,7 @@ private fun Any?.format(): Any? {
 //endregion
 
 //region JSONArray
+
 /** Performs the given action on each element. */
 fun JSONArray.forEach(operation: (Any) -> Unit) {
     repeat(length()) { index ->
@@ -109,6 +111,7 @@ fun JSONArray.format(): JSONArray {
 //endregion
 
 //region JSONObject
+
 /** Performs the given action on each element. */
 fun JSONObject.forEach(action: (String, Any?) -> Unit) {
     keys().forEach { key -> opt(key)?.let { value -> action(key, value) } }

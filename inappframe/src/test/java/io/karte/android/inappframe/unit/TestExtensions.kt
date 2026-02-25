@@ -13,10 +13,6 @@ import io.karte.android.inappframe.components.SimpleBannerView
 import io.karte.android.inappframe.components.shared.DensityConvertible
 
 /**
- * Extension functions for testing views
- */
-
-/**
  * Sets up SimpleBannerView for testing without waiting for layout
  */
 internal fun SimpleBannerView.setupViewForTesting() {

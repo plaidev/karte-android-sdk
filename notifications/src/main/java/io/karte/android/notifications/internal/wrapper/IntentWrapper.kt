@@ -37,7 +37,8 @@ internal const val ACTION_KARTE_IGNORED = "io.karte.android.notifications.MESSAG
 private const val LOG_TAG = "Karte.Notifications.Intent"
 
 internal enum class EventType(val value: String) {
-    MESSAGE_CLICK("message_click"), MESSAGE_IGNORE("message_ignore");
+    MESSAGE_CLICK("message_click"),
+    MESSAGE_IGNORE("message_ignore");
 
     companion object {
         fun of(value: String?): EventType? = values().find { it.value == value }

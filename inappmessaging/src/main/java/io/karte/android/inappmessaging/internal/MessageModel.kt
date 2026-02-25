@@ -26,7 +26,8 @@ import org.json.JSONObject
 
 private const val LOG_TAG = "Karte.IAMessages"
 
-internal class MessageModel @Throws(JSONException::class)
+internal class MessageModel
+@Throws(JSONException::class)
 constructor(private val data: JSONObject?, private val request: TrackRequest) {
 
     val string: String

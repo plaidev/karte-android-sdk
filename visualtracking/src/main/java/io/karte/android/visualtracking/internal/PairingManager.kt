@@ -135,7 +135,6 @@ internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCall
     private fun sendTraceInternal(trace: JSONObject, bitmap: Bitmap?) {
         traceSendExecutor.execute(Runnable {
             try {
-
                 val parts = ArrayList<MultipartRequest.Part<*>>()
                 val traceBody = JSONObject()
                     .put("os", "android")

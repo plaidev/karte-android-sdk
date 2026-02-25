@@ -183,6 +183,8 @@ internal class IAMProcessor(application: Application, private val panelWindowMan
 }
 
 private class WebViewContainer(private val application: Application, private val delegate: WebViewDelegate) {
+    // FIXME: Remove suppression.
+    @Suppress("ktlint:standard:backing-property-naming")
     private var _webView: IAMWebView? = null
     fun get(): IAMWebView? {
         if (_webView == null) {

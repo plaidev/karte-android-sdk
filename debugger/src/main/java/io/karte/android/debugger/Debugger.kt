@@ -35,7 +35,6 @@ class Debugger : Library, TrackModule, DeepLinkModule {
     override val isPublic: Boolean = true
 
     override fun intercept(request: TrackRequest): TrackRequest {
-
         // OptOutの場合はセキュリティ観点からイベントを送らない
         if (KarteApp.isOptOut) return request
 
@@ -51,7 +50,7 @@ class Debugger : Library, TrackModule, DeepLinkModule {
 
                 if (id == "") return@Runnable
                 debuggerRequest.headers[HEADER_ACCOUNT_ID] = id
-                debuggerRequest.headers[ HEADER__api_auth_data__] = app.config.apiKey
+                debuggerRequest.headers[HEADER__api_auth_data__] = app.config.apiKey
 
                 Client.execute(debuggerRequest)
             } catch (e: Throwable) {
