@@ -33,11 +33,7 @@ internal class TrackingService internal constructor() {
     private val dispatcher = Dispatcher()
     private var delegate: TrackerDelegate? = null
 
-    internal fun track(
-        inEvent: Event,
-        visitorId: String? = null,
-        completion: TrackCompletion? = null
-    ) {
+    internal fun track(inEvent: Event, visitorId: String? = null, completion: TrackCompletion? = null) {
         if (KarteApp.isOptOut) return
         EventValidator.getDeprecatedMessages(inEvent)
             .forEach { Logger.w(LOG_TAG, it) }
@@ -132,12 +128,7 @@ internal class TrackingService internal constructor() {
         }
 
         @JvmStatic
-        fun view(
-            viewName: String,
-            title: String?,
-            values: Values? = null,
-            completion: TrackCompletion? = null
-        ) {
+        fun view(viewName: String, title: String?, values: Values? = null, completion: TrackCompletion? = null) {
             track(
                 ViewEvent(
                     viewName,
@@ -150,12 +141,7 @@ internal class TrackingService internal constructor() {
         }
 
         @JvmStatic
-        fun view(
-            viewName: String,
-            title: String?,
-            jsonObject: JSONObject?,
-            completion: TrackCompletion? = null
-        ) {
+        fun view(viewName: String, title: String?, jsonObject: JSONObject?, completion: TrackCompletion? = null) {
             view(viewName, title, jsonObject?.toValues(), completion)
         }
 

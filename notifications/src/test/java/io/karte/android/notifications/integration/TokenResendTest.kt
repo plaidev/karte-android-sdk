@@ -52,14 +52,10 @@ abstract class NotificationSetupTestCase : RobolectricTestCase() {
         server.shutdown()
     }
 
-    fun pluginIdentifyEvents(): List<JSONObject> {
-        return dispatcher.trackedEvents()
-            .filter { it.getString("event_name") == "plugin_native_app_identify" }
-    }
+    fun pluginIdentifyEvents(): List<JSONObject> = dispatcher.trackedEvents()
+        .filter { it.getString("event_name") == "plugin_native_app_identify" }
 
-    fun pluginIdentifyEvent(): JSONObject? {
-        return pluginIdentifyEvents().lastOrNull()
-    }
+    fun pluginIdentifyEvent(): JSONObject? = pluginIdentifyEvents().lastOrNull()
 }
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
@@ -68,12 +64,10 @@ class TokenResendTest(private val pattern: MockPattern) : NotificationSetupTestC
     companion object {
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "{index}: {0}")
-        fun data(): List<Any> {
-            return listOf(
-                arrayOf(MockPattern.MESSAGING),
-                arrayOf(MockPattern.NONE)
-            )
-        }
+        fun data(): List<Any> = listOf(
+            arrayOf(MockPattern.MESSAGING),
+            arrayOf(MockPattern.NONE)
+        )
     }
 
     private fun mockToken(token: String) {

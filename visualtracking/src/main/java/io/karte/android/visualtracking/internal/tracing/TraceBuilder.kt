@@ -66,9 +66,7 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
         return Trace(null, values, action.imageProvider)
     }
 
-    private fun getContentView(activity: Activity): View {
-        return activity.findViewById(android.R.id.content)
-    }
+    private fun getContentView(activity: Activity): View = activity.findViewById(android.R.id.content)
 
     private fun getView(actionName: String, args: Array<Any>): View? {
         // TODO: abstraction.
@@ -96,7 +94,5 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
         }
     }
 
-    private fun getActivity(view: View): Activity? {
-        return if (view.context is Activity) view.context as Activity else null
-    }
+    private fun getActivity(view: View): Activity? = if (view.context is Activity) view.context as Activity else null
 }

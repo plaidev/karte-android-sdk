@@ -66,40 +66,31 @@ fun createLinearLayoutWithText(context: Context, text: String): View {
     return layout
 }
 
-fun condition(field: String, comparator: String, value: String): JSONObject {
-    return JSONObject().put(field, JSONObject().put(comparator, value))
-}
+fun condition(field: String, comparator: String, value: String): JSONObject =
+    JSONObject().put(field, JSONObject().put(comparator, value))
 
-fun andCondition(vararg conditions: JSONObject): JSONObject {
-    return JSONObject().put("\$and", conditions.toJSONArray())
-}
+fun andCondition(vararg conditions: JSONObject): JSONObject = JSONObject().put("\$and", conditions.toJSONArray())
 
 fun trigger(
     vararg conditions: JSONObject,
     fields: JSONObject? = JSONObject(),
     dynamicFields: JSONArray? = JSONArray()
-): JSONObject {
-    return JSONObject()
-        .put("condition", andCondition(*conditions))
-        .put("fields", fields)
-        .put("dynamic_fields", dynamicFields)
-}
+): JSONObject = JSONObject()
+    .put("condition", andCondition(*conditions))
+    .put("fields", fields)
+    .put("dynamic_fields", dynamicFields)
 
-fun definition(eventName: String, vararg triggers: JSONObject): JSONObject {
-    return JSONObject().put("event_name", eventName).put("triggers", triggers.toJSONArray())
-}
+fun definition(eventName: String, vararg triggers: JSONObject): JSONObject =
+    JSONObject().put("event_name", eventName).put("triggers", triggers.toJSONArray())
 
 fun autoTrackDefinition(
     vararg definitions: JSONObject,
     lastModified: Long = 0,
     status: String = "modified"
-): JSONObject {
-    return JSONObject()
-        .put("definitions", definitions.toJSONArray())
-        .put("last_modified", lastModified)
-        .put("status", status)
-}
+): JSONObject = JSONObject()
+    .put("definitions", definitions.toJSONArray())
+    .put("last_modified", lastModified)
+    .put("status", status)
 
-internal fun buildDefinitionList(vararg definitions: JSONObject): DefinitionList? {
-    return DefinitionList.buildIfNeeded(autoTrackDefinition(*definitions))
-}
+internal fun buildDefinitionList(vararg definitions: JSONObject): DefinitionList? =
+    DefinitionList.buildIfNeeded(autoTrackDefinition(*definitions))

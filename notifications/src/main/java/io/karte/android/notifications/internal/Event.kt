@@ -31,8 +31,7 @@ internal class MessageReachedEvent(campaignId: String, shortenId: String, values
 internal class MessageIgnoredEvent(campaignId: String, shortenId: String, values: Values? = null) :
     Event(PushEventName.MessageIgnored, messageValues(campaignId, shortenId, values))
 
-internal class MassPushClickEvent(values: Values) :
-    Event(PushEventName.MassPushClick, values)
+internal class MassPushClickEvent(values: Values) : Event(PushEventName.MassPushClick, values)
 
 internal class PluginNativeAppIdentifyEvent(subscribe: Boolean, token: String? = null) :
     Event(

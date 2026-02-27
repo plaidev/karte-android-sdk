@@ -99,8 +99,7 @@ class CommandTest : RobolectricTestCase() {
         verify(exactly = 0) { commandExecutor["requestPermission"](any<Activity>()) }
     }
 
-    private fun executeCommand(uri: Uri, isDelay: Boolean = false): Intent? {
-        return Notifications.self?.app?.executeCommand(uri, isDelay)?.filterIsInstance<Intent>()
+    private fun executeCommand(uri: Uri, isDelay: Boolean = false): Intent? =
+        Notifications.self?.app?.executeCommand(uri, isDelay)?.filterIsInstance<Intent>()
             ?.firstOrNull()
-    }
 }

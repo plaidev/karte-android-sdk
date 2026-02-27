@@ -68,25 +68,20 @@ fun createControlGroupMessage(
     return JSONObject().put("action", action).put("campaign", campaign)
 }
 
-fun createMessageOpen(
-    campaignId: String = "sample_campaign",
-    shortenId: String = "sample_shorten"
-): JSONObject = JSONObject()
-    .put("event_name", "message_open")
-    .put(
-        "values",
-        JSONObject()
-            .put(
-                "message",
-                JSONObject()
-                    .put("campaign_id", campaignId).put("shorten_id", shortenId)
-            )
-    )
+fun createMessageOpen(campaignId: String = "sample_campaign", shortenId: String = "sample_shorten"): JSONObject =
+    JSONObject()
+        .put("event_name", "message_open")
+        .put(
+            "values",
+            JSONObject()
+                .put(
+                    "message",
+                    JSONObject()
+                        .put("campaign_id", campaignId).put("shorten_id", shortenId)
+                )
+        )
 
-fun createMessagesResponse(messages: JSONArray): JSONObject {
-    return JSONObject().put("response", JSONObject().put("messages", messages))
-}
+fun createMessagesResponse(messages: JSONArray): JSONObject =
+    JSONObject().put("response", JSONObject().put("messages", messages))
 
-fun createMessageResponse(message: JSONObject): JSONObject {
-    return createMessagesResponse(JSONArray().put(message))
-}
+fun createMessageResponse(message: JSONObject): JSONObject = createMessagesResponse(JSONArray().put(message))

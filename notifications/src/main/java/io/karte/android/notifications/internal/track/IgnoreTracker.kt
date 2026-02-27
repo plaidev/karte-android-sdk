@@ -42,11 +42,7 @@ internal object IgnoreTracker : MessageTracker {
         }
     }
 
-    private fun trackTargetPush(
-        campaignId: String?,
-        shortenId: String?,
-        eventValues: Values
-    ) {
+    private fun trackTargetPush(campaignId: String?, shortenId: String?, eventValues: Values) {
         if (campaignId == null || shortenId == null || eventValues.isEmpty()) return
         Logger.i(
             LOG_TAG,

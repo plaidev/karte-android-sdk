@@ -88,9 +88,8 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
      *
      * @param [clazz] [LibraryConfig]を実装したクラス
      */
-    fun <R : LibraryConfig> libraryConfig(clazz: Class<R>): R? {
-        return config.libraryConfigs.filterIsInstance(clazz).firstOrNull()
-    }
+    fun <R : LibraryConfig> libraryConfig(clazz: Class<R>): R? =
+        config.libraryConfigs.filterIsInstance(clazz).firstOrNull()
 
     /** アプリケーション情報を返します。 */
     var appInfo: AppInfo? = null
@@ -135,9 +134,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
      * 永続化等に使用する [Repository] インスタンスを返します。
      * @param[namespace] 永続化の領域分割をするNamespaceを指定します。
      */
-    fun repository(namespace: String = ""): Repository {
-        return PreferenceRepository(application, appKey, namespace)
-    }
+    fun repository(namespace: String = ""): Repository = PreferenceRepository(application, appKey, namespace)
 
     internal fun teardown() {
         firstActivityCreated = false
@@ -174,9 +171,10 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
      * @param[isDelay] 通知タップなど、即時に実行すべきでない場合にtrueとします。デフォルトはfalseです。
      */
     @JvmOverloads
-    fun executeCommand(uri: Uri, isDelay: Boolean = false): List<Any?> {
-        return modules.filterIsInstance<CommandModule>().filter { it.validate(uri) }.map { it.execute(uri, isDelay) }
-    }
+    fun executeCommand(uri: Uri, isDelay: Boolean = false): List<Any?> =
+        modules.filterIsInstance<CommandModule>().filter {
+            it.validate(uri)
+        }.map { it.execute(uri, isDelay) }
 
     private fun handleDeeplink(intent: Intent) {
         self.modules.filterIsInstance<DeepLinkModule>()

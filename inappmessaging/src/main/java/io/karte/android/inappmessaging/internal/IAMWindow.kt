@@ -27,7 +27,8 @@ import io.karte.android.inappmessaging.internal.view.WindowView
 private const val LOG_TAG = "Karte.IAMWindow"
 
 @SuppressLint("ViewConstructor")
-internal class IAMWindow(val activity: Activity, panelWindowManager: PanelWindowManager) : WindowView(activity, panelWindowManager) {
+internal class IAMWindow(val activity: Activity, panelWindowManager: PanelWindowManager) :
+    WindowView(activity, panelWindowManager) {
     val isShowing: Boolean
         get() = visibility == VISIBLE && isAttachedToWindow
 

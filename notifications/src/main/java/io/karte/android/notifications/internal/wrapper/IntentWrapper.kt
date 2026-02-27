@@ -77,9 +77,8 @@ internal class IntentWrapper(val intent: Intent) : MessageWrapper {
 }
 
 /** Android12以降の通知トランポリン制限のフラグ */
-internal fun isTrampolineBlocked(context: Context): Boolean {
-    return Build.VERSION.SDK_INT >= 31 && context.applicationInfo.targetSdkVersion >= 31
-}
+internal fun isTrampolineBlocked(context: Context): Boolean =
+    Build.VERSION.SDK_INT >= 31 && context.applicationInfo.targetSdkVersion >= 31
 
 internal class IntentProcessor(
     private val context: Context,
@@ -135,11 +134,7 @@ internal class IntentProcessor(
 
     companion object {
 
-        fun forClick(
-            context: Context,
-            message: RemoteMessageWrapper,
-            intent: Intent? = null
-        ): IntentProcessor {
+        fun forClick(context: Context, message: RemoteMessageWrapper, intent: Intent? = null): IntentProcessor {
             val useActivity = isTrampolineBlocked(context)
             val wrapper = if (intent == null) {
                 Logger.w(LOG_TAG, "use no launch intent.")
@@ -154,11 +149,10 @@ internal class IntentProcessor(
                 .copyInfoToIntent(message)
         }
 
-        fun forIgnore(context: Context, message: RemoteMessageWrapper): IntentProcessor {
-            return IntentProcessor(context, Intent(ACTION_KARTE_IGNORED))
+        fun forIgnore(context: Context, message: RemoteMessageWrapper): IntentProcessor =
+            IntentProcessor(context, Intent(ACTION_KARTE_IGNORED))
                 .pushComponentName()
                 .putEventType(EventType.MESSAGE_IGNORE)
                 .copyInfoToIntent(message)
-        }
     }
 }

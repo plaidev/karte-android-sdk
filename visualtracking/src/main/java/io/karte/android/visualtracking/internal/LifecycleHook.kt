@@ -20,8 +20,7 @@ import io.karte.android.core.logger.Logger
 import io.karte.android.utilities.ActivityLifecycleCallback
 import io.karte.android.visualtracking.VisualTracking
 
-internal class LifecycleHook internal constructor(private val manager: VisualTracking) :
-    ActivityLifecycleCallback() {
+internal class LifecycleHook internal constructor(private val manager: VisualTracking) : ActivityLifecycleCallback() {
 
     override fun onActivityResumed(activity: Activity) {
         try {

@@ -27,17 +27,12 @@ internal data class SimpleBannerConfig(
     }
 }
 
-internal data class SimpleBannerContent(
-    val data: List<Image>,
-    val config: SimpleBannerConfig
-) {
+internal data class SimpleBannerContent(val data: List<Image>, val config: SimpleBannerConfig) {
     companion object {
-        suspend fun parseOrThrow(json: JSONObject): SimpleBannerContent {
-            return SimpleBannerContent(
-                data = Image.parseToListOrThrow(json),
-                config = SimpleBannerConfig.parseOrThrow(json)
-            )
-        }
+        suspend fun parseOrThrow(json: JSONObject): SimpleBannerContent = SimpleBannerContent(
+            data = Image.parseToListOrThrow(json),
+            config = SimpleBannerConfig.parseOrThrow(json)
+        )
     }
 }
 
@@ -48,12 +43,10 @@ internal data class SimpleBannerV1(
 ) : InAppFrameData() {
     companion object {
         const val TEMPLATE_TYPE = "simpleBanner"
-        suspend fun parseOrThrow(json: JSONObject): SimpleBannerV1 {
-            return SimpleBannerV1(
-                componentType = parseComponentTypeOrThrow(json),
-                version = parseVersionOrThrow(json),
-                content = SimpleBannerContent.parseOrThrow(json)
-            )
-        }
+        suspend fun parseOrThrow(json: JSONObject): SimpleBannerV1 = SimpleBannerV1(
+            componentType = parseComponentTypeOrThrow(json),
+            version = parseVersionOrThrow(json),
+            content = SimpleBannerContent.parseOrThrow(json)
+        )
     }
 }

@@ -69,11 +69,9 @@ private const val WINDOW_FLAGS_UNFOCUSED = (
     )
 
 @SuppressLint("ViewConstructor")
-internal open class WindowView(
-    activity: Activity,
-    private val panelWindowManager: PanelWindowManager
-) :
-    FrameLayout(activity), ViewTreeObserver.OnGlobalLayoutListener {
+internal open class WindowView(activity: Activity, private val panelWindowManager: PanelWindowManager) :
+    FrameLayout(activity),
+    ViewTreeObserver.OnGlobalLayoutListener {
 
     private val appWindow: Window = activity.window
     private val windowManager: WindowManager = activity.windowManager
@@ -389,8 +387,7 @@ internal open class WindowView(
     }
 
     // hideSoftInputFromWindowに渡したResultReceiverは強参照で長く保持されるため、static classとWeakReferenceを使う.
-    private class ResultReceiverToReshow internal constructor(handler: Handler?, view: View) :
-        ResultReceiver(handler) {
+    private class ResultReceiverToReshow internal constructor(handler: Handler?, view: View) : ResultReceiver(handler) {
         private val viewRef: WeakReference<View> = WeakReference(view)
 
         override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
@@ -513,36 +510,34 @@ internal open class WindowView(
         }
     }
 
-    private fun calcMeasuringHeight(): Int {
-        return if (InAppMessaging.isEdgeToEdgeEnabled) {
-            drawingHeight
-        } else {
-            val childTop: Int
-            val childBottom: Int
-            if (appSoftInputModeIsNothing) {
-                // appWindowのsoft_input_modeがadjust_nothingの場合、contentViewVisibleRectからkeyboardの高さが引かれない
-                // この場合はiamViewをcontentView(padding抜き)と同じ高さにし、webViewからkeyboardの高さを引く
-                // iamViewVisibleRect.topはiamViewのyに関わらず0を返すことがあるため、bottomからyを引く
-                childTop = if (isStatusBarOverlaid) {
-                    top + paddingTop
-                } else {
-                    locationOnScreen[1]
-                }
-                childBottom = drawingHeight
+    private fun calcMeasuringHeight(): Int = if (InAppMessaging.isEdgeToEdgeEnabled) {
+        drawingHeight
+    } else {
+        val childTop: Int
+        val childBottom: Int
+        if (appSoftInputModeIsNothing) {
+            // appWindowのsoft_input_modeがadjust_nothingの場合、contentViewVisibleRectからkeyboardの高さが引かれない
+            // この場合はiamViewをcontentView(padding抜き)と同じ高さにし、webViewからkeyboardの高さを引く
+            // iamViewVisibleRect.topはiamViewのyに関わらず0を返すことがあるため、bottomからyを引く
+            childTop = if (isStatusBarOverlaid) {
+                top + paddingTop
             } else {
-                childTop = if (isStatusBarOverlaid) {
-                    contentView.top + contentView.paddingTop
-                } else {
-                    contentViewVisibleRect.top
-                }
-                childBottom = drawingHeight
+                locationOnScreen[1]
             }
-
-            // フルスクリーンでcutout modeがSHORT_EDGESの場合にIAMWindowとcontentViewの位置に差ができて、その分だけ接客が画面下に見切れてしまうため差の分だけheightを低くする。
-            contentView.getLocationOnScreen(contentViewLocationOnScreen)
-            val gapY = locationOnScreen[1] - contentViewLocationOnScreen[1]
-            childBottom - childTop - gapY
+            childBottom = drawingHeight
+        } else {
+            childTop = if (isStatusBarOverlaid) {
+                contentView.top + contentView.paddingTop
+            } else {
+                contentViewVisibleRect.top
+            }
+            childBottom = drawingHeight
         }
+
+        // フルスクリーンでcutout modeがSHORT_EDGESの場合にIAMWindowとcontentViewの位置に差ができて、その分だけ接客が画面下に見切れてしまうため差の分だけheightを低くする。
+        contentView.getLocationOnScreen(contentViewLocationOnScreen)
+        val gapY = locationOnScreen[1] - contentViewLocationOnScreen[1]
+        childBottom - childTop - gapY
     }
 
     private fun syncPadding() {

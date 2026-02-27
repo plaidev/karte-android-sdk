@@ -15,7 +15,9 @@ import io.karte.android.inappframe.model.IAFTracker
 import io.karte.android.inappframe.model.SimpleBannerV1
 import io.karte.android.inappframe.model.SimpleBannerContent
 
-internal class SimpleBannerView private constructor(context: Context) : LinearLayout(context), DensityConvertible {
+internal class SimpleBannerView private constructor(context: Context) :
+    LinearLayout(context),
+    DensityConvertible {
 
     // Keep a reference to content & tracker so we can access them later
     private lateinit var content: SimpleBannerContent
@@ -51,7 +53,8 @@ internal class SimpleBannerView private constructor(context: Context) : LinearLa
      */
     private fun setupViewAfterLayout() {
         val parentWidth = width
-        val availableWidth = parentWidth - dpToPx(context, content.config.paddingStart) - dpToPx(context, content.config.paddingEnd)
+        val availableWidth =
+            parentWidth - dpToPx(context, content.config.paddingStart) - dpToPx(context, content.config.paddingEnd)
 
         // ratio means width:height = ratio:100
         val height = (availableWidth * 100) / content.config.ratio
@@ -83,18 +86,16 @@ internal class SimpleBannerView private constructor(context: Context) : LinearLa
         tracker.trackOpen()
     }
 
-    private fun createImageView(simpleBannerContent: SimpleBannerContent): ImageView {
-        return ImageView(context).apply {
-            simpleBannerContent.data.getOrNull(0)?.image?.let { image ->
-                setImageBitmap(image)
-            } ?: run {
-                setImageResource(android.R.color.transparent)
-            }
-            scaleType = ImageView.ScaleType.CENTER_CROP
-            layoutParams = LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+    private fun createImageView(simpleBannerContent: SimpleBannerContent): ImageView = ImageView(context).apply {
+        simpleBannerContent.data.getOrNull(0)?.image?.let { image ->
+            setImageBitmap(image)
+        } ?: run {
+            setImageResource(android.R.color.transparent)
         }
+        scaleType = ImageView.ScaleType.CENTER_CROP
+        layoutParams = LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
     }
 }

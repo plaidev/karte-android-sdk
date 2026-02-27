@@ -4,7 +4,5 @@ import android.content.Context
 
 internal interface DensityConvertible {
     // デフォルト実装:
-    fun dpToPx(context: Context, dp: Int): Int {
-        return (dp * context.resources.displayMetrics.density).toInt()
-    }
+    fun dpToPx(context: Context, dp: Int): Int = (dp * context.resources.displayMetrics.density).toInt()
 }

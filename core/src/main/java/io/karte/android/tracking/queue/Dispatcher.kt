@@ -41,12 +41,7 @@ private const val LOG_TAG = "Karte.Dispatcher"
 private const val MAX_RETRY_COUNT = 3
 private const val DEFAULT_DELAY_MS = 100L
 
-private data class GroupingKey(
-    val visitorId: String,
-    val originPvId: String,
-    val pvId: String,
-    val isRetry: Boolean
-)
+private data class GroupingKey(val visitorId: String, val originPvId: String, val pvId: String, val isRetry: Boolean)
 
 internal const val THREAD_NAME = "io.karte.android.Tracker"
 
@@ -226,13 +221,19 @@ internal class Dispatcher {
             val eventRecordId = it.recordId
             val visitorId = it.visitorId
             val eventName = it.event.eventName.value
-            Logger.v(LOG_TAG, "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId event_name=$eventName ${it.event.values}")
+            Logger.v(
+                LOG_TAG,
+                "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId event_name=$eventName ${it.event.values}"
+            )
 
             when (eventName) {
                 BaseEventName.View.value -> {
                     val viewName = it.event.values.optString("view_name", "")
                     val title = it.event.values.optString("title", "")
-                    Logger.i(LOG_TAG, "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId view_name=$viewName title=$title")
+                    Logger.i(
+                        LOG_TAG,
+                        "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId view_name=$viewName title=$title"
+                    )
                 }
 
                 MessageEventName.MessageOpen.value,
@@ -243,7 +244,10 @@ internal class Dispatcher {
                     val message = it.event.values.optJSONObject("message")
                     val campaignId = message?.optString("campaign_id", "") ?: ""
                     val shortenId = message?.optString("shorten_id", "") ?: ""
-                    Logger.i(LOG_TAG, "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId campaign_id=$campaignId shorten_id=$shortenId")
+                    Logger.i(
+                        LOG_TAG,
+                        "request event request_id=$requestId event_record_id=$eventRecordId visitor_id=$visitorId campaign_id=$campaignId shorten_id=$shortenId"
+                    )
                 }
 
                 else -> {}

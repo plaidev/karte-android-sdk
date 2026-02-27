@@ -44,10 +44,8 @@ abstract class SetupTestCase : RobolectricTestCase() {
         server.shutdown()
     }
 
-    protected fun getPreferenceEdit(): SharedPreferences.Editor {
-        return application.getSharedPreferences(
-            "io.karte.android.tracker.Data_$setupAppKey",
-            Context.MODE_PRIVATE
-        ).edit()
-    }
+    protected fun getPreferenceEdit(): SharedPreferences.Editor = application.getSharedPreferences(
+        "io.karte.android.tracker.Data_$setupAppKey",
+        Context.MODE_PRIVATE
+    ).edit()
 }

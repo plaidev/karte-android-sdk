@@ -25,10 +25,7 @@ import java.util.regex.Pattern
 /** イベントに追加できるカスタムオブジェクトの型を示すエイリアスです。 */
 typealias Values = Map<String, Any>
 
-private fun valuesOf(
-    values: Values? = null,
-    applyBlock: (MutableMap<String, Any>.() -> Unit)? = null
-): Values {
+private fun valuesOf(values: Values? = null, applyBlock: (MutableMap<String, Any>.() -> Unit)? = null): Values {
     val map = values?.toMutableMap() ?: mutableMapOf()
     if (applyBlock != null) map.apply(applyBlock)
     return map
@@ -95,10 +92,19 @@ open class Event {
     }
 
     /** [JSONObject] による初期化 */
-    constructor(eventName: EventName, jsonObject: JSONObject? = null, isRetryable: Boolean? = null) : this(eventName, jsonObject, isRetryable, null)
+    constructor(
+        eventName: EventName,
+        jsonObject: JSONObject? = null,
+        isRetryable: Boolean? = null
+    ) : this(eventName, jsonObject, isRetryable, null)
 
     /** [Values] による初期化 */
-    constructor(eventName: EventName, values: Values? = null, isRetryable: Boolean? = null, libraryName: String? = null) : this(
+    constructor(
+        eventName: EventName,
+        values: Values? = null,
+        isRetryable: Boolean? = null,
+        libraryName: String? = null
+    ) : this(
         eventName,
         values?.let { JSONObject(values.format()) },
         isRetryable,
@@ -106,38 +112,38 @@ open class Event {
     )
 
     /** [Values] による初期化 */
-    constructor(eventName: EventName, values: Values? = null, isRetryable: Boolean? = null) : this(eventName, values, isRetryable, null)
+    constructor(
+        eventName: EventName,
+        values: Values? = null,
+        isRetryable: Boolean? = null
+    ) : this(eventName, values, isRetryable, null)
 
-    internal fun toJSON(forSerialize: Boolean = false): JSONObject {
-        return JSONObject()
-            .put("event_name", eventName.value)
-            .put(
-                "values",
-                values
-                    .put("_local_event_date", date)
-                    .apply { if (isRetry) put("_retry", true) }
-            ).apply {
-                if (forSerialize) {
-                    put("_is_retryable", isRetryable)
-                    put("library_name", libraryName)
-                }
+    internal fun toJSON(forSerialize: Boolean = false): JSONObject = JSONObject()
+        .put("event_name", eventName.value)
+        .put(
+            "values",
+            values
+                .put("_local_event_date", date)
+                .apply { if (isRetry) put("_retry", true) }
+        ).apply {
+            if (forSerialize) {
+                put("_is_retryable", isRetryable)
+                put("library_name", libraryName)
             }
-    }
+        }
 
     companion object {
-        internal fun fromJSON(json: String): Event? {
-            return runCatching {
-                val jsonObject = JSONObject(json)
-                val isRetryable = runCatching { jsonObject.getBoolean("_is_retryable") }.getOrNull()
-                val libraryName = runCatching { jsonObject.getString("library_name") }.getOrNull()
-                Event(
-                    CustomEventName(jsonObject.getString("event_name")),
-                    jsonObject.getJSONObject("values"),
-                    isRetryable,
-                    libraryName
-                )
-            }.getOrNull()
-        }
+        internal fun fromJSON(json: String): Event? = runCatching {
+            val jsonObject = JSONObject(json)
+            val isRetryable = runCatching { jsonObject.getBoolean("_is_retryable") }.getOrNull()
+            val libraryName = runCatching { jsonObject.getString("library_name") }.getOrNull()
+            Event(
+                CustomEventName(jsonObject.getString("event_name")),
+                jsonObject.getJSONObject("values"),
+                isRetryable,
+                libraryName
+            )
+        }.getOrNull()
     }
 
     private val EVENT_NAME_REGEX = Pattern.compile("[^a-z0-9_]")
@@ -156,7 +162,9 @@ open class Event {
         return m.find() || eventName.startsWith("_")
     }
 
-    internal val INVALID_FIELD_NAMES = listOf("_source", "_system", "any", "avg", "cache", "count", "count_sets", "date", "f_t", "first", "keys", "l_t", "last", "lrus", "max", "min", "o", "prev", "sets", "size", "span", "sum", "type", "v")
+    @Suppress("ktlint:standard:max-line-length")
+    internal val INVALID_FIELD_NAMES =
+        listOf("_source", "_system", "any", "avg", "cache", "count", "count_sets", "date", "f_t", "first", "keys", "l_t", "last", "lrus", "max", "min", "o", "prev", "sets", "size", "span", "sum", "type", "v")
 
     /** 非推奨なフィールド名が含まれるかを返します。 */
     private fun validateEventFieldName(values: JSONObject): Boolean {
@@ -195,30 +203,24 @@ open class Event {
 }
 
 /** `identify` イベント */
-internal class IdentifyEvent(
-    userId: String,
-    values: Values? = null
-) : Event(
-    BaseEventName.Identify,
-    valuesOf(values) {
-        this["user_id"] = userId
-    }
-)
+internal class IdentifyEvent(userId: String, values: Values? = null) :
+    Event(
+        BaseEventName.Identify,
+        valuesOf(values) {
+            this["user_id"] = userId
+        }
+    )
 
 /** `view` イベント */
-internal class ViewEvent(
-    viewName: String,
-    viewId: String? = null,
-    title: String? = null,
-    values: Values? = null
-) : Event(
-    BaseEventName.View,
-    valuesOf(values) {
-        this["view_name"] = viewName
-        this.getOrPut("title", { title ?: viewName })
-        if (!this.contains("view_id") && viewId != null) this["view_id"] = viewId
-    }
-)
+internal class ViewEvent(viewName: String, viewId: String? = null, title: String? = null, values: Values? = null) :
+    Event(
+        BaseEventName.View,
+        valuesOf(values) {
+            this["view_name"] = viewName
+            this.getOrPut("title", { title ?: viewName })
+            if (!this.contains("view_id") && viewId != null) this["view_id"] = viewId
+        }
+    )
 
 /** `attribute` イベント */
 internal class AttributeEvent(values: Values? = null) : Event(BaseEventName.Attribute, values)
@@ -259,7 +261,12 @@ class MessageEvent(
     },
     libraryName = libraryName
 ) {
-    constructor(type: MessageEventType, campaignId: String, shortenId: String, values: Values?) : this(type, campaignId, shortenId, values, null)
+    constructor(
+        type: MessageEventType,
+        campaignId: String,
+        shortenId: String,
+        values: Values?
+    ) : this(type, campaignId, shortenId, values, null)
 }
 
 /**各イベント名を示すインターフェースです。*/

@@ -4,7 +4,6 @@ import io.karte.android.inbox.Inbox
 import kotlin.reflect.KProperty
 
 internal class InboxClientFactory {
-    operator fun getValue(thisRef: Inbox.Companion, property: KProperty<*>): InboxClient {
-        return InboxClientImpl(thisRef.apiKey)
-    }
+    operator fun getValue(thisRef: Inbox.Companion, property: KProperty<*>): InboxClient =
+        InboxClientImpl(thisRef.apiKey)
 }

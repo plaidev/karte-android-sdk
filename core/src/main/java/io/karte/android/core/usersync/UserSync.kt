@@ -48,7 +48,10 @@ object UserSync {
      * 指定されたURL文字列の形式が正しくない場合、またはSDKの初期化が行われていない場合は、引数に指定したURL文字列を返します。
      */
     @JvmStatic
-    @Deprecated("User sync function using query parameters is deprecated. It will be removed in the future.", ReplaceWith("setUserSyncScript(webView)"))
+    @Deprecated(
+        "User sync function using query parameters is deprecated. It will be removed in the future.",
+        ReplaceWith("setUserSyncScript(webView)")
+    )
     fun appendUserSyncQueryParameter(url: String): String {
         @Suppress("DEPRECATION")
         return appendUserSyncQueryParameter(Uri.parse(url))
@@ -62,7 +65,10 @@ object UserSync {
      * SDKの初期化が行われていない場合は、引数に指定したUriを文字列で返します。
      */
     @JvmStatic
-    @Deprecated("User sync function using query parameters is deprecated. It will be removed in the future.", ReplaceWith("setUserSyncScript(webView)"))
+    @Deprecated(
+        "User sync function using query parameters is deprecated. It will be removed in the future.",
+        ReplaceWith("setUserSyncScript(webView)")
+    )
     fun appendUserSyncQueryParameter(uri: Uri): String {
         val param = buildUserSyncParameter() ?: return uri.toString()
 
@@ -98,9 +104,7 @@ object UserSync {
      * @param[webView] [WebView]
      */
     @JvmStatic
-    fun setUserSyncScript(
-        webView: WebView
-    ) {
+    fun setUserSyncScript(webView: WebView) {
         val syncScript = getUserSyncScript() ?: return
         webView.evaluateJavascript(syncScript) { }
     }

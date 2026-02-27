@@ -44,11 +44,9 @@ internal interface Persister {
     fun update(persistable: Persistable): Int
 }
 
-internal class Transaction(
-    private val persister: Persister,
-    private val transactional: Transactional
-) :
-    Closeable, Persister {
+internal class Transaction(private val persister: Persister, private val transactional: Transactional) :
+    Closeable,
+    Persister {
     init {
         transactional.begin()
     }
@@ -61,25 +59,19 @@ internal class Transaction(
         transactional.end()
     }
 
-    override fun put(persistable: Persistable): Long {
-        return persister.put(persistable)
-    }
+    override fun put(persistable: Persistable): Long = persister.put(persistable)
 
     override fun <T : Persistable> read(
         contract: Contract<T>,
         query: List<Triple<String, RelationalOperator, String>>,
         order: String?
-    ): List<T> {
-        return persister.read(contract, query, order)
-    }
+    ): List<T> = persister.read(contract, query, order)
 
     override fun delete(persistable: Persistable) {
         persister.delete(persistable)
     }
 
-    override fun update(persistable: Persistable): Int {
-        return persister.update(persistable)
-    }
+    override fun update(persistable: Persistable): Int = persister.update(persistable)
 }
 
 internal interface Transactional {
@@ -95,14 +87,10 @@ internal interface Subscriber {
 
 internal enum class RelationalOperator(val value: String) {
     Equal("=") {
-        override fun run(a: Any, b: Any): Boolean {
-            return a == b
-        }
+        override fun run(a: Any, b: Any): Boolean = a == b
     },
     Unequal("!=") {
-        override fun run(a: Any, b: Any): Boolean {
-            return a != b
-        }
+        override fun run(a: Any, b: Any): Boolean = a != b
     };
 
     abstract fun run(a: Any, b: Any): Boolean

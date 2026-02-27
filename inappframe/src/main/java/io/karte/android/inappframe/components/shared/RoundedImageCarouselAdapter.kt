@@ -13,10 +13,9 @@ internal open class RoundedImageCarouselAdapter(
     private val resources: android.content.res.Resources,
     private val radius: Int,
     private val imageList: List<Image>
-) : Carousel.Adapter, DensityConvertible {
-    override fun count(): Int {
-        return imageList.size
-    }
+) : Carousel.Adapter,
+    DensityConvertible {
+    override fun count(): Int = imageList.size
 
     override fun populate(view: android.view.View, index: Int) {
         // FIXME: ここもtry catch必要な気がする

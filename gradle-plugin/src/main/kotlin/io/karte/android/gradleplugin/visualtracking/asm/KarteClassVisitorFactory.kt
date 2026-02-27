@@ -15,23 +15,18 @@ import org.objectweb.asm.commons.AdviceAdapter
 
 abstract class KarteClassVisitorFactory : AsmClassVisitorFactory<InstrumentationParameters.None> {
 
-    override fun createClassVisitor(
-        classContext: ClassContext,
-        nextClassVisitor: ClassVisitor
-    ): ClassVisitor {
-        return KarteClassVisitor(
+    override fun createClassVisitor(classContext: ClassContext, nextClassVisitor: ClassVisitor): ClassVisitor =
+        KarteClassVisitor(
             classContext.currentClassData,
             instrumentationContext.apiVersion.get(),
             nextClassVisitor
         )
-    }
 
-    override fun isInstrumentable(classData: ClassData): Boolean {
-        return true
-    }
+    override fun isInstrumentable(classData: ClassData): Boolean = true
 }
 
-class KarteClassVisitor(private val classData: ClassData, private val apiVersion: Int, classVisitor: ClassVisitor) : ClassVisitor(apiVersion, classVisitor) {
+class KarteClassVisitor(private val classData: ClassData, private val apiVersion: Int, classVisitor: ClassVisitor) :
+    ClassVisitor(apiVersion, classVisitor) {
 
     override fun visitMethod(
         access: Int,
@@ -53,7 +48,14 @@ class KarteClassVisitor(private val classData: ClassData, private val apiVersion
     }
 }
 
-class KarteEventListenerMethodVisitor(private val classData: ClassData, apiVersion: Int, methodVisitor: MethodVisitor, access: Int, name: String?, private val descriptor: String?) : AdviceAdapter(apiVersion, methodVisitor, access, name, descriptor) {
+class KarteEventListenerMethodVisitor(
+    private val classData: ClassData,
+    apiVersion: Int,
+    methodVisitor: MethodVisitor,
+    access: Int,
+    name: String?,
+    private val descriptor: String?
+) : AdviceAdapter(apiVersion, methodVisitor, access, name, descriptor) {
 
     override fun onMethodEnter() {
         logger.debug("Hook ${classData.className} $name$descriptor")
@@ -64,7 +66,13 @@ class KarteEventListenerMethodVisitor(private val classData: ClassData, apiVersi
 
         visitLdcInsn(modification.name)
         loadArgArray()
-        visitMethodInsn(Opcodes.INVOKESTATIC, "io/karte/android/visualtracking/internal/VTHook", "hookAction", "(Ljava/lang/String;[Ljava/lang/Object;)V", false)
+        visitMethodInsn(
+            Opcodes.INVOKESTATIC,
+            "io/karte/android/visualtracking/internal/VTHook",
+            "hookAction",
+            "(Ljava/lang/String;[Ljava/lang/Object;)V",
+            false
+        )
     }
 
     companion object {
@@ -78,23 +86,34 @@ class KarteEventListenerMethodVisitor(private val classData: ClassData, apiVersi
             }
         }
 
-        fun isInstrumentable(classData: ClassData, name: String?, descriptor: String?): Boolean {
-            return findModification(classData, name, descriptor) != null
-        }
+        fun isInstrumentable(classData: ClassData, name: String?, descriptor: String?): Boolean =
+            findModification(classData, name, descriptor) != null
     }
 }
 
-class KarteLambdaMethodVisitor(private val classData: ClassData, apiVersion: Int, methodVisitor: MethodVisitor, access: Int, name: String?, private val descriptor: String?) : AdviceAdapter(apiVersion, methodVisitor, access, name, descriptor) {
+class KarteLambdaMethodVisitor(
+    private val classData: ClassData,
+    apiVersion: Int,
+    methodVisitor: MethodVisitor,
+    access: Int,
+    name: String?,
+    private val descriptor: String?
+) : AdviceAdapter(apiVersion, methodVisitor, access, name, descriptor) {
 
     override fun onMethodEnter() {
         logger.debug("Hook ${classData.className} $name$descriptor")
         loadArgArray()
-        visitMethodInsn(Opcodes.INVOKESTATIC, "io/karte/android/visualtracking/internal/VTHook", "hookDynamicInvoke", "([Ljava/lang/Object;)V", false)
+        visitMethodInsn(
+            Opcodes.INVOKESTATIC,
+            "io/karte/android/visualtracking/internal/VTHook",
+            "hookDynamicInvoke",
+            "([Ljava/lang/Object;)V",
+            false
+        )
     }
 
     companion object {
-        fun isInstrumentable(name: String?, descriptor: String?): Boolean {
-            return ModificationLambdaSpecification.isSatisfied(name + descriptor)
-        }
+        fun isInstrumentable(name: String?, descriptor: String?): Boolean =
+            ModificationLambdaSpecification.isSatisfied(name + descriptor)
     }
 }

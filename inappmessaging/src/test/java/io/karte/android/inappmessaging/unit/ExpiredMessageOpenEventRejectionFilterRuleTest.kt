@@ -24,7 +24,8 @@ class ExpiredMessageOpenEventRejectionFilterRuleTest {
             "sid",
             mapOf(
                 "message" to mapOf(
-                    "response_timestamp" to ExpiredMessageOpenEventRejectionFilterRule.dateFormatter.format(responseTimestamp)
+                    "response_timestamp" to
+                        ExpiredMessageOpenEventRejectionFilterRule.dateFormatter.format(responseTimestamp)
                 )
             )
         )

@@ -50,7 +50,12 @@ private const val COOKIE_DOMAIN = "karte.io"
 /**
  * アプリ内メッセージの管理を行うクラスです。
  */
-class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityLifecycleCallback() {
+class InAppMessaging :
+    ActivityLifecycleCallback(),
+    Library,
+    ActionModule,
+    UserModule,
+    TrackModule {
 
     //region Library
     override val name: String = InAppMessaging.name
@@ -142,9 +147,7 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
         return event
     }
 
-    override fun intercept(request: TrackRequest): TrackRequest {
-        return request
-    }
+    override fun intercept(request: TrackRequest): TrackRequest = request
     //endregion
 
     //region ActivityLifecycleCallback
@@ -262,13 +265,11 @@ class InAppMessaging : Library, ActionModule, UserModule, TrackModule, ActivityL
     private var isSuppressed = false
     private var delegate: InAppMessagingDelegate? = null
 
-    internal fun generateOverlayURL(): String {
-        return "$overlayBaseUrl/v0/native/overlay" +
-            "?app_key=${app.appKey}" +
-            "&_k_vid=${KarteApp.visitorId}" +
-            "&_k_app_prof=${app.appInfo?.json}" +
-            "&location=${app.config.dataLocation}"
-    }
+    internal fun generateOverlayURL(): String = "$overlayBaseUrl/v0/native/overlay" +
+        "?app_key=${app.appKey}" +
+        "&_k_vid=${KarteApp.visitorId}" +
+        "&_k_app_prof=${app.appInfo?.json}" +
+        "&location=${app.config.dataLocation}"
 
     private fun clearWebViewCookies() {
         val cookieManager = CookieManager.getInstance()

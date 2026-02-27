@@ -1,10 +1,6 @@
 package io.karte.android.gradleplugin
 
-data class AGPVersion(
-    val major: Int,
-    val minor: Int,
-    val patch: Int
-) : Comparable<AGPVersion> {
+data class AGPVersion(val major: Int, val minor: Int, val patch: Int) : Comparable<AGPVersion> {
 
     override fun compareTo(other: AGPVersion): Int {
         if (this.major < other.major) {
@@ -33,7 +29,9 @@ data class AGPVersion(
         )
 
         fun fromVersionString(version: String): AGPVersion {
-            val result = versionPattern.matchEntire(version) ?: throw IllegalArgumentException("Invalid version string: $version")
+            val result =
+                versionPattern.matchEntire(version)
+                    ?: throw IllegalArgumentException("Invalid version string: $version")
             val values = result.groupValues
             return AGPVersion(
                 values[1].toIntOrNull() ?: 0,

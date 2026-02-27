@@ -31,17 +31,22 @@ import io.karte.android.core.logger.Logger
 private const val LOG_TAG = "Karte.DataStore"
 
 @SuppressLint("DiscouragedApi")
-private fun getCursorWindowSize(): Int {
-    return runCatching {
-        Resources.getSystem().getInteger(
-            Resources.getSystem()
-                .getIdentifier("config_cursorWindowSize", "integer", "android")
-        ) * 1024
-    }.getOrNull() ?: 1024 * 1024
-}
+private fun getCursorWindowSize(): Int = runCatching {
+    Resources.getSystem().getInteger(
+        Resources.getSystem()
+            .getIdentifier("config_cursorWindowSize", "integer", "android")
+    ) * 1024
+}.getOrNull() ?: 1024 * 1024
 
 private class DbHelper(context: Context) :
-    SQLiteOpenHelper(context, "krt_cache.db", null, persistableContracts.sumOf { it.version }) {
+    SQLiteOpenHelper(
+        context,
+        "krt_cache.db",
+        null,
+        persistableContracts.sumOf {
+            it.version
+        }
+    ) {
     override fun onCreate(db: SQLiteDatabase) {
         persistableContracts.forEach { contract ->
             createTable(db, contract)
@@ -120,9 +125,7 @@ internal class DataStore private constructor(context: Context) {
         }
 
         //region Transactional
-        override fun transaction(): Transaction {
-            return Transaction(this, this)
-        }
+        override fun transaction(): Transaction = Transaction(this, this)
 
         override fun begin() {
             instance.dbHelper.writableDatabase.beginTransaction()

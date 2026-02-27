@@ -5,8 +5,6 @@ internal enum class IAFVersion(val versionName: String) {
     UNKNOWN("unknown");
 
     companion object {
-        fun fromString(version: String): IAFVersion {
-            return values().find { it.versionName == version } ?: UNKNOWN
-        }
+        fun fromString(version: String): IAFVersion = values().find { it.versionName == version } ?: UNKNOWN
     }
 }

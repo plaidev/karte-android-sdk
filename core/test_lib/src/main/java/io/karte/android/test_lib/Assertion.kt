@@ -24,18 +24,12 @@ import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONArray
 import org.json.JSONObject
 
-fun assertThat(jsonArray: JSONArray?): JSONArraySubject {
-    return JSONArraySubject.assertThat(jsonArray)
-}
+fun assertThat(jsonArray: JSONArray?): JSONArraySubject = JSONArraySubject.assertThat(jsonArray)
 
-fun assertThat(jsonObject: JSONObject?): JSONObjectSubject {
-    return JSONObjectSubject.assertThat(jsonObject)
-}
+fun assertThat(jsonObject: JSONObject?): JSONObjectSubject = JSONObjectSubject.assertThat(jsonObject)
 
-class JSONArraySubject private constructor(
-    failureMetadata: FailureMetadata,
-    private val actual: JSONArray?
-) : Subject(failureMetadata, actual) {
+class JSONArraySubject private constructor(failureMetadata: FailureMetadata, private val actual: JSONArray?) :
+    Subject(failureMetadata, actual) {
 
     override fun isEqualTo(expected: Any?) {
         if (expected == null || actual == null) {
@@ -51,14 +45,11 @@ class JSONArraySubject private constructor(
     companion object {
 
         // User-defined entry point
-        fun assertThat(jsonArray: JSONArray?): JSONArraySubject {
-            return Truth.assertAbout(JSONARRAY_SUBJECT_FACTORY).that(jsonArray)
-        }
+        fun assertThat(jsonArray: JSONArray?): JSONArraySubject =
+            Truth.assertAbout(JSONARRAY_SUBJECT_FACTORY).that(jsonArray)
 
         // Static method for getting the subject factory (for use with assertAbout())
-        fun jsonArray(): Factory<JSONArraySubject, JSONArray> {
-            return JSONARRAY_SUBJECT_FACTORY
-        }
+        fun jsonArray(): Factory<JSONArraySubject, JSONArray> = JSONARRAY_SUBJECT_FACTORY
 
         private val JSONARRAY_SUBJECT_FACTORY =
             Factory<JSONArraySubject, JSONArray> { failureMetadata, subject ->
@@ -70,10 +61,8 @@ class JSONArraySubject private constructor(
     }
 }
 
-class JSONObjectSubject private constructor(
-    failureMetadata: FailureMetadata,
-    private val actual: JSONObject?
-) : Subject(failureMetadata, actual) {
+class JSONObjectSubject private constructor(failureMetadata: FailureMetadata, private val actual: JSONObject?) :
+    Subject(failureMetadata, actual) {
 
     override fun isEqualTo(expected: Any?) {
         if (expected == null || actual == null) {
@@ -89,14 +78,11 @@ class JSONObjectSubject private constructor(
     companion object {
 
         // User-defined entry point
-        fun assertThat(jsonObject: JSONObject?): JSONObjectSubject {
-            return Truth.assertAbout(JSONOBJECT_SUBJECT_FACTORY).that(jsonObject)
-        }
+        fun assertThat(jsonObject: JSONObject?): JSONObjectSubject =
+            Truth.assertAbout(JSONOBJECT_SUBJECT_FACTORY).that(jsonObject)
 
         // Static method for getting the subject factory (for use with assertAbout())
-        fun jsonObject(): Factory<JSONObjectSubject, JSONObject> {
-            return JSONOBJECT_SUBJECT_FACTORY
-        }
+        fun jsonObject(): Factory<JSONObjectSubject, JSONObject> = JSONOBJECT_SUBJECT_FACTORY
 
         private val JSONOBJECT_SUBJECT_FACTORY =
             Factory<JSONObjectSubject, JSONObject> { failureMetadata, subject ->

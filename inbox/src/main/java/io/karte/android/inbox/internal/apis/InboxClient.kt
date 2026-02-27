@@ -22,26 +22,21 @@ internal interface InboxClient {
 
     suspend fun openMessages(visitorId: String, messageIds: List<String>): Boolean
 
-    fun openMessagesAsync(
-        visitorId: String,
-        messageIds: List<String>,
-        handler: Handler?,
-        callback: (Boolean) -> Unit
-    )
+    fun openMessagesAsync(visitorId: String, messageIds: List<String>, handler: Handler?, callback: (Boolean) -> Unit)
 }
 
-internal class InboxClientImpl(override val apiKey: String, private val config: Config = ProductionConfig()) : InboxClient {
+internal class InboxClientImpl(override val apiKey: String, private val config: Config = ProductionConfig()) :
+    InboxClient {
     private val executorService = Executors.newCachedThreadPool()
 
-    override suspend fun fetchMessages(visitorId: String, limit: Int?, latestMessageId: String?): List<InboxMessage>? {
-        return withContext(Dispatchers.IO) {
+    override suspend fun fetchMessages(visitorId: String, limit: Int?, latestMessageId: String?): List<InboxMessage>? =
+        withContext(Dispatchers.IO) {
             val req = FetchMessagesRequest(apiKey, visitorId, limit, latestMessageId, config)
             val raw = Call(req).execute()
             raw?.let {
                 ResponseParser.FetchMessagesParser.parse(it)
             }
         }
-    }
 
     override fun fetchMessagesAsync(
         visitorId: String,
@@ -78,7 +73,12 @@ internal class InboxClientImpl(override val apiKey: String, private val config: 
         return res?.success ?: false
     }
 
-    override fun openMessagesAsync(visitorId: String, messageIds: List<String>, handler: Handler?, callback: (Boolean) -> Unit) {
+    override fun openMessagesAsync(
+        visitorId: String,
+        messageIds: List<String>,
+        handler: Handler?,
+        callback: (Boolean) -> Unit
+    ) {
         executorService.execute {
             val req = OpenMessagesRequest(apiKey, visitorId, messageIds, config)
             val raw = Call(req).execute()

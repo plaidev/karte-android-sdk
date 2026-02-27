@@ -20,14 +20,12 @@ internal fun Modifier.conditionalClickable(
     index: Int,
     onBannerClick: (String) -> Unit,
     onInteraction: (() -> Unit)? = null
-): Modifier {
-    return if (!url.isNullOrEmpty()) {
-        this.clickable {
-            onInteraction?.invoke()
-            tracker.trackClick(index, url)
-            onBannerClick(url)
-        }
-    } else {
-        this
+): Modifier = if (!url.isNullOrEmpty()) {
+    this.clickable {
+        onInteraction?.invoke()
+        tracker.trackClick(index, url)
+        onBannerClick(url)
     }
+} else {
+    this
 }

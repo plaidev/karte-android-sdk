@@ -26,13 +26,11 @@ private const val LOG_TAG = "Karte.Notification"
 
 internal object ChannelUtil {
 
-    fun getChannel(manager: NotificationManager, channel: String): String {
-        return if (manager.channelExists(channel)) {
-            channel
-        } else {
-            manager.createDefaultChannel()
-            DEFAULT_NOTIFICATION_CHANNEL
-        }
+    fun getChannel(manager: NotificationManager, channel: String): String = if (manager.channelExists(channel)) {
+        channel
+    } else {
+        manager.createDefaultChannel()
+        DEFAULT_NOTIFICATION_CHANNEL
     }
 
     private fun NotificationManager.createDefaultChannel() {

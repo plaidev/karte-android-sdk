@@ -48,12 +48,15 @@ class CustomShadowWebView : ShadowWebView() {
     @Implementation
     fun dispatchKeyEvent(event: KeyEvent): Boolean {
         keyEventCalled = true
-        return Shadow.directlyOn(realWebView, WebView::class.java, "dispatchKeyEvent", ReflectionHelpers.ClassParameter.from(KeyEvent::class.java, event))
+        return Shadow.directlyOn(
+            realWebView,
+            WebView::class.java,
+            "dispatchKeyEvent",
+            ReflectionHelpers.ClassParameter.from(KeyEvent::class.java, event)
+        )
     }
 
-    fun wasKeyEventCalled(): Boolean {
-        return keyEventCalled
-    }
+    fun wasKeyEventCalled(): Boolean = keyEventCalled
 
     companion object {
         var current: CustomShadowWebView? = null

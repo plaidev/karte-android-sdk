@@ -17,6 +17,4 @@ package io.karte.android.test_lib
 
 import okhttp3.mockwebserver.RecordedRequest
 
-fun RecordedRequest.parseBody(): String {
-    return InternalUtils.gunzip(this.body.clone().readByteArray())!!
-}
+fun RecordedRequest.parseBody(): String = InternalUtils.gunzip(this.body.clone().readByteArray())!!

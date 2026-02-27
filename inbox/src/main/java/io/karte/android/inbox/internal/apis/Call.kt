@@ -32,8 +32,8 @@ internal class Call(private val request: BaseApiRequest) {
     }
 
     @Throws(IOException::class)
-    private fun buildConnection(request: BaseApiRequest): HttpURLConnection {
-        return (request.url.openConnection() as HttpURLConnection).apply {
+    private fun buildConnection(request: BaseApiRequest): HttpURLConnection =
+        (request.url.openConnection() as HttpURLConnection).apply {
             for ((k, v) in request.header) {
                 setRequestProperty(k, v)
             }
@@ -46,7 +46,6 @@ internal class Call(private val request: BaseApiRequest) {
                 out.close()
             }
         }
-    }
 
     private fun handleResponse(conn: HttpURLConnection): JSONObject? {
         val raw = runCatching {

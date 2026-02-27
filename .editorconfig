@@ -3,14 +3,20 @@ root = true
 [*.{kt,kts}]
 ktlint_code_style = android_studio
 ktlint_standard_import-ordering = disabled
-max_line_length = 1000
+max_line_length = 120
 
-# Temporarily disabled rules to resolve one by one
-ktlint_standard_class-signature = disabled
+# @Composableが付いている関数は`ktlint_standard_function-naming`を無効化 (大文字始まりを許容) する。
+ktlint_function_naming_ignore_when_annotated_with=Composable
+
+ktlint_standard_package-name = disabled # TODO: Fix manually.
+ktlint_standard_property-naming = disabled # TODO: Fix manually.
+ktlint_standard_filename = disabled # TODO: Fix manually.
+
+# テストではクラス名・関数名のルールを無効化する。
+[**/src/test/**/*.kt]
+ktlint_standard_class-naming = disabled
 ktlint_standard_function-naming = disabled
-ktlint_standard_function-signature = disabled
-ktlint_standard_function-expression-body = disabled
-ktlint_standard_class-naming = disabled # Requires manual fix
-ktlint_standard_package-name = disabled # Requires manual fix
-ktlint_standard_property-naming = disabled # Requires manual fix
-ktlint_standard_filename = disabled # Requires manual fix
+
+[**/src/androidTest/**/*.kt]
+ktlint_standard_class-naming = disabled
+ktlint_standard_function-naming = disabled

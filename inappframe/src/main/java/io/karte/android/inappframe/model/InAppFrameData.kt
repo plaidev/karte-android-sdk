@@ -7,13 +7,9 @@ internal sealed class InAppFrameData {
     abstract val componentType: String
 
     companion object {
-        fun parseVersionOrThrow(json: JSONObject): IAFVersion {
-            return IAFVersion.fromString(json.getString("version"))
-        }
+        fun parseVersionOrThrow(json: JSONObject): IAFVersion = IAFVersion.fromString(json.getString("version"))
 
-        fun parseComponentTypeOrThrow(json: JSONObject): String {
-            return json.getString("componentType")
-        }
+        fun parseComponentTypeOrThrow(json: JSONObject): String = json.getString("componentType")
     }
 }
 

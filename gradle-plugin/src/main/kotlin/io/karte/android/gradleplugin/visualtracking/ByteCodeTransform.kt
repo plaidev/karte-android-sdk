@@ -34,29 +34,20 @@ class ByteCodeTransform(private val project: Project) : Transform() {
     private lateinit var classPool: ClassPool
     private var incremental: Boolean = false
 
-    override fun getName(): String {
-        return "ByteCodeTransform"
-    }
+    override fun getName(): String = "ByteCodeTransform"
 
-    override fun getInputTypes(): MutableSet<QualifiedContent.ContentType> {
-        return mutableSetOf(QualifiedContent.DefaultContentType.CLASSES)
-    }
+    override fun getInputTypes(): MutableSet<QualifiedContent.ContentType> =
+        mutableSetOf(QualifiedContent.DefaultContentType.CLASSES)
 
-    override fun getScopes(): MutableSet<in QualifiedContent.Scope> {
-        return mutableSetOf(
-            QualifiedContent.Scope.PROJECT,
-            QualifiedContent.Scope.SUB_PROJECTS,
-            QualifiedContent.Scope.EXTERNAL_LIBRARIES
-        )
-    }
+    override fun getScopes(): MutableSet<in QualifiedContent.Scope> = mutableSetOf(
+        QualifiedContent.Scope.PROJECT,
+        QualifiedContent.Scope.SUB_PROJECTS,
+        QualifiedContent.Scope.EXTERNAL_LIBRARIES
+    )
 
-    override fun isIncremental(): Boolean {
-        return true
-    }
+    override fun isIncremental(): Boolean = true
 
-    override fun isCacheable(): Boolean {
-        return true
-    }
+    override fun isCacheable(): Boolean = true
 
     override fun transform(invocation: TransformInvocation?) {
         super.transform(invocation)
@@ -77,10 +68,7 @@ class ByteCodeTransform(private val project: Project) : Transform() {
         logger.debug("Finished Karte transform.")
     }
 
-    private fun getClassPool(
-        inputs: MutableCollection<TransformInput>,
-        project: Project
-    ): ClassPool {
+    private fun getClassPool(inputs: MutableCollection<TransformInput>, project: Project): ClassPool {
         val pool = ClassPool.getDefault()
         inputs.flatMap { return@flatMap it.directoryInputs + it.jarInputs }
             .forEach { pool.appendClassPath(it.file.absolutePath) }
@@ -89,10 +77,7 @@ class ByteCodeTransform(private val project: Project) : Transform() {
         return pool
     }
 
-    private fun getDirTransform(
-        input: DirectoryInput,
-        outputProvider: TransformOutputProvider
-    ): Callable<Unit> {
+    private fun getDirTransform(input: DirectoryInput, outputProvider: TransformOutputProvider): Callable<Unit> {
         return Callable {
             val outDir = outputProvider.getContentLocation(
                 input.name,
@@ -148,10 +133,7 @@ class ByteCodeTransform(private val project: Project) : Transform() {
         }
     }
 
-    private fun getJarTransform(
-        jarInput: JarInput,
-        outputProvider: TransformOutputProvider
-    ): Callable<Unit>? {
+    private fun getJarTransform(jarInput: JarInput, outputProvider: TransformOutputProvider): Callable<Unit>? {
         if (incremental && (jarInput.status in arrayOf(Status.NOTCHANGED, Status.REMOVED))) {
             logger.debug("Skip transform ${jarInput.name} for incremental build.")
             return null
@@ -260,22 +242,14 @@ class ByteCodeTransform(private val project: Project) : Transform() {
         )
     }
 
-    class ModificationExec(
-        private val ctClass: CtClass,
-        private val operations: List<Operation>
-    ) {
+    class ModificationExec(private val ctClass: CtClass, private val operations: List<Operation>) {
 
         sealed class Operation {
             abstract val ctMethod: CtMethod
 
-            data class CallbackMethod(
-                override val ctMethod: CtMethod,
-                val name: String
-            ) : Operation()
+            data class CallbackMethod(override val ctMethod: CtMethod, val name: String) : Operation()
 
-            data class Lambda(
-                override val ctMethod: CtMethod
-            ) : Operation()
+            data class Lambda(override val ctMethod: CtMethod) : Operation()
         }
 
         fun exec(): ByteArray {

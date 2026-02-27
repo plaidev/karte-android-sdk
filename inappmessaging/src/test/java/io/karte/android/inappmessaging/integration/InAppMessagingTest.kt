@@ -92,7 +92,11 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
     lateinit var app: KarteApp
 
     internal val iamWindow: IAMWindow?
-        get() = (shadowOf(activity.get().windowManager) as ShadowWindowManagerImpl).views.filterIsInstance(IAMWindow::class.java).firstOrNull()
+        get() = (
+            shadowOf(
+                activity.get().windowManager
+            ) as ShadowWindowManagerImpl
+            ).views.filterIsInstance(IAMWindow::class.java).firstOrNull()
     val webView: WebView?
         get() = iamWindow?.getChildAt(0) as? WebView
     val shadowWebView: CustomShadowWebView?
@@ -183,11 +187,9 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         track("cg_popup")
     }
 
-    private fun shouldVisible(messages: MessageModel): Boolean {
-        return messages.messages.any {
-            val type = it.optJSONObject("action")?.optString("type")
-            type != null && type != "control"
-        }
+    private fun shouldVisible(messages: MessageModel): Boolean = messages.messages.any {
+        val type = it.optJSONObject("action")?.optString("type")
+        type != null && type != "control"
     }
 
     protected fun emitCbFromJs(callbackName: String, data: JSONObject) {

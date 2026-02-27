@@ -57,8 +57,7 @@ class ExperimentalConfig private constructor(
         var operationMode: OperationMode = OperationMode.DEFAULT @JvmSynthetic set
 
         /**[ExperimentalConfig.operationMode]を変更します。*/
-        fun operationMode(operationMode: OperationMode): Builder =
-            apply { this.operationMode = operationMode }
+        fun operationMode(operationMode: OperationMode): Builder = apply { this.operationMode = operationMode }
 
         /**[ExperimentalConfig]クラスのインスタンスを生成します。*/
         override fun build(): ExperimentalConfig = ExperimentalConfig(

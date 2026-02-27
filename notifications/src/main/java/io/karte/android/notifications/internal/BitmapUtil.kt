@@ -98,11 +98,7 @@ internal object BitmapUtil {
      * @param maxHeight Required width of the resulting image.
      * @return inSampleSize
      */
-    private fun calculateInSampleSize(
-        options: BitmapFactory.Options,
-        maxWidth: Int,
-        maxHeight: Int
-    ): Int {
+    private fun calculateInSampleSize(options: BitmapFactory.Options, maxWidth: Int, maxHeight: Int): Int {
         val height = options.outHeight
         val width = options.outWidth
         var inSampleSize = 1

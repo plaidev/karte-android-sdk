@@ -17,9 +17,8 @@ internal class TestInboxClient(baseUrl: String, override val apiKey: String) : I
         this.client = InboxClientImpl(apiKey, config)
     }
 
-    override suspend fun fetchMessages(visitorId: String, limit: Int?, latestMessageId: String?): List<InboxMessage>? {
-        return client.fetchMessages(visitorId, limit, latestMessageId)
-    }
+    override suspend fun fetchMessages(visitorId: String, limit: Int?, latestMessageId: String?): List<InboxMessage>? =
+        client.fetchMessages(visitorId, limit, latestMessageId)
 
     override fun fetchMessagesAsync(
         visitorId: String,
@@ -31,13 +30,15 @@ internal class TestInboxClient(baseUrl: String, override val apiKey: String) : I
         client.fetchMessagesAsync(visitorId, limit, latestMessageId, handler, callback)
     }
 
-    override suspend fun openMessages(visitorId: String, messageIds: List<String>): Boolean {
-        return client.openMessages(visitorId, messageIds)
-    }
+    override suspend fun openMessages(visitorId: String, messageIds: List<String>): Boolean =
+        client.openMessages(visitorId, messageIds)
 
-    override fun openMessagesAsync(visitorId: String, messageIds: List<String>, handler: Handler?, callback: (Boolean) -> Unit) {
-        return client.openMessagesAsync(visitorId, messageIds, handler, callback)
-    }
+    override fun openMessagesAsync(
+        visitorId: String,
+        messageIds: List<String>,
+        handler: Handler?,
+        callback: (Boolean) -> Unit
+    ) = client.openMessagesAsync(visitorId, messageIds, handler, callback)
 }
 
 internal val dummyRawResponse = """

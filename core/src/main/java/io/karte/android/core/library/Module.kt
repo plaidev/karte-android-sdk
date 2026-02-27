@@ -121,9 +121,7 @@ interface TrackModule : Module {
      * @param event イベント
      * @return 編集済みのイベントを返します
      */
-    fun prepare(event: Event): Event {
-        return event
-    }
+    fun prepare(event: Event): Event = event
 
     /**
      * リクエスト処理に割り込みます。
@@ -150,9 +148,7 @@ interface CommandModule : Module {
      * @param[isDelay] 遅延実行すべきかを表す真偽値
      * @return コマンドの実行するための[Intent]
      */
-    fun execute(uri: Uri, isDelay: Boolean = false): Intent? {
-        return null
-    }
+    fun execute(uri: Uri, isDelay: Boolean = false): Intent? = null
 
     /**
      * 対象のKARTEのコマンドかどうか検証します。

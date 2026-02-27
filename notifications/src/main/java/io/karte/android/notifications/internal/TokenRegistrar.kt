@@ -28,7 +28,9 @@ import kotlin.concurrent.thread
 private const val LOG_TAG = "Karte.Notifications.TokenRegistrar"
 internal const val THREAD_NAME = "io.karte.android.notifications.TokenRegistrar"
 
-internal class TokenRegistrar(private val context: Context) : UserModule, NotificationModule {
+internal class TokenRegistrar(private val context: Context) :
+    UserModule,
+    NotificationModule {
 
     //region Module
     override val name: String = "TokenRegistrar"
@@ -112,7 +114,9 @@ internal class TokenRegistrar(private val context: Context) : UserModule, Notifi
     }
 
     private fun logMessage(methodName: String, result: String, addition: String? = null): String =
-        "$result FCM token using [$methodName].${addition?.let { "\n$addition" } ?: ""}"
+        "$result FCM token using [$methodName].${addition?.let {
+            "\n$addition"
+        } ?: ""}"
 
     private fun isChanged(token: String): Boolean {
         if (this.token != token) return true

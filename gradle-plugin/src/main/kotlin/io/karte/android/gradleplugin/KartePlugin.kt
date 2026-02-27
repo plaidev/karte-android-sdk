@@ -35,7 +35,10 @@ class KartePlugin : Plugin<Project> {
         var isTransformApiAvailable = true
         try {
             val androidExtensionClass = Class.forName("com.android.build.gradle.BaseExtension")
-            androidExtensionClass.getMethod("registerTransform", Class.forName("com.android.build.api.transform.Transform"))
+            androidExtensionClass.getMethod(
+                "registerTransform",
+                Class.forName("com.android.build.api.transform.Transform")
+            )
         } catch (e: ClassNotFoundException) {
             isTransformApiAvailable = false
         } catch (e: NoSuchMethodException) {
@@ -88,14 +91,12 @@ class KartePlugin : Plugin<Project> {
      * Using deprecated method will print noisy warning at app build time.
      * @Suppress("DEPRECATION") annotation just suppress warning at plugin compile time.
      */
-    private fun BaseVariantOutput.processManifestCompat(): ManifestProcessorTask {
-        return try {
-            processManifestProvider.get()
-        } catch (e: NoSuchMethodError) {
-            // less than 3.3.0
-            @Suppress("DEPRECATION")
-            processManifest
-        }
+    private fun BaseVariantOutput.processManifestCompat(): ManifestProcessorTask = try {
+        processManifestProvider.get()
+    } catch (e: NoSuchMethodError) {
+        // less than 3.3.0
+        @Suppress("DEPRECATION")
+        processManifest
     }
 
     private fun ManifestProcessorTask.manifestOutputDirectoryCompat(): Set<File> {

@@ -30,7 +30,9 @@ private const val LOG_TAG = "Karte.Notifications"
 /**
  * FCMトークンの登録やクリックイベントの送信を管理するクラスです。
  */
-class Notifications : Library, ActivityLifecycleCallback() {
+class Notifications :
+    ActivityLifecycleCallback(),
+    Library {
     private lateinit var registrar: TokenRegistrar
     private val clickTracker = ClickTracker
     private val commandExecutor: RegisterPushCommandExecutor = RegisterPushCommandExecutor()

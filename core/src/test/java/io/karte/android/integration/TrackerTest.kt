@@ -556,7 +556,7 @@ class TrackerIntegrationTest {
         }
     }
 
-    class 再送の制限() : TrackerTestCase() {
+    class 再送の制限 : TrackerTestCase() {
         // DispatcherKt.MAX_RETRY_COUNTの値
         private val maxRetryCount = 3
 

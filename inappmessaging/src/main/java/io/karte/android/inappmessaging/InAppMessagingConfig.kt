@@ -81,11 +81,12 @@ class InAppMessagingConfig private constructor(overlayBaseUrl: String, isEdgeToE
          *
          * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
          */
-        fun overlayBaseUrl(overlayBaseUrl: String): Builder =
-            apply { this.overlayBaseUrl = overlayBaseUrl }
+        fun overlayBaseUrl(overlayBaseUrl: String): Builder = apply { this.overlayBaseUrl = overlayBaseUrl }
 
-        fun isEdgeToEdgeEnabled(isEdgeToEdgeEnabled: Boolean): Builder =
-            apply { this.isEdgeToEdgeEnabled = isEdgeToEdgeEnabled }
+        fun isEdgeToEdgeEnabled(isEdgeToEdgeEnabled: Boolean): Builder = apply {
+            this.isEdgeToEdgeEnabled =
+                isEdgeToEdgeEnabled
+        }
 
         /**[InAppMessagingConfig]クラスのインスタンスを生成します。*/
         fun build(): InAppMessagingConfig = InAppMessagingConfig(overlayBaseUrl, isEdgeToEdgeEnabled)

@@ -23,7 +23,10 @@ private const val HEADER__api_auth_data__ = "__api_auth_data__"
 
 private const val ENDPOINT_POST_TRACE = "/auto-track/app-trace"
 
-class Debugger : Library, TrackModule, DeepLinkModule {
+class Debugger :
+    Library,
+    TrackModule,
+    DeepLinkModule {
 
     private val traceSendExecutor = Executors.newCachedThreadPool()
     private lateinit var id: String

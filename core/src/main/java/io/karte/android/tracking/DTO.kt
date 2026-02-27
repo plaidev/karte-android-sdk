@@ -55,11 +55,7 @@ data class Action<T : DTO<T>>(
  * @property[campaignId] campaign_id フィールド
  * @property[serviceActionType] service_action_type フィールド
  */
-data class Campaign(
-    var campaignId: String? = null,
-    var serviceActionType: String? = null
-) :
-    DTO<Campaign> {
+data class Campaign(var campaignId: String? = null, var serviceActionType: String? = null) : DTO<Campaign> {
     override fun load(jsonObject: JSONObject?): Campaign = apply {
         campaignId = jsonObject?.optString("_id")
         serviceActionType = jsonObject?.optString("service_action_type")
@@ -70,9 +66,7 @@ data class Campaign(
  * アクションのトリガー情報を保持するデータクラスです。
  * @property[eventHashes] event_hashes フィールド
  */
-data class Trigger(
-    var eventHashes: String? = null
-) : DTO<Trigger> {
+data class Trigger(var eventHashes: String? = null) : DTO<Trigger> {
     override fun load(jsonObject: JSONObject?): Trigger = apply {
         eventHashes = jsonObject?.optString("event_hashes")
     }

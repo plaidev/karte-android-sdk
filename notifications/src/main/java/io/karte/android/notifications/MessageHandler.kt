@@ -34,9 +34,7 @@ private const val LOG_TAG = "Karte.MessageHandler"
 
 internal const val NOTIFICATION_TAG = "krt_notification_tag"
 
-internal fun uniqueId(): Int {
-    return (Date().time / 1000L % Integer.MAX_VALUE).toInt()
-}
+internal fun uniqueId(): Int = (Date().time / 1000L % Integer.MAX_VALUE).toInt()
 
 /**
  * KARTEから送信された通知メッセージを処理する機能を提供するクラスです。
@@ -82,9 +80,7 @@ class MessageHandler private constructor(val context: Context, val data: Map<Str
          * KARTE経由で送信された通知メッセージの場合は`true`、KARTE以外から送信された通知メッセージの場合は、`false`を返します。
          */
         @JvmStatic
-        fun canHandleMessage(message: RemoteMessage): Boolean {
-            return canHandleMessage(message.data)
-        }
+        fun canHandleMessage(message: RemoteMessage): Boolean = canHandleMessage(message.data)
 
         /**
          * KARTE経由で送信された通知メッセージであるか判定します。
@@ -95,9 +91,7 @@ class MessageHandler private constructor(val context: Context, val data: Map<Str
          * KARTE経由で送信された通知メッセージの場合は`true`、KARTE以外から送信された通知メッセージの場合は、`false`を返します。
          */
         @JvmStatic
-        fun canHandleMessage(data: Map<String, String>): Boolean {
-            return RemoteMessageWrapper(data).isValid
-        }
+        fun canHandleMessage(data: Map<String, String>): Boolean = RemoteMessageWrapper(data).isValid
 
         /**
          * [RemoteMessage]からSDKが自動で処理するデータを取り出し、[KarteAttributes]インスタンスを返します。
@@ -106,9 +100,7 @@ class MessageHandler private constructor(val context: Context, val data: Map<Str
          * @return [KarteAttributes]インスタンスを返します。
          */
         @JvmStatic
-        fun extractKarteAttributes(message: RemoteMessage): KarteAttributes? {
-            return extractKarteAttributes(message.data)
-        }
+        fun extractKarteAttributes(message: RemoteMessage): KarteAttributes? = extractKarteAttributes(message.data)
 
         /**
          * データメッセージからSDKが自動で処理するデータを取り出し、[KarteAttributes]インスタンスを返します。
@@ -117,9 +109,7 @@ class MessageHandler private constructor(val context: Context, val data: Map<Str
          * @return [KarteAttributes]インスタンスを返します。
          */
         @JvmStatic
-        fun extractKarteAttributes(data: Map<String, String>): KarteAttributes? {
-            return RemoteMessageWrapper(data).attributes
-        }
+        fun extractKarteAttributes(data: Map<String, String>): KarteAttributes? = RemoteMessageWrapper(data).attributes
 
         /**
          * KARTE経由で送信された通知メッセージから、通知を作成・表示します。
@@ -136,13 +126,8 @@ class MessageHandler private constructor(val context: Context, val data: Map<Str
          */
         @JvmStatic
         @JvmOverloads
-        fun handleMessage(
-            context: Context,
-            message: RemoteMessage,
-            defaultIntent: Intent? = null
-        ): Boolean {
-            return handleMessage(context, message.data, defaultIntent)
-        }
+        fun handleMessage(context: Context, message: RemoteMessage, defaultIntent: Intent? = null): Boolean =
+            handleMessage(context, message.data, defaultIntent)
 
         /**
          * KARTE経由で送信された通知メッセージ（データメッセージ）から、通知を作成・表示します。
@@ -159,11 +144,7 @@ class MessageHandler private constructor(val context: Context, val data: Map<Str
          */
         @JvmStatic
         @JvmOverloads
-        fun handleMessage(
-            context: Context,
-            data: Map<String, String>,
-            defaultIntent: Intent? = null
-        ): Boolean {
+        fun handleMessage(context: Context, data: Map<String, String>, defaultIntent: Intent? = null): Boolean {
             if (!canHandleMessage(data)) {
                 return false
             }
@@ -200,9 +181,7 @@ class MessageHandler private constructor(val context: Context, val data: Map<Str
             message: RemoteMessage,
             notification: Notification?,
             defaultIntent: Intent? = null
-        ): Boolean {
-            return handleMessage(context, message.data, notification, defaultIntent)
-        }
+        ): Boolean = handleMessage(context, message.data, notification, defaultIntent)
 
         /**
          * KARTE経由で送信された通知メッセージ（データメッセージ）から、通知を作成・表示します。

@@ -32,11 +32,9 @@ open class Response(val code: Int, val headers: Map<String, List<String>>, val b
         get() = code == 503
 
     /** @suppress */
-    override fun toString(): String {
-        return "Response{" +
-            "code=" + code +
-            ", headers=" + headers +
-            ", body='" + body + '\''.toString() +
-            '}'.toString()
-    }
+    override fun toString(): String = "Response{" +
+        "code=" + code +
+        ", headers=" + headers +
+        ", body='" + body + '\''.toString() +
+        '}'.toString()
 }

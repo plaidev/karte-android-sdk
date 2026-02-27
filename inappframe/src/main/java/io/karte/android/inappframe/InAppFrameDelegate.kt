@@ -27,7 +27,5 @@ abstract class InAppFrameDelegate {
      * @param[url] タップされたアイテムのURL
      * @return `true` を返した場合はSDK側でURLを自動で開きます。`false` を返した場合はSDK側では何もしません。
      */
-    open fun shouldOpenURL(url: Uri): Boolean {
-        return true
-    }
+    open fun shouldOpenURL(url: Uri): Boolean = true
 }

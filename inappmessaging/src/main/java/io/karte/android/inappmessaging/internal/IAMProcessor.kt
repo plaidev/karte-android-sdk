@@ -35,7 +35,12 @@ import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.IAMProcessor"
 
-internal class IAMProcessor(application: Application, private val panelWindowManager: PanelWindowManager, private val isAutoScreenBoundaryEnabled: Boolean) : ActivityLifecycleCallback(), WebViewDelegate {
+internal class IAMProcessor(
+    application: Application,
+    private val panelWindowManager: PanelWindowManager,
+    private val isAutoScreenBoundaryEnabled: Boolean
+) : ActivityLifecycleCallback(),
+    WebViewDelegate {
     private val container = WebViewContainer(application, this)
     private val webView: IAMWebView?
         get() = container.get()

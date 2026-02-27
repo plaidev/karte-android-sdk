@@ -12,7 +12,9 @@ import java.util.TimeZone
 
 internal class ExpiredMessageOpenEventRejectionFilterRule(
     private val interval: Int = 180,
-    private val dateResolver: () -> Date = { Date() }
+    private val dateResolver: () -> Date = {
+        Date()
+    }
 ) : TrackEventRejectionFilterRule {
     companion object {
         val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US).apply {

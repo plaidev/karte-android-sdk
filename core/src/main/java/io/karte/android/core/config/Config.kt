@@ -195,20 +195,26 @@ open class Config protected constructor(
         fun isOptOut(isOptOut: Boolean): Builder = apply { this.isOptOut = isOptOut }
 
         /**[Config.isAutoScreenBoundaryEnabled]を変更します。*/
-        fun isAutoScreenBoundaryEnabled(isAutoScreenBoundaryEnabled: Boolean): Builder =
-            apply { this.isAutoScreenBoundaryEnabled = isAutoScreenBoundaryEnabled }
+        fun isAutoScreenBoundaryEnabled(isAutoScreenBoundaryEnabled: Boolean): Builder = apply {
+            this.isAutoScreenBoundaryEnabled =
+                isAutoScreenBoundaryEnabled
+        }
 
         /**[Config.enabledTrackingAaid]を変更します。*/
-        fun enabledTrackingAaid(enabledTrackingAaid: Boolean): Builder =
-            apply { this.enabledTrackingAaid = enabledTrackingAaid }
+        fun enabledTrackingAaid(enabledTrackingAaid: Boolean): Builder = apply {
+            this.enabledTrackingAaid =
+                enabledTrackingAaid
+        }
 
         /**[Config.libraryConfigs]を変更します。*/
         fun libraryConfigs(libraryConfigs: List<LibraryConfig>): Builder =
             apply { this.libraryConfigs = libraryConfigs }
 
         /**[Config.libraryConfigs]を変更します。*/
-        fun libraryConfigs(vararg libraryConfigs: LibraryConfig): Builder =
-            apply { this.libraryConfigs = libraryConfigs.toList() }
+        fun libraryConfigs(vararg libraryConfigs: LibraryConfig): Builder = apply {
+            this.libraryConfigs =
+                libraryConfigs.toList()
+        }
 
         /**[Config]クラスのインスタンスを生成します。*/
         open fun build(): Config = Config(

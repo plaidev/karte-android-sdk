@@ -104,7 +104,8 @@ class TrackRequest(
      * @param eventName イベント名
      * @return 指定されたイベント名が含まれる場合は `true` を返し、含まれない場合は `false` を返します。
      */
-    fun contains(eventName: EventName): Boolean {
-        return events.any { it.eventName == eventName || it.eventName.value == eventName.value }
+    fun contains(eventName: EventName): Boolean = events.any {
+        it.eventName == eventName ||
+            it.eventName.value == eventName.value
     }
 }

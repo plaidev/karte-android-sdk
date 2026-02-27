@@ -23,9 +23,7 @@ class InAppFrameTest {
     fun testDelegate_whenDelegateAllowsUrl_shouldReturnTrue() {
         // デリゲートを設定 - すべてのURLを処理する
         InAppFrame.setDelegate(object : InAppFrameDelegate() {
-            override fun shouldOpenURL(url: Uri): Boolean {
-                return true
-            }
+            override fun shouldOpenURL(url: Uri): Boolean = true
         })
 
         val uri = Uri.parse("https://example.com/path")
@@ -36,9 +34,7 @@ class InAppFrameTest {
     fun testDelegate_whenDelegateBlocksUrl_shouldReturnFalse() {
         // デリゲートを設定 - 特定のホストのURLを処理しない
         InAppFrame.setDelegate(object : InAppFrameDelegate() {
-            override fun shouldOpenURL(url: Uri): Boolean {
-                return url.host != "blocked-domain.example.com"
-            }
+            override fun shouldOpenURL(url: Uri): Boolean = url.host != "blocked-domain.example.com"
         })
 
         // 処理されるべきURL

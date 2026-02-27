@@ -81,9 +81,7 @@ internal class PanelWindowManager {
         private val windowRef: WeakReference<Window> = WeakReference(windowRef)
         private val locationOnScreen = IntArray(2)
 
-        override fun hasStaleReference(): Boolean {
-            return windowRef.get() == null
-        }
+        override fun hasStaleReference(): Boolean = windowRef.get() == null
 
         override fun dispatchTouch(event: MotionEvent): Boolean {
             val window = windowRef.get() ?: return false
@@ -152,9 +150,7 @@ internal class PanelWindowManager {
             }
         }
 
-        override fun hasStaleReference(): Boolean {
-            return popupWindowRef.get() == null
-        }
+        override fun hasStaleReference(): Boolean = popupWindowRef.get() == null
 
         override fun dispatchTouch(event: MotionEvent): Boolean {
             val popupWindow = popupWindowRef.get() ?: return false

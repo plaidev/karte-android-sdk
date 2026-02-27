@@ -36,8 +36,7 @@ class CrashReportingConfig private constructor(val enabledTracking: Boolean) : L
         var enabledTracking: Boolean = true @JvmSynthetic set
 
         /**[CrashReportingConfig.enabledTracking]を変更します。*/
-        fun enabledTracking(enabledTracking: Boolean): Builder =
-            apply { this.enabledTracking = enabledTracking }
+        fun enabledTracking(enabledTracking: Boolean): Builder = apply { this.enabledTracking = enabledTracking }
 
         /**[CrashReportingConfig]クラスのインスタンスを生成します。*/
         fun build(): CrashReportingConfig = CrashReportingConfig(enabledTracking)

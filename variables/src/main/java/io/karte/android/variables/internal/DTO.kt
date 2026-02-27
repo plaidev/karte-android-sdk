@@ -21,20 +21,16 @@ import io.karte.android.tracking.DTO
 import io.karte.android.tracking.Trigger
 import org.json.JSONObject
 
-internal fun parse(jsonObject: JSONObject): VariableMessage? {
-    return VariableMessage().load(jsonObject)
-}
+internal fun parse(jsonObject: JSONObject): VariableMessage? = VariableMessage().load(jsonObject)
 
-internal data class InlinedVariable(var name: String? = null, var value: String? = null) :
-    DTO<InlinedVariable> {
+internal data class InlinedVariable(var name: String? = null, var value: String? = null) : DTO<InlinedVariable> {
     override fun load(jsonObject: JSONObject?): InlinedVariable = apply {
         name = jsonObject?.optString("name")
         value = jsonObject?.optString("value")
     }
 }
 
-internal data class Content(var inlinedVariables: List<InlinedVariable> = emptyList()) :
-    DTO<Content> {
+internal data class Content(var inlinedVariables: List<InlinedVariable> = emptyList()) : DTO<Content> {
     override fun load(jsonObject: JSONObject?): Content = apply {
         val array = jsonObject?.optJSONArray("inlined_variables")
         array?.let {

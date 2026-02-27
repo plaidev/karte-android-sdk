@@ -132,7 +132,9 @@ internal class IAMWebView(context: Context, private val delegate: WebViewDelegat
             when (val message = JsMessage.parse(name, data)) {
                 is JsMessage.Event -> {
                     Logger.d(LOG_TAG, "Received event callback: event_name=${message.eventName}")
-                    Tracker.track(Event(CustomEventName(message.eventName), message.values, libraryName = InAppMessaging.name))
+                    Tracker.track(
+                        Event(CustomEventName(message.eventName), message.values, libraryName = InAppMessaging.name)
+                    )
                     notifyCampaignOpenOrClose(message.eventName, message.values)
                 }
 
@@ -217,9 +219,8 @@ internal class IAMWebView(context: Context, private val delegate: WebViewDelegat
         delegate.onShowAlert(message)
     }
 
-    override fun showFileChooser(filePathCallback: ValueCallback<Array<Uri>>): Boolean {
-        return delegate.onShowFileChooser(filePathCallback)
-    }
+    override fun showFileChooser(filePathCallback: ValueCallback<Array<Uri>>): Boolean =
+        delegate.onShowFileChooser(filePathCallback)
 }
 
 private sealed class Data {

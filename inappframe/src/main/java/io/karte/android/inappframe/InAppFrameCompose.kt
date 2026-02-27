@@ -31,10 +31,7 @@ import kotlinx.coroutines.withContext
  * @param modifier Composeのmodifier
  */
 @Composable
-fun InAppFrameCompose(
-    placeId: String,
-    modifier: Modifier = Modifier
-) {
+fun InAppFrameCompose(placeId: String, modifier: Modifier = Modifier) {
     var inAppFrameData by remember { mutableStateOf<InAppFrameData?>(null) }
     var iafTracker by remember { mutableStateOf<IAFTracker?>(null) }
 
@@ -80,11 +77,7 @@ suspend fun InAppFrame.Companion.loadComposeContent(placeId: String): (@Composab
 }
 
 @Composable
-private fun InAppFrameContent(
-    inAppFrameData: InAppFrameData,
-    iafTracker: IAFTracker,
-    modifier: Modifier = Modifier
-) {
+private fun InAppFrameContent(inAppFrameData: InAppFrameData, iafTracker: IAFTracker, modifier: Modifier = Modifier) {
     val context = androidx.compose.ui.platform.LocalContext.current
 
     val onBannerClick = { url: String ->

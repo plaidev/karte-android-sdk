@@ -41,7 +41,11 @@ internal fun SimpleBannerView.setupViewForTesting() {
     val radius = radiusField.getFloat(config)
 
     // Convert dp to px
-    val dpToPxMethod = DensityConvertible::class.java.getDeclaredMethod("dpToPx", android.content.Context::class.java, Int::class.java)
+    val dpToPxMethod = DensityConvertible::class.java.getDeclaredMethod(
+        "dpToPx",
+        android.content.Context::class.java,
+        Int::class.java
+    )
     dpToPxMethod.isAccessible = true
     val paddingStartPx = dpToPxMethod.invoke(this, context, paddingStart) as Int
     val paddingEndPx = dpToPxMethod.invoke(this, context, paddingEnd) as Int
@@ -65,7 +69,11 @@ internal fun SimpleBannerView.setupViewForTesting() {
                 val linkUrl = linkUrlField.get(firstItem) as String
                 if (linkUrl.isNotEmpty()) {
                     // Track click
-                    val trackClickMethod = tracker::class.java.getDeclaredMethod("trackClick", Int::class.java, String::class.java)
+                    val trackClickMethod = tracker::class.java.getDeclaredMethod(
+                        "trackClick",
+                        Int::class.java,
+                        String::class.java
+                    )
                     trackClickMethod.invoke(tracker, 0, linkUrl)
 
                     // Start intent
@@ -138,7 +146,11 @@ internal fun CarouselWithoutMarginView.setupViewForTesting() {
     )
 
     // Convert dp to px
-    val dpToPxMethod = DensityConvertible::class.java.getDeclaredMethod("dpToPx", android.content.Context::class.java, Int::class.java)
+    val dpToPxMethod = DensityConvertible::class.java.getDeclaredMethod(
+        "dpToPx",
+        android.content.Context::class.java,
+        Int::class.java
+    )
     dpToPxMethod.isAccessible = true
     val paddingTopInPixels = dpToPxMethod.invoke(this, context, paddingTop) as Int
     val paddingBottomInPixels = dpToPxMethod.invoke(this, context, paddingBottom) as Int

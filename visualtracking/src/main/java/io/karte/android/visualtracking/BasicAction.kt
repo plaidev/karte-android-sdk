@@ -32,7 +32,5 @@ class BasicAction @JvmOverloads constructor(
     override val targetText: String?,
     override val imageProvider: ImageProvider? = null
 ) : Action {
-    override fun toString(): String {
-        return "BasicAction(action=$action, actionId=$actionId, targetText=$targetText)"
-    }
+    override fun toString(): String = "BasicAction(action=$action, actionId=$actionId, targetText=$targetText)"
 }

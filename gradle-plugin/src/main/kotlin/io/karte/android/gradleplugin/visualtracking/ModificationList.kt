@@ -2,11 +2,7 @@ package io.karte.android.gradleplugin.visualtracking
 
 const val TYPE_VOID = "V"
 
-data class Signature(
-    val methodName: String,
-    val returnType: String,
-    val parameterTypes: List<String>
-)
+data class Signature(val methodName: String, val returnType: String, val parameterTypes: List<String>)
 
 data class Target(val jvmClassName: String, val methodSignature: Signature) {
     val className = jvmClassName.substring(1, jvmClassName.length - 1).replace("/", ".")

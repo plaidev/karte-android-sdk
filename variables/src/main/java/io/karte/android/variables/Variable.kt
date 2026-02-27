@@ -164,41 +164,35 @@ data class Variable internal constructor(
     @JvmName("getJSONObject")
     fun jsonObject(default: JSONObject): JSONObject = jsonObject ?: default
 
-    internal fun serialize(): String? {
-        return try {
-            JSONObject()
-                .put(JSON_KEY_CAMPAIGN_ID, campaignId)
-                .put(JSON_KEY_SHORTEN_ID, shortenId)
-                .put(JSON_KEY_VALUE, value)
-                .put(JSON_KEY_TIMESTAMP, timestamp)
-                .put(JSON_KEY_EVENT_HASH, eventHash)
-                .toString()
-        } catch (e: JSONException) {
-            null
-        }
+    internal fun serialize(): String? = try {
+        JSONObject()
+            .put(JSON_KEY_CAMPAIGN_ID, campaignId)
+            .put(JSON_KEY_SHORTEN_ID, shortenId)
+            .put(JSON_KEY_VALUE, value)
+            .put(JSON_KEY_TIMESTAMP, timestamp)
+            .put(JSON_KEY_EVENT_HASH, eventHash)
+            .toString()
+    } catch (e: JSONException) {
+        null
     }
 
     companion object {
 
-        internal fun deserialize(key: String, values: String): Variable? {
-            return try {
-                val json = JSONObject(values)
-                Variable(
-                    key,
-                    json.getString(JSON_KEY_CAMPAIGN_ID),
-                    json.getString(JSON_KEY_SHORTEN_ID),
-                    json.getString(JSON_KEY_VALUE),
-                    if (json.has(JSON_KEY_TIMESTAMP)) json.getString(JSON_KEY_TIMESTAMP) else null,
-                    if (json.has(JSON_KEY_EVENT_HASH)) json.getString(JSON_KEY_EVENT_HASH) else null
-                )
-            } catch (e: JSONException) {
-                Logger.e(LOG_TAG, "Failed to load saved variable:", e)
-                null
-            }
+        internal fun deserialize(key: String, values: String): Variable? = try {
+            val json = JSONObject(values)
+            Variable(
+                key,
+                json.getString(JSON_KEY_CAMPAIGN_ID),
+                json.getString(JSON_KEY_SHORTEN_ID),
+                json.getString(JSON_KEY_VALUE),
+                if (json.has(JSON_KEY_TIMESTAMP)) json.getString(JSON_KEY_TIMESTAMP) else null,
+                if (json.has(JSON_KEY_EVENT_HASH)) json.getString(JSON_KEY_EVENT_HASH) else null
+            )
+        } catch (e: JSONException) {
+            Logger.e(LOG_TAG, "Failed to load saved variable:", e)
+            null
         }
 
-        internal fun empty(key: String): Variable {
-            return Variable(key)
-        }
+        internal fun empty(key: String): Variable = Variable(key)
     }
 }

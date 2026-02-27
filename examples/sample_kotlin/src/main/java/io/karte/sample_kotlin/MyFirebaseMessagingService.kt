@@ -25,11 +25,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun sendNotification(
-        title: String?,
-        body: String?,
-        channel: String?
-    ) {
+    private fun sendNotification(title: String?, body: String?, channel: String?) {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 

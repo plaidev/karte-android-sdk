@@ -19,13 +19,9 @@ import java.util.UUID
 
 internal interface IdContainer {
 
-    private fun generate(): String {
-        return UUID.randomUUID().toString()
-    }
+    private fun generate(): String = UUID.randomUUID().toString()
 
     val value: String
 
-    fun renew(): String {
-        return generate()
-    }
+    fun renew(): String = generate()
 }

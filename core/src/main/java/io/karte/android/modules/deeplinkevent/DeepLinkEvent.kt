@@ -27,7 +27,9 @@ import io.karte.android.tracking.Tracker
 private const val LOG_TAG = "Karte.DeepLinkEvent"
 private const val SENT_FLAG = "_krt_deep_link_event"
 
-internal class DeepLinkEvent : Library, DeepLinkModule {
+internal class DeepLinkEvent :
+    Library,
+    DeepLinkModule {
 
     //region Library
     override val name: String = "DeepLinkEvent"

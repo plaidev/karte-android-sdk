@@ -60,24 +60,20 @@ internal fun <K, V> Map<K, V?>.filterNotNull(): Map<K, V> {
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 fun Any.getLowerClassName(): String = (this::class.java.simpleName as java.lang.String).toLowerCase(Locale.ROOT)
 
-private fun Any?.unwrapJson(): Any? {
-    return when (this) {
-        is JSONObject -> this.toMap()
-        is JSONArray -> this.toList()
-        null, JSONObject.NULL -> null
-        else -> this
-    }
+private fun Any?.unwrapJson(): Any? = when (this) {
+    is JSONObject -> this.toMap()
+    is JSONArray -> this.toList()
+    null, JSONObject.NULL -> null
+    else -> this
 }
 
-private fun Any?.format(): Any? {
-    return when (this) {
-        is JSONObject -> this.format()
-        is JSONArray -> this.format()
-        is Map<*, *> -> this.mapValues { it.value.format() }.filter { it.value != null }
-        is List<*> -> this.mapNotNull { it.format() }
-        is Date -> this.time / 1000
-        else -> this
-    }
+private fun Any?.format(): Any? = when (this) {
+    is JSONObject -> this.format()
+    is JSONArray -> this.format()
+    is Map<*, *> -> this.mapValues { it.value.format() }.filter { it.value != null }
+    is List<*> -> this.mapNotNull { it.format() }
+    is Date -> this.time / 1000
+    else -> this
 }
 //endregion
 
@@ -98,9 +94,7 @@ fun JSONArray.map(transform: (Any?) -> Any?): List<Any?> {
 }
 
 /** Returns a List containing all key-value pairs. */
-fun JSONArray.toList(): List<Any?> {
-    return map { it.unwrapJson() }
-}
+fun JSONArray.toList(): List<Any?> = map { it.unwrapJson() }
 
 /** Track API向けに値をフォーマットします。 */
 fun JSONArray.format(): JSONArray {
@@ -136,19 +130,13 @@ fun JSONObject.format(): JSONObject {
 }
 
 /** [Values]に変換します。 */
-fun JSONObject.toValues(): Values {
-    return toMap().filterNotNull()
-}
+fun JSONObject.toValues(): Values = toMap().filterNotNull()
 //endregion
 
 /** Track API向けに値をフォーマットします。 */
-fun Values.format(): Values {
-    return mapValues { it.value.format() }.filterNotNull()
-}
+fun Values.format(): Values = mapValues { it.value.format() }.filterNotNull()
 
-fun Values.merge(other: Values): Values {
-    return mergeInternal(toMutableMap(), other.toMap())
-}
+fun Values.merge(other: Values): Values = mergeInternal(toMutableMap(), other.toMap())
 
 private fun mergeInternal(base: MutableMap<String, Any>, additional: Map<String, Any>): Map<String, Any> {
     for ((k, av) in additional) {

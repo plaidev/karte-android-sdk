@@ -71,11 +71,7 @@ abstract class Request<T> internal constructor(
 }
 
 /** JSON Body Request. */
-open class JSONRequest(
-    url: String,
-    method: String,
-    gzip: Boolean = true
-) : Request<String>(url, method) {
+open class JSONRequest(url: String, method: String, gzip: Boolean = true) : Request<String>(url, method) {
     constructor(url: String, method: String) : this(url, method, true)
 
     override var body: String? = null

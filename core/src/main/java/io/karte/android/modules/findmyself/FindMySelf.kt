@@ -30,7 +30,9 @@ import io.karte.android.utilities.filterNotNull
 
 private const val LOG_TAG = "Karte.FindMySelf"
 
-internal class FindMyself : Library, DeepLinkModule {
+internal class FindMyself :
+    Library,
+    DeepLinkModule {
 
     //region Library
     override val name: String = "FindMySelf"

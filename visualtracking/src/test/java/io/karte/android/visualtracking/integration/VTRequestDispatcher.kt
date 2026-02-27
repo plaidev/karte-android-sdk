@@ -50,8 +50,8 @@ class VTRequestDispatcher(vararg definitions: JSONObject, private val lastModifi
         return super.onTrackRequest(request)
     }
 
-    fun autoTrackRequests(): List<RecordedRequest> {
-        return recordedRequests.filter { it.path?.contains("/auto-track") == true }
+    fun autoTrackRequests(): List<RecordedRequest> = recordedRequests.filter {
+        it.path?.contains("/auto-track") == true
     }
 
     private fun isModified(request: RecordedRequest): Boolean {
