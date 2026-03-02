@@ -8,10 +8,6 @@ max_line_length = 120
 # @Composableが付いている関数は`ktlint_standard_function-naming`を無効化 (大文字始まりを許容) する。
 ktlint_function_naming_ignore_when_annotated_with=Composable
 
-ktlint_standard_package-name = disabled # TODO: Fix manually.
-ktlint_standard_property-naming = disabled # TODO: Fix manually.
-ktlint_standard_filename = disabled # TODO: Fix manually.
-
 # テストではクラス名・関数名のルールを無効化する。
 [**/src/test/**/*.kt]
 ktlint_standard_class-naming = disabled
@@ -20,3 +16,11 @@ ktlint_standard_function-naming = disabled
 [**/src/androidTest/**/*.kt]
 ktlint_standard_class-naming = disabled
 ktlint_standard_function-naming = disabled
+
+# FIXME: package名をunderscoreを含まないものにする。
+[core/test_lib/**/*.{kt,kts}]
+ktlint_standard_package-name = disabled
+
+# FIXME: package名をunderscoreを含まないものにする。
+[examples/sample_kotlin/**/*.{kt,kts}]
+ktlint_standard_package-name = disabled

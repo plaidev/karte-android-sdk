@@ -25,8 +25,9 @@ import android.widget.PopupWindow
 import io.karte.android.core.logger.Logger
 import java.lang.ref.WeakReference
 
+private const val LOG_TAG = "Karte.IAMPWManager"
+
 internal class PanelWindowManager {
-    private val LOG_TAG = "Karte.IAMPWManager"
 
     private var lastActionDownWindow: BaseWindowWrapper? = null
     private val windows = ArrayList<BaseWindowWrapper>()

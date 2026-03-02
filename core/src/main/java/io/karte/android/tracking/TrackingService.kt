@@ -48,7 +48,7 @@ internal class TrackingService internal constructor() {
         if (inEvent.isDeprecatedEventFieldName) {
             Logger.w(
                 LOG_TAG,
-                "Contains dots(.) or stating with $ or ${inEvent.INVALID_FIELD_NAMES} in event field name is deprecated: EventName=${inEvent.eventName.value},FieldName=${inEvent.values}"
+                "Contains dots(.) or stating with $ or ${Event.INVALID_FIELD_NAMES} in event field name is deprecated: EventName=${inEvent.eventName.value},FieldName=${inEvent.values}"
             )
         }
 

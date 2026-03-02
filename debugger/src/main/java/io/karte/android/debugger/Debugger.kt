@@ -19,7 +19,7 @@ private const val REPOSITORY_NAMESPACE = "Debugger_"
 private const val REPOSITORY_KEY = "id"
 
 private const val HEADER_ACCOUNT_ID = "X-KARTE-Auto-Track-Account-Id"
-private const val HEADER__api_auth_data__ = "__api_auth_data__"
+private const val HEADER_API_AUTH_DATA = "__api_auth_data__"
 
 private const val ENDPOINT_POST_TRACE = "/auto-track/app-trace"
 
@@ -54,7 +54,7 @@ class Debugger :
 
                     if (id == "") return@Runnable
                     debuggerRequest.headers[HEADER_ACCOUNT_ID] = id
-                    debuggerRequest.headers[HEADER__api_auth_data__] = app.config.apiKey
+                    debuggerRequest.headers[HEADER_API_AUTH_DATA] = app.config.apiKey
 
                     Client.execute(debuggerRequest)
                 } catch (e: Throwable) {

@@ -133,6 +133,12 @@ open class Event {
         }
 
     companion object {
+        private val EVENT_NAME_REGEX = Pattern.compile("[^a-z0-9_]")
+
+        @Suppress("ktlint:standard:max-line-length")
+        internal val INVALID_FIELD_NAMES =
+            listOf("_source", "_system", "any", "avg", "cache", "count", "count_sets", "date", "f_t", "first", "keys", "l_t", "last", "lrus", "max", "min", "o", "prev", "sets", "size", "span", "sum", "type", "v")
+
         internal fun fromJSON(json: String): Event? = runCatching {
             val jsonObject = JSONObject(json)
             val isRetryable = runCatching { jsonObject.getBoolean("_is_retryable") }.getOrNull()
@@ -145,8 +151,6 @@ open class Event {
             )
         }.getOrNull()
     }
-
-    private val EVENT_NAME_REGEX = Pattern.compile("[^a-z0-9_]")
 
     /** 非推奨なイベント名が含まれるかを返します。 */
     private fun validateEventName(eventName: String): Boolean {
@@ -161,10 +165,6 @@ open class Event {
         val m = EVENT_NAME_REGEX.matcher(eventName)
         return m.find() || eventName.startsWith("_")
     }
-
-    @Suppress("ktlint:standard:max-line-length")
-    internal val INVALID_FIELD_NAMES =
-        listOf("_source", "_system", "any", "avg", "cache", "count", "count_sets", "date", "f_t", "first", "keys", "l_t", "last", "lrus", "max", "min", "o", "prev", "sets", "size", "span", "sum", "type", "v")
 
     /** 非推奨なフィールド名が含まれるかを返します。 */
     private fun validateEventFieldName(values: JSONObject): Boolean {
