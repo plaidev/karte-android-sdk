@@ -92,7 +92,9 @@ object UserSync {
     @JvmStatic
     fun getUserSyncScript(): String? {
         val syncParam = buildUserSyncParameter() ?: return null
-        return String.format("window.__karte_ntvsync = %s;", syncParam)
+        val script = String.format("window.__karte_ntvsync = %s;", syncParam)
+        Logger.i(LOG_TAG, "Getting user sync script: $script")
+        return script
     }
 
     /**
@@ -106,6 +108,7 @@ object UserSync {
     @JvmStatic
     fun setUserSyncScript(webView: WebView) {
         val syncScript = getUserSyncScript() ?: return
+        Logger.i(LOG_TAG, "Setting user sync script: $syncScript")
         webView.evaluateJavascript(syncScript) { }
     }
 

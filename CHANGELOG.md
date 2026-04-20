@@ -16,6 +16,7 @@
 ### Core 2.34.0
 **🔨CHANGED**
 - lintの警告を修正しました。
+- サポート改善のためにWebView連携実行時のデバッグログを追加しました。
 
 ### InAppMessaging 2.27.0
 **🔨CHANGED**
