@@ -17,10 +17,12 @@
 **🔨CHANGED**
 - lintの警告を修正しました。
 - サポート改善のためにWebView連携実行時のデバッグログを追加しました。
+- Kotlinバージョンを1.9.25に上げました。
 
 ### InAppMessaging 2.27.0
 **🔨CHANGED**
 - lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
 
 ### Notifications 2.18.0
 **💊FIXED**
@@ -28,18 +30,22 @@
 
 **🔨CHANGED**
 - lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
 
 ### Variables 2.13.0
 **🔨CHANGED**
 - lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
 
 ### VisualTracking 2.15.0
 **🔨CHANGED**
 - lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
 
 ### InAppFrame 0.8.0
 **🔨CHANGED**
 - lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
 
 ### Karte Gradle Plugin 2.9.0
 **🔨CHANGED**
@@ -48,6 +54,7 @@
 ### Debugger 1.4.0
 **🔨CHANGED**
 - lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
 
 # Releases - 2026.01.19
 

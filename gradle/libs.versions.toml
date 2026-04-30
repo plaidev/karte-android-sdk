@@ -1,6 +1,6 @@
 [versions]
 # Kotlin & Gradle
-kotlin = "1.8.10"
+kotlin = "1.9.25"
 coroutines = "1.8.1"
 androidGradlePlugin = "8.8.2"
 
@@ -29,7 +29,7 @@ firebase-messaging = "24.1.2"
 support-design = "28.0.0"
 
 # Compose
-compose-compiler = "1.4.4"
+compose-compiler = "1.5.15"
 
 # Other Libraries
 # 2.7 以降は kotlin 2 系でコンパイルされているので 2.6 で止める

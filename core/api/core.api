@@ -151,6 +151,7 @@ public abstract class io/karte/android/core/config/OperationMode : java/lang/Enu
 	public static final field DEFAULT Lio/karte/android/core/config/OperationMode;
 	public static final field INGEST Lio/karte/android/core/config/OperationMode;
 	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public abstract fun getTrackEndpointPath ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lio/karte/android/core/config/OperationMode;
 	public static fun values ()[Lio/karte/android/core/config/OperationMode;
@@ -218,6 +219,7 @@ public final class io/karte/android/core/logger/LogLevel : java/lang/Enum {
 	public static final field OFF Lio/karte/android/core/logger/LogLevel;
 	public static final field VERBOSE Lio/karte/android/core/logger/LogLevel;
 	public static final field WARN Lio/karte/android/core/logger/LogLevel;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lio/karte/android/core/logger/LogLevel;
 	public static fun values ()[Lio/karte/android/core/logger/LogLevel;
 }
@@ -384,6 +386,7 @@ public final class io/karte/android/tracking/MessageEventName : java/lang/Enum, 
 	public static final field MessageOpen Lio/karte/android/tracking/MessageEventName;
 	public static final field MessageReady Lio/karte/android/tracking/MessageEventName;
 	public static final field MessageSuppressed Lio/karte/android/tracking/MessageEventName;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public fun getValue ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lio/karte/android/tracking/MessageEventName;
 	public static fun values ()[Lio/karte/android/tracking/MessageEventName;
@@ -395,6 +398,7 @@ public final class io/karte/android/tracking/MessageEventType : java/lang/Enum {
 	public static final field Open Lio/karte/android/tracking/MessageEventType;
 	public static final field Ready Lio/karte/android/tracking/MessageEventType;
 	public static final field Suppressed Lio/karte/android/tracking/MessageEventType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun getEventName ()Lio/karte/android/tracking/MessageEventName;
 	public static fun valueOf (Ljava/lang/String;)Lio/karte/android/tracking/MessageEventType;
 	public static fun values ()[Lio/karte/android/tracking/MessageEventType;
