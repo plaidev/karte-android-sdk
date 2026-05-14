@@ -187,17 +187,17 @@
 
 # Releases - 2025.05.26
 
-### Debugger 1.0.0
-**🎉FEATURE**
-- イベントをわかりやすく管理画面で確認できるモジュールを公開しました
+### Core 2.30.0
+**🔨CHANGED**
+- Debuggerの実装のため、JSONRequestにgzipの有無のフラグを付与しました
 
 ### InAppMessaging 2.24.0
 **🔨CHANGED**
 - _is_edge_to_edge_enabledをイベント送信時に送るように変更しました
 
-### Core 2.30.0
-**🔨CHANGED**
-- Debuggerの実装のため、JSONRequestにgzipの有無のフラグを付与しました
+### Debugger 1.0.0
+**🎉FEATURE**
+- イベントをわかりやすく管理画面で確認できるモジュールを公開しました
 
 # Releases - 2025.05.14
 
@@ -227,11 +227,11 @@
 **🔨CHANGED**
 - ビルド時のKotlinのバージョンを1.8.10に上げました
 
-### Karte Gradle Plugin 2.7.0
+### InAppFrame 0.3.0
 **🔨CHANGED**
 - ビルド時のKotlinのバージョンを1.8.10に上げました
 
-### InAppFrame 0.3.0
+### Karte Gradle Plugin 2.7.0
 **🔨CHANGED**
 - ビルド時のKotlinのバージョンを1.8.10に上げました
 
@@ -243,10 +243,6 @@
 - アプリ側でURLを処理した場合はSDKのデフォルト処理をキャンセルできます
 
 # Releases - 2025.03.21
-
-### InAppFrame 0.1.0
-**🎉FEATURE**
-- アプリ内の特定の場所に任意の表示ができるようになりました
 
 ### Core 2.28.0
 **🔨CHANGED**
@@ -273,6 +269,10 @@
 **🔨CHANGED**
 - AGPの対応バージョンを8.1.1に上げました
 - minSdkを 16 -> 21 に変更しました
+
+### InAppFrame 0.1.0
+**🎉FEATURE**
+- アプリ内の特定の場所に任意の表示ができるようになりました
 
 # Releases - 2025.03.11
 
@@ -399,14 +399,14 @@
 
 # Releases - 2023.11.24
 
-### Karte Gradle Plugin  2.5.1
-**💊FIXED**
-- JDK 17でのビルドエラーに対応しました。
-
 ### InAppMessaging 2.17.0
 **💊FIXED**
 - タグv2利用時に、エレメントビルダー（β版）で作成した接客アクションで「アプリで確認」機能が動かない問題を修正しました。
 - InAppMessaging.resetAllをUIスレッド以外で呼び出すとクラッシュする不具合を修正しました。
+
+### Karte Gradle Plugin  2.5.1
+**💊FIXED**
+- JDK 17でのビルドエラーに対応しました。
 
 # Releases - 2023.08.18
 
