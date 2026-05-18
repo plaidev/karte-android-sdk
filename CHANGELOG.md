@@ -23,6 +23,7 @@
 **🔨CHANGED**
 - lintの警告を修正しました。
 - Kotlinバージョンを1.9.25に上げました。
+- targetSdk 33以上ではno-opである`WebSettings.setForceDark()`の呼び出しを削除しました。
 
 ### Notifications 2.18.0
 **💊FIXED**

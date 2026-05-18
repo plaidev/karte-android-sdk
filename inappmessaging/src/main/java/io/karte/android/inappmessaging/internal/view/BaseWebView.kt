@@ -36,7 +36,6 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
-import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.hardware.display.DisplayManagerCompat
@@ -76,11 +75,6 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
 
         if (BuildConfig.DEBUG) {
             setWebContentsDebuggingEnabled(true)
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Web版も合わせて接客側で対応ができるまではダークモードはオフにする
-            @Suppress("DEPRECATION")
-            settings.forceDark = WebSettings.FORCE_DARK_OFF
         }
 
         webViewClient = object : WebViewClient() {
