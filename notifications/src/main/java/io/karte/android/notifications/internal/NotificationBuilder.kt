@@ -33,10 +33,7 @@ private const val META_DATA_ICON_KEY = "io.karte.android.Tracker.notification_ic
 private const val META_DATA_LARGE_ICON_KEY = "io.karte.android.Tracker.notification_large_icon"
 private const val META_DATA_COLOR_KEY = "io.karte.android.Tracker.notification_color"
 
-internal class NotificationBuilder(
-    private val context: Context,
-    channelId: String
-) {
+internal class NotificationBuilder(private val context: Context, channelId: String) {
     private val builder = NotificationCompat.Builder(context, channelId)
 
     @Throws(PackageManager.NameNotFoundException::class)
@@ -113,14 +110,9 @@ internal class NotificationBuilder(
     fun build(): Notification = builder.build()
 
     companion object {
-        fun build(
-            context: Context,
-            channelId: String,
-            attributes: KarteAttributes
-        ): Notification {
-            return NotificationBuilder(context, channelId)
+        fun build(context: Context, channelId: String, attributes: KarteAttributes): Notification =
+            NotificationBuilder(context, channelId)
                 .setAttributes(attributes)
                 .build()
-        }
     }
 }

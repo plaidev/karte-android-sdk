@@ -123,9 +123,4 @@ enum class LogLevel {
     OFF
 }
 
-internal data class LogEvent(
-    val level: LogLevel,
-    val tag: String?,
-    val message: String,
-    val throwable: Throwable?
-)
+internal data class LogEvent(val level: LogLevel, val tag: String?, val message: String, val throwable: Throwable?)

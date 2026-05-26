@@ -74,9 +74,7 @@ private fun createRemoteConfigMessage(
 private fun createRemoteConfigCGMessage(
     campaignId: String = "sample_campaign",
     shortenId: String = "sample_shorten"
-): JSONObject {
-    return createControlGroupMessage(campaignId, shortenId, "remote_config")
-}
+): JSONObject = createControlGroupMessage(campaignId, shortenId, "remote_config")
 
 abstract class VariablesTestCase : RobolectricTestCase() {
     lateinit var server: MockWebServer
@@ -829,7 +827,6 @@ class VariablesTest {
 
         @Test
         fun 同名の変数がある場合は優先度の高い変数が適用されること() {
-
             enqMsgRespAndMsgOpenResp(
                 JSONArray().put(
                     createRemoteConfigMessage(
@@ -856,7 +853,6 @@ class VariablesTest {
 
         @Test
         fun 未実施の接客がある場合も変数が全て保存されること() {
-
             enqMsgRespAndMsgOpenResp(
                 JSONArray()
                     .put(
@@ -964,10 +960,7 @@ class VariablesTest {
     }
 
     class 接客配信イベントのトラッキング : VariablesTestCase() {
-        private fun <E> mapJsonArrayToArrayList(
-            array: JSONArray,
-            mapper: (JSONObject) -> E
-        ): ArrayList<E> {
+        private fun <E> mapJsonArrayToArrayList(array: JSONArray, mapper: (JSONObject) -> E): ArrayList<E> {
             val ret: ArrayList<E> = ArrayList()
             for (i in 0 until array.length()) ret.add(mapper(array.optJSONObject(i)))
             return ret
@@ -1312,7 +1305,9 @@ class VariablesTest {
             assertThat(events.length()).isEqualTo(2)
             assertThat(campaignIds).isEqualTo(arrayListOf(campaignId1, campaignId2))
             assertThat(shortenIds).isEqualTo(arrayListOf(shortenId1, shortenId2))
-            assertThat(responseIds).isEqualTo(arrayListOf("${responseTimestamp1}_$shortenId1", "${responseTimestamp2}_$shortenId2"))
+            assertThat(
+                responseIds
+            ).isEqualTo(arrayListOf("${responseTimestamp1}_$shortenId1", "${responseTimestamp2}_$shortenId2"))
             assertThat(responseTimestamps).isEqualTo(arrayListOf(responseTimestamp1, responseTimestamp2))
             assertThat(triggerEventHashes).isEqualTo(arrayListOf(triggerEventHash1, triggerEventHash2))
         }
@@ -1321,7 +1316,11 @@ class VariablesTest {
         fun 設定したvaluesが送信されること_Click_Map() {
             Variables.trackClick(
                 getVariables(),
-                HashMap<String, Any?>().apply { put("hoge", "fuga"); put("date", dateParam) })
+                HashMap<String, Any?>().apply {
+                    put("hoge", "fuga")
+                    put("date", dateParam)
+                }
+            )
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
@@ -1372,7 +1371,9 @@ class VariablesTest {
             assertThat(events.length()).isEqualTo(2)
             assertThat(campaignIds).isEqualTo(arrayListOf(campaignId1, campaignId2))
             assertThat(shortenIds).isEqualTo(arrayListOf(shortenId1, shortenId2))
-            assertThat(responseIds).isEqualTo(arrayListOf("${responseTimestamp1}_$shortenId1", "${responseTimestamp2}_$shortenId2"))
+            assertThat(
+                responseIds
+            ).isEqualTo(arrayListOf("${responseTimestamp1}_$shortenId1", "${responseTimestamp2}_$shortenId2"))
             assertThat(responseTimestamps).isEqualTo(arrayListOf(responseTimestamp1, responseTimestamp2))
             assertThat(triggerEventHashes).isEqualTo(arrayListOf(triggerEventHash1, triggerEventHash2))
         }
@@ -1381,7 +1382,11 @@ class VariablesTest {
         fun 設定したvaluesが送信されること_Open_Map() {
             Variables.trackOpen(
                 getVariables(),
-                HashMap<String, Any?>().apply { put("hoge", "fuga"); put("date", dateParam) })
+                HashMap<String, Any?>().apply {
+                    put("hoge", "fuga")
+                    put("date", dateParam)
+                }
+            )
             proceedBufferedCall()
 
             val events = JSONObject(server.takeRequest().parseBody()).getJSONArray("events")
@@ -1404,14 +1409,12 @@ class VariablesTest {
             assertLongValue(events, "date", expectedDateValue)
         }
 
-        private fun getVariables(): List<Variable> {
-            return listOf(
-                Variables.get(campaign1Var1.name),
-                Variables.get(campaign1Var2.name),
-                Variables.get(campaign2Var1.name),
-                Variables.get(campaign2Var2.name)
-            )
-        }
+        private fun getVariables(): List<Variable> = listOf(
+            Variables.get(campaign1Var1.name),
+            Variables.get(campaign1Var2.name),
+            Variables.get(campaign2Var1.name),
+            Variables.get(campaign2Var2.name)
+        )
 
         private fun assertRequest(events: JSONArray, expectedEventName: String) {
             assertThat(events.getJSONObject(0).getString("event_name")).isEqualTo(expectedEventName)

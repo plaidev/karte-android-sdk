@@ -21,9 +21,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONArray
 import org.json.JSONObject
 
-open class TrackerRequestDispatcher(
-    private val onTrack: ((RecordedRequest) -> MockResponse?)? = null
-) : Dispatcher() {
+open class TrackerRequestDispatcher(private val onTrack: ((RecordedRequest) -> MockResponse?)? = null) : Dispatcher() {
     protected val recordedRequests = mutableListOf<RecordedRequest>()
 
     final override fun dispatch(request: RecordedRequest): MockResponse {
@@ -39,9 +37,7 @@ open class TrackerRequestDispatcher(
         throw IllegalArgumentException("Unexpected request is coming to server.")
     }
 
-    open fun onRequest(path: String, request: RecordedRequest): MockResponse? {
-        return null
-    }
+    open fun onRequest(path: String, request: RecordedRequest): MockResponse? = null
 
     open fun onTrackRequest(request: RecordedRequest): MockResponse {
         onTrack?.invoke(request)?.let { return it }
@@ -53,18 +49,12 @@ open class TrackerRequestDispatcher(
         )
     }
 
-    fun trackedRequests(): List<RecordedRequest> {
-        return recordedRequests.filter { it.path?.contains("/track") == true }
-    }
+    fun trackedRequests(): List<RecordedRequest> = recordedRequests.filter { it.path?.contains("/track") == true }
 
-    fun ingestRequests(): List<RecordedRequest> {
-        return recordedRequests.filter { it.path?.contains("/ingest") == true }
-    }
+    fun ingestRequests(): List<RecordedRequest> = recordedRequests.filter { it.path?.contains("/ingest") == true }
 
-    fun trackedEvents(): List<JSONObject> {
-        return trackedRequests().map { JSONObject(it.parseBody()) }
-            .flatMap { it.getJSONArray("events").toList() }
-    }
+    fun trackedEvents(): List<JSONObject> = trackedRequests().map { JSONObject(it.parseBody()) }
+        .flatMap { it.getJSONArray("events").toList() }
 
     fun clearHistory() {
         recordedRequests.clear()

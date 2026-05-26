@@ -31,9 +31,8 @@ import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import kotlin.test.assertNotNull
 
-private fun TrackerTestCase.tokenEvent(): JSONObject {
-    return JSONObject(server.takeRequest().parseBody()).getJSONArray("events").getJSONObject(0)
-}
+private fun TrackerTestCase.tokenEvent(): JSONObject =
+    JSONObject(server.takeRequest().parseBody()).getJSONArray("events").getJSONObject(0)
 
 @Suppress("NonAsciiCharacters")
 @RunWith(Enclosed::class)
@@ -51,8 +50,12 @@ class TokenEventTest {
                 val event = tokenEvent()
                 assertNotNull(event, "plugin_native_app_identifyがtrackサーバに送信されること")
                 val eventValues = event.getJSONObject("values")
-                Truth.assertWithMessage("FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること").that(eventValues.getString("fcm_token")).isEqualTo("dummy_fcm_token")
-                Truth.assertWithMessage("通知の可否がsubscribeパラメータとしてtrackサーバに送信されること").that(eventValues.getString("subscribe")).isEqualTo("true")
+                Truth.assertWithMessage(
+                    "FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること"
+                ).that(eventValues.getString("fcm_token")).isEqualTo("dummy_fcm_token")
+                Truth.assertWithMessage(
+                    "通知の可否がsubscribeパラメータとしてtrackサーバに送信されること"
+                ).that(eventValues.getString("subscribe")).isEqualTo("true")
             }
         }
 
@@ -67,8 +70,12 @@ class TokenEventTest {
                 val event = tokenEvent()
                 assertNotNull(event, "plugin_native_app_identifyがtrackサーバに送信されること")
                 val eventValues = event.getJSONObject("values")
-                Truth.assertWithMessage("FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること").that(eventValues.getString("fcm_token")).isEqualTo("dummy_fcm_token")
-                Truth.assertWithMessage("通知の可否がsubscribeパラメータとしてtrackサーバに送信されること").that(eventValues.getString("subscribe")).isEqualTo("false")
+                Truth.assertWithMessage(
+                    "FCMトークンがfcm_tokenパラメータとしてtrackサーバに送信されること"
+                ).that(eventValues.getString("fcm_token")).isEqualTo("dummy_fcm_token")
+                Truth.assertWithMessage(
+                    "通知の可否がsubscribeパラメータとしてtrackサーバに送信されること"
+                ).that(eventValues.getString("subscribe")).isEqualTo("false")
             }
         }
     }

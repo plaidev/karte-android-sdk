@@ -26,14 +26,12 @@ private val NUM_MATCHER = "[0-9]+".toRegex()
 /**
  * actionIdからView階層のパスを示すindex配列を返す。（例: View1View0からは、[0,1]が返される）
  */
-internal fun viewPathIndices(actionId: String?): IntArray? {
-    return actionId?.let { id ->
-        NUM_MATCHER.findAll(id).mapNotNull { it.value.toIntOrNull() }
-            // 元々reversedが使われていたが、compileSDK=36で、java.lang.NoSuchMethodErrorが出るようになった。
-            // kotlinのバグではないかという指摘があるが、解決していない。
-            // https://issuetracker.google.com/issues/350432371#comment23
-            .toList().asReversed().toIntArray()
-    }
+internal fun viewPathIndices(actionId: String?): IntArray? = actionId?.let { id ->
+    NUM_MATCHER.findAll(id).mapNotNull { it.value.toIntOrNull() }
+        // 元々reversedが使われていたが、compileSDK=36で、java.lang.NoSuchMethodErrorが出るようになった。
+        // kotlinのバグではないかという指摘があるが、解決していない。
+        // https://issuetracker.google.com/issues/350432371#comment23
+        .toList().asReversed().toIntArray()
 }
 
 /**
@@ -88,18 +86,21 @@ internal fun getActionId(view: View?): String? {
             var i = 0
             while (i < parent.childCount) {
                 val v = parent.getChildAt(i)
-                if (v === target)
+                if (v === target) {
                     sb.append(i)
+                }
                 i++
             }
         }
 
         target = when (parent) {
             is View -> parent
+
             is ViewParent -> {
                 sb.append(parent.javaClass.name)
                 null
             }
+
             else -> null
         }
     }

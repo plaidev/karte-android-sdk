@@ -85,9 +85,7 @@ internal class FileChooserDeprecatedFragment : DeprecatedFragment() {
 
     companion object {
 
-        fun newInstance(): FileChooserDeprecatedFragment {
-            return FileChooserDeprecatedFragment()
-        }
+        fun newInstance(): FileChooserDeprecatedFragment = FileChooserDeprecatedFragment()
     }
 } // Required empty public constructor
 
@@ -140,9 +138,7 @@ internal class FileChooserFragment : Fragment() {
 
     companion object {
 
-        fun newInstance(): FileChooserFragment {
-            return FileChooserFragment()
-        }
+        fun newInstance(): FileChooserFragment = FileChooserFragment()
 
         fun showFileChooser(activity: Activity, filePathCallback: ValueCallback<Array<Uri>>): Boolean {
             val fileChooserListener = { uris: Array<Uri>? ->

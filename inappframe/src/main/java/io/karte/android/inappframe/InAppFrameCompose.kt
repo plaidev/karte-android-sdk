@@ -31,10 +31,7 @@ import kotlinx.coroutines.withContext
  * @param modifier Composeのmodifier
  */
 @Composable
-fun InAppFrameCompose(
-    placeId: String,
-    modifier: Modifier = Modifier
-) {
+fun InAppFrameCompose(placeId: String, modifier: Modifier = Modifier) {
     var inAppFrameData by remember { mutableStateOf<InAppFrameData?>(null) }
     var iafTracker by remember { mutableStateOf<IAFTracker?>(null) }
 
@@ -65,9 +62,7 @@ fun InAppFrameCompose(
  *
  * @param placeId 表示場所ID
  */
-/* ktlint-disable */
 suspend fun InAppFrame.Companion.loadComposeContent(placeId: String): (@Composable (Modifier) -> Unit)? {
-/* ktlint-enable */
     val variable = Variables.get("$PREFIX$placeId")
     try {
         val (inAppFrameData, iafTracker) = withContext(Dispatchers.IO) {
@@ -82,11 +77,7 @@ suspend fun InAppFrame.Companion.loadComposeContent(placeId: String): (@Composab
 }
 
 @Composable
-private fun InAppFrameContent(
-    inAppFrameData: InAppFrameData,
-    iafTracker: IAFTracker,
-    modifier: Modifier = Modifier
-) {
+private fun InAppFrameContent(inAppFrameData: InAppFrameData, iafTracker: IAFTracker, modifier: Modifier = Modifier) {
     val context = androidx.compose.ui.platform.LocalContext.current
 
     val onBannerClick = { url: String ->
@@ -106,21 +97,25 @@ private fun InAppFrameContent(
                 tracker = iafTracker,
                 onBannerClick = onBannerClick
             )
+
             is CarouselWithMarginV1 -> CarouselWithMarginCompose(
                 carouselWithMargin = inAppFrameData,
                 tracker = iafTracker,
                 onBannerClick = onBannerClick
             )
+
             is CarouselWithoutMarginV1 -> CarouselWithoutMarginCompose(
                 carouselWithoutMargin = inAppFrameData,
                 tracker = iafTracker,
                 onBannerClick = onBannerClick
             )
+
             is CarouselWithoutPagingV1 -> CarouselWithoutPagingCompose(
                 carouselWithoutPaging = inAppFrameData,
                 tracker = iafTracker,
                 onBannerClick = onBannerClick
             )
+
             is Empty -> {
                 // Empty component, nothing to render
             }

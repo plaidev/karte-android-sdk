@@ -86,7 +86,6 @@ class AndroidManifestTransform(private val androidManifestPath: String) {
     }
 
     private fun buildPairingActivityElement(schemes: List<String>): Element {
-
         val activityElement = document.createElement("activity").apply {
             setAttribute(
                 "$androidNsPrefix:name",

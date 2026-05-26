@@ -35,7 +35,12 @@ import java.lang.ref.WeakReference
 
 private const val LOG_TAG = "Karte.IAMProcessor"
 
-internal class IAMProcessor(application: Application, private val panelWindowManager: PanelWindowManager, private val isAutoScreenBoundaryEnabled: Boolean) : ActivityLifecycleCallback(), WebViewDelegate {
+internal class IAMProcessor(
+    application: Application,
+    private val panelWindowManager: PanelWindowManager,
+    private val isAutoScreenBoundaryEnabled: Boolean
+) : ActivityLifecycleCallback(),
+    WebViewDelegate {
     private val container = WebViewContainer(application, this)
     private val webView: IAMWebView?
         get() = container.get()
@@ -183,6 +188,8 @@ internal class IAMProcessor(application: Application, private val panelWindowMan
 }
 
 private class WebViewContainer(private val application: Application, private val delegate: WebViewDelegate) {
+    // FIXME: Remove suppression.
+    @Suppress("ktlint:standard:backing-property-naming")
     private var _webView: IAMWebView? = null
     fun get(): IAMWebView? {
         if (_webView == null) {

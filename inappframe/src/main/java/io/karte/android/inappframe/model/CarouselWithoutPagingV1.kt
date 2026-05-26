@@ -33,17 +33,12 @@ internal data class CarouselWithoutPagingConfig(
     }
 }
 
-internal data class CarouselWithoutPagingContent(
-    val data: List<Image>,
-    val config: CarouselWithoutPagingConfig
-) {
+internal data class CarouselWithoutPagingContent(val data: List<Image>, val config: CarouselWithoutPagingConfig) {
     companion object {
-        suspend fun parseOrThrow(json: JSONObject): CarouselWithoutPagingContent {
-            return CarouselWithoutPagingContent(
-                data = Image.parseToListOrThrow(json),
-                config = CarouselWithoutPagingConfig.parseOrThrow(json)
-            )
-        }
+        suspend fun parseOrThrow(json: JSONObject): CarouselWithoutPagingContent = CarouselWithoutPagingContent(
+            data = Image.parseToListOrThrow(json),
+            config = CarouselWithoutPagingConfig.parseOrThrow(json)
+        )
     }
 }
 
@@ -54,12 +49,10 @@ internal data class CarouselWithoutPagingV1(
 ) : InAppFrameData() {
     companion object {
         const val TEMPLATE_TYPE = "carouselWithoutPaging"
-        suspend fun parseOrThrow(json: JSONObject): CarouselWithoutPagingV1 {
-            return CarouselWithoutPagingV1(
-                componentType = parseComponentTypeOrThrow(json),
-                version = parseVersionOrThrow(json),
-                content = CarouselWithoutPagingContent.parseOrThrow(json)
-            )
-        }
+        suspend fun parseOrThrow(json: JSONObject): CarouselWithoutPagingV1 = CarouselWithoutPagingV1(
+            componentType = parseComponentTypeOrThrow(json),
+            version = parseVersionOrThrow(json),
+            content = CarouselWithoutPagingContent.parseOrThrow(json)
+        )
     }
 }

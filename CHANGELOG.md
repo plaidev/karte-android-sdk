@@ -2,14 +2,60 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- |:---------|
-| core | イベントトラッキング機能を提供します。 | 2.33.0   |
-| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.26.0   |
-| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.17.0   |
-| variables | 設定値配信機能を提供します。 | 2.12.0   |
-| visualtracking | ビジュアルトラッキング機能を提供します。| 2.14.0   |
-| inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.7.0    |
-| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.8.0    |
-| debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.3.0    |
+| core | イベントトラッキング機能を提供します。 | 2.34.0   |
+| inappmessaging | アプリ内メッセージ機能を提供します。 | 2.27.0   |
+| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.18.0   |
+| variables | 設定値配信機能を提供します。 | 2.13.0   |
+| visualtracking | ビジュアルトラッキング機能を提供します。| 2.15.0   |
+| inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.8.0    |
+| Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.9.0    |
+| debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.4.0    |
+
+# Releases - 2026.05.26
+
+### Core 2.34.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+- サポート改善のためにWebView連携実行時のデバッグログを追加しました。
+- Kotlinバージョンを1.9.25に上げました。
+
+### InAppMessaging 2.27.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
+- targetSdk 33以上ではno-opである`WebSettings.setForceDark()`の呼び出しを削除しました。
+
+### Notifications 2.18.0
+**💊FIXED**
+- オプトアウト時にKARTE経由でFCMトークンの更新を行わないよう修正しました。
+
+**🔨CHANGED**
+- lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
+
+### Variables 2.13.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
+
+### VisualTracking 2.15.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
+
+### InAppFrame 0.8.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
+
+### Karte Gradle Plugin 2.9.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+
+### Debugger 1.4.0
+**🔨CHANGED**
+- lintの警告を修正しました。
+- Kotlinバージョンを1.9.25に上げました。
 
 # Releases - 2026.01.19
 
@@ -122,7 +168,7 @@
 ### Core 2.31.0
 **🎉FEATURE**
 - WebViewの情報を送るようになりました。
-  詳細は [イベントに自動追加されるフィールド](doc:appendix-fields-android-sdk-v2) をご覧ください。
+  詳細は [イベントに自動追加されるフィールド](https://app.developers.karte.io/android-sdk-appendix/appendix-fields-android-sdk) をご覧ください。
 
 ### Debugger 1.1.0
 **🔨CHANGED**
@@ -142,17 +188,17 @@
 
 # Releases - 2025.05.26
 
-### Debugger 1.0.0
-**🎉FEATURE**
-- イベントをわかりやすく管理画面で確認できるモジュールを公開しました
+### Core 2.30.0
+**🔨CHANGED**
+- Debuggerの実装のため、JSONRequestにgzipの有無のフラグを付与しました
 
 ### InAppMessaging 2.24.0
 **🔨CHANGED**
 - _is_edge_to_edge_enabledをイベント送信時に送るように変更しました
 
-### Core 2.30.0
-**🔨CHANGED**
-- Debuggerの実装のため、JSONRequestにgzipの有無のフラグを付与しました
+### Debugger 1.0.0
+**🎉FEATURE**
+- イベントをわかりやすく管理画面で確認できるモジュールを公開しました
 
 # Releases - 2025.05.14
 
@@ -182,11 +228,11 @@
 **🔨CHANGED**
 - ビルド時のKotlinのバージョンを1.8.10に上げました
 
-### Karte Gradle Plugin 2.7.0
+### InAppFrame 0.3.0
 **🔨CHANGED**
 - ビルド時のKotlinのバージョンを1.8.10に上げました
 
-### InAppFrame 0.3.0
+### Karte Gradle Plugin 2.7.0
 **🔨CHANGED**
 - ビルド時のKotlinのバージョンを1.8.10に上げました
 
@@ -198,10 +244,6 @@
 - アプリ側でURLを処理した場合はSDKのデフォルト処理をキャンセルできます
 
 # Releases - 2025.03.21
-
-### InAppFrame 0.1.0
-**🎉FEATURE**
-- アプリ内の特定の場所に任意の表示ができるようになりました
 
 ### Core 2.28.0
 **🔨CHANGED**
@@ -228,6 +270,10 @@
 **🔨CHANGED**
 - AGPの対応バージョンを8.1.1に上げました
 - minSdkを 16 -> 21 に変更しました
+
+### InAppFrame 0.1.0
+**🎉FEATURE**
+- アプリ内の特定の場所に任意の表示ができるようになりました
 
 # Releases - 2025.03.11
 
@@ -334,6 +380,7 @@
 ### Variables 2.5.0
 **🔨CHANGED**
 - 設定値配信で配信している全てのキーを返すgetAllKeysというメソッドを追加しました。
+  - [リファレンス](https://plaidev.github.io/karte-sdk-docs/ios/latest/KarteVariables/Classes/Variables.html#/c:@M@KarteVariables@objc(cs)KRTVariables(cm)getAllKeys)
 
 # Releases - 2024.01.31
 
@@ -353,14 +400,14 @@
 
 # Releases - 2023.11.24
 
-### Karte Gradle Plugin  2.5.1
-**💊FIXED**
-- JDK 17でのビルドエラーに対応しました。
-
 ### InAppMessaging 2.17.0
 **💊FIXED**
 - タグv2利用時に、エレメントビルダー（β版）で作成した接客アクションで「アプリで確認」機能が動かない問題を修正しました。
 - InAppMessaging.resetAllをUIスレッド以外で呼び出すとクラッシュする不具合を修正しました。
+
+### Karte Gradle Plugin  2.5.1
+**💊FIXED**
+- JDK 17でのビルドエラーに対応しました。
 
 # Releases - 2023.08.18
 
@@ -518,7 +565,7 @@
 **🔨CHANGED**
 - identifyイベントのuser_idとviewイベントのview_nameに空文字が指定された場合でも警告の出力のみでイベントが送信されるよう挙動を変更しました。
    - 尚、user_id無しで送信されたidentifyのフィールドがKARTE上で永続化されるかどうかは[ユーザーデータ管理](https://support.karte.io/post/6Uu930PTyQBc6SVAOEOTYp)プラグインの利用状況に依存します。
-   - user_id無しでユーザーに紐づく個人情報以外のフィールドをイベントに付与したい場合は[attribute関数](https://plaidev.github.io/karte-sdk-docs/android/core/latest/core/io.karte.android.tracking/-tracker/index.html#%5Bio.karte.android.tracking%2FTracker%2Fattribute%2F%23java.util.Map%3Cjava.lang.String%2C%3F%3E%2FPointingToDeclaration%2F%2C+io.karte.android.tracking%2FTracker%2Fattribute%2F%23org.json.JSONObject%2FPointingToDeclaration%2F%2C+io.karte.android.tracking%2FTracker%2Fattribute%2F%23java.util.Map%3Cjava.lang.String%2C%3F%3E%23io.karte.android.tracking.TrackCompletion%2FPointingToDeclaration%2F%2C+io.karte.android.tracking%2FTracker%2Fattribute%2F%23org.json.JSONObject%23io.karte.android.tracking.TrackCompletion%2FPointingToDeclaration%2F%5D%2FFunctions%2F96193845)を使用してください。
+   - user_id無しでユーザーに紐づく個人情報以外のフィールドをイベントに付与したい場合は[attribute関数](https://plaidev.github.io/karte-sdk-docs/android/core/latest/io.karte.android.tracking/-tracker/index.html#339832982%2FFunctions%2F-27209644)を使用してください。
 
 ### InAppMessaging 2.12.0
 **🔨CHANGED**
@@ -530,7 +577,7 @@
 ### Core 2.16.0
 **🎉FEATURE**
 - launchModeがsingleTopなど、再開時にintentが更新されないActivityでもKARTE SDKのDeeplink処理を行うためのAPIを追加しました。
-   - 詳細は[こちら](https://developers.karte.io/docs/appendix-relaunch-activity-android-sdk-v2)を確認してください。
+   - 詳細は[こちら](https://app.developers.karte.io/android-sdk-appendix/appendix-relaunch-activity-android-sdk)を確認してください。
 
 # Releases - 2022.02.21
 
@@ -556,7 +603,7 @@
 - identifyイベントにuser_idパラメータの付与を必須にしました。
 - identifyイベントのuser_idとviewイベントのview_nameに空文字が指定された場合に、イベントが送信されないようにしました。
 - イベント名とフィールド名に非推奨な名前が使われていた場合に、warningログを出力するようにしました。
-  - イベント名とフィールド名に関する制限については[こちら](https://developers.karte.io/docs/guide-event#%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88%E3%81%AE%E5%88%B6%E9%99%90)を参考ください。
+  - イベント名とフィールド名に関する制限については[こちら](https://support.karte.io/post/44VkfBjO7JdRnDv9YOfbFB)を参考ください。
 
 # Releases - 2021.10.15
 
@@ -776,7 +823,7 @@
 ### InAppMessaging 2.5.0
 **🎉FEATURE**
 - アクションを常駐させるオプションに対応しました。
-  詳細は[こちら](https://developers.karte.io/docs/appendix-iam-control-android-sdk-v2#%E3%82%A2%E3%83%97%E3%83%AA%E5%86%85%E3%83%A1%E3%83%83%E3%82%BB%E3%83%BC%E3%82%B8%E3%82%92%E5%B8%B8%E9%A7%90%E3%81%95%E3%81%9B%E3%82%8B)をご覧ください
+  詳細は[こちら](https://app.developers.karte.io/android-sdk-appendix/appendix-iam-control-android-sdk#apurimessjiwosaseru)をご覧ください
 
 ### Notifications 2.3.0
 **🎉FEATURE**
@@ -877,41 +924,41 @@
 ### Core 2.0.0
 **🎉FEATURE**
 - イベントの送信失敗時に再送が行われるようになりました。
-  詳細は [FAQ](doc:faq-android-sdk-v2#section-%E9%80%81%E4%BF%A1%E3%81%AB%E5%A4%B1%E6%95%97%E3%81%97%E3%81%9F%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88%E3%81%A9%E3%81%86%E3%81%AA%E3%82%8A%E3%81%BE%E3%81%99%E3%81%8B) をご覧ください。
+  詳細は [FAQ](https://app.developers.karte.io/app-faq/app-faq-support-for-resending) をご覧ください。
 - 画面サイズの情報を送るようになりました。
-  詳細は [イベントに自動追加されるフィールド](doc:appendix-fields-android-sdk-v2) をご覧ください。
+  詳細は [イベントに自動追加されるフィールド](https://app.developers.karte.io/android-sdk-appendix/appendix-fields-android-sdk) をご覧ください。
 - `native_app_open` 等のデフォルトイベントに任意のフィールドを付与できるようになりました。
 
 **🔨CHANGED**
 - インターフェースを全面的に見直しました。
-  詳細は [SDK v1からv2のアップグレード方法](doc:appendix-upgrade-android-sdk-v2) をご覧ください。
+  詳細は [SDK v1からv2のアップグレード方法](https://app.developers.karte.io/android-sdk-appendix/appendix-upgrade-android-sdk-v2) をご覧ください。
 - 複数アプリケーションキーへの対応を廃止しました。
 
 ### InAppMessaging 2.0.0
 **🎉FEATURE**
 - Window表示時にフォーカスを当てた状態で表示するかどうか設定できるようになりました。
 - Windowの表示や接客の表示・非表示を検知できるようになりました。
-  詳細は [アプリ内メッセージを表示する](doc:iam-android-sdk-v2#section-%E3%82%A2%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE%E7%8A%B6%E6%85%8B%E5%A4%89%E5%8C%96%E3%82%92%E6%A4%9C%E7%9F%A5%E3%81%99%E3%82%8B) をご覧ください。
+  詳細は [アプリ内メッセージの状態変化を検知する](https://app.developers.karte.io/android-sdk-appendix/appendix-iam-state-detection-android-sdk) をご覧ください。
 - アクションのリンクをクリックした時に、アクションを閉じないように設定することができるようになりました。
-  詳細は [アクションが非表示となる条件](doc:appendix-action-hidden-condition-android-sdk-v2#section-%E3%82%A2%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E5%86%85%E3%81%AE%E3%83%AA%E3%83%B3%E3%82%AF%E3%82%AF%E3%83%AA%E3%83%83%E3%82%AF%E3%81%AB%E3%82%88%E3%82%8B%E3%82%A2%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE%E9%9D%9E%E8%A1%A8%E7%A4%BA%E6%9D%A1%E4%BB%B6) をご覧ください。
+  詳細は [アプリ内メッセージが非表示となる条件](https://app.developers.karte.io/android-sdk-appendix/appendix-action-hidden-condition-android-sdk#apurimessjinorinkukurikkuniyoruapurimessjino) をご覧ください。
 
 **🔨CHANGED**
 - インターフェースを全面的に見直しました。
-  詳細は [SDK v1からv2のアップグレード方法](doc:appendix-upgrade-android-sdk-v2) をご覧ください。
+  詳細は [SDK v1からv2のアップグレード方法](https://app.developers.karte.io/android-sdk-appendix/appendix-upgrade-android-sdk-v2) をご覧ください。
 - 画面境界を自動で認識するようになりました。
-  詳細は [アプリ内メッセージを表示する](doc:iam-android-sdk-v2#section-%E3%82%A2%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%82%92%E8%A1%A8%E7%A4%BA%E3%81%99%E3%82%8B%E7%94%BB%E9%9D%A2%E3%82%92%E9%99%90%E5%AE%9A%E3%81%99%E3%82%8B) をご覧ください。
+  詳細は [画面の境界を認識する条件](https://app.developers.karte.io/android-sdk-appendix/concepts-screen-boundary-android-sdk) をご覧ください。
 - `location.href` による遷移時に `shouldOpenURL()` を呼び出すように変更しました。
 - WebViewのキャッシュ設定 `enabledWebViewCache` をデフォルトで `true` に変更しました。
 
 ### Notifications 2.0.0
 **🔨CHANGED**
 - インターフェースを全面的に見直しました。
-  詳細は [SDK v1からv2のアップグレード方法](doc:appendix-upgrade-android-sdk-v2) をご覧ください。
+  詳細は [SDK v1からv2のアップグレード方法](https://app.developers.karte.io/android-sdk-appendix/appendix-upgrade-android-sdk-v2) をご覧ください。
 
 ### Variables 2.0.0
 **🔨CHANGED**
 - インターフェースを全面的に見直しました。
-  詳細は [SDK v1からv2のアップグレード方法](doc:appendix-upgrade-android-sdk-v2) をご覧ください。
+  詳細は [SDK v1からv2のアップグレード方法](https://app.developers.karte.io/android-sdk-appendix/appendix-upgrade-android-sdk-v2) をご覧ください。
 
 ### VisualTracking 2.0.0
 **🎉FEATURE**

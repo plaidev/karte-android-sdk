@@ -16,7 +16,6 @@ import io.karte.android.notifications.registerFCMToken
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-
         val handled = MessageHandler.handleMessage(this, remoteMessage)
         if (!handled) {
             val data = remoteMessage.data
@@ -26,20 +25,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun sendNotification(
-        title: String?,
-        body: String?,
-        channel: String?
-    ) {
-
+    private fun sendNotification(title: String?, body: String?, channel: String?) {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
         var flag = PendingIntent.FLAG_ONE_SHOT
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M)
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             flag = flag.or(PendingIntent.FLAG_IMMUTABLE)
+        }
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent, flag
+            this,
+            0,
+            intent,
+            flag
         )
 
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)

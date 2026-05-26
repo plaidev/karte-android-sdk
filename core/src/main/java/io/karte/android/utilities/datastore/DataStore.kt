@@ -31,17 +31,22 @@ import io.karte.android.core.logger.Logger
 private const val LOG_TAG = "Karte.DataStore"
 
 @SuppressLint("DiscouragedApi")
-private fun getCursorWindowSize(): Int {
-    return runCatching {
-        Resources.getSystem().getInteger(
-            Resources.getSystem()
-                .getIdentifier("config_cursorWindowSize", "integer", "android")
-        ) * 1024
-    }.getOrNull() ?: 1024 * 1024
-}
+private fun getCursorWindowSize(): Int = runCatching {
+    Resources.getSystem().getInteger(
+        Resources.getSystem()
+            .getIdentifier("config_cursorWindowSize", "integer", "android")
+    ) * 1024
+}.getOrNull() ?: 1024 * 1024
 
 private class DbHelper(context: Context) :
-    SQLiteOpenHelper(context, "krt_cache.db", null, persistableContracts.sumOf { it.version }) {
+    SQLiteOpenHelper(
+        context,
+        "krt_cache.db",
+        null,
+        persistableContracts.sumOf {
+            it.version
+        }
+    ) {
     override fun onCreate(db: SQLiteDatabase) {
         persistableContracts.forEach { contract ->
             createTable(db, contract)
@@ -120,9 +125,7 @@ internal class DataStore private constructor(context: Context) {
         }
 
         //region Transactional
-        override fun transaction(): Transaction {
-            return Transaction(this, this)
-        }
+        override fun transaction(): Transaction = Transaction(this, this)
 
         override fun begin() {
             instance.dbHelper.writableDatabase.beginTransaction()
@@ -192,16 +195,18 @@ internal class DataStore private constructor(context: Context) {
                     repeat(cursor.count) {
                         cursor.moveToPosition(it)
                         val persistable =
-                            contract.create(cursor.columnNames.mapIndexed { index, s ->
-                                if (index == -1) return@mapIndexed s to null
-                                when (contract.columns[s]) {
-                                    Cursor.FIELD_TYPE_INTEGER -> s to cursor.getInt(index)
-                                    Cursor.FIELD_TYPE_STRING -> s to cursor.getString(index)
-                                    Cursor.FIELD_TYPE_FLOAT -> s to cursor.getDouble(index)
-                                    Cursor.FIELD_TYPE_BLOB -> s to cursor.getBlob(index)
-                                    else -> s to null
-                                }
-                            }.toMap())
+                            contract.create(
+                                cursor.columnNames.mapIndexed { index, s ->
+                                    if (index == -1) return@mapIndexed s to null
+                                    when (contract.columns[s]) {
+                                        Cursor.FIELD_TYPE_INTEGER -> s to cursor.getInt(index)
+                                        Cursor.FIELD_TYPE_STRING -> s to cursor.getString(index)
+                                        Cursor.FIELD_TYPE_FLOAT -> s to cursor.getDouble(index)
+                                        Cursor.FIELD_TYPE_BLOB -> s to cursor.getBlob(index)
+                                        else -> s to null
+                                    }
+                                }.toMap()
+                            )
                         val index = cursor.getColumnIndex(BaseColumns._ID)
                         persistable.id = cursor.getLong(index)
                         persistables.add(persistable)

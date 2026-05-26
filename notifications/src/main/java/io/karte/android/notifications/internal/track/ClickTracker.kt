@@ -49,6 +49,7 @@ internal object ClickTracker : DeepLinkModule, MessageTracker {
                     wrapper.shortenId,
                     wrapper.eventValues
                 )
+
                 wrapper.isMassPush -> trackMassPush(wrapper.eventValues)
             }
             wrapper.clean()

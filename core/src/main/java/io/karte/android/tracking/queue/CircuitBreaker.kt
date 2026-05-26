@@ -19,10 +19,7 @@ private const val TIME_RECOVER_AFTER_MS = 300000L
 
 internal fun getCurrentTimeMillisCB(): Long = System.currentTimeMillis()
 
-internal class CircuitBreaker(
-    private val threshold: Int = 3,
-    private val recoverAfter: Long = TIME_RECOVER_AFTER_MS
-) {
+internal class CircuitBreaker(private val threshold: Int = 3, private val recoverAfter: Long = TIME_RECOVER_AFTER_MS) {
     private var failureCount = 0
     private var lastFailedAt = -1L
 
@@ -33,7 +30,7 @@ internal class CircuitBreaker(
         }
 
     fun recordFailure() {
-        failureCount ++
+        failureCount++
         lastFailedAt = getCurrentTimeMillisCB()
     }
 

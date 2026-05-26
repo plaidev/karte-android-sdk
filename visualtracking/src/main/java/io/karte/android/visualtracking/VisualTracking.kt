@@ -50,7 +50,10 @@ private const val HEADER_IF_MODIFIED_SINCE = "X-KARTE-Auto-Track-If-Modified-Sin
 private const val HEADER_OS = "X-KARTE-Auto-Track-OS"
 private const val OS_ANDROID = "android"
 
-class VisualTracking : Library, ActionModule, TrackModule {
+class VisualTracking :
+    Library,
+    ActionModule,
+    TrackModule {
     //region Library
     override val name: String = "visualtracking"
     override val version: String = BuildConfig.LIB_VERSION
@@ -110,9 +113,7 @@ class VisualTracking : Library, ActionModule, TrackModule {
     override val eventRejectionFilterRules: List<TrackEventRejectionFilterRule>
         get() = emptyList()
 
-    override fun prepare(event: Event): Event {
-        return event
-    }
+    override fun prepare(event: Event): Event = event
 
     override fun intercept(request: TrackRequest): TrackRequest {
         setHeader(request)
@@ -152,35 +153,35 @@ class VisualTracking : Library, ActionModule, TrackModule {
         if (definitions == null) return
 
         val traceValues = trace.values
-        executor.execute(Runnable {
-            Logger.d(LOG_TAG, "Handling trace: $traceValues")
-            val events: List<JSONObject>
-            try {
-                synchronized(DefinitionList::class.java) {
-                    events = definitions!!.traceToEvents(
-                        traceValues,
-                        currentActiveActivity?.get()?.window
-                    )
-                }
-            } catch (e: Exception) {
-                Logger.w(LOG_TAG, "Failed to check VT event.", e)
-                return@Runnable
-            }
-
-            for (event in events) {
+        executor.execute(
+            Runnable {
+                Logger.d(LOG_TAG, "Handling trace: $traceValues")
+                val events: List<JSONObject>
                 try {
-                    Tracker.track(event.getString("event_name"), event.getJSONObject("values"))
+                    synchronized(DefinitionList::class.java) {
+                        events = definitions!!.traceToEvents(
+                            traceValues,
+                            currentActiveActivity?.get()?.window
+                        )
+                    }
                 } catch (e: Exception) {
-                    Logger.e(LOG_TAG, "Failed to send VT event.", e)
+                    Logger.w(LOG_TAG, "Failed to check VT event.", e)
+                    return@Runnable
+                }
+
+                for (event in events) {
+                    try {
+                        Tracker.track(event.getString("event_name"), event.getJSONObject("values"))
+                    } catch (e: Exception) {
+                        Logger.e(LOG_TAG, "Failed to send VT event.", e)
+                    }
                 }
             }
-        })
+        )
     }
 
     /** DefinitionList取得APIを1秒の遅延実行. リトライはしない. */
-    internal fun getDefinitions(
-        executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
-    ) {
+    internal fun getDefinitions(executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()) {
         executor.schedule({
             Logger.d(LOG_TAG, "getDefinitions")
             GetDefinitions.get(app, { request -> setHeader(request) }) { result ->

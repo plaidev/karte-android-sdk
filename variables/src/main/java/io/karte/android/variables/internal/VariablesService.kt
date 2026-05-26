@@ -40,7 +40,10 @@ import org.json.JSONObject
 private const val LOG_TAG = "Karte.Variables"
 private const val REPOSITORY_NAMESPACE_VARIABLES = "Variables_"
 
-internal class VariablesService : Library, ActionModule, UserModule {
+internal class VariablesService :
+    Library,
+    ActionModule,
+    UserModule {
 
     internal companion object {
         private var self: VariablesService? = null
@@ -66,22 +69,20 @@ internal class VariablesService : Library, ActionModule, UserModule {
         }
 
         @JvmStatic
-        fun getAllKeys(): List<String> =
-            self?.repository?.getAllKeys() ?: run {
-                Logger.e(LOG_TAG, "Repository not found.")
-                emptyList()
-            }
+        fun getAllKeys(): List<String> = self?.repository?.getAllKeys() ?: run {
+            Logger.e(LOG_TAG, "Repository not found.")
+            emptyList()
+        }
 
         @JvmStatic
-        fun filter(predicate: VariablesPredicate<String>): List<Variable> =
-            self?.repository?.getAllKeys()?.filter {
-                predicate.test(it)
-            }?.map {
-                get(it)
-            } ?: run {
-                Logger.e(LOG_TAG, "Repository not found.")
-                emptyList()
-            }
+        fun filter(predicate: VariablesPredicate<String>): List<Variable> = self?.repository?.getAllKeys()?.filter {
+            predicate.test(it)
+        }?.map {
+            get(it)
+        } ?: run {
+            Logger.e(LOG_TAG, "Repository not found.")
+            emptyList()
+        }
 
         @JvmStatic
         fun clearCacheAll() {
@@ -136,30 +137,43 @@ internal class VariablesService : Library, ActionModule, UserModule {
         }
     }
 
-    private fun track(type: MessageEventType, campaignId: String, shortenId: String, values: Values?, timestamp: String?, eventHash: String?) {
-        var base = (values ?: mapOf()).merge(mapOf(
-            "message" to mapOf(
-                "frequency_type" to "access"
+    private fun track(
+        type: MessageEventType,
+        campaignId: String,
+        shortenId: String,
+        values: Values?,
+        timestamp: String?,
+        eventHash: String?
+    ) {
+        var base = (values ?: mapOf()).merge(
+            mapOf(
+                "message" to mapOf(
+                    "frequency_type" to "access"
+                )
             )
-        ))
+        )
 
         timestamp?.let {
-            base = base.merge(mapOf(
-                "message" to mapOf(
-                    "response_id" to "${it}_$shortenId",
-                    "response_timestamp" to it
+            base = base.merge(
+                mapOf(
+                    "message" to mapOf(
+                        "response_id" to "${it}_$shortenId",
+                        "response_timestamp" to it
+                    )
                 )
-            ))
+            )
         }
 
         eventHash?.let {
-            base = base.merge(mapOf(
-                "message" to mapOf(
-                    "trigger" to mapOf(
-                        "event_hashes" to eventHash
+            base = base.merge(
+                mapOf(
+                    "message" to mapOf(
+                        "trigger" to mapOf(
+                            "event_hashes" to eventHash
+                        )
                     )
                 )
-            ))
+            )
         }
 
         Tracker.track(MessageEvent(type, campaignId, shortenId, base))
@@ -249,9 +263,8 @@ internal class VariablesService : Library, ActionModule, UserModule {
     //endregion
 }
 
-private class FetchVariablesEvent :
-    Event(VariablesEventName.FetchVariables, values = null, isRetryable = false)
+private class FetchVariablesEvent : Event(VariablesEventName.FetchVariables, values = null, isRetryable = false)
 
 private enum class VariablesEventName(override val value: String) : EventName {
-    FetchVariables("_fetch_variables"),
+    FetchVariables("_fetch_variables")
 }

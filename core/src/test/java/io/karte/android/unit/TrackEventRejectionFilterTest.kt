@@ -39,13 +39,8 @@ class TrackEventRejectionFilterTest {
         Assert.assertFalse(filter.reject(e4))
     }
 
-    class TestRejectionRule(
-        override var libraryName: String,
-        override var eventName: EventName,
-        var value: String
-    ) : TrackEventRejectionFilterRule {
-        override fun reject(event: Event): Boolean {
-            return event.values.optString("f1") != value
-        }
+    class TestRejectionRule(override var libraryName: String, override var eventName: EventName, var value: String) :
+        TrackEventRejectionFilterRule {
+        override fun reject(event: Event): Boolean = event.values.optString("f1") != value
     }
 }

@@ -45,10 +45,12 @@ internal class VisitorId(private val repository: Repository) : IdContainer {
         Tracker.track(RenewVisitorIdEvent(oldVisitorId = oldVisitorId))
 
         KarteApp.self.modules.forEach {
-            if (it is UserModule) it.renewVisitorId(
-                newVisitorId,
-                oldVisitorId
-            )
+            if (it is UserModule) {
+                it.renewVisitorId(
+                    newVisitorId,
+                    oldVisitorId
+                )
+            }
         }
         return newVisitorId
     }

@@ -26,8 +26,12 @@ import org.json.JSONObject
 
 private const val LOG_TAG = "Karte.IAMessages"
 
-internal class MessageModel @Throws(JSONException::class)
-constructor(private val data: JSONObject?, private val request: TrackRequest) {
+internal class MessageModel
+@Throws(JSONException::class)
+constructor(
+    private val data: JSONObject?,
+    private val request: TrackRequest
+) {
 
     val string: String
         get() = runCatching {
@@ -73,48 +77,41 @@ constructor(private val data: JSONObject?, private val request: TrackRequest) {
     }
 
     @Throws(JSONException::class)
-    fun shouldLoad(): Boolean {
-        return messages.any {
-            it.getJSONObject("campaign").getString("service_action_type") != "remote_config"
-        }
+    fun shouldLoad(): Boolean = messages.any {
+        it.getJSONObject("campaign").getString("service_action_type") != "remote_config"
     }
 
-    fun shouldFocus(): Boolean {
-        return try {
-            messages.any {
-                it.getJSONObject("action").getBoolean("native_app_window_focusable")
-            }
-        } catch (e: JSONException) {
-            Logger.d(LOG_TAG, "Failed to parse json.")
-            false
+    fun shouldFocus(): Boolean = try {
+        messages.any {
+            it.getJSONObject("action").getBoolean("native_app_window_focusable")
         }
+    } catch (e: JSONException) {
+        Logger.d(LOG_TAG, "Failed to parse json.")
+        false
     }
 
-    fun shouldFocusCrossDisplayCampaign(): Boolean {
-        return try {
-            messages.any {
-                it.getJSONObject("action").getBoolean("native_app_window_focusable") &&
-                    it.getJSONObject("campaign").getBoolean("native_app_cross_display_mode")
-            }
-        } catch (e: JSONException) {
-            Logger.d(LOG_TAG, "Failed to parse json.")
-            false
+    fun shouldFocusCrossDisplayCampaign(): Boolean = try {
+        messages.any {
+            it.getJSONObject("action").getBoolean("native_app_window_focusable") &&
+                it.getJSONObject("campaign").getBoolean("native_app_cross_display_mode")
         }
+    } catch (e: JSONException) {
+        Logger.d(LOG_TAG, "Failed to parse json.")
+        false
     }
 
-    override fun toString(): String {
-        return "Messages: ${
-            messages.joinToString { message ->
-                val action = message.optJSONObject("action")
-                JSONObject()
-                    .put(
-                        "action", JSONObject()
-                            .put("_id", action?.optString("_id"))
-                            .put("shorten_id", action?.optString("shorten_id"))
-                    )
-                    .put("campaign", message.optJSONObject("campaign"))
-                    .toString()
-            }
-        }"
-    }
+    override fun toString(): String = "Messages: ${
+        messages.joinToString { message ->
+            val action = message.optJSONObject("action")
+            JSONObject()
+                .put(
+                    "action",
+                    JSONObject()
+                        .put("_id", action?.optString("_id"))
+                        .put("shorten_id", action?.optString("shorten_id"))
+                )
+                .put("campaign", message.optJSONObject("campaign"))
+                .toString()
+        }
+    }"
 }

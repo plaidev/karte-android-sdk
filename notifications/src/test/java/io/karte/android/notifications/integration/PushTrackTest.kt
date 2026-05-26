@@ -52,9 +52,7 @@ abstract class PushTrackerTestCase : TrackerTestCase() {
         server.dispatcher = dispatcher
     }
 
-    fun event(name: String): JSONObject? {
-        return dispatcher.trackedEvents().firstOrNull { it.getString("event_name") == name }
-    }
+    fun event(name: String): JSONObject? = dispatcher.trackedEvents().firstOrNull { it.getString("event_name") == name }
 
     fun handleMessageBySDK(data: HashMap<String, String>) {
         manager.setPermission(true)

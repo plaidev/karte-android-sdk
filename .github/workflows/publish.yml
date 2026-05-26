@@ -74,7 +74,10 @@ jobs:
     if: github.repository != 'plaidev/karte-android-sdk' && (github.ref == 'refs/heads/master' || github.event.inputs.mode == 'dry-run')
     # NOTE: Using larger runner since publish runs infrequently and should complete quickly.
     runs-on: ubuntu-22.04-8core
-    timeout-minutes: 60
+    # NOTE: Each module's Sonatype close/release can take 10-30 minutes (up to 40 min with timeout setting).
+    # With multiple modules potentially being published, we need sufficient time.
+    # See: https://vanniktech.github.io/gradle-maven-publish-plugin/central/#publishing-releases
+    timeout-minutes: 180
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -98,6 +101,7 @@ jobs:
           repositories: |
             karte-android-sdk
             karte-android-dev
+            karte-app-dev-docs
       - name: Configure Git
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -164,6 +168,12 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           gh workflow run publish-release-notes.yml --ref master
+      - name: Trigger sync Android SDK changelog
+        if: env.MODE == 'release'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh workflow run sync-android-sdk-changelog.yml --repo plaidev/karte-app-dev-docs --ref main
       - name: Trigger deploy-release-feed workflow
         if: env.MODE == 'release' && steps.publish.outputs.published == 'true'
         env:

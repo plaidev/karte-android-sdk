@@ -19,26 +19,21 @@ import android.content.Context
 
 private const val PREF_NAME_PREFIX = "io.karte.android.tracker.Data_"
 
-internal class PreferenceRepository internal constructor(
-    context: Context,
-    appKey: String,
-    namespace: String = ""
-) : Repository {
+internal class PreferenceRepository internal constructor(context: Context, appKey: String, namespace: String = "") :
+    Repository {
 
     private val prefs =
         context.getSharedPreferences("$PREF_NAME_PREFIX$namespace$appKey", Context.MODE_PRIVATE)
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: String, default: T): T {
-        return when (default) {
-            is String? -> prefs.getString(key, default) as T
-            is Int -> prefs.getInt(key, default) as T
-            is Long -> prefs.getLong(key, default) as T
-            is Float -> prefs.getFloat(key, default) as T
-            is Double -> prefs.getFloat(key, default.toFloat()) as T
-            is Boolean -> prefs.getBoolean(key, default) as T
-            else -> default
-        }
+    override fun <T> get(key: String, default: T): T = when (default) {
+        is String? -> prefs.getString(key, default) as T
+        is Int -> prefs.getInt(key, default) as T
+        is Long -> prefs.getLong(key, default) as T
+        is Float -> prefs.getFloat(key, default) as T
+        is Double -> prefs.getFloat(key, default.toFloat()) as T
+        is Boolean -> prefs.getBoolean(key, default) as T
+        else -> default
     }
 
     override fun <T> put(key: String, value: T) {

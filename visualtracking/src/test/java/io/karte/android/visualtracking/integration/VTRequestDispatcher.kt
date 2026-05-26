@@ -30,25 +30,28 @@ class VTRequestDispatcher(vararg definitions: JSONObject, private val lastModifi
             val response = if (isModified(request)) autoTrackDefinition else JSONObject()
             return MockResponse().setBody(JSONObject().put("response", response).toString())
         }
-        if (path.contains("/auto-track"))
+        if (path.contains("/auto-track")) {
             return MockResponse()
+        }
         return super.onRequest(path, request)
     }
 
     override fun onTrackRequest(request: RecordedRequest): MockResponse {
-        if (isModified(request))
+        if (isModified(request)) {
             return MockResponse().setBody(
                 JSONObject()
                     .put(
-                        "response", JSONObject()
+                        "response",
+                        JSONObject()
                             .put("auto_track_definition", autoTrackDefinition)
                     ).toString()
             )
+        }
         return super.onTrackRequest(request)
     }
 
-    fun autoTrackRequests(): List<RecordedRequest> {
-        return recordedRequests.filter { it.path?.contains("/auto-track") == true }
+    fun autoTrackRequests(): List<RecordedRequest> = recordedRequests.filter {
+        it.path?.contains("/auto-track") == true
     }
 
     private fun isModified(request: RecordedRequest): Boolean {

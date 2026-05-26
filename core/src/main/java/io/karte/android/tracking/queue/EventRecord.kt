@@ -67,25 +67,21 @@ internal class EventRecord() : Persistable() {
             STATE to Cursor.FIELD_TYPE_INTEGER
         )
 
-        override fun create(map: Map<String, Any?>): EventRecord {
-            return EventRecord().apply {
-                values.putAll(map)
-            }
+        override fun create(map: Map<String, Any?>): EventRecord = EventRecord().apply {
+            values.putAll(map)
         }
     }
 
     override val contract = EventContract
 
-    override fun onPersisted(): Map<String, Any?> {
-        return mapOf(
-            EventContract.VISITOR_ID to visitorId,
-            EventContract.ORIGINAL_PV_ID to originalPvId,
-            EventContract.PV_ID to pvId,
-            EventContract.EVENT to values[EventContract.EVENT] as String,
-            EventContract.RETRY to retry,
-            EventContract.STATE to values[EventContract.STATE] as Int
-        )
-    }
+    override fun onPersisted(): Map<String, Any?> = mapOf(
+        EventContract.VISITOR_ID to visitorId,
+        EventContract.ORIGINAL_PV_ID to originalPvId,
+        EventContract.PV_ID to pvId,
+        EventContract.EVENT to values[EventContract.EVENT] as String,
+        EventContract.RETRY to retry,
+        EventContract.STATE to values[EventContract.STATE] as Int
+    )
 
     /** パフォーマンス優先で簡易的にlengthで計算する.
      * マルチバイト文字列だと溢れるが許容する. */

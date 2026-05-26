@@ -65,14 +65,13 @@ private const val WINDOW_FLAGS_UNFOCUSED = (
     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
         or WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
         or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-        or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+        or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+    )
 
 @SuppressLint("ViewConstructor")
-internal open class WindowView(
-    activity: Activity,
-    private val panelWindowManager: PanelWindowManager
-) :
-    FrameLayout(activity), ViewTreeObserver.OnGlobalLayoutListener {
+internal open class WindowView(activity: Activity, private val panelWindowManager: PanelWindowManager) :
+    FrameLayout(activity),
+    ViewTreeObserver.OnGlobalLayoutListener {
 
     private val appWindow: Window = activity.window
     private val windowManager: WindowManager = activity.windowManager
@@ -121,10 +120,12 @@ internal open class WindowView(
     }
 
     private val isActivityNotRenewedOnRotate: Boolean = runCatching {
-        (activity.packageManager.getActivityInfo(
-            activity.componentName,
-            PackageManager.GET_META_DATA
-        ).configChanges and ActivityInfo.CONFIG_ORIENTATION) == ActivityInfo.CONFIG_ORIENTATION
+        (
+            activity.packageManager.getActivityInfo(
+                activity.componentName,
+                PackageManager.GET_META_DATA
+            ).configChanges and ActivityInfo.CONFIG_ORIENTATION
+            ) == ActivityInfo.CONFIG_ORIENTATION
     }.getOrDefault(false)
 
     init {
@@ -322,8 +323,9 @@ internal open class WindowView(
             // childrenがconsumeするか確認する
             for (i in 0 until childCount) {
                 val child = getChildAt(i)
-                if (child.dispatchKeyEvent(event))
+                if (child.dispatchKeyEvent(event)) {
                     return true
+                }
             }
             decorView?.dispatchKeyEvent(KeyEvent(event))
             // Check ACTION_UP because when changing focus during event sequence, event not handled properly.
@@ -385,8 +387,7 @@ internal open class WindowView(
     }
 
     // hideSoftInputFromWindowに渡したResultReceiverは強参照で長く保持されるため、static classとWeakReferenceを使う.
-    private class ResultReceiverToReshow internal constructor(handler: Handler?, view: View) :
-        ResultReceiver(handler) {
+    private class ResultReceiverToReshow internal constructor(handler: Handler?, view: View) : ResultReceiver(handler) {
         private val viewRef: WeakReference<View> = WeakReference(view)
 
         override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
@@ -495,7 +496,7 @@ internal open class WindowView(
             setMeasuredDimension(width, height)
 
             val measuringHeight = calcMeasuringHeight()
-            for (i in 0 until childCount)
+            for (i in 0 until childCount) {
                 getChildAt(i).measure(
                     MeasureSpec.makeMeasureSpec(
                         width - paddingLeft - paddingRight,
@@ -503,41 +504,40 @@ internal open class WindowView(
                     ),
                     MeasureSpec.makeMeasureSpec(measuringHeight, MeasureSpec.EXACTLY)
                 )
+            }
         } catch (e: Exception) {
             Logger.e(LOG_TAG, "Failed to measure", e)
         }
     }
 
-    private fun calcMeasuringHeight(): Int {
-        return if (InAppMessaging.isEdgeToEdgeEnabled) {
-            drawingHeight
-        } else {
-            val childTop: Int
-            val childBottom: Int
-            if (appSoftInputModeIsNothing) {
-                // appWindowのsoft_input_modeがadjust_nothingの場合、contentViewVisibleRectからkeyboardの高さが引かれない
-                // この場合はiamViewをcontentView(padding抜き)と同じ高さにし、webViewからkeyboardの高さを引く
-                // iamViewVisibleRect.topはiamViewのyに関わらず0を返すことがあるため、bottomからyを引く
-                childTop = if (isStatusBarOverlaid) {
-                    top + paddingTop
-                } else {
-                    locationOnScreen[1]
-                }
-                childBottom = drawingHeight
+    private fun calcMeasuringHeight(): Int = if (InAppMessaging.isEdgeToEdgeEnabled) {
+        drawingHeight
+    } else {
+        val childTop: Int
+        val childBottom: Int
+        if (appSoftInputModeIsNothing) {
+            // appWindowのsoft_input_modeがadjust_nothingの場合、contentViewVisibleRectからkeyboardの高さが引かれない
+            // この場合はiamViewをcontentView(padding抜き)と同じ高さにし、webViewからkeyboardの高さを引く
+            // iamViewVisibleRect.topはiamViewのyに関わらず0を返すことがあるため、bottomからyを引く
+            childTop = if (isStatusBarOverlaid) {
+                top + paddingTop
             } else {
-                childTop = if (isStatusBarOverlaid) {
-                    contentView.top + contentView.paddingTop
-                } else {
-                    contentViewVisibleRect.top
-                }
-                childBottom = drawingHeight
+                locationOnScreen[1]
             }
-
-            // フルスクリーンでcutout modeがSHORT_EDGESの場合にIAMWindowとcontentViewの位置に差ができて、その分だけ接客が画面下に見切れてしまうため差の分だけheightを低くする。
-            contentView.getLocationOnScreen(contentViewLocationOnScreen)
-            val gapY = locationOnScreen[1] - contentViewLocationOnScreen[1]
-            childBottom - childTop - gapY
+            childBottom = drawingHeight
+        } else {
+            childTop = if (isStatusBarOverlaid) {
+                contentView.top + contentView.paddingTop
+            } else {
+                contentViewVisibleRect.top
+            }
+            childBottom = drawingHeight
         }
+
+        // フルスクリーンでcutout modeがSHORT_EDGESの場合にIAMWindowとcontentViewの位置に差ができて、その分だけ接客が画面下に見切れてしまうため差の分だけheightを低くする。
+        contentView.getLocationOnScreen(contentViewLocationOnScreen)
+        val gapY = locationOnScreen[1] - contentViewLocationOnScreen[1]
+        childBottom - childTop - gapY
     }
 
     private fun syncPadding() {
@@ -563,7 +563,8 @@ internal open class WindowView(
         if (!BuildConfig.DEBUG) return
 
         Logger.v(
-            LOG_TAG, "$message\n" +
+            LOG_TAG,
+            "$message\n" +
                 "ContentArea: ${drawingArea?.log()}\n" +
                 "IAMWindow  : ${log()}\n" +
                 "WebView    : ${if (isNotEmpty()) getChildAt(0).log() else ""}\n" +
@@ -582,7 +583,9 @@ private fun View.log(): String {
     getLocationOnScreen(location)
     val insets = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         rootWindowInsets
-    } else null
+    } else {
+        null
+    }
     return "$rect, location:${location.log()}, padding:${logPadding()}, size:${logSize()}\n" +
         "\t insets:$insets"
 }

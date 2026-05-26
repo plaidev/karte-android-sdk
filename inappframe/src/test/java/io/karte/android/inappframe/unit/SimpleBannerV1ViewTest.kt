@@ -80,10 +80,22 @@ class SimpleBannerV1ViewTest {
         val paddingTop = bannerView.paddingTop
         val paddingBottom = bannerView.paddingBottom
 
-        assertTrue("Padding start should be around 16dp in px", paddingLeft == (16 * context.resources.displayMetrics.density).toInt())
-        assertTrue("Padding end should be around 16dp in px", paddingRight == (16 * context.resources.displayMetrics.density).toInt())
-        assertTrue("Padding top should be around 8dp in px", paddingTop == (8 * context.resources.displayMetrics.density).toInt())
-        assertTrue("Padding bottom should be around 8dp in px", paddingBottom == (8 * context.resources.displayMetrics.density).toInt())
+        assertTrue(
+            "Padding start should be around 16dp in px",
+            paddingLeft == (16 * context.resources.displayMetrics.density).toInt()
+        )
+        assertTrue(
+            "Padding end should be around 16dp in px",
+            paddingRight == (16 * context.resources.displayMetrics.density).toInt()
+        )
+        assertTrue(
+            "Padding top should be around 8dp in px",
+            paddingTop == (8 * context.resources.displayMetrics.density).toInt()
+        )
+        assertTrue(
+            "Padding bottom should be around 8dp in px",
+            paddingBottom == (8 * context.resources.displayMetrics.density).toInt()
+        )
 
         // CardView が子ビューとして存在するか
         assertEquals(1, bannerView.childCount)

@@ -57,15 +57,13 @@ data class KarteAttributes(
     }
 
     /** @suppress */
-    override fun toString(): String {
-        return "KarteAttributes{" +
-            "title='" + title + '\''.toString() +
-            ", body='" + body + '\''.toString() +
-            ", sound=" + sound +
-            ", channel='" + channel + '\''.toString() +
-            ", link='" + link + '\''.toString() +
-            ", type='" + type + '\''.toString() +
-            ", fileUrl=" + fileUrl +
-            '}'.toString()
-    }
+    override fun toString(): String = "KarteAttributes{" +
+        "title='" + title + '\''.toString() +
+        ", body='" + body + '\''.toString() +
+        ", sound=" + sound +
+        ", channel='" + channel + '\''.toString() +
+        ", link='" + link + '\''.toString() +
+        ", type='" + type + '\''.toString() +
+        ", fileUrl=" + fileUrl +
+        '}'.toString()
 }

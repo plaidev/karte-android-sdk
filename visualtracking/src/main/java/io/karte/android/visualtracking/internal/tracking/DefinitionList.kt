@@ -27,10 +27,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.ArrayList
 
-internal class DefinitionList private constructor(
-    private val definitions: List<Definition>,
-    val lastModified: Long
-) {
+internal class DefinitionList private constructor(private val definitions: List<Definition>, val lastModified: Long) {
 
     @Throws(JSONException::class)
     internal fun traceToEvents(trace: JSONObject, window: Window? = null): List<JSONObject> {
@@ -44,12 +41,10 @@ internal class DefinitionList private constructor(
         return ret
     }
 
-    override fun toString(): String {
-        return "DefinitionList{" +
-            "lastModified=" + lastModified +
-            ", definitions=" + definitions +
-            '}'.toString()
-    }
+    override fun toString(): String = "DefinitionList{" +
+        "lastModified=" + lastModified +
+        ", definitions=" + definitions +
+        '}'.toString()
 
     internal class Definition(private val eventName: String, private val triggers: List<Trigger>) {
 
@@ -73,12 +68,10 @@ internal class DefinitionList private constructor(
             return null
         }
 
-        override fun toString(): String {
-            return "Definition{" +
-                "eventName='" + eventName + '\''.toString() +
-                ", triggers=" + triggers +
-                '}'.toString()
-        }
+        override fun toString(): String = "Definition{" +
+            "eventName='" + eventName + '\''.toString() +
+            ", triggers=" + triggers +
+            '}'.toString()
 
         companion object {
 
@@ -106,7 +99,8 @@ internal class DefinitionList private constructor(
         }
     }
 
-    internal class Trigger @Throws(JSONException::class)
+    internal class Trigger
+    @Throws(JSONException::class)
     constructor(
         internal val fields: JSONObject?,
         condition: JSONObject,
@@ -149,13 +143,11 @@ internal class DefinitionList private constructor(
             return result
         }
 
-        override fun toString(): String {
-            return "Trigger{" +
-                "fields=" + fields +
-                ", condition=" + condition +
-                ", dynamic_fields=" + dynamicFields +
-                '}'.toString()
-        }
+        override fun toString(): String = "Trigger{" +
+            "fields=" + fields +
+            ", condition=" + condition +
+            ", dynamic_fields=" + dynamicFields +
+            '}'.toString()
     }
 
     companion object {

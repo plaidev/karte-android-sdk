@@ -31,7 +31,6 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
 
     @Throws(JSONException::class)
     fun buildTrace(actionName: String, args: Array<Any>): Trace {
-
         val jsonObject = JSONObject()
             .put("action", actionName)
             .put("app_info", appInfo)
@@ -67,9 +66,7 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
         return Trace(null, values, action.imageProvider)
     }
 
-    private fun getContentView(activity: Activity): View {
-        return activity.findViewById(android.R.id.content)
-    }
+    private fun getContentView(activity: Activity): View = activity.findViewById(android.R.id.content)
 
     private fun getView(actionName: String, args: Array<Any>): View? {
         // TODO: abstraction.
@@ -77,23 +74,25 @@ internal class TraceBuilder(private val appInfo: JSONObject) {
             "android.app.ListActivity#onListItemClick",
             "android.widget.AdapterView\$OnItemClickListener#onItemClick" ->
                 args[1] as View
+
             "com.google.android.material.tabs.TabLayout\$OnTabSelectedListener#onTabSelected",
             "android.support.design.widget.TabLayout\$OnTabSelectedListener#onTabSelected" -> {
                 val tab = args[0] as TabLayout.Tab
                 @Suppress("INACCESSIBLE_TYPE")
                 tab.customView ?: tab.view
             }
+
             HookTargetMethodFromDynamicInvoke.VIEW_CLICK.actionName -> {
                 args.lastOrNull { it is View } as? View
             }
+
             HookTargetMethodFromDynamicInvoke.ADAPTER_VIEW_ITEM_CLICK.actionName -> {
                 args.lastOrNull { it is View } as? View
             }
+
             else -> args.firstOrNull { it is View } as? View
         }
     }
 
-    private fun getActivity(view: View): Activity? {
-        return if (view.context is Activity) view.context as Activity else null
-    }
+    private fun getActivity(view: View): Activity? = if (view.context is Activity) view.context as Activity else null
 }

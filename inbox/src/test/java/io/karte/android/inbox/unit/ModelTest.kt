@@ -47,18 +47,17 @@ public class ModelTest {
     }
 }
 
-internal fun InboxMessage.Companion.makeDummyJSON(): JSONObject {
-    return JSONObject().apply {
-        put("timestamp", 1674015317)
-        put("title", "Dummy title")
-        put("body", "Dummy body")
-        put("linkUrl", "Dummy link")
-        put("attachmentUrl", "Dummy attachment url")
-        put("campaignId", "Dummy campaign id")
-        put("messageId", "Dummy message id")
-        put("isRead", true)
+internal fun InboxMessage.Companion.makeDummyJSON(): JSONObject = JSONObject().apply {
+    put("timestamp", 1674015317)
+    put("title", "Dummy title")
+    put("body", "Dummy body")
+    put("linkUrl", "Dummy link")
+    put("attachmentUrl", "Dummy attachment url")
+    put("campaignId", "Dummy campaign id")
+    put("messageId", "Dummy message id")
+    put("isRead", true)
 
-        val payload = """
+    val payload = """
             {
                 "keyStr": "Dummy",
                 "keyInt": 10,
@@ -70,7 +69,6 @@ internal fun InboxMessage.Companion.makeDummyJSON(): JSONObject {
                 },
                 "keyNull": null
             }
-        """.trimIndent()
-        put("customPayload", JSONObject(payload))
-    }
+    """.trimIndent()
+    put("customPayload", JSONObject(payload))
 }

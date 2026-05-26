@@ -44,7 +44,9 @@ import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 
-abstract class ModuleTestCase : RobolectricTestCase(), Library {
+abstract class ModuleTestCase :
+    RobolectricTestCase(),
+    Library {
 
     lateinit var server: MockWebServer
     private lateinit var dispatcher: TrackerRequestDispatcher
@@ -113,7 +115,8 @@ class ModuleTest {
 
             // Tracker.trackの場合
             Tracker.track(
-                "view", mapOf(
+                "view",
+                mapOf(
                     "view_name" to "test",
                     "title" to "テスト"
                 )

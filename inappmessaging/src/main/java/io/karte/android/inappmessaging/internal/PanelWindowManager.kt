@@ -25,8 +25,9 @@ import android.widget.PopupWindow
 import io.karte.android.core.logger.Logger
 import java.lang.ref.WeakReference
 
+private const val LOG_TAG = "Karte.IAMPWManager"
+
 internal class PanelWindowManager {
-    private val LOG_TAG = "Karte.IAMPWManager"
 
     private var lastActionDownWindow: BaseWindowWrapper? = null
     private val windows = ArrayList<BaseWindowWrapper>()
@@ -81,17 +82,16 @@ internal class PanelWindowManager {
         private val windowRef: WeakReference<Window> = WeakReference(windowRef)
         private val locationOnScreen = IntArray(2)
 
-        override fun hasStaleReference(): Boolean {
-            return windowRef.get() == null
-        }
+        override fun hasStaleReference(): Boolean = windowRef.get() == null
 
         override fun dispatchTouch(event: MotionEvent): Boolean {
             val window = windowRef.get() ?: return false
             if (!isActivePanel(window)) return false
 
             val params = window.attributes
-            if (params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE != 0)
+            if (params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE != 0) {
                 return false
+            }
 
             var shouldDispatch = false
             if (params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL != 0) {
@@ -144,13 +144,14 @@ internal class PanelWindowManager {
             if (!popupWindow.isShowing) return false
             if (popupWindow.contentView == null) return false
 
-            return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) true
-            else popupWindow.windowLayoutType == TYPE_APPLICATION_PANEL
+            return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                true
+            } else {
+                popupWindow.windowLayoutType == TYPE_APPLICATION_PANEL
+            }
         }
 
-        override fun hasStaleReference(): Boolean {
-            return popupWindowRef.get() == null
-        }
+        override fun hasStaleReference(): Boolean = popupWindowRef.get() == null
 
         override fun dispatchTouch(event: MotionEvent): Boolean {
             val popupWindow = popupWindowRef.get() ?: return false

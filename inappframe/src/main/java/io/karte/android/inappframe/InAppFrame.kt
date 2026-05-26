@@ -45,7 +45,11 @@ class InAppFrame : LinearLayout {
         this.placeId = placeId
     }
 
-    private val inAppFrameWrapper = InappFrameBinding.inflate(LayoutInflater.from(context), this, true).inAppFrameWrapper
+    private val inAppFrameWrapper = InappFrameBinding.inflate(
+        LayoutInflater.from(context),
+        this,
+        true
+    ).inAppFrameWrapper
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -82,18 +86,29 @@ class InAppFrame : LinearLayout {
         Log.d(IN_APP_FRAME_ROOT_LOG, "InAppFrame hidden due to error")
     }
 
-    private suspend fun renderIAF(inAppFrame: InAppFrameData, tracker: IAFTracker): Unit = withContext(Dispatchers.Main) {
-        inAppFrameWrapper.removeAllViews()
-        when (inAppFrame) {
-            is CarouselWithMarginV1 -> inAppFrameWrapper.addView(CarouselWithMarginView(context, inAppFrame, tracker))
-            is CarouselWithoutMarginV1 -> inAppFrameWrapper.addView(CarouselWithoutMarginView(context, inAppFrame, tracker))
-            is CarouselWithoutPagingV1 -> inAppFrameWrapper.addView(CarouselWithoutPagingView(context, inAppFrame, tracker))
-            is SimpleBannerV1 -> inAppFrameWrapper.addView(SimpleBannerView(context, inAppFrame, tracker))
-            is Empty -> {
-                throw Exception("emptyView")
+    private suspend fun renderIAF(inAppFrame: InAppFrameData, tracker: IAFTracker): Unit =
+        withContext(Dispatchers.Main) {
+            inAppFrameWrapper.removeAllViews()
+            when (inAppFrame) {
+                is CarouselWithMarginV1 -> inAppFrameWrapper.addView(
+                    CarouselWithMarginView(context, inAppFrame, tracker)
+                )
+
+                is CarouselWithoutMarginV1 -> inAppFrameWrapper.addView(
+                    CarouselWithoutMarginView(context, inAppFrame, tracker)
+                )
+
+                is CarouselWithoutPagingV1 -> inAppFrameWrapper.addView(
+                    CarouselWithoutPagingView(context, inAppFrame, tracker)
+                )
+
+                is SimpleBannerV1 -> inAppFrameWrapper.addView(SimpleBannerView(context, inAppFrame, tracker))
+
+                is Empty -> {
+                    throw Exception("emptyView")
+                }
             }
         }
-    }
     companion object {
         /**
          * InAppFrameのデリゲートオブジェクト

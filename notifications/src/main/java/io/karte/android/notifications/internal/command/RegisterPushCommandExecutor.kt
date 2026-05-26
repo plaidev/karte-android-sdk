@@ -58,7 +58,9 @@ internal class RegisterPushCommandExecutor : CommandModule {
     private fun requestPermission(activity: Activity) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         Logger.d(LOG_TAG, "requestPermission $activity")
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
             return
         }
         // 一度拒否されていた場合、事前説明を挟むべきだが、接客で説明済み。ここでは常に表示するためreturnしない。

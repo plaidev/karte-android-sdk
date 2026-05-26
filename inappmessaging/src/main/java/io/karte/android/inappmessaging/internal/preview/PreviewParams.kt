@@ -43,20 +43,16 @@ internal class PreviewParams(activity: Activity) {
         null
     }
 
-    fun shouldShowPreview(): Boolean {
-        return shouldShowPreview != null && previewId != null && previewToken != null
-    }
+    fun shouldShowPreview(): Boolean = shouldShowPreview != null && previewId != null && previewToken != null
 
-    private fun toJSON(): JSONObject? {
-        return try {
-            JSONObject()
-                .put("preview_id", previewId)
-                .put("preview_token", previewToken)
-                .put("is_preview", "true")
-        } catch (e: JSONException) {
-            Logger.e(LOG_TAG, "Failed to construct json.", e)
-            null
-        }
+    private fun toJSON(): JSONObject? = try {
+        JSONObject()
+            .put("preview_id", previewId)
+            .put("preview_token", previewToken)
+            .put("is_preview", "true")
+    } catch (e: JSONException) {
+        Logger.e(LOG_TAG, "Failed to construct json.", e)
+        null
     }
 
     fun generateUrl(app: KarteApp): String? {

@@ -13,8 +13,39 @@ plugins {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
-        mavenCentral()
+        google {
+            content {
+                // Android Build Tools and related libraries (Android/Firebase only)
+                includeGroupByRegex("androidx.*")
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google\\.android.*")
+                includeGroupByRegex("com\\.google\\.firebase.*")
+            }
+        }
+        mavenCentral {
+            content {
+                // Kotlin
+                includeGroup("org.jetbrains.kotlin")
+                includeGroup("org.jetbrains.kotlinx")
+
+                // Third-party libraries
+                includeGroup("io.coil-kt")
+                includeGroup("com.squareup.okhttp3")
+
+                // Testing libraries
+                includeGroup("junit")
+                includeGroup("io.mockk")
+                includeGroup("org.robolectric")
+                includeGroup("net.bytebuddy")
+                includeGroup("net.javacrumbs.json-unit")
+                includeGroup("org.json")
+                includeGroup("org.objenesis")
+                includeGroup("com.google.truth")
+
+                // Code quality
+                includeGroup("com.pinterest.ktlint")
+            }
+        }
         gradlePluginPortal()
     }
 }

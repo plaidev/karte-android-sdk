@@ -3,11 +3,6 @@ plugins {
     alias(libs.plugins.maven.publish)
 }
 
-repositories {
-    mavenCentral()
-    google()
-}
-
 // Include the generated Version file
 sourceSets {
     main {

@@ -89,25 +89,29 @@ open class Config protected constructor(
      */
     var baseUrl: String
         private set(value) {
-            if (value.isEmpty())
+            if (value.isEmpty()) {
                 return
+            }
             _baseUrl = Uri.withAppendedPath(Uri.parse(value), "v0/native").toString()
         }
         get() {
-            if (_baseUrl.isEmpty())
+            if (_baseUrl.isEmpty()) {
                 return "https://b.karte.io/v0/native"
+            }
             return _baseUrl
         }
 
     private var _dataLocation: String = ""
+
     /** KARTEプロジェクトのデータロケーションを取得します。 */
     var dataLocation: String
         private set(value) {
             _dataLocation = value
         }
         get() {
-            if (_dataLocation.isEmpty())
+            if (_dataLocation.isEmpty()) {
                 return "tw"
+            }
             return _dataLocation
         }
 
@@ -191,20 +195,26 @@ open class Config protected constructor(
         fun isOptOut(isOptOut: Boolean): Builder = apply { this.isOptOut = isOptOut }
 
         /**[Config.isAutoScreenBoundaryEnabled]を変更します。*/
-        fun isAutoScreenBoundaryEnabled(isAutoScreenBoundaryEnabled: Boolean): Builder =
-            apply { this.isAutoScreenBoundaryEnabled = isAutoScreenBoundaryEnabled }
+        fun isAutoScreenBoundaryEnabled(isAutoScreenBoundaryEnabled: Boolean): Builder = apply {
+            this.isAutoScreenBoundaryEnabled =
+                isAutoScreenBoundaryEnabled
+        }
 
         /**[Config.enabledTrackingAaid]を変更します。*/
-        fun enabledTrackingAaid(enabledTrackingAaid: Boolean): Builder =
-            apply { this.enabledTrackingAaid = enabledTrackingAaid }
+        fun enabledTrackingAaid(enabledTrackingAaid: Boolean): Builder = apply {
+            this.enabledTrackingAaid =
+                enabledTrackingAaid
+        }
 
         /**[Config.libraryConfigs]を変更します。*/
         fun libraryConfigs(libraryConfigs: List<LibraryConfig>): Builder =
             apply { this.libraryConfigs = libraryConfigs }
 
         /**[Config.libraryConfigs]を変更します。*/
-        fun libraryConfigs(vararg libraryConfigs: LibraryConfig): Builder =
-            apply { this.libraryConfigs = libraryConfigs.toList() }
+        fun libraryConfigs(vararg libraryConfigs: LibraryConfig): Builder = apply {
+            this.libraryConfigs =
+                libraryConfigs.toList()
+        }
 
         /**[Config]クラスのインスタンスを生成します。*/
         open fun build(): Config = Config(
@@ -246,8 +256,9 @@ open class Config protected constructor(
             if (cfg.appKey.isEmpty()) {
                 val appKeyFromResource = readStringFromResource(context, "karte_app_key")
                 // appKeyに限り 未設定＆resourceにない＆debugビルド 時に例外スロー
-                if (appKeyFromResource == null && BuildConfig.DEBUG)
+                if (appKeyFromResource == null && BuildConfig.DEBUG) {
                     throw KarteException("karte_resources.xml not found.")
+                }
                 appKeyFromResource?.let { cfg.appKey = it }
             }
             if (cfg.apiKey.isEmpty()) {
@@ -271,6 +282,7 @@ open class Config protected constructor(
         private fun readStringFromResource(context: Context, name: String): String? {
             val res = context.resources
             val pkg = res.getResourcePackageName(R.id.karte_resources)
+
             @SuppressLint("DiscouragedApi")
             val id = res.getIdentifier(name, "string", pkg)
             return if (id == 0) {

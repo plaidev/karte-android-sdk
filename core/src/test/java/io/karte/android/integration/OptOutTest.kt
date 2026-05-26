@@ -91,7 +91,8 @@ class OptOutTest {
                         Base64.encodeToString(
                             param.toByteArray(),
                             Base64.NO_WRAP
-                        ), "utf8"
+                        ),
+                        "utf8"
                     )
 
                     @Suppress("DEPRECATION")
@@ -146,7 +147,8 @@ class OptOutTest {
                         Base64.encodeToString(
                             param.toByteArray(),
                             Base64.NO_WRAP
-                        ), "utf8"
+                        ),
+                        "utf8"
                     )
 
                     @Suppress("DEPRECATION")

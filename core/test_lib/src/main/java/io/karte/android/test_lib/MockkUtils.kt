@@ -28,7 +28,10 @@ fun pipeLog() {
     val tagSlot = slot<String>()
     val msgSlot = slot<String>()
     val ans: MockKAnswerScope<Int, Int>.(Call) -> Int =
-        { kotlin.io.println("piped: ${tagSlot.captured} ${msgSlot.captured}"); 0 }
+        {
+            kotlin.io.println("piped: ${tagSlot.captured} ${msgSlot.captured}")
+            0
+        }
     every { Log.v(capture(tagSlot), capture(msgSlot)) } answers (ans)
     every { Log.v(capture(tagSlot), capture(msgSlot), any()) } answers (ans)
     every { Log.d(capture(tagSlot), capture(msgSlot)) } answers (ans)

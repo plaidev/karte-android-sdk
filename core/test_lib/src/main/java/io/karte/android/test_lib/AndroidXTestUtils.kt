@@ -18,6 +18,4 @@ package io.karte.android.test_lib
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 
-fun application(): Application {
-    return ApplicationProvider.getApplicationContext()
-}
+fun application(): Application = ApplicationProvider.getApplicationContext()

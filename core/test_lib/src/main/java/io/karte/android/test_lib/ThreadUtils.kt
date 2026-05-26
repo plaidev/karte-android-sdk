@@ -33,10 +33,8 @@ private fun getLooperByThreadName(threadName: String): Looper? {
     }
 }
 
-private fun getLooperByThread(thread: Thread): Looper? {
-    return ShadowLooper.getAllLoopers().firstOrNull {
-        it.thread == thread
-    }
+private fun getLooperByThread(thread: Thread): Looper? = ShadowLooper.getAllLoopers().firstOrNull {
+    it.thread == thread
 }
 
 fun proceedBufferedCall(thread: Thread? = null, threadName: String? = null) {

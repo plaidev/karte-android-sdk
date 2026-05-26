@@ -72,16 +72,16 @@ import org.robolectric.shadows.ShadowLooper
 import org.robolectric.shadows.ShadowWindowManagerImpl
 import java.util.Base64
 
-private const val iamAppKey = "inappmessaging_appkey_1234567890"
-private const val overlayBaseUrl = "https://iam-test.karte.io/v0/native"
+private const val IAM_APP_KEY = "inappmessaging_appkey_1234567890"
+private const val OVERLAY_BASE_URL = "https://iam-test.karte.io/v0/native"
 
-private const val popup1ActionId = "action1"
-private const val popup2ActionId = "action2"
-private const val limitedActionId = "action3"
-private val popupMsg1 = createMessage(shortenId = popup1ActionId, pluginType = "webpopup")
-private val popupMsg2 = createMessage(shortenId = popup2ActionId, pluginType = "webpopup")
+private const val POPUP1_ACTION_ID = "action1"
+private const val POPUP2_ACTION_ID = "action2"
+private const val LIMITED_ACTION_ID = "action3"
+private val popupMsg1 = createMessage(shortenId = POPUP1_ACTION_ID, pluginType = "webpopup")
+private val popupMsg2 = createMessage(shortenId = POPUP2_ACTION_ID, pluginType = "webpopup")
 private val cgPopupMsg = createControlGroupMessage()
-private val limitedMsg = createMessage(shortenId = limitedActionId, pluginType = "webpopup").apply {
+private val limitedMsg = createMessage(shortenId = LIMITED_ACTION_ID, pluginType = "webpopup").apply {
     getJSONObject("campaign").put("native_app_display_limit_mode", true)
 }
 
@@ -92,7 +92,11 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
     lateinit var app: KarteApp
 
     internal val iamWindow: IAMWindow?
-        get() = (shadowOf(activity.get().windowManager) as ShadowWindowManagerImpl).views.filterIsInstance(IAMWindow::class.java).firstOrNull()
+        get() = (
+            shadowOf(
+                activity.get().windowManager
+            ) as ShadowWindowManagerImpl
+            ).views.filterIsInstance(IAMWindow::class.java).firstOrNull()
     val webView: WebView?
         get() = iamWindow?.getChildAt(0) as? WebView
     val shadowWebView: CustomShadowWebView?
@@ -143,7 +147,7 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         val configBuilder = Config.Builder().libraryConfigs(
             InAppMessagingConfig.build { overlayBaseUrl = "https://iam-test.karte.io" }
         )
-        app = setupKarteApp(server, appKey = iamAppKey, configBuilder = configBuilder)
+        app = setupKarteApp(server, appKey = IAM_APP_KEY, configBuilder = configBuilder)
         activity = Robolectric.buildActivity(
             Activity::class.java,
             Intent(application, Activity::class.java)
@@ -183,11 +187,9 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         track("cg_popup")
     }
 
-    private fun shouldVisible(messages: MessageModel): Boolean {
-        return messages.messages.any {
-            val type = it.optJSONObject("action")?.optString("type")
-            type != null && type != "control"
-        }
+    private fun shouldVisible(messages: MessageModel): Boolean = messages.messages.any {
+        val type = it.optJSONObject("action")?.optString("type")
+        type != null && type != "control"
     }
 
     protected fun emitCbFromJs(callbackName: String, data: JSONObject) {
@@ -244,7 +246,7 @@ abstract class InAppMessagingTestCase : RobolectricTestCase() {
         assertThat(uri.host).isEqualTo("iam-test.karte.io")
         assertThat(uri.path).isEqualTo("/v0/native/overlay")
         assertThat(uri.queryParameterNames).isEqualTo(setOf("app_key", "_k_vid", "_k_app_prof", "location"))
-        assertThat(uri.getQueryParameter("app_key")).isEqualTo(iamAppKey)
+        assertThat(uri.getQueryParameter("app_key")).isEqualTo(IAM_APP_KEY)
         assertThat(uri.getQueryParameter("_k_vid")).isEqualTo(KarteApp.visitorId)
         assertThat(uri.getQueryParameter("_k_app_prof")).isEqualTo(app.appInfo?.json.toString())
         assertThat(uri.getQueryParameter("location")).isEqualTo(app.config.dataLocation)
@@ -269,7 +271,7 @@ class InAppMessagingTest {
             every {
                 anyConstructed<IAMWebView>().loadUrl(any())
             } throws PackageManager.NameNotFoundException()
-            setupKarteApp(appKey = iamAppKey)
+            setupKarteApp(appKey = IAM_APP_KEY)
         }
 
         @After
@@ -298,7 +300,7 @@ class InAppMessagingTest {
             assertThat(iamWindow?.visibility).isEqualTo(View.VISIBLE)
             assertThat(shadowWebView?.lastLoadedUrl)
                 .startsWith("javascript:window.tracker.handleResponseData")
-            assertThat(shadowWebView?.loadedUrls?.first()).startsWith(overlayBaseUrl)
+            assertThat(shadowWebView?.loadedUrls?.first()).startsWith(OVERLAY_BASE_URL)
             val uri = Uri.parse(shadowWebView?.loadedUrls?.first())
             assertUrlIsCorrect(uri)
         }
@@ -309,7 +311,7 @@ class InAppMessagingTest {
 
             assertThat(iamWindow).isNull()
             assertThat(webView).isNull()
-            assertThat(shadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
+            assertThat(shadowWebView?.lastLoadedUrl).startsWith(OVERLAY_BASE_URL)
         }
 
         @Test
@@ -339,8 +341,8 @@ class InAppMessagingTest {
             assertNoResponseDataPassed()
 
             emitInitializedCallbackFromJs()
-            assertActionInResponseData(popup1ActionId)
-            assertActionInResponseData(popup2ActionId)
+            assertActionInResponseData(POPUP1_ACTION_ID)
+            assertActionInResponseData(POPUP2_ACTION_ID)
 
             assertThat(iamWindow?.visibility).isEqualTo(View.VISIBLE)
         }
@@ -355,7 +357,7 @@ class InAppMessagingTest {
             emitInitializedCallbackFromJs()
             track("popup2")
 
-            assertActionInResponseData(popup2ActionId)
+            assertActionInResponseData(POPUP2_ACTION_ID)
         }
     }
 
@@ -460,10 +462,12 @@ class InAppMessagingTest {
             // trackerのthreadも動かす必要がある
             proceedBufferedCall()
 
-            assertThat(dispatcher.trackedEvents().filter {
-                it.getString("event_name") == "from_overlay" &&
-                    it.getJSONObject("values").getString("foo") == "bar"
-            }).isNotEmpty()
+            assertThat(
+                dispatcher.trackedEvents().filter {
+                    it.getString("event_name") == "from_overlay" &&
+                        it.getJSONObject("values").getString("foo") == "bar"
+                }
+            ).isNotEmpty()
         }
 
         @Test
@@ -588,7 +592,7 @@ class InAppMessagingTest {
         @Test
         fun overlayがエラー状態になった場合は何もしないがその後レスポンスは渡らない() {
             emitInitializedCallbackFromJs()
-            assertActionInResponseData(popup1ActionId)
+            assertActionInResponseData(POPUP1_ACTION_ID)
             shadowWebView?.resetLoadedUrls()
 
             // エラー後も表示状態のまま
@@ -625,7 +629,7 @@ class InAppMessagingTest {
                 .startsWith("javascript:window.tracker.resetPageState(")
 
             val newShadowWebView = shadowWebView
-            assertThat(newShadowWebView?.lastLoadedUrl).startsWith(overlayBaseUrl)
+            assertThat(newShadowWebView?.lastLoadedUrl).startsWith(OVERLAY_BASE_URL)
             val uri = Uri.parse(newShadowWebView?.lastLoadedUrl)
             assertUrlIsCorrect(uri)
         }
@@ -636,15 +640,18 @@ class InAppMessagingTest {
         private fun assertNotSuppressed() {
             assertThat(
                 dispatcher.trackedEvents()
-                    .filter { it.getString("event_name") == "_message_suppressed" })
+                    .filter { it.getString("event_name") == "_message_suppressed" }
+            )
                 .isEmpty()
         }
 
         private fun assertSuppressed(reasonMatch: String) {
-            assertThat(dispatcher.trackedEvents().filter {
-                it.getString("event_name") == "_message_suppressed" &&
-                    it.getJSONObject("values").getString("reason").contains(reasonMatch)
-            }).hasSize(1)
+            assertThat(
+                dispatcher.trackedEvents().filter {
+                    it.getString("event_name") == "_message_suppressed" &&
+                        it.getJSONObject("values").getString("reason").contains(reasonMatch)
+                }
+            ).hasSize(1)
         }
 
         @Test

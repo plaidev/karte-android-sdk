@@ -31,6 +31,7 @@ internal abstract class TappableMotionLayout @JvmOverloads constructor(
                 touchStartY = ev.y
                 touchStartTime = EpochMillis.now()
             }
+
             MotionEvent.ACTION_UP -> {
                 val deltaX = Math.abs(ev.x - touchStartX)
                 val deltaY = Math.abs(ev.y - touchStartY)

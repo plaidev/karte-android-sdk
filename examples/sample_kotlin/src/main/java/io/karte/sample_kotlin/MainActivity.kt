@@ -64,11 +64,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendIdentifyEvent() {
-        val user_id = binding!!.editUserId.getText().toString()
-        if (user_id.length > 0) {
+        val userId = binding!!.editUserId.getText().toString()
+        if (userId.length > 0) {
             val values = HashMap<String, Any>()
             values["is_app_user"] = true
-            Tracker.identify(user_id, values)
+            Tracker.identify(userId, values)
         } else {
             Log.w(TAG, "no user_id")
         }

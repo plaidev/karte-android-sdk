@@ -1,4 +1,5 @@
 @file:Suppress("JAVA_MODULE_DOES_NOT_EXPORT_PACKAGE", "DEPRECATION")
+
 package io.karte.android.gradleplugin
 
 import com.android.build.api.instrumentation.FramesComputationMode
@@ -34,7 +35,10 @@ class KartePlugin : Plugin<Project> {
         var isTransformApiAvailable = true
         try {
             val androidExtensionClass = Class.forName("com.android.build.gradle.BaseExtension")
-            androidExtensionClass.getMethod("registerTransform", Class.forName("com.android.build.api.transform.Transform"))
+            androidExtensionClass.getMethod(
+                "registerTransform",
+                Class.forName("com.android.build.api.transform.Transform")
+            )
         } catch (e: ClassNotFoundException) {
             isTransformApiAvailable = false
         } catch (e: NoSuchMethodException) {
@@ -87,14 +91,12 @@ class KartePlugin : Plugin<Project> {
      * Using deprecated method will print noisy warning at app build time.
      * @Suppress("DEPRECATION") annotation just suppress warning at plugin compile time.
      */
-    private fun BaseVariantOutput.processManifestCompat(): ManifestProcessorTask {
-        return try {
-            processManifestProvider.get()
-        } catch (e: NoSuchMethodError) {
-            // less than 3.3.0
-            @Suppress("DEPRECATION")
-            processManifest
-        }
+    private fun BaseVariantOutput.processManifestCompat(): ManifestProcessorTask = try {
+        processManifestProvider.get()
+    } catch (e: NoSuchMethodError) {
+        // less than 3.3.0
+        @Suppress("DEPRECATION")
+        processManifest
     }
 
     private fun ManifestProcessorTask.manifestOutputDirectoryCompat(): Set<File> {
@@ -110,11 +112,14 @@ class KartePlugin : Plugin<Project> {
             return when (dir) {
                 // [3.5.0, 4.1.0)
                 is DirectoryProperty -> dir.get().asFileTree.files
+
                 // [3.3.0, 3.5.0)
                 is Provider<*> -> (dir.get() as Directory).asFileTree.files
+
                 // [3.1.0, 3.3.0)
                 // Greater than or equal to 3.3.0, there isn't even a deprecated method of getManifestOutputDirectory returning File.
                 is File -> dir.walkTopDown().toSet()
+
                 // (, 3.1.0)
                 else -> throw NoSuchMethodError(
                     "Not found expected return type method: getManifestOutputDirectory."

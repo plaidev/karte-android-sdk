@@ -29,12 +29,10 @@ import io.karte.android.core.logger.Logger
 private const val LOG_TAG = "Karte.Connectivity"
 
 internal object Connectivity {
-    fun isOnline(context: Context): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            isOnlineNow(context)
-        } else {
-            isOnlineLegacy(context)
-        }
+    fun isOnline(context: Context): Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        isOnlineNow(context)
+    } else {
+        isOnlineLegacy(context)
     }
 
     @Suppress("DEPRECATION")
@@ -88,8 +86,9 @@ internal class ConnectivityObserver(private val context: Context) {
         }
         val builder = NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M)
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             builder.addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        }
         val request = builder.build()
         connectivityManager.registerNetworkCallback(request, callback)
     }

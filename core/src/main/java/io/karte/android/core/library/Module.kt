@@ -121,9 +121,7 @@ interface TrackModule : Module {
      * @param event イベント
      * @return 編集済みのイベントを返します
      */
-    fun prepare(event: Event): Event {
-        return event
-    }
+    fun prepare(event: Event): Event = event
 
     /**
      * リクエスト処理に割り込みます。
@@ -135,7 +133,7 @@ interface TrackModule : Module {
     fun intercept(request: TrackRequest): TrackRequest
 }
 
-private const val karteSchemeLength = 36
+private const val KARTE_SCHEME_LENGTH = 36
 
 /**
  * コマンドを実行するためのモジュールタイプです。
@@ -150,9 +148,7 @@ interface CommandModule : Module {
      * @param[isDelay] 遅延実行すべきかを表す真偽値
      * @return コマンドの実行するための[Intent]
      */
-    fun execute(uri: Uri, isDelay: Boolean = false): Intent? {
-        return null
-    }
+    fun execute(uri: Uri, isDelay: Boolean = false): Intent? = null
 
     /**
      * 対象のKARTEのコマンドかどうか検証します。
@@ -162,7 +158,7 @@ interface CommandModule : Module {
      */
     fun validate(uri: Uri): Boolean {
         val scheme = uri.scheme
-        if (scheme != null && scheme.startsWith("krt-") && scheme.length == karteSchemeLength) {
+        if (scheme != null && scheme.startsWith("krt-") && scheme.length == KARTE_SCHEME_LENGTH) {
             return true
         }
         return false

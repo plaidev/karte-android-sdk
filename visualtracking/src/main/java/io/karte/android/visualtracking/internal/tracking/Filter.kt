@@ -19,10 +19,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.HashMap
 
-internal class Filter private constructor(
-    private val pathList: Array<String>,
-    private val test: Test
-) {
+internal class Filter private constructor(private val pathList: Array<String>, private val test: Test) {
     private abstract class Comparator {
         internal abstract fun compare(value1: Any?, value2: Any?): Boolean
     }
@@ -38,14 +35,9 @@ internal class Filter private constructor(
         return test.compare(target.opt(pathList[length - 1]))
     }
 
-    private class Test internal constructor(
-        private val comparator: Comparator,
-        internal var param: Any
-    ) {
+    private class Test internal constructor(private val comparator: Comparator, internal var param: Any) {
 
-        internal fun compare(target: Any?): Boolean {
-            return this.comparator.compare(target, param)
-        }
+        internal fun compare(target: Any?): Boolean = this.comparator.compare(target, param)
     }
 
     companion object {
@@ -58,29 +50,30 @@ internal class Filter private constructor(
         }
 
         private val NE_COMPARATOR = object : Comparator() {
-            override fun compare(value1: Any?, value2: Any?): Boolean {
-                return !EQ_COMPARATOR.compare(value1, value2)
-            }
+            override fun compare(value1: Any?, value2: Any?): Boolean = !EQ_COMPARATOR.compare(value1, value2)
         }
 
         private val STARTS_WITH_COMPARATOR = object : Comparator() {
-            override fun compare(value1: Any?, value2: Any?): Boolean {
-                return if (value1 !is String || value2 !is String) false
-                else value1.startsWith(value2)
+            override fun compare(value1: Any?, value2: Any?): Boolean = if (value1 !is String || value2 !is String) {
+                false
+            } else {
+                value1.startsWith(value2)
             }
         }
 
         private val CONTAINS_COMPARATOR = object : Comparator() {
-            override fun compare(value1: Any?, value2: Any?): Boolean {
-                return if (value1 !is String || value2 !is String) false
-                else value1.contains(value2)
+            override fun compare(value1: Any?, value2: Any?): Boolean = if (value1 !is String || value2 !is String) {
+                false
+            } else {
+                value1.contains(value2)
             }
         }
 
         private val ENDS_WITH_COMPARATOR = object : Comparator() {
-            override fun compare(value1: Any?, value2: Any?): Boolean {
-                return if (value1 !is String || value2 !is String) false
-                else value1.endsWith(value2)
+            override fun compare(value1: Any?, value2: Any?): Boolean = if (value1 !is String || value2 !is String) {
+                false
+            } else {
+                value1.endsWith(value2)
             }
         }
 
@@ -94,9 +87,9 @@ internal class Filter private constructor(
             }
         }
 
-        private fun parsePath(path: String): Array<String> {
-            return path.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        }
+        private fun parsePath(path: String): Array<String> = path.split("\\.".toRegex()).dropLastWhile {
+            it.isEmpty()
+        }.toTypedArray()
 
         @Throws(JSONException::class)
         fun parseQuery(query: JSONObject): Filter {

@@ -33,26 +33,24 @@ internal class TrackingService internal constructor() {
     private val dispatcher = Dispatcher()
     private var delegate: TrackerDelegate? = null
 
-    internal fun track(
-        inEvent: Event,
-        visitorId: String? = null,
-        completion: TrackCompletion? = null
-    ) {
+    internal fun track(inEvent: Event, visitorId: String? = null, completion: TrackCompletion? = null) {
         if (KarteApp.isOptOut) return
         EventValidator.getDeprecatedMessages(inEvent)
             .forEach { Logger.w(LOG_TAG, it) }
 
-        if (inEvent.isDeprecatedEventName)
+        if (inEvent.isDeprecatedEventName) {
             Logger.w(
                 LOG_TAG,
                 "[^a-z0-9_] or starting with _ in event name is deprecated: Event=${inEvent.eventName.value}"
             )
+        }
 
-        if (inEvent.isDeprecatedEventFieldName)
+        if (inEvent.isDeprecatedEventFieldName) {
             Logger.w(
                 LOG_TAG,
-                "Contains dots(.) or stating with $ or ${inEvent.INVALID_FIELD_NAMES} in event field name is deprecated: EventName=${inEvent.eventName.value},FieldName=${inEvent.values}"
+                "Contains dots(.) or stating with $ or ${Event.INVALID_FIELD_NAMES} in event field name is deprecated: EventName=${inEvent.eventName.value},FieldName=${inEvent.values}"
             )
+        }
 
         Logger.d(LOG_TAG, "track")
         var event = delegate?.intercept(inEvent) ?: inEvent
@@ -130,29 +128,20 @@ internal class TrackingService internal constructor() {
         }
 
         @JvmStatic
-        fun view(
-            viewName: String,
-            title: String?,
-            values: Values? = null,
-            completion: TrackCompletion? = null
-        ) {
+        fun view(viewName: String, title: String?, values: Values? = null, completion: TrackCompletion? = null) {
             track(
                 ViewEvent(
                     viewName,
                     values?.get("view_id") as? String,
                     title,
                     values
-                ), completion = completion
+                ),
+                completion = completion
             )
         }
 
         @JvmStatic
-        fun view(
-            viewName: String,
-            title: String?,
-            jsonObject: JSONObject?,
-            completion: TrackCompletion? = null
-        ) {
+        fun view(viewName: String, title: String?, jsonObject: JSONObject?, completion: TrackCompletion? = null) {
             view(viewName, title, jsonObject?.toValues(), completion)
         }
 

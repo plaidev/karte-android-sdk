@@ -31,17 +31,12 @@ internal data class CarouselWithMarginConfig(
     }
 }
 
-internal data class CarouselWithMarginContent(
-    val data: List<Image>,
-    val config: CarouselWithMarginConfig
-) {
+internal data class CarouselWithMarginContent(val data: List<Image>, val config: CarouselWithMarginConfig) {
     companion object {
-        suspend fun parseOrThrow(json: JSONObject): CarouselWithMarginContent {
-            return CarouselWithMarginContent(
-                data = Image.parseToListOrThrow(json),
-                config = CarouselWithMarginConfig.parseOrThrow(json)
-            )
-        }
+        suspend fun parseOrThrow(json: JSONObject): CarouselWithMarginContent = CarouselWithMarginContent(
+            data = Image.parseToListOrThrow(json),
+            config = CarouselWithMarginConfig.parseOrThrow(json)
+        )
     }
 }
 
@@ -52,12 +47,10 @@ internal data class CarouselWithMarginV1(
 ) : InAppFrameData() {
     companion object {
         const val TEMPLATE_TYPE = "carouselWithMargin"
-        suspend fun parseOrThrow(json: JSONObject): CarouselWithMarginV1 {
-            return CarouselWithMarginV1(
-                componentType = parseComponentTypeOrThrow(json),
-                content = CarouselWithMarginContent.parseOrThrow(json),
-                version = parseVersionOrThrow(json)
-            )
-        }
+        suspend fun parseOrThrow(json: JSONObject): CarouselWithMarginV1 = CarouselWithMarginV1(
+            componentType = parseComponentTypeOrThrow(json),
+            content = CarouselWithMarginContent.parseOrThrow(json),
+            version = parseVersionOrThrow(json)
+        )
     }
 }

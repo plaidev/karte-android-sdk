@@ -41,10 +41,13 @@ function publish_module() {
 
   echo "Publishing module: $MODULE"
 
+  # NOTE: Sonatype close and release can take 10-30 minutes
+  # See: https://vanniktech.github.io/gradle-maven-publish-plugin/central/#publishing-releases
+  # Setting timeout to 40 minutes (2400 seconds) to ensure successful completion
   if [ "$MODULE" = "gradle-plugin" ]; then
-    ./gradlew -p gradle-plugin/ publishAndReleaseToMavenCentral --no-configuration-cache
+    ./gradlew -p gradle-plugin/ publishAndReleaseToMavenCentral --no-configuration-cache -PSONATYPE_CLOSE_TIMEOUT_SECONDS=2400
   else
-    ./gradlew $MODULE:publishAndReleaseToMavenCentral --no-configuration-cache
+    ./gradlew $MODULE:publishAndReleaseToMavenCentral --no-configuration-cache -PSONATYPE_CLOSE_TIMEOUT_SECONDS=2400
   fi
 }
 

@@ -30,7 +30,9 @@ private const val LOG_TAG = "Karte.Notifications"
 /**
  * FCMトークンの登録やクリックイベントの送信を管理するクラスです。
  */
-class Notifications : Library, ActivityLifecycleCallback() {
+class Notifications :
+    ActivityLifecycleCallback(),
+    Library {
     private lateinit var registrar: TokenRegistrar
     private val clickTracker = ClickTracker
     private val commandExecutor: RegisterPushCommandExecutor = RegisterPushCommandExecutor()
@@ -86,7 +88,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
         /**
          * FCM（Firebase Cloud Messaging）トークンを登録します。
          *
-         * なお初期化が行われていない状態で呼び出した場合は登録処理は行われません。
+         * なお初期化が行われていない状態もしくはオプトアウト状態で呼び出した場合は登録処理は行われません。
          *
          * @param[token] FCMトークン
          */
@@ -112,7 +114,7 @@ class Notifications : Library, ActivityLifecycleCallback() {
 /**
  * FCM（Firebase Cloud Messaging）トークンを登録します。
  *
- * なお初期化が行われていない状態で呼び出した場合は登録処理は行われません。
+ * なお初期化が行われていない状態もしくはオプトアウト状態で呼び出した場合は登録処理は行われません。
  *
  * @param[token] FCMトークン
  */

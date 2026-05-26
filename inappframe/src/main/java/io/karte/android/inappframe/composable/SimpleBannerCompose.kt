@@ -32,11 +32,7 @@ import io.karte.android.inappframe.model.SimpleBannerV1
  * @param onBannerClick バナークリック時のコールバック
  */
 @Composable
-internal fun SimpleBannerCompose(
-    simpleBanner: SimpleBannerV1,
-    tracker: IAFTracker,
-    onBannerClick: (String) -> Unit
-) {
+internal fun SimpleBannerCompose(simpleBanner: SimpleBannerV1, tracker: IAFTracker, onBannerClick: (String) -> Unit) {
     val content = simpleBanner.content
 
     // Track open event

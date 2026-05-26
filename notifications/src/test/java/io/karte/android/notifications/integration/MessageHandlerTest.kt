@@ -54,8 +54,7 @@ private val RobolectricTestCase.packageName: String
         return application.packageName
     }
 
-private fun RobolectricTestCase.createPackageInfo(metaDataMap: Map<String, Int> = emptyMap()):
-    PackageInfo {
+private fun RobolectricTestCase.createPackageInfo(metaDataMap: Map<String, Int> = emptyMap()): PackageInfo {
     val metaData = Bundle()
     metaDataMap.entries.forEach { metaData.putInt(it.key, it.value) }
     val applicationInfo = ApplicationInfo()

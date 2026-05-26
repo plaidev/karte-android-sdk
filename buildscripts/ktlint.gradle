@@ -1,9 +1,17 @@
+import org.gradle.api.attributes.Bundling
+
 configurations {
     ktlint
 }
 
 dependencies {
-    ktlint "com.pinterest:ktlint:0.36.0"
+    // Using custom Gradle integration.
+    // https://pinterest.github.io/ktlint/1.8.0/install/integrations/#custom-gradle-integration
+    ktlint(libs.ktlint) {
+        attributes {
+            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling, Bundling.EXTERNAL))
+        }
+    }
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and
     // ktlint will pick them up
@@ -13,7 +21,7 @@ task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
     main = "com.pinterest.ktlint.Main"
-    args "--android", "--color", "--editorconfig=.editorconfig", "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/reports/ktlint-results.xml", "**/src/**/*.kt"
+    args "--color", "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/reports/ktlint-results.xml", "**/src/**/*.kt"
     // to generate report in checkstyle format prepend following args:
     // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
     // see https://github.com/pinterest/ktlint#usage for more
@@ -24,5 +32,5 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     description = "Fix Kotlin code style deviations."
     classpath = configurations.ktlint
     main = "com.pinterest.ktlint.Main"
-    args "-F", "**/src/**/*.kt", "--editorconfig=.editorconfig"
+    args "--format", "**/src/**/*.kt"
 }

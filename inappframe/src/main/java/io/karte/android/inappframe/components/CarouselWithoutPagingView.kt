@@ -15,8 +15,14 @@ import io.karte.android.inappframe.model.CarouselWithoutPagingV1
 import io.karte.android.inappframe.model.IAFTracker
 import io.karte.android.inappframe.components.shared.DensityConvertible
 
-internal class CarouselWithoutPagingView private constructor(context: Context) : LinearLayout(context), DensityConvertible {
-    internal constructor(context: Context, carouselWithoutPaging: CarouselWithoutPagingV1, iafTracker: IAFTracker) : this(context) {
+internal class CarouselWithoutPagingView private constructor(context: Context) :
+    LinearLayout(context),
+    DensityConvertible {
+    internal constructor(
+        context: Context,
+        carouselWithoutPaging: CarouselWithoutPagingV1,
+        iafTracker: IAFTracker
+    ) : this(context) {
         val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         // Set the modified layout parameters back to the view
         this.layoutParams = params
@@ -49,16 +55,20 @@ internal class CarouselWithoutPagingView private constructor(context: Context) :
         val radiusInPixels = dpToPx(context, carouselWithoutPaging.content.config.radius)
 
         // Add dummy ImageViews to the inner LinearLayout
-        carouselWithoutPaging.content.data.forEachIndexed { index, data -> // Change the range for more or fewer images
+        carouselWithoutPaging.content.data.forEachIndexed { index, data ->
+            // Change the range for more or fewer images
             val imageView = ImageView(context).apply {
                 setImageBitmap(data.image)
-                layoutParams = LayoutParams(width, bannerHeightPx).apply { // Set width and height
+                layoutParams = LayoutParams(width, bannerHeightPx).apply {
+                    // Set width and height
                     when (index) {
                         0 -> {
                             setMargins(0, 0, 0, 0) // Set margins between images
                         }
+
                         else -> {
-                            setMargins(dpToPx(context, carouselWithoutPaging.content.config.spacing), 0, 0, 0) // Set margins between images
+                            // Set margins between images
+                            setMargins(dpToPx(context, carouselWithoutPaging.content.config.spacing), 0, 0, 0)
                         }
                     }
                 }

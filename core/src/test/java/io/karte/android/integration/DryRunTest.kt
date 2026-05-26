@@ -43,9 +43,7 @@ class DryRunTest : DryRunTestCase() {
     @Test
     fun testTracker() {
         Tracker.setDelegate(object : TrackerDelegate {
-            override fun intercept(event: Event): Event {
-                return event
-            }
+            override fun intercept(event: Event): Event = event
         })
         Tracker.identify("dummy")
         Tracker.view("test")

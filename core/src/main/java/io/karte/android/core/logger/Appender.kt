@@ -28,22 +28,31 @@ internal class ConsoleAppender : Appender {
         when {
             log.level == LogLevel.VERBOSE && log.throwable == null ->
                 Log.v(log.tag, log.message)
+
             log.level == LogLevel.VERBOSE && log.throwable != null ->
                 Log.v(log.tag, log.message, log.throwable)
+
             log.level == LogLevel.DEBUG && log.throwable == null ->
                 Log.d(log.tag, log.message)
+
             log.level == LogLevel.DEBUG && log.throwable != null ->
                 Log.d(log.tag, log.message, log.throwable)
+
             log.level == LogLevel.INFO && log.throwable == null ->
                 Log.i(log.tag, log.message)
+
             log.level == LogLevel.INFO && log.throwable != null ->
                 Log.i(log.tag, log.message, log.throwable)
+
             log.level == LogLevel.WARN && log.throwable == null ->
                 Log.w(log.tag, log.message)
+
             log.level == LogLevel.WARN && log.throwable != null ->
                 Log.w(log.tag, log.message, log.throwable)
+
             log.level == LogLevel.ERROR && log.throwable == null ->
                 Log.e(log.tag, log.message)
+
             log.level == LogLevel.ERROR && log.throwable != null ->
                 Log.e(log.tag, log.message, log.throwable)
         }

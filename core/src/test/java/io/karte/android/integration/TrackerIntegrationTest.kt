@@ -556,7 +556,7 @@ class TrackerIntegrationTest {
         }
     }
 
-    class 再送の制限() : TrackerTestCase() {
+    class 再送の制限 : TrackerTestCase() {
         // DispatcherKt.MAX_RETRY_COUNTの値
         private val maxRetryCount = 3
 
@@ -730,8 +730,9 @@ class TrackerIntegrationTest {
     class RenewVisitorId : TrackerTestCase() {
         @Test
         fun renewVisitorId_成功した場合() {
-            for (i in 1..3)
+            for (i in 1..3) {
                 enqueueSuccessResponse()
+            }
             val oldVisitorId = KarteApp.visitorId
             KarteApp.renewVisitorId()
             proceedBufferedCall()

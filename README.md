@@ -1,7 +1,4 @@
 <a href="https://karte.io"><img src="https://karte.io/assets/images/common/logo_black.svg" width="270" height="80"></img></a>
-
-[![CircleCI](https://circleci.com/gh/plaidev/karte-android-dev/tree/develop.svg?style=shield&circle-token=457a44e0e78580b5e8fff6047b938959148cabf7&a=.svg)](https://circleci.com/gh/plaidev/karte-android-dev/tree/develop)
-[![codecov](https://codecov.io/gh/plaidev/karte-android-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/plaidev/karte-android-sdk)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/plaidev/karte-android-sdk/blob/master/LICENSE)
 
 KARTE is a real-time user analytics & action tool.
@@ -18,6 +15,37 @@ To integrate the KARTE Android SDK, the following requirements must be met:
 - Android Gradle Plugin: 8.1.1 or higher
 - Optimizer: R8
 - minSdkVersion 21 or higher
+
+### Requirements Update Policy
+
+This section defines the policy for raising the minimum required versions of build tools and SDK dependencies.
+
+#### targetSdk / compileSdk
+
+**Selection criteria:** The latest stable Android SDK version
+
+**Update frequency:** Approximately 6 months after the stable Android SDK release (typically January-February of the following year)
+
+**Update process:**
+- Begin impact analysis and internal testing during the beta phase
+- Perform final validation after stable release
+
+**Rationale:** Google Play Store requires apps to target recent API levels (typically within 12 months of release). Early adoption allows our customers sufficient time to update their applications.
+
+#### Android Gradle Plugin (AGP) / Gradle / Kotlin / JDK
+
+**Selection criteria:** 
+
+Based on the selected AGP version, we determine compatible versions for related build tools:
+
+- **AGP:** Stable version released approximately one year before selection
+- **Gradle:** Default version specified in [AGP release notes](https://developer.android.com/build/releases/past-releases)
+- **Kotlin:** Compatible version from the [AGP compatibility matrix](https://developer.android.com/build/kotlin-support) (or the previous major version if not explicitly listed)
+- **JDK:** Default version specified in [AGP release notes](https://developer.android.com/build/releases/past-releases)
+
+**Rationale:**
+- Balances stability and security through the use of well-established versions
+- Default versions ensure officially verified compatibility between tools
 
 ## Documentation
 The developer guide is located at

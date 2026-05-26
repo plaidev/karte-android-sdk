@@ -23,9 +23,7 @@ import java.util.UUID
 
 private const val LOG_TAG = "Karte.PvId"
 
-internal fun generateOriginalPvId(): String {
-    return UUID.randomUUID().toString()
-}
+internal fun generateOriginalPvId(): String = UUID.randomUUID().toString()
 
 internal class PvId(initVal: String? = null) : IdContainer {
 

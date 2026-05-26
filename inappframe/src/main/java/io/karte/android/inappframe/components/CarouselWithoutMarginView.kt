@@ -19,9 +19,10 @@ import io.karte.android.inappframe.components.shared.DensityConvertible
 import io.karte.android.inappframe.model.IAFTracker
 import io.karte.android.inappframe.components.shared.RoundedImageCarouselAdapter
 
-internal class CarouselWithoutMarginView private constructor(
-    context: Context
-) : TappableMotionLayout(context), DensityConvertible, AutoSpeedConfigurable {
+internal class CarouselWithoutMarginView private constructor(context: Context) :
+    TappableMotionLayout(context),
+    DensityConvertible,
+    AutoSpeedConfigurable {
     private val binding = CarouselWithoutMarginBinding.inflate(LayoutInflater.from(context), this, true)
     private lateinit var tracker: IAFTracker
     private lateinit var data: CarouselWithoutMarginV1
@@ -32,15 +33,26 @@ internal class CarouselWithoutMarginView private constructor(
 
     private val autoScrollRunnable = Runnable { motionLayoutView.transitionToEnd() }
 
-    internal constructor(context: Context, carouselWithoutMargin: CarouselWithoutMarginV1, tracker: IAFTracker) : this(context) {
+    internal constructor(context: Context, carouselWithoutMargin: CarouselWithoutMarginV1, tracker: IAFTracker) : this(
+        context
+    ) {
         data = carouselWithoutMargin
         this.tracker = tracker
-        binding.carouselWithoutMarginCarousel.setAdapter(RoundedImageCarouselAdapter(context, resources, data.content.config.radius, data.content.data))
+        binding.carouselWithoutMarginCarousel.setAdapter(
+            RoundedImageCarouselAdapter(context, resources, data.content.config.radius, data.content.data)
+        )
         val motionLayoutTransition = motionLayoutView.getTransition(R.id.carousel_without_margin_forward)
         data.content.config.autoplaySpeed.run {
             motionLayoutTransition.duration = motionLayoutDuration
         }
-        motionLayoutView.setTransitionListener(AutoScrollableTransitionListener(handler, autoScrollRunnable, data.content.config.autoplaySpeed, userInteracted))
+        motionLayoutView.setTransitionListener(
+            AutoScrollableTransitionListener(
+                handler,
+                autoScrollRunnable,
+                data.content.config.autoplaySpeed,
+                userInteracted
+            )
+        )
 
         val paddingTopInPixels = dpToPx(context, data.content.config.paddingTop)
         val paddingBottomInPixels = dpToPx(context, data.content.config.paddingBottom)

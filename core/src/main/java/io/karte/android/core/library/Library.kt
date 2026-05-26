@@ -25,8 +25,10 @@ import io.karte.android.KarteApp
 interface Library {
     /**ライブラリ名*/
     val name: String
+
     /**バージョン*/
     val version: String
+
     /**公開モジュールであるかどうか*/
     val isPublic: Boolean
 

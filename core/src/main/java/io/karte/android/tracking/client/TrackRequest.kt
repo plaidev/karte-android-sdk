@@ -79,7 +79,8 @@ class TrackRequest(
         get() {
             return JSONObject()
                 .put(
-                    "keys", JSONObject()
+                    "keys",
+                    JSONObject()
                         .put("visitor_id", visitorId)
                         .put("original_pv_id", originalPvId)
                         .put("pv_id", pvId)
@@ -103,7 +104,8 @@ class TrackRequest(
      * @param eventName イベント名
      * @return 指定されたイベント名が含まれる場合は `true` を返し、含まれない場合は `false` を返します。
      */
-    fun contains(eventName: EventName): Boolean {
-        return events.any { it.eventName == eventName || it.eventName.value == eventName.value }
+    fun contains(eventName: EventName): Boolean = events.any {
+        it.eventName == eventName ||
+            it.eventName.value == eventName.value
     }
 }

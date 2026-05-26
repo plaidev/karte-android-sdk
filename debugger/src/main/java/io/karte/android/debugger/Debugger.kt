@@ -19,11 +19,14 @@ private const val REPOSITORY_NAMESPACE = "Debugger_"
 private const val REPOSITORY_KEY = "id"
 
 private const val HEADER_ACCOUNT_ID = "X-KARTE-Auto-Track-Account-Id"
-private const val HEADER__api_auth_data__ = "__api_auth_data__"
+private const val HEADER_API_AUTH_DATA = "__api_auth_data__"
 
 private const val ENDPOINT_POST_TRACE = "/auto-track/app-trace"
 
-class Debugger : Library, TrackModule, DeepLinkModule {
+class Debugger :
+    Library,
+    TrackModule,
+    DeepLinkModule {
 
     private val traceSendExecutor = Executors.newCachedThreadPool()
     private lateinit var id: String
@@ -35,29 +38,30 @@ class Debugger : Library, TrackModule, DeepLinkModule {
     override val isPublic: Boolean = true
 
     override fun intercept(request: TrackRequest): TrackRequest {
-
         // OptOutの場合はセキュリティ観点からイベントを送らない
         if (KarteApp.isOptOut) return request
 
-        traceSendExecutor.execute(Runnable {
-            try {
-                val traceBody = request.json
+        traceSendExecutor.execute(
+            Runnable {
+                try {
+                    val traceBody = request.json
 
-                val url = app.config.baseUrl + ENDPOINT_POST_TRACE
-                val debuggerRequest = JSONRequest(url, METHOD_POST, false)
+                    val url = app.config.baseUrl + ENDPOINT_POST_TRACE
+                    val debuggerRequest = JSONRequest(url, METHOD_POST, false)
 
-                debuggerRequest.body = traceBody.toString()
-                debuggerRequest.headers[HEADER_APP_KEY] = app.appKey
+                    debuggerRequest.body = traceBody.toString()
+                    debuggerRequest.headers[HEADER_APP_KEY] = app.appKey
 
-                if (id == "") return@Runnable
-                debuggerRequest.headers[HEADER_ACCOUNT_ID] = id
-                debuggerRequest.headers[ HEADER__api_auth_data__] = app.config.apiKey
+                    if (id == "") return@Runnable
+                    debuggerRequest.headers[HEADER_ACCOUNT_ID] = id
+                    debuggerRequest.headers[HEADER_API_AUTH_DATA] = app.config.apiKey
 
-                Client.execute(debuggerRequest)
-            } catch (e: Throwable) {
-                Logger.e(LOG_TAG, "Failed to send action info.", e)
+                    Client.execute(debuggerRequest)
+                } catch (e: Throwable) {
+                    Logger.e(LOG_TAG, "Failed to send action info.", e)
+                }
             }
-        })
+        )
         return request
     }
 

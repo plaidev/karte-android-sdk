@@ -22,11 +22,19 @@ class MessageOpenTrackTest : TrackerTestCase() {
     @Test
     fun originがinappmessagingで有効期限切れのmessage_openは送信されないこと() {
         enqueueSuccessResponse()
-        Tracker.track(MessageEvent(MessageEventType.Open, "cid", "sid", mapOf(
-            "message" to mapOf(
-                "response_timestamp" to dateFormatter.format(Date(0))
+        Tracker.track(
+            MessageEvent(
+                MessageEventType.Open,
+                "cid",
+                "sid",
+                mapOf(
+                    "message" to mapOf(
+                        "response_timestamp" to dateFormatter.format(Date(0))
+                    )
+                ),
+                "inappmessaging"
             )
-        ), "inappmessaging"))
+        )
         proceedBufferedCall()
 
         val request = server.takeRequest()
@@ -39,11 +47,19 @@ class MessageOpenTrackTest : TrackerTestCase() {
     @Test
     fun originがinappmessagingで有効期限切れではないmessage_openは送信されること() {
         enqueueSuccessResponse()
-        Tracker.track(MessageEvent(MessageEventType.Open, "cid", "sid", mapOf(
-            "message" to mapOf(
-                "response_timestamp" to dateFormatter.format(Date())
+        Tracker.track(
+            MessageEvent(
+                MessageEventType.Open,
+                "cid",
+                "sid",
+                mapOf(
+                    "message" to mapOf(
+                        "response_timestamp" to dateFormatter.format(Date())
+                    )
+                ),
+                "inappmessaging"
             )
-        ), "inappmessaging"))
+        )
         proceedBufferedCall()
 
         val request = server.takeRequest()
@@ -56,11 +72,18 @@ class MessageOpenTrackTest : TrackerTestCase() {
     @Test
     fun originがinappmessaging以外のmessage_openは送信されること1() {
         enqueueSuccessResponse()
-        Tracker.track(MessageEvent(MessageEventType.Open, "cid", "sid", mapOf(
-            "message" to mapOf(
-                "response_timestamp" to dateFormatter.format(Date(0))
+        Tracker.track(
+            MessageEvent(
+                MessageEventType.Open,
+                "cid",
+                "sid",
+                mapOf(
+                    "message" to mapOf(
+                        "response_timestamp" to dateFormatter.format(Date(0))
+                    )
+                )
             )
-        )))
+        )
         proceedBufferedCall()
 
         val request = server.takeRequest()
@@ -73,11 +96,18 @@ class MessageOpenTrackTest : TrackerTestCase() {
     @Test
     fun originがinappmessaging以外のmessage_openは送信されること2() {
         enqueueSuccessResponse()
-        Tracker.track(MessageEvent(MessageEventType.Open, "cid", "sid", mapOf(
-            "message" to mapOf(
-                "response_timestamp" to dateFormatter.format(Date())
+        Tracker.track(
+            MessageEvent(
+                MessageEventType.Open,
+                "cid",
+                "sid",
+                mapOf(
+                    "message" to mapOf(
+                        "response_timestamp" to dateFormatter.format(Date())
+                    )
+                )
             )
-        )))
+        )
         proceedBufferedCall()
 
         val request = server.takeRequest()

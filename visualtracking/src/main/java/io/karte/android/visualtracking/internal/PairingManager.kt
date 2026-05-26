@@ -99,28 +99,32 @@ internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCall
     }
 
     private fun startHeartBeat(accountId: String) {
-        pollingExecutor.schedule(object : Runnable {
-            override fun run() {
-                if (!isPaired) return
-                try {
-                    val url = app.config.baseUrl + ENDPOINT_PAIRING_HEARTBEAT
+        pollingExecutor.schedule(
+            object : Runnable {
+                override fun run() {
+                    if (!isPaired) return
+                    try {
+                        val url = app.config.baseUrl + ENDPOINT_PAIRING_HEARTBEAT
 
-                    val json = JSONObject().put("visitor_id", KarteApp.visitorId)
-                    val request =
-                        JSONRequest(url, METHOD_POST).apply { body = json.toString() }
-                    request.headers[HEADER_APP_KEY] = app.appKey
-                    request.headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_JSON
-                    request.headers[HEADER_ACCOUNT_ID] = accountId
+                        val json = JSONObject().put("visitor_id", KarteApp.visitorId)
+                        val request =
+                            JSONRequest(url, METHOD_POST).apply { body = json.toString() }
+                        request.headers[HEADER_APP_KEY] = app.appKey
+                        request.headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_JSON
+                        request.headers[HEADER_ACCOUNT_ID] = accountId
 
-                    val res = Client.execute(request)
-                    finishPairingIfNeeded(res)
-                } catch (e: Throwable) {
-                    Logger.e(LOG_TAG, "Failed to heartbeat.", e)
+                        val res = Client.execute(request)
+                        finishPairingIfNeeded(res)
+                    } catch (e: Throwable) {
+                        Logger.e(LOG_TAG, "Failed to heartbeat.", e)
+                    }
+
+                    if (isPaired) pollingExecutor.schedule(this, 5, TimeUnit.SECONDS)
                 }
-
-                if (isPaired) pollingExecutor.schedule(this, 5, TimeUnit.SECONDS)
-            }
-        }, 5, TimeUnit.SECONDS)
+            },
+            5,
+            TimeUnit.SECONDS
+        )
     }
 
     @UiThread
@@ -133,43 +137,44 @@ internal class PairingManager(private val app: KarteApp) : ActivityLifecycleCall
     }
 
     private fun sendTraceInternal(trace: JSONObject, bitmap: Bitmap?) {
-        traceSendExecutor.execute(Runnable {
-            try {
+        traceSendExecutor.execute(
+            Runnable {
+                try {
+                    val parts = ArrayList<MultipartRequest.Part<*>>()
+                    val traceBody = JSONObject()
+                        .put("os", "android")
+                        .put("visitor_id", KarteApp.visitorId)
+                        .put("values", trace)
 
-                val parts = ArrayList<MultipartRequest.Part<*>>()
-                val traceBody = JSONObject()
-                    .put("os", "android")
-                    .put("visitor_id", KarteApp.visitorId)
-                    .put("values", trace)
+                    val valuesPart = MultipartRequest.StringPart("trace", traceBody.toString())
+                    valuesPart.headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_TEXT
+                    parts.add(valuesPart)
 
-                val valuesPart = MultipartRequest.StringPart("trace", traceBody.toString())
-                valuesPart.headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_TEXT
-                parts.add(valuesPart)
+                    if (bitmap != null) {
+                        val imagePart = MultipartRequest.BitmapPart("image", bitmap)
+                        imagePart.headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_OCTET_STREAM
+                        parts.add(imagePart)
+                    }
 
-                if (bitmap != null) {
-                    val imagePart = MultipartRequest.BitmapPart("image", bitmap)
-                    imagePart.headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_OCTET_STREAM
-                    parts.add(imagePart)
+                    val url = app.config.baseUrl + ENDPOINT_POST_TRACE
+                    val request = MultipartRequest(url, METHOD_POST, parts)
+                    request.headers[HEADER_APP_KEY] = app.appKey
+
+                    if (pairingAccountId == null) return@Runnable
+                    pairingAccountId?.let { request.headers[HEADER_ACCOUNT_ID] = it }
+
+                    val res = Client.execute(request)
+                    if (res.isSuccessful) {
+                        Logger.i(LOG_TAG, "Sent action=" + trace.getString("action"))
+                    } else {
+                        Logger.e(LOG_TAG, "Failed to send action. Response=" + res.body)
+                    }
+                    finishPairingIfNeeded(res)
+                } catch (e: Throwable) {
+                    Logger.e(LOG_TAG, "Failed to send action info.", e)
                 }
-
-                val url = app.config.baseUrl + ENDPOINT_POST_TRACE
-                val request = MultipartRequest(url, METHOD_POST, parts)
-                request.headers[HEADER_APP_KEY] = app.appKey
-
-                if (pairingAccountId == null) return@Runnable
-                pairingAccountId?.let { request.headers[HEADER_ACCOUNT_ID] = it }
-
-                val res = Client.execute(request)
-                if (res.isSuccessful) {
-                    Logger.i(LOG_TAG, "Sent action=" + trace.getString("action"))
-                } else {
-                    Logger.e(LOG_TAG, "Failed to send action. Response=" + res.body)
-                }
-                finishPairingIfNeeded(res)
-            } catch (e: Throwable) {
-                Logger.e(LOG_TAG, "Failed to send action info.", e)
             }
-        })
+        )
     }
 
     private fun showPairingFailedToast(context: Context) {

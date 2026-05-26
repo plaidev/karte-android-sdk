@@ -26,7 +26,9 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.Date
 
-internal class CrashReporting : Thread.UncaughtExceptionHandler, Library {
+internal class CrashReporting :
+    Thread.UncaughtExceptionHandler,
+    Library {
 
     private val handler: Thread.UncaughtExceptionHandler? =
         Thread.getDefaultUncaughtExceptionHandler()

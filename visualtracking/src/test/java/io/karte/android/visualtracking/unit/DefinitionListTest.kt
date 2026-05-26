@@ -165,7 +165,6 @@ class DefinitionListTest {
     class 静的フィールド : RobolectricTestCase() {
         @Test
         fun 設定したフィールドが付加される() {
-
             val definitionList = buildDefinitionList(
                 definition(
                     "event1",

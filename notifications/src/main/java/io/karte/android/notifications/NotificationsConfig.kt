@@ -36,8 +36,10 @@ class NotificationsConfig private constructor(val enabledFCMTokenResend: Boolean
         var enabledFCMTokenResend: Boolean = true @JvmSynthetic set
 
         /**[NotificationsConfig.enabledFCMTokenResend]を変更します。*/
-        fun enabledFCMTokenResend(enabledFCMTokenResend: Boolean): Builder =
-            apply { this.enabledFCMTokenResend = enabledFCMTokenResend }
+        fun enabledFCMTokenResend(enabledFCMTokenResend: Boolean): Builder = apply {
+            this.enabledFCMTokenResend =
+                enabledFCMTokenResend
+        }
 
         /**[NotificationsConfig]クラスのインスタンスを生成します。*/
         fun build(): NotificationsConfig = NotificationsConfig(enabledFCMTokenResend)

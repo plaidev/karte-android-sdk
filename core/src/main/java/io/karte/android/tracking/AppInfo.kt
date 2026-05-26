@@ -92,34 +92,28 @@ class AppInfo(context: Context, repository: Repository, config: Config) : Serial
         Logger.v(LOG_TAG, "Constructed App info: $json")
     }
 
-    override fun serialize(): JSONObject {
-        return try {
-            JSONObject()
-                .put("version_name", versionName)
-                .put("version_code", versionCode.toString())
-                .put("karte_sdk_version", karteSdkVersion)
-                .put("package_name", packageName)
-                .put("system_info", systemInfo.serialize())
-                .put("module_info", moduleInfo.serialize())
-        } catch (e: JSONException) {
-            Logger.e(LOG_TAG, "Failed to construct json.", e)
-            JSONObject()
-        }
+    override fun serialize(): JSONObject = try {
+        JSONObject()
+            .put("version_name", versionName)
+            .put("version_code", versionCode.toString())
+            .put("karte_sdk_version", karteSdkVersion)
+            .put("package_name", packageName)
+            .put("system_info", systemInfo.serialize())
+            .put("module_info", moduleInfo.serialize())
+    } catch (e: JSONException) {
+        Logger.e(LOG_TAG, "Failed to construct json.", e)
+        JSONObject()
     }
 
-    private fun serializeForInstall(): JSONObject {
-        return JSONObject()
-    }
+    private fun serializeForInstall(): JSONObject = JSONObject()
 
-    private fun serializeForUpdate(): JSONObject {
-        return try {
-            JSONObject()
-                .put("prev_version_name", prevVersionName)
-                .put("prev_version_code", prevVersionCode.toString())
-        } catch (e: JSONException) {
-            Logger.e(LOG_TAG, "Failed to construct json.", e)
-            JSONObject()
-        }
+    private fun serializeForUpdate(): JSONObject = try {
+        JSONObject()
+            .put("prev_version_name", prevVersionName)
+            .put("prev_version_code", prevVersionCode.toString())
+    } catch (e: JSONException) {
+        Logger.e(LOG_TAG, "Failed to construct json.", e)
+        JSONObject()
     }
 
     internal fun trackAppLifecycle() {
@@ -149,7 +143,9 @@ class AppInfo(context: Context, repository: Repository, config: Config) : Serial
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return WebViewInfo(packageName = "unknown (Below Android 8)")
         }
-        val packageName = WebView.getCurrentWebViewPackage()?.packageName ?: return WebViewInfo(packageName = "unknown (Current WebView not found)")
+        val packageName =
+            WebView.getCurrentWebViewPackage()?.packageName
+                ?: return WebViewInfo(packageName = "unknown (Current WebView not found)")
         return try {
             val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
             WebViewInfo(packageName = packageInfo.packageName, version = packageInfo.versionName)
@@ -171,11 +167,8 @@ private class ModuleInfo : Serializable {
     }
 }
 
-private class SystemInfo(
-    val enabledTrackingAaid: Boolean,
-    val screen: Screen,
-    private val webViewInfo: WebViewInfo
-) : Serializable {
+private class SystemInfo(val enabledTrackingAaid: Boolean, val screen: Screen, private val webViewInfo: WebViewInfo) :
+    Serializable {
     private val os: String = "Android"
     private val osVersion: String? = Build.VERSION.RELEASE
     private val device: String? = Build.DEVICE

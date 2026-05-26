@@ -36,7 +36,6 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
-import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.hardware.display.DisplayManagerCompat
@@ -56,12 +55,7 @@ private const val KARTE_CALLBACK_SCHEME = "karte-tracker-callback://"
 @SuppressLint("SetJavaScriptEnabled")
 internal abstract class BaseWebView(context: Context) : WebView(context.applicationContext) {
 
-    class SafeInsets(
-        val left: Int,
-        val top: Int,
-        val right: Int,
-        val bottom: Int
-    )
+    class SafeInsets(val left: Int, val top: Int, val right: Int, val bottom: Int)
 
     private var safeInsets: SafeInsets? = null
 
@@ -82,11 +76,6 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         if (BuildConfig.DEBUG) {
             setWebContentsDebuggingEnabled(true)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Web版も合わせて接客側で対応ができるまではダークモードはオフにする
-            @Suppress("DEPRECATION")
-            settings.forceDark = WebSettings.FORCE_DARK_OFF
-        }
 
         webViewClient = object : WebViewClient() {
             @Deprecated("Deprecated in API level 24")
@@ -103,11 +92,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
                 return true
             }
 
-            override fun onReceivedSslError(
-                view: WebView,
-                handler: SslErrorHandler,
-                error: SslError
-            ) {
+            override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
                 super.onReceivedSslError(view, handler, error)
                 handleError("SslError occurred in WebView. $error", error.url)
             }
@@ -132,11 +117,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
 
             // api23以上でmainpage以外でも呼ばれる
             @TargetApi(Build.VERSION_CODES.M)
-            override fun onReceivedError(
-                view: WebView,
-                request: WebResourceRequest,
-                error: WebResourceError
-            ) {
+            override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
                 super.onReceivedError(view, request, error)
                 handleError(
                     "Error occurred in WebView. " + error.description.toString(),
@@ -146,12 +127,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
 
             // mainpageの失敗時のみ呼ばれる
             @Deprecated("Deprecated in Java")
-            override fun onReceivedError(
-                view: WebView,
-                errorCode: Int,
-                description: String,
-                failingUrl: String
-            ) {
+            override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
                 // TODO: FIX DEPRECATION
                 @Suppress("DEPRECATION")
                 super.onReceivedError(view, errorCode, description, failingUrl)
@@ -161,12 +137,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
 
         webChromeClient = object : WebChromeClient() {
 
-            override fun onJsAlert(
-                view: WebView,
-                url: String,
-                message: String,
-                result: JsResult
-            ): Boolean {
+            override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
                 showAlert(message)
                 result.cancel()
                 return true
@@ -181,9 +152,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
                 webView: WebView,
                 filePathCallback: ValueCallback<Array<Uri>>,
                 fileChooserParams: FileChooserParams
-            ): Boolean {
-                return showFileChooser(filePathCallback)
-            }
+            ): Boolean = showFileChooser(filePathCallback)
         }
     }
 
@@ -229,8 +198,9 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
     private fun handleError(message: String, urlTriedToLoad: String?) {
         Logger.e(LOG_TAG, "$message, url: $urlTriedToLoad")
         // 現在のページのエラー時には空htmlを読み込む
-        if (url != null && url == urlTriedToLoad)
+        if (url != null && url == urlTriedToLoad) {
             loadData("<html></html>", "text/html", "utf-8")
+        }
         if (urlTriedToLoad == null || urlTriedToLoad.contains("/native/overlay") ||
             urlTriedToLoad.contains("native_tracker")
         ) {

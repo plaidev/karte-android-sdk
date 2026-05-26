@@ -130,8 +130,10 @@ class SetupTest {
                     .comparingElementsUsing(eventNameTransform)
                     .contains("native_app_open")
                 // assertThat(dispatcher.trackedEvents()).comparingElementsUsing(eventNameTransform).containsOnlyOnce("native_app_open")
-                assertThat(dispatcher.trackedEvents()
-                    .count { it.getString("event_name") == "native_app_open" })
+                assertThat(
+                    dispatcher.trackedEvents()
+                        .count { it.getString("event_name") == "native_app_open" }
+                )
                     .isEqualTo(1)
             }
         }
@@ -185,13 +187,11 @@ class SetupTest {
         companion object {
             @JvmStatic
             @ParameterizedRobolectricTestRunner.Parameters(name = "{index}: {0}")
-            fun data(): List<Any> {
-                return listOf(
-                    arrayOf(SetupPattern.FROM_RESOURCE),
-                    arrayOf(SetupPattern.BY_CONFIG),
-                    arrayOf(SetupPattern.BY_METHOD)
-                )
-            }
+            fun data(): List<Any> = listOf(
+                arrayOf(SetupPattern.FROM_RESOURCE),
+                arrayOf(SetupPattern.BY_CONFIG),
+                arrayOf(SetupPattern.BY_METHOD)
+            )
         }
 
         private val overwriteAppKey = "overwriteappkey_1234567890123456"
@@ -200,9 +200,11 @@ class SetupTest {
             val config = configBuilder.baseUrl(server.url("").toString()).build()
             when (pattern) {
                 SetupPattern.FROM_RESOURCE -> KarteApp.setup(application, config)
+
                 SetupPattern.BY_CONFIG -> KarteApp.setup(
                     application,
-                    config.apply { appKey = overwriteAppKey })
+                    config.apply { appKey = overwriteAppKey }
+                )
 
                 SetupPattern.BY_METHOD -> KarteApp.setup(application, overwriteAppKey, config)
             }

@@ -93,9 +93,7 @@ class RoundedImageCarouselAdapterTest {
             imageList = images
         ) {
             // density=2.0f 相当の計算を行う
-            override fun dpToPx(context: Context, dp: Int): Int {
-                return dp * 2
-            }
+            override fun dpToPx(context: Context, dp: Int): Int = dp * 2
         }
 
         val mockDrawable = mockk<RoundedBitmapDrawable>(relaxed = true)

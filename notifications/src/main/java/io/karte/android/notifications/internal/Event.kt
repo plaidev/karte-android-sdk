@@ -31,19 +31,19 @@ internal class MessageReachedEvent(campaignId: String, shortenId: String, values
 internal class MessageIgnoredEvent(campaignId: String, shortenId: String, values: Values? = null) :
     Event(PushEventName.MessageIgnored, messageValues(campaignId, shortenId, values))
 
-internal class MassPushClickEvent(values: Values) :
-    Event(PushEventName.MassPushClick, values)
+internal class MassPushClickEvent(values: Values) : Event(PushEventName.MassPushClick, values)
 
 internal class PluginNativeAppIdentifyEvent(subscribe: Boolean, token: String? = null) :
     Event(
         PushEventName.PluginNativeAppIdentify,
         values = mutableMapOf<String, Any>("subscribe" to subscribe).apply {
             if (token != null) this["fcm_token"] = token
-        })
+        }
+    )
 
 private enum class PushEventName(override val value: String) : EventName {
     MessageReached("_message_reached"),
     MessageIgnored("_message_ignored"),
     MassPushClick("mass_push_click"),
-    PluginNativeAppIdentify("plugin_native_app_identify"),
+    PluginNativeAppIdentify("plugin_native_app_identify")
 }

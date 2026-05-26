@@ -18,6 +18,7 @@ package io.karte.android.notifications.internal
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessaging
+import io.karte.android.KarteApp
 import io.karte.android.core.library.NotificationModule
 import io.karte.android.core.library.UserModule
 import io.karte.android.core.logger.Logger
@@ -27,7 +28,9 @@ import kotlin.concurrent.thread
 private const val LOG_TAG = "Karte.Notifications.TokenRegistrar"
 internal const val THREAD_NAME = "io.karte.android.notifications.TokenRegistrar"
 
-internal class TokenRegistrar(private val context: Context) : UserModule, NotificationModule {
+internal class TokenRegistrar(private val context: Context) :
+    UserModule,
+    NotificationModule {
 
     //region Module
     override val name: String = "TokenRegistrar"
@@ -51,6 +54,10 @@ internal class TokenRegistrar(private val context: Context) : UserModule, Notifi
     private var subscribe = false
 
     fun registerFCMToken(token: String? = null) {
+        if (KarteApp.isOptOut) {
+            Logger.i(LOG_TAG, "KARTE has been opted out, skipping FCM registration")
+            return
+        }
         if (token == null) {
             thread(name = THREAD_NAME) { getToken { _token -> registerFCMTokenInternal(_token) } }
         } else {
@@ -107,7 +114,9 @@ internal class TokenRegistrar(private val context: Context) : UserModule, Notifi
     }
 
     private fun logMessage(methodName: String, result: String, addition: String? = null): String =
-        "$result FCM token using [$methodName].${addition?.let { "\n$addition" } ?: ""}"
+        "$result FCM token using [$methodName].${addition?.let {
+            "\n$addition"
+        } ?: ""}"
 
     private fun isChanged(token: String): Boolean {
         if (this.token != token) return true

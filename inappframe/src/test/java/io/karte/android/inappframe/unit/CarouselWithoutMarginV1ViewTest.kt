@@ -71,12 +71,20 @@ class CarouselWithoutMarginV1ViewTest {
         val eventTime = downTime + 100
 
         val downEvent = MotionEvent.obtain(
-            downTime, downTime, MotionEvent.ACTION_DOWN,
-            100f, 100f, 0
+            downTime,
+            downTime,
+            MotionEvent.ACTION_DOWN,
+            100f,
+            100f,
+            0
         )
         val upEvent = MotionEvent.obtain(
-            downTime, eventTime, MotionEvent.ACTION_UP,
-            100f, 100f, 0
+            downTime,
+            eventTime,
+            MotionEvent.ACTION_UP,
+            100f,
+            100f,
+            0
         )
 
         try {

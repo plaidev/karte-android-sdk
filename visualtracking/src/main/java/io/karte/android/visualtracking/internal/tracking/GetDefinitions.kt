@@ -26,11 +26,7 @@ private const val LOG_TAG = "Karte.VTDefinitions"
 private const val ENDPOINT_GET_DEFINITIONS = "/auto-track/definitions"
 
 internal object GetDefinitions {
-    fun get(
-        app: KarteApp,
-        requestApply: ((JSONRequest) -> Unit)?,
-        completion: ((JSONObject?) -> Unit)?
-    ) {
+    fun get(app: KarteApp, requestApply: ((JSONRequest) -> Unit)?, completion: ((JSONObject?) -> Unit)?) {
         try {
             val request =
                 JSONRequest(app.config.baseUrl + ENDPOINT_GET_DEFINITIONS, "GET")

@@ -3,7 +3,8 @@ package io.karte.android.tracking.queue
 import io.karte.android.tracking.Event
 
 internal class TrackEventRejectionFilter {
-    var ruleContainer: MutableMap<String, MutableMap<String, MutableList<TrackEventRejectionFilterRule>>> = mutableMapOf()
+    var ruleContainer: MutableMap<String, MutableMap<String, MutableList<TrackEventRejectionFilterRule>>> =
+        mutableMapOf()
 
     fun reject(event: Event): Boolean {
         val libraryName = event.libraryName ?: return false
