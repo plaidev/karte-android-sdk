@@ -35,14 +35,12 @@ jobs:
           echo '{"project_info":{"project_number":"xxx","project_id":"xxx"},"client":[{"client_info":{"mobilesdk_app_id":"xxx","android_client_info":{"package_name":"io.karte.tracker_sample"}},"api_key":[{"current_key":"xxx"}]}]}' > examples/sample_java/google-services.json
           cp examples/sample_java/google-services.json examples/sample_kotlin/google-services.json
       - name: Download Dependencies
-        run: |
-          ./gradlew androidDependencies || (echo "❌ Download dependencies failed. If this is a dependency verification error, run 'bash scripts/update-dependencies.sh' and commit the updated gradle/verification-metadata.xml file." && exit 1)
+        run: ./gradlew androidDependencies
       - name: Dependency Guard check
         run: |
           ./gradlew dependencyGuard || (echo "❌ dependencyGuard failed. Dependencies have changed from the baseline. If this is intentional, run './gradlew dependencyGuardBaseline' locally and commit the updated baseline files. See https://github.com/dropbox/dependency-guard for details." && exit 1)
       - name: Build modules
-        run: |
-          ./gradlew --stacktrace assembleDebug assembleRelease --parallel || (echo "❌ Build failed. If this is a dependency verification error, run 'bash scripts/update-dependencies.sh' and commit the updated gradle/verification-metadata.xml file." && exit 1)
+        run: ./gradlew --stacktrace assembleDebug assembleRelease --parallel
       - name: Lint
         run: |
           ./gradlew --stacktrace lintRelease
