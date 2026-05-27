@@ -3,8 +3,8 @@
 ##################################################
 # KARTE Android SDK 自動パブリッシュスクリプト
 #
-# このスクリプトは、変更されたモジュールを自動的に検出し、
-# Maven Central にパブリッシュするためのスクリプトです。
+# 引数としてモジュール名を受け取り、Maven Central にパブリッシュする。
+# パブリッシュ対象の検出は publish.yml の Detect unpublished modules で行う。
 ##################################################
 
 ##################################################
@@ -29,12 +29,6 @@ function create_tag() {
 # パブリッシュ関連関数
 ##################################################
 
-# モジュール名からターゲット名取得
-function get_target_name() {
-  local MODULE=$1
-  echo $MODULE | sed -e "s/\/version//"
-}
-
 # Maven パブリッシュ実行
 function publish_module() {
   local MODULE=$1
@@ -54,12 +48,11 @@ function publish_module() {
 # モジュールのタグ作成処理
 function create_module_tag() {
   local MODULE=$1
-  local TARGET=`get_target_name $MODULE`
 
-  echo "Processing module: $TARGET"
+  echo "Processing module: $MODULE"
 
-  TAG_VERSION=`ruby scripts/bump_version.rb current-tag -t $TARGET`
-  echo "Creating tag: $TAG_VERSION for module: $TARGET"
+  TAG_VERSION=`ruby scripts/bump_version.rb current-tag -t $MODULE`
+  echo "Creating tag: $TAG_VERSION for module: $MODULE"
 
   if has_tag "$TAG_VERSION"; then
     echo "Tag $TAG_VERSION already exists"
@@ -82,8 +75,7 @@ function publish_modules() {
   local MODULES=("$@")
 
   for MODULE in "${MODULES[@]}"; do
-    local TARGET=`get_target_name $MODULE`
-    publish_module "$TARGET"
+    publish_module "$MODULE"
   done
 }
 
@@ -109,8 +101,5 @@ function publish() {
 # メイン処理
 ##################################################
 
-# sync_repo/masterとの差分から変更されたバージョンファイルを特定
-DIFF_TARGETS=($(git diff --name-only sync_repo/master | grep -E '^(version$|.*/version$)'))
-
-# 特定されたターゲットモジュールをパブリッシュ
-publish ${DIFF_TARGETS[@]}
+# パブリッシュ対象モジュールを引数から受け取る
+publish "$@"
