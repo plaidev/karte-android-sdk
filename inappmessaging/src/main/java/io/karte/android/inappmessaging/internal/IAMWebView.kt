@@ -56,6 +56,18 @@ internal class IAMWebView(context: Context, private val delegate: WebViewDelegat
         state = State.LOADING
     }
 
+    internal fun retryLoadIfFailed() {
+        if (state != State.FAILED) return
+        state = State.LOADING
+        val overlayUrl = InAppMessaging.self?.generateOverlayURL() ?: run {
+            Logger.e(LOG_TAG, "Failed to construct overlay url.")
+            state = State.FAILED
+            return
+        }
+        Logger.d(LOG_TAG, "retryLoadIfFailed()")
+        loadUrl(overlayUrl)
+    }
+
     fun reset(isForce: Boolean = false) {
         if (!isReady) {
             Logger.d(LOG_TAG, "overlay not ready, canceled: resetPageState($isForce)")
@@ -205,6 +217,10 @@ internal class IAMWebView(context: Context, private val delegate: WebViewDelegat
         }
         Logger.d(LOG_TAG, "setSafeAreaInset($top)")
         loadUrl("javascript:window.tracker.setSafeAreaInset($top);")
+    }
+
+    override fun overlayLoadFailed() {
+        if (state == State.LOADING) changeState(State.FAILED)
     }
 
     override fun errorOccurred() {

@@ -65,7 +65,12 @@ internal class IAMProcessor(
 
     fun handle(message: MessageModel) {
         setWindowFocus(message)
-        webView?.handleResponseData(message.string)
+        webView?.run {
+            // FAILED 状態の場合はオーバーレイの再ロードを先に開始し、
+            // その後データをキューに積むことでロード完了後に処理されるようにする
+            retryLoadIfFailed()
+            handleResponseData(message.string)
+        }
     }
 
     fun handleChangePv() {
