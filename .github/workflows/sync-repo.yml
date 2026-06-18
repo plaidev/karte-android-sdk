@@ -17,15 +17,16 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
           ref: master
           fetch-depth: 0 # Fetch all history for all branches and tags
       - name: Generate GitHub App token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token
         with:
+          # TODO: app-id is deprecated in v3.1.0, rename to client-id
           app-id: ${{ secrets.APP_TEAM_GITHUB_APP_ID }}
           private-key: ${{ secrets.APP_TEAM_GITHUB_APP_PRIVATE_KEY }}
           owner: plaidev
@@ -53,14 +54,14 @@ jobs:
         run: git push sync_repo master
       - name: Notify Slack on success
         if: success()
-        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_MESSAGE: 'Repository sync completed successfully'
           SLACK_COLOR: success
       - name: Notify Slack on failure
         if: failure()
-        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_MESSAGE: 'Repository sync failed'

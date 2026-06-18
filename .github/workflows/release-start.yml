@@ -16,7 +16,7 @@ jobs:
       pull-requests: write
     steps:
     - name: Checkout develop
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       with:
         ref: develop
     - name: Configure Git
@@ -61,7 +61,7 @@ jobs:
       run: git push origin -u release/${{ steps.date.outputs.date }}
     - name: Generate GitHub App token
       if: inputs.dry_run != true
-      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       id: app-token
       with:
         client-id: ${{ secrets.SHARED_GITHUB_ACTION_AGENT_APP_ID }}
@@ -112,7 +112,7 @@ jobs:
           --head release/${{ steps.date.outputs.date }}
     - name: Generate GitHub App token for triggering workflows
       if: inputs.dry_run != true
-      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       id: app-team-app-token
       with:
         client-id: ${{ secrets.APP_TEAM_GITHUB_APP_ID }}
