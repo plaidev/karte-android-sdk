@@ -44,6 +44,10 @@ android {
         freeCompilerArgs += "-Xexplicit-api=strict"
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     lint {
         lintConfig = file("../lint.xml")
         warningsAsErrors = true

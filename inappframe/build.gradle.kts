@@ -12,6 +12,7 @@ android {
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     buildFeatures {
+        buildConfig = true
         viewBinding = true
         compose = true
     }
