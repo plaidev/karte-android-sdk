@@ -61,9 +61,8 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
 
     init {
         settings.javaScriptEnabled = true
-        @Suppress("DEPRECATION")
-        settings.savePassword = false
         settings.domStorageEnabled = true
+        // NOTE: API 35 から非推奨、かつ Chromium での WebSQL サポート終了後は処理が無効となる
         @Suppress("DEPRECATION")
         settings.databaseEnabled = true
 
@@ -138,9 +137,9 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
             }
 
             // mainpageの失敗時のみ呼ばれる
+            // NOTE: API 23 未満との互換性のために override が必要 (API 23 以上は上記 onReceivedError が呼ばれる)
             @Deprecated("Deprecated in Java")
             override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
-                // TODO: FIX DEPRECATION
                 @Suppress("DEPRECATION")
                 super.onReceivedError(view, errorCode, description, failingUrl)
                 // ネットワーク系のエラーで発火するため、isNetworkError を true に設定
@@ -242,6 +241,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
             DisplayManagerCompat.getInstance(context).getDisplay(Display.DEFAULT_DISPLAY)?.cutout
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            // NOTE: API 30 以上では DisplayManagerCompat で取得するため、defaultDisplay は API 29 以下で使用
             @Suppress("DEPRECATION")
             windowManager.defaultDisplay.cutout
         } else {
@@ -266,7 +266,6 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         return location[1] == 0
     }
 
-    @Suppress("DEPRECATION")
     private fun injectSafeAreaInsetCSS() {
         ViewCompat.setOnApplyWindowInsetsListener(this) { view, insetsCompat ->
             // Compat API でマスクを組み合わせ

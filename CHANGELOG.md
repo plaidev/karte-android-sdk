@@ -17,6 +17,9 @@
 **💊FIXED**
 - アプリ内メッセージ(接客)表示用のWebViewの初期化時にネットワークエラー等でロードに失敗した場合、オンラインに復帰後も接客が表示されなくなる不具合を修正しました。
 
+**🔨CHANGED**
+- 当SDKがサポートする範囲のAndroid OSではno-opとなっているAPI(android.webkit.WebSettings.setSavePassword)の呼び出しを除外しました。
+
 ### InAppFrame 0.9.0
 **🔨CHANGED**
 - BuildConfig の生成設定をモジュール毎に明示するよう変更しました。
