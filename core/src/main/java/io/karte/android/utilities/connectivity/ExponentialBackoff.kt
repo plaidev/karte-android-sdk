@@ -22,9 +22,10 @@ internal fun retryIntervalMs(
     count: Int,
     retryIntervalSec: Double = 0.5,
     multiplier: Double = 4.0,
-    randomFactor: Double = 0.5
+    randomFactor: Double = 0.5,
+    random: Random = Random.Default
 ): Long {
     val interval = retryIntervalSec * multiplier.pow(count - 1)
-    val randomMs = Random.nextDouble(1 - randomFactor, 1 + randomFactor)
+    val randomMs = random.nextDouble(1 - randomFactor, 1 + randomFactor)
     return (interval * randomMs * 1000).toLong()
 }
