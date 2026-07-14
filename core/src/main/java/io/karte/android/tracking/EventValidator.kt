@@ -59,14 +59,14 @@ internal object EventValidator {
             messages.add("Multi-byte character in event name is deprecated: Event=$eventName")
         }
 
-        if (validateEventName(eventName)) {
+        if (isDeprecatedEventName(eventName)) {
             messages.add(
                 "[^a-z0-9_] or starting with _ in event name is deprecated:" +
                     " Event=$eventName"
             )
         }
 
-        if (validateEventFieldName(event.values)) {
+        if (isDeprecatedEventFieldName(event.values)) {
             messages.add(
                 "Contains dots(.) or stating with $ or $INVALID_FIELD_NAMES" +
                     " in event field name is deprecated:" +
@@ -87,8 +87,8 @@ internal object EventValidator {
         return messages
     }
 
-    /** 非推奨なイベント名が含まれるかを返します。 */
-    private fun validateEventName(eventName: String): Boolean {
+    /** 非推奨なイベント名かどうかを返します。 */
+    internal fun isDeprecatedEventName(eventName: String): Boolean {
         if (eventName.isEmpty()) {
             return false
         }
@@ -103,8 +103,8 @@ internal object EventValidator {
         return m.find() || eventName.startsWith("_")
     }
 
-    /** 非推奨なフィールド名が含まれるかを返します。 */
-    private fun validateEventFieldName(values: JSONObject): Boolean {
+    /** 非推奨なフィールド名が含まれるかどうかを返します。 */
+    internal fun isDeprecatedEventFieldName(values: JSONObject): Boolean {
         if (values.length() == 0) {
             return false
         }

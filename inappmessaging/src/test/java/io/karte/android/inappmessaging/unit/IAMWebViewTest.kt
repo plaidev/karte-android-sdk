@@ -22,6 +22,7 @@ import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import com.google.common.truth.Truth.assertThat
+import io.karte.android.inappmessaging.InAppMessaging
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.MessageModel
 import io.karte.android.inappmessaging.internal.WebViewDelegate
@@ -239,70 +240,90 @@ class IAMWebViewTest {
         val error = mockk<SslError>()
         val handler = mockk<SslErrorHandler>(relaxUnitFun = true)
 
-        // urlが異なる時はempty_dataをloadしない
+        // overlay URL 以外ではスルー
         every { error.url } returns dummyUrl
         shadowWebView.webViewClient.onReceivedSslError(webView, handler, error)
         assertThat(shadowWebView.lastLoadData).isNull()
         verify(inverse = true) { delegate.onErrorOccurred() }
 
-        // urlが同じ時はempty_dataをload
-        webView.loadUrl(dummyUrl)
-        every { error.url } returns dummyUrl
-        shadowWebView.webViewClient.onReceivedSslError(webView, handler, error)
-        assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
-        verify(inverse = true) { delegate.onErrorOccurred() }
-
-        // urlがoverlayの時はdelegateに伝える
+        // overlay URL の時は empty_data をロードして delegate に伝える
         every { error.url } returns overlayUrl
         shadowWebView.webViewClient.onReceivedSslError(webView, handler, error)
-        verify(exactly = 1) { delegate.onErrorOccurred() }
-    }
-
-    @Test
-    fun onReceivedHttpErrorでoverlayのロードに失敗するとdelegateがhandleする() {
-        val webResourceRequest = mockk<WebResourceRequest>()
-
-        // urlが異なる時はempty_dataをloadしない
-        every { webResourceRequest.url } returns Uri.parse(dummyUrl)
-        shadowWebView.webViewClient.onReceivedHttpError(webView, webResourceRequest, null)
-        assertThat(shadowWebView.lastLoadData).isNull()
-        verify(inverse = true) { delegate.onErrorOccurred() }
-
-        // urlが同じ時はempty_dataをload
-        webView.loadUrl(dummyUrl)
-        every { webResourceRequest.url } returns Uri.parse(dummyUrl)
-        shadowWebView.webViewClient.onReceivedHttpError(webView, webResourceRequest, null)
         assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
-        verify(inverse = true) { delegate.onErrorOccurred() }
-
-        // urlがoverlayの時はdelegateに伝える
-        every { webResourceRequest.url } returns Uri.parse(overlayUrl)
-        shadowWebView.webViewClient.onReceivedHttpError(webView, webResourceRequest, null)
         verify(exactly = 1) { delegate.onErrorOccurred() }
     }
 
     @Test
-    fun onReceivedErrorでoverlayのロードに失敗するとdelegateがhandleする() {
-        val description = "dumy error reason"
-        val request = mockk<WebResourceRequest>(relaxed = true)
-        val error = mockk<WebResourceError>()
-        every { error.description } returns description
+    fun onReceivedHttpErrorでメインフレームのoverlayのロードに失敗するとdelegateがhandleする() {
+        val request = mockk<WebResourceRequest>()
+        every { request.isForMainFrame } returns true
+
+        // overlay URL 以外ではスルー
         every { request.url } returns Uri.parse(dummyUrl)
-        // urlが異なる時はempty_dataをloadしない
+        shadowWebView.webViewClient.onReceivedHttpError(webView, request, null)
+        assertThat(shadowWebView.lastLoadData).isNull()
+        verify(inverse = true) { delegate.onErrorOccurred() }
+
+        // overlay URL の時は empty_data をロードして delegate に伝える
+        every { request.url } returns Uri.parse(overlayUrl)
+        shadowWebView.webViewClient.onReceivedHttpError(webView, request, null)
+        assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
+        verify(exactly = 1) { delegate.onErrorOccurred() }
+    }
+
+    @Test
+    fun onReceivedHttpErrorでサブリソースのロードに失敗してもdelegateに伝えないこと() {
+        val request = mockk<WebResourceRequest>()
+        every { request.isForMainFrame } returns false
+        every { request.url } returns Uri.parse(dummyUrl)
+
+        webView.loadUrl(overlayUrl)
+        shadowWebView.webViewClient.onReceivedHttpError(webView, request, null)
+        assertThat(shadowWebView.lastLoadData).isNull()
+        verify(inverse = true) { delegate.onErrorOccurred() }
+    }
+
+    @Test
+    fun onReceivedErrorでメインフレームのoverlayのロードに失敗するとdelegateがhandleする() {
+        val request = mockk<WebResourceRequest>()
+        val error = mockk<WebResourceError>()
+        every { error.description } returns "dummy error reason"
+        every { error.errorCode } returns 0
+        every { request.isForMainFrame } returns true
+
+        // overlay URL 以外ではスルー
+        every { request.url } returns Uri.parse(dummyUrl)
         shadowWebView.webViewClient.onReceivedError(webView, request, error)
         assertThat(shadowWebView.lastLoadData).isNull()
         verify(inverse = true) { delegate.onErrorOccurred() }
 
-        // urlが同じ時はempty_dataをload
-        webView.loadUrl(dummyUrl)
-        shadowWebView.webViewClient.onReceivedError(webView, request, error)
-        assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
-        verify(inverse = true) { delegate.onErrorOccurred() }
-
-        // urlがoverlayの時はdelegateに伝える
+        // overlay URL の時は empty_data をロードして delegate に伝える
         every { request.url } returns Uri.parse(overlayUrl)
         shadowWebView.webViewClient.onReceivedError(webView, request, error)
+        assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
         verify(exactly = 1) { delegate.onErrorOccurred() }
+    }
+
+    @Test
+    fun onReceivedErrorでオーバーレイ表示中のサブリソースのネットワークエラーでステータスがFAILEDになること() {
+        val request = mockk<WebResourceRequest>()
+        val error = mockk<WebResourceError>()
+        every { error.description } returns "dummy error reason"
+        every { error.errorCode } returns 0
+        every { request.isForMainFrame } returns false
+        every { request.url } returns Uri.parse(dummyUrl)
+
+        // overlay をロードしていない場合はスルー
+        shadowWebView.webViewClient.onReceivedError(webView, request, error)
+        assertThat(shadowWebView.lastLoadData).isNull()
+        verify(inverse = true) { delegate.onErrorOccurred() }
+
+        // overlay ロード後のサブリソースエラーは loadData/delegate は呼ばれず state が FAILED になる
+        webView.loadUrl(overlayUrl)
+        shadowWebView.webViewClient.onReceivedError(webView, request, error)
+        assertThat(shadowWebView.lastLoadData).isNull()
+        verify(inverse = true) { delegate.onErrorOccurred() }
+        assertThat(webView.state).isEqualTo(State.FAILED)
     }
 
     @Suppress("DEPRECATION")
@@ -310,20 +331,65 @@ class IAMWebViewTest {
     fun 古いonReceivedErrorでoverlayのロードに失敗するとdelegateがhandleする() {
         val errorCode = 0
         val description = "dummy description"
-        // urlが異なる時はempty_dataをloadしない
+
+        // overlay URL 以外ではスルー
         shadowWebView.webViewClient.onReceivedError(webView, errorCode, description, dummyUrl)
         assertThat(shadowWebView.lastLoadData).isNull()
         verify(inverse = true) { delegate.onErrorOccurred() }
 
-        // urlが同じ時はempty_dataをload
-        webView.loadUrl(dummyUrl)
-        shadowWebView.webViewClient.onReceivedError(webView, errorCode, description, dummyUrl)
-        assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
-        verify(inverse = true) { delegate.onErrorOccurred() }
-
-        // urlがoverlayの時はdelegateに伝える
+        // overlay URL の時は empty_data をロードして delegate に伝える
         shadowWebView.webViewClient.onReceivedError(webView, errorCode, description, overlayUrl)
+        assertThat(shadowWebView.lastLoadData.data).isEqualTo(emptyData)
         verify(exactly = 1) { delegate.onErrorOccurred() }
+    }
+
+    @Test
+    fun ステータスがLOADINGの場合overlayLoadFailedでステータスがFAILEDに変わること() {
+        assertThat(webView.state).isEqualTo(State.LOADING)
+        webView.overlayLoadFailed()
+        assertThat(webView.state).isEqualTo(State.FAILED)
+    }
+
+    @Test
+    fun ステータスがLOADING以外の場合overlayLoadFailedでステータスが変わらないこと() {
+        makeStateReady()
+        webView.overlayLoadFailed()
+        assertThat(webView.state).isEqualTo(State.READY)
+    }
+
+    @Test
+    fun ステータスがFAILEDの場合retryLoadIfFailedでoverlayUrlをロードすること() {
+        val mockIAM = mockk<InAppMessaging>(relaxed = true)
+        every { mockIAM.generateOverlayURL() } returns overlayUrl
+        InAppMessaging.self = mockIAM
+
+        webView.overlayLoadFailed()
+        assertThat(webView.state).isEqualTo(State.FAILED)
+
+        webView.retryLoadIfFailed()
+        assertThat(webView.state).isEqualTo(State.LOADING)
+        assertUrlLoaded(overlayUrl)
+
+        InAppMessaging.self = null
+    }
+
+    @Test
+    fun ステータスがFAILED以外の場合retryLoadIfFailedでoverlayUrlをロードしないこと() {
+        assertThat(webView.state).isEqualTo(State.LOADING)
+        webView.retryLoadIfFailed()
+        assertThat(customShadowWebView.loadedUrls).isEmpty()
+    }
+
+    @Test
+    fun InAppMessagingがnullの場合retryLoadIfFailedでステータスがFAILEDに戻ること() {
+        InAppMessaging.self = null
+
+        webView.overlayLoadFailed()
+        assertThat(webView.state).isEqualTo(State.FAILED)
+
+        webView.retryLoadIfFailed()
+        assertThat(webView.state).isEqualTo(State.FAILED)
+        assertThat(customShadowWebView.loadedUrls).isEmpty()
     }
 
     @Test

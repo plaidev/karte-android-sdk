@@ -17,11 +17,14 @@
 package io.karte.android.unit
 
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import io.karte.android.tracking.CustomEventName
 import io.karte.android.tracking.Event
 import io.karte.android.tracking.EventValidator
 import io.karte.android.tracking.IdentifyEvent
+import io.karte.android.tracking.MessageEventName
 import io.karte.android.tracking.ViewEvent
+import org.json.JSONObject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -98,6 +101,50 @@ class EventValidatorTest {
             assertThat(messages[0]).startsWith("Contains dots")
 
             assertThat(EventValidator.getInvalidMessages(this)).isEmpty()
+        }
+    }
+
+    @Test
+    fun isDeprecatedEventName() {
+        data class Case(val description: String, val eventName: String, val expected: Boolean)
+
+        // 許可: 半角小文字英字 (a-z)・半角数字 (0-9)・下線 (_)
+        // 非推奨: 上記以外の文字、または _ 始まり（内部イベント allowlist を除く）
+        val cases = listOf(
+            Case("[許可] a-z, 0-9, _ のみ", "custom_event", false),
+            Case("[許可] 数字を含む", "event123", false),
+            Case("[対象外] 空文字", "", false),
+            Case("[非推奨] [a-z0-9_] 以外の文字(.)", "aaa.bbb", true),
+            Case("[非推奨] 大文字を含む", "CustomEvent", true),
+            Case("[非推奨] _ で始まる（allowlist 外）", "_my_custom_event", true),
+            Case("[許可] allowlist: _message_ready", MessageEventName.MessageReady.value, false),
+            Case("[許可] allowlist: _message_suppressed", MessageEventName.MessageSuppressed.value, false),
+            Case("[許可] allowlist: _fetch_variables", "_fetch_variables", false)
+        )
+        cases.forEach { case ->
+            assertWithMessage(case.description)
+                .that(EventValidator.isDeprecatedEventName(case.eventName))
+                .isEqualTo(case.expected)
+        }
+    }
+
+    @Test
+    fun isDeprecatedEventFieldName() {
+        data class Case(val description: String, val values: JSONObject, val expected: Boolean)
+
+        // 非推奨: キーにドット(.)・$ 始まり・予約語（INVALID_FIELD_NAMES）
+        val cases = listOf(
+            Case("[対象外] values が空", JSONObject(), false),
+            Case("[許可] 通常のフィールド名", JSONObject(mapOf("name" to "value")), false),
+            Case("[許可] 数字を含むフィールド名", JSONObject(mapOf("field1" to "value")), false),
+            Case("[非推奨] キーにドット(.)", JSONObject(mapOf("address.city" to "Tokyo")), true),
+            Case("[非推奨] キーが $ 始まり", JSONObject(mapOf("\$js" to "alert(\"test\");")), true),
+            Case("[非推奨] 予約語 _source", JSONObject(mapOf("_source" to "super_native_sdk")), true)
+        )
+        cases.forEach { case ->
+            assertWithMessage(case.description)
+                .that(EventValidator.isDeprecatedEventFieldName(case.values))
+                .isEqualTo(case.expected)
         }
     }
 

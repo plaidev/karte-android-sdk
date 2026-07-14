@@ -61,9 +61,8 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
 
     init {
         settings.javaScriptEnabled = true
-        @Suppress("DEPRECATION")
-        settings.savePassword = false
         settings.domStorageEnabled = true
+        // NOTE: API 35 から非推奨、かつ Chromium での WebSQL サポート終了後は処理が無効となる
         @Suppress("DEPRECATION")
         settings.databaseEnabled = true
 
@@ -94,7 +93,11 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
 
             override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
                 super.onReceivedSslError(view, handler, error)
-                handleError("SslError occurred in WebView. $error", error.url)
+                handleError(
+                    "SslError occurred in WebView. $error",
+                    error.url,
+                    isNetworkError = false
+                )
             }
 
             // api23以上でmainpage以外でも呼ばれる
@@ -112,26 +115,39 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
                     Logger.d(LOG_TAG, "Failed to parse Http error response.", e)
                 }
 
-                handleError(message, request.url.toString())
+                handleError(
+                    message,
+                    request.url.toString(),
+                    isNetworkError = false
+                )
             }
 
             // api23以上でmainpage以外でも呼ばれる
             @TargetApi(Build.VERSION_CODES.M)
             override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
-                super.onReceivedError(view, request, error)
+                // super はメインフレームエラー時に deprecated の onReceivedError を内部で呼ぶため、
+                // 二重呼び出しを防ぐため super は呼ばない
+
+                // ネットワーク系のエラーで発火するため、isNetworkError を true に設定
                 handleError(
                     "Error occurred in WebView. " + error.description.toString(),
-                    request.url.toString()
+                    request.url.toString(),
+                    isNetworkError = true
                 )
             }
 
             // mainpageの失敗時のみ呼ばれる
+            // NOTE: API 23 未満との互換性のために override が必要 (API 23 以上は上記 onReceivedError が呼ばれる)
             @Deprecated("Deprecated in Java")
             override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
-                // TODO: FIX DEPRECATION
                 @Suppress("DEPRECATION")
                 super.onReceivedError(view, errorCode, description, failingUrl)
-                handleError("Error $errorCode occurred in WebView. $description", failingUrl)
+                // ネットワーク系のエラーで発火するため、isNetworkError を true に設定
+                handleError(
+                    "Error $errorCode occurred in WebView. $description",
+                    failingUrl,
+                    isNetworkError = true
+                )
             }
         }
 
@@ -195,16 +211,23 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         webChromeClient = null
     }
 
-    private fun handleError(message: String, urlTriedToLoad: String?) {
+    private fun handleError(message: String, urlTriedToLoad: String, isNetworkError: Boolean) {
         Logger.e(LOG_TAG, "$message, url: $urlTriedToLoad")
-        // 現在のページのエラー時には空htmlを読み込む
-        if (url != null && url == urlTriedToLoad) {
-            loadData("<html></html>", "text/html", "utf-8")
-        }
-        if (urlTriedToLoad == null || urlTriedToLoad.contains("/native/overlay") ||
-            urlTriedToLoad.contains("native_tracker")
-        ) {
-            errorOccurred()
+        when {
+            // オーバーレイ URL の読み込みエラー
+            urlTriedToLoad.contains("/native/overlay") -> {
+                loadData("<html></html>", "text/html", "utf-8")
+                overlayLoadFailed()
+                errorOccurred()
+            }
+
+            // サブリソースのネットワークエラー (オフライン時にメインフレームがキャッシュから読み込まれた場合の検知)
+            // オーバーレイ URL 以外が WebView に読み込まれることは想定しないが、予期せぬ URL への誤反応を防ぐための防衛対応
+            isNetworkError && url?.contains("/native/overlay") == true -> {
+                overlayLoadFailed()
+            }
+
+            // 上記に該当しないサブリソースのエラーはスルー
         }
     }
 
@@ -218,6 +241,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
             DisplayManagerCompat.getInstance(context).getDisplay(Display.DEFAULT_DISPLAY)?.cutout
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            // NOTE: API 30 以上では DisplayManagerCompat で取得するため、defaultDisplay は API 29 以下で使用
             @Suppress("DEPRECATION")
             windowManager.defaultDisplay.cutout
         } else {
@@ -242,7 +266,6 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
         return location[1] == 0
     }
 
-    @Suppress("DEPRECATION")
     private fun injectSafeAreaInsetCSS() {
         ViewCompat.setOnApplyWindowInsetsListener(this) { view, insetsCompat ->
             // Compat API でマスクを組み合わせ
@@ -276,6 +299,7 @@ internal abstract class BaseWebView(context: Context) : WebView(context.applicat
     }
 
     abstract fun setSafeAreaInset(top: Int)
+    abstract fun overlayLoadFailed()
     abstract fun errorOccurred()
     abstract fun openUrl(uri: Uri)
     abstract fun showAlert(message: String)

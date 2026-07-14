@@ -20,6 +20,7 @@ private const val ERROR = "error"
 
 internal enum class State {
     LOADING,
+    FAILED,
     READY,
     DESTROYED;
 

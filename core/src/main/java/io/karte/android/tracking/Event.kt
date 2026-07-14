@@ -17,10 +17,8 @@ package io.karte.android.tracking
 
 import io.karte.android.utilities.format
 import io.karte.android.utilities.merge
-import io.karte.android.utilities.toMap
 import io.karte.android.utilities.toValues
 import org.json.JSONObject
-import java.util.regex.Pattern
 
 /** イベントに追加できるカスタムオブジェクトの型を示すエイリアスです。 */
 typealias Values = Map<String, Any>
@@ -72,7 +70,6 @@ open class Event {
     internal val isRetryable: Boolean
     internal val isDeprecatedEventName: Boolean
     internal val isDeprecatedEventFieldName: Boolean
-    internal val isInvalidEventFieldValue: Boolean
     val libraryName: String?
 
     /** [JSONObject] による初期化 */
@@ -85,9 +82,8 @@ open class Event {
         this.eventName = eventName
         this.values = jsonObject?.format() ?: JSONObject()
         this.isRetryable = isRetryable ?: true
-        this.isDeprecatedEventName = validateEventName(eventName.value)
-        this.isDeprecatedEventFieldName = validateEventFieldName(values)
-        this.isInvalidEventFieldValue = validateEventFieldValue(eventName.value, values)
+        this.isDeprecatedEventName = EventValidator.isDeprecatedEventName(eventName.value)
+        this.isDeprecatedEventFieldName = EventValidator.isDeprecatedEventFieldName(values)
         this.libraryName = libraryName
     }
 
@@ -133,12 +129,6 @@ open class Event {
         }
 
     companion object {
-        private val EVENT_NAME_REGEX = Pattern.compile("[^a-z0-9_]")
-
-        @Suppress("ktlint:standard:max-line-length")
-        internal val INVALID_FIELD_NAMES =
-            listOf("_source", "_system", "any", "avg", "cache", "count", "count_sets", "date", "f_t", "first", "keys", "l_t", "last", "lrus", "max", "min", "o", "prev", "sets", "size", "span", "sum", "type", "v")
-
         internal fun fromJSON(json: String): Event? = runCatching {
             val jsonObject = JSONObject(json)
             val isRetryable = runCatching { jsonObject.getBoolean("_is_retryable") }.getOrNull()
@@ -150,55 +140,6 @@ open class Event {
                 libraryName
             )
         }.getOrNull()
-    }
-
-    /** 非推奨なイベント名が含まれるかを返します。 */
-    private fun validateEventName(eventName: String): Boolean {
-        if (eventName.isEmpty()) {
-            return false
-        }
-        when (eventName) {
-            MessageEventName.MessageReady.value, MessageEventName.MessageSuppressed.value, "_fetch_variables" -> {
-                return false
-            }
-        }
-        val m = EVENT_NAME_REGEX.matcher(eventName)
-        return m.find() || eventName.startsWith("_")
-    }
-
-    /** 非推奨なフィールド名が含まれるかを返します。 */
-    private fun validateEventFieldName(values: JSONObject): Boolean {
-        if (values.length() == 0) {
-            return false
-        }
-        val result = values.toMap().any {
-            it.key.startsWith("$") || it.key.contains(".") || INVALID_FIELD_NAMES.contains(it.key)
-        }
-        return result
-    }
-
-    /** 無効な値が含まれるかを返します。 */
-    private fun validateEventFieldValue(eventName: String, values: JSONObject): Boolean {
-        if (values.length() == 0) {
-            return false
-        }
-
-        when (eventName) {
-            BaseEventName.View.value -> {
-                val viewName = values.optString("view_name")
-                if (viewName.isEmpty()) {
-                    return true
-                }
-            }
-
-            BaseEventName.Identify.value -> {
-                val userId = values.optString("user_id")
-                if (userId.isEmpty()) {
-                    return true
-                }
-            }
-        }
-        return false
     }
 }
 
