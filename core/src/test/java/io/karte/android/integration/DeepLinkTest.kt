@@ -23,9 +23,7 @@ import com.google.common.truth.Truth.assertThat
 import io.karte.android.KarteApp
 import io.karte.android.test_lib.TrackerRequestDispatcher
 import io.karte.android.test_lib.integration.TrackerTestCase
-import io.karte.android.test_lib.parseBody
 import io.karte.android.test_lib.proceedBufferedCall
-import io.karte.android.utilities.map
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
@@ -76,30 +74,44 @@ abstract class DeepLinkTestCase : TrackerTestCase() {
             ?.start()?.resume()
     }
 
-    private fun getEvents(eventNameFilter: String? = null): List<JSONObject> {
-        var events = JSONObject(server.takeRequest().parseBody())
-            .getJSONArray("events")
-            .map { it }
-            .filterIsInstance<JSONObject>()
-        eventNameFilter?.let {
-            events = events.filter { it.getString("event_name") == eventNameFilter }
-        }
-        return events
-    }
-
     abstract val eventName: String
 
     fun assertEventOccurred(key: String, value: String) {
-        val events = getEvents(eventName)
-        assertThat(events).hasSize(1)
-
-        val event = events[0]
-        assertThat(event.getString("event_name")).isEqualTo(eventName)
-        assertThat(event.getJSONObject("values").getString(key)).isEqualTo(value)
+        assertEventOccurredSince(start = 0, key = key, value = value)
     }
 
     fun assertNoEvent() {
-        assertThat(getEvents(eventName)).isEmpty()
+        assertNoEventSince(start = 0)
+    }
+
+    protected fun eventsDuring(block: () -> Unit): EventScope {
+        val start = dispatcher.trackedEvents().size
+        block()
+        return EventScope(start)
+    }
+
+    protected inner class EventScope(private val start: Int) {
+        fun assertEventOccurred(key: String, value: String) {
+            assertEventOccurredSince(start, key, value)
+        }
+
+        fun assertNoEvent() {
+            assertNoEventSince(start)
+        }
+    }
+
+    private fun eventsSince(start: Int, targetEventName: String): List<JSONObject> = dispatcher.trackedEvents()
+        .drop(start)
+        .filter { it.getString("event_name") == targetEventName }
+
+    private fun assertEventOccurredSince(start: Int, key: String, value: String) {
+        val events = eventsSince(start, eventName)
+        assertThat(events).hasSize(1)
+        assertThat(events.single().getJSONObject("values").getString(key)).isEqualTo(value)
+    }
+
+    private fun assertNoEventSince(start: Int) {
+        assertThat(eventsSince(start, eventName)).isEmpty()
     }
 }
 
@@ -116,44 +128,47 @@ class FindMySelf : DeepLinkTestCase() {
 
     @Test
     fun 再起動すればFindMySelfが繰り返し発生() {
-        launchByDeepLink("test://karte.io/find_myself?src=qr")
-        proceedBufferedCall()
-
-        assertEventOccurred("src", "qr")
+        eventsDuring {
+            launchByDeepLink("test://karte.io/find_myself?src=qr")
+            proceedBufferedCall()
+        }.assertEventOccurred("src", "qr")
 
         activityController?.pause()?.stop()?.destroy()
-        launchByDeepLink("test://karte.io/find_myself?src=qr2")
-        proceedBufferedCall()
 
-        assertEventOccurred("src", "qr2")
+        eventsDuring {
+            launchByDeepLink("test://karte.io/find_myself?src=qr2")
+            proceedBufferedCall()
+        }.assertEventOccurred("src", "qr2")
     }
 
     @Test
     fun 実装済みならonNewIntentでも発生() {
-        launchByDeepLink("test://karte.io/find_myself?src=qr", NewIntentActivity::class.java)
-        proceedBufferedCall()
-
-        assertEventOccurred("src", "qr")
+        eventsDuring {
+            launchByDeepLink("test://karte.io/find_myself?src=qr", NewIntentActivity::class.java)
+            proceedBufferedCall()
+        }.assertEventOccurred("src", "qr")
 
         activityController?.pause()?.stop()
-        relaunchWithNewIntent("test://karte.io/find_myself?src=qr2")
-        proceedBufferedCall()
 
-        assertEventOccurred("src", "qr2")
+        eventsDuring {
+            relaunchWithNewIntent("test://karte.io/find_myself?src=qr2")
+            proceedBufferedCall()
+        }.assertEventOccurred("src", "qr2")
     }
 
     @Test
     fun 未実装ならonNewIntentでは発生しない() {
-        launchByDeepLink("test://karte.io/find_myself?src=qr")
-        proceedBufferedCall()
-
-        assertEventOccurred("src", "qr")
+        eventsDuring {
+            launchByDeepLink("test://karte.io/find_myself?src=qr")
+            proceedBufferedCall()
+        }.assertEventOccurred("src", "qr")
 
         activityController?.pause()?.stop()
-        relaunchWithNewIntent("test://karte.io/find_myself?src=qr2")
-        proceedBufferedCall()
 
-        assertNoEvent()
+        eventsDuring {
+            relaunchWithNewIntent("test://karte.io/find_myself?src=qr2")
+            proceedBufferedCall()
+        }.assertNoEvent()
     }
 
     @Test
@@ -196,49 +211,52 @@ class DeepLinkEventTest : DeepLinkTestCase() {
     @Test
     fun 再起動すればFindMySelfが繰り返し発生() {
         val url = "test://anyrequest?test=true"
-        launchByDeepLink(url)
-        proceedBufferedCall()
-
-        assertEventOccurred("url", url)
+        eventsDuring {
+            launchByDeepLink(url)
+            proceedBufferedCall()
+        }.assertEventOccurred("url", url)
 
         activityController?.pause()?.stop()?.destroy()
-        val url2 = "test://anotherrequest?test=true"
-        launchByDeepLink(url2)
-        proceedBufferedCall()
 
-        assertEventOccurred("url", url2)
+        val url2 = "test://anotherrequest?test=true"
+        eventsDuring {
+            launchByDeepLink(url2)
+            proceedBufferedCall()
+        }.assertEventOccurred("url", url2)
     }
 
     @Test
     fun 実装済みならonNewIntentでも発生() {
         val url = "test://anyrequest?test=true"
-        launchByDeepLink(url, NewIntentActivity::class.java)
-        proceedBufferedCall()
-
-        assertEventOccurred("url", url)
+        eventsDuring {
+            launchByDeepLink(url, NewIntentActivity::class.java)
+            proceedBufferedCall()
+        }.assertEventOccurred("url", url)
 
         activityController?.pause()?.stop()
-        val url2 = "test://anotherrequest?test=true"
-        relaunchWithNewIntent(url2)
-        proceedBufferedCall()
 
-        assertEventOccurred("url", url2)
+        val url2 = "test://anotherrequest?test=true"
+        eventsDuring {
+            relaunchWithNewIntent(url2)
+            proceedBufferedCall()
+        }.assertEventOccurred("url", url2)
     }
 
     @Test
     fun 未実装ならonNewIntentでは発生しない() {
         val url = "test://anyrequest?test=true"
-        launchByDeepLink(url)
-        proceedBufferedCall()
-
-        assertEventOccurred("url", url)
+        eventsDuring {
+            launchByDeepLink(url)
+            proceedBufferedCall()
+        }.assertEventOccurred("url", url)
 
         activityController?.pause()?.stop()
-        val url2 = "test://anotherrequest?test=true"
-        relaunchWithNewIntent(url2)
-        proceedBufferedCall()
 
-        assertNoEvent()
+        val url2 = "test://anotherrequest?test=true"
+        eventsDuring {
+            relaunchWithNewIntent(url2)
+            proceedBufferedCall()
+        }.assertNoEvent()
     }
 
     @Test
