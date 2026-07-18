@@ -41,9 +41,6 @@ dependencyResolutionManagement {
                 includeGroup("org.json")
                 includeGroup("org.objenesis")
                 includeGroup("com.google.truth")
-
-                // Code quality
-                includeGroup("com.pinterest.ktlint")
             }
         }
         gradlePluginPortal()

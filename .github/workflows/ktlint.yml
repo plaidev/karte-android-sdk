@@ -1,0 +1,38 @@
+name: Run ktlint
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - master
+      - develop
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  ktlint:
+    if: github.repository != 'plaidev/karte-android-sdk'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Install ktlint
+        env:
+          KTLINT_VERSION: 1.8.0
+          # SHA256 digest of the `ktlint` release asset:
+          # https://github.com/ktlint/ktlint/releases/download/1.8.0/ktlint
+          KTLINT_SHA256: a3fd620207d5c40da6ca789b95e7f823c54e854b7fade7f613e91096a3706d75
+        run: |
+          set -euo pipefail
+          base_url="https://github.com/ktlint/ktlint/releases/download/${KTLINT_VERSION}"
+          curl -fsSLO "${base_url}/ktlint"
+          echo "${KTLINT_SHA256}  ktlint" | sha256sum -c -
+          chmod a+x ktlint
+          sudo mv ktlint /usr/local/bin/
+          ktlint --version
+      - name: Run ktlint
+        run: ktlint '**/src/**/*.kt'

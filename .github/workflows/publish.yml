@@ -53,10 +53,8 @@ jobs:
           ./gradlew dependencyGuard || (echo "❌ dependencyGuard failed. Dependencies have changed from the baseline. If this is intentional, run './gradlew dependencyGuardBaseline' locally and commit the updated baseline files. See https://github.com/dropbox/dependency-guard for details." && exit 1)
       - name: Build modules
         run: ./gradlew --stacktrace assembleDebug assembleRelease --parallel
-      - name: Lint
-        run: |
-          ./gradlew --stacktrace lintRelease
-          ./gradlew --stacktrace ktlint
+      - name: Run Android Lint
+        run: ./gradlew --stacktrace lintRelease
       - name: Doc check
         run: ./gradlew dokkaHtmlMultiModule --parallel
       - name: API check

@@ -5,8 +5,6 @@ plugins {
     id("com.dropbox.dependency-guard")
 }
 
-apply(from = "../buildscripts/ktlint.gradle")
-
 android {
     namespace = "io.karte.android.inappframe"
     compileSdk = libs.versions.compileSdk.get().toInt()

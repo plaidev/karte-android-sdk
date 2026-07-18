@@ -46,6 +46,5 @@ tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
 }
 
-apply(from = "buildscripts/ktlint.gradle")
 apply(from = "buildscripts/dokka.gradle")
 apply(from = "buildscripts/jacoco.gradle")
