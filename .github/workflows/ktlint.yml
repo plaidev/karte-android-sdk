@@ -35,4 +35,4 @@ jobs:
           sudo mv ktlint /usr/local/bin/
           ktlint --version
       - name: Run ktlint
-        run: ktlint '**/src/**/*.kt'
+        run: ktlint || (echo "❌ ktlint failed. Please install ktlint according to https://github.com/ktlint/ktlint#quick-start and run \`ktlint\` locally to fix the issues." && exit 1)

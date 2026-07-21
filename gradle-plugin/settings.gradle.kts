@@ -32,7 +32,7 @@ dependencyResolutionManagement {
                 includeGroupByRegex("com\\.google\\.j2objc.*")
 
                 // 4. Other transitive dependencies
-                includeGroupByRegex("com\\.squareup.*")  // Required by com.android.tools.build:gradle
+                includeGroupByRegex("com\\.squareup.*") // Required by com.android.tools.build:gradle
                 includeGroup("org.checkerframework")
 
                 // 5. Parent POMs for transitive dependencies
