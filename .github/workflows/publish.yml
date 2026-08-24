@@ -25,10 +25,14 @@ jobs:
     # NOTE: Using larger runner since this workflow runs infrequently and should complete quickly.
     runs-on: ubuntu-22.04-8core
     timeout-minutes: 30
+    permissions:
+      contents: read
     # `test` is same as `test.yml`.
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
       - name: Set up JDK 21
         uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5.3.0
         with:
@@ -79,6 +83,8 @@ jobs:
     # With multiple modules potentially being published, we need sufficient time.
     # See: https://vanniktech.github.io/gradle-maven-publish-plugin/central/#publishing-releases
     timeout-minutes: 180
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -108,6 +114,9 @@ jobs:
             karte-android-sdk
             karte-android-dev
             karte-app-dev-docs
+          permission-contents: write
+          permission-actions: write
+          permission-workflows: write
       - name: Configure Git
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
