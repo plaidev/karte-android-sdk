@@ -32,6 +32,13 @@ abstract class InAppMessagingDelegate {
     open fun onWindowDismissed() {}
 
     /**
+     * アプリ内メッセージ用のWindowのフォーカス状態が変化したことを通知します。
+     *
+     * @param[hasWindowFocus] Windowがフォーカスを持っている場合は`true`
+     */
+    open fun onWindowFocusChanged(hasWindowFocus: Boolean) {}
+
+    /**
      * 接客サービスアクションが表示されたことを通知します。
      *
      * @param[campaignId] 接客サービスのキャンペーンID

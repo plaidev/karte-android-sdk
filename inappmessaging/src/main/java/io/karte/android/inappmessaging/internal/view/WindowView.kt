@@ -211,6 +211,11 @@ internal open class WindowView(activity: Activity, private val panelWindowManage
         isAttaching = false
     }
 
+    override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+        super.onWindowFocusChanged(hasWindowFocus)
+        InAppMessaging.delegate?.onWindowFocusChanged(hasWindowFocus)
+    }
+
     fun updateTouchableRegions(touchableRegions: JSONArray) {
         this.knownTouchableRegions = parseJsonToRect(touchableRegions)
     }

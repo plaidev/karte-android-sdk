@@ -79,6 +79,7 @@ public abstract class io/karte/android/inappmessaging/InAppMessagingDelegate {
 	public fun onDismissed (Ljava/lang/String;Ljava/lang/String;)V
 	public fun onPresented (Ljava/lang/String;Ljava/lang/String;)V
 	public fun onWindowDismissed ()V
+	public fun onWindowFocusChanged (Z)V
 	public fun onWindowPresented ()V
 	public fun shouldOpenURL (Landroid/net/Uri;)Z
 }

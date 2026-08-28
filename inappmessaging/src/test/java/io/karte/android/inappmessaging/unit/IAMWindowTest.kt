@@ -18,6 +18,9 @@ package io.karte.android.inappmessaging.unit
 import android.app.Activity
 import android.view.KeyEvent
 import android.view.WindowManager
+import com.google.common.truth.Truth.assertThat
+import io.karte.android.inappmessaging.InAppMessaging
+import io.karte.android.inappmessaging.InAppMessagingDelegate
 import io.karte.android.inappmessaging.internal.IAMProcessor
 import io.karte.android.inappmessaging.internal.IAMWebView
 import io.karte.android.inappmessaging.internal.IAMWindow
@@ -26,7 +29,10 @@ import io.karte.android.test_lib.proceedUiBufferedCall
 import io.karte.android.test_lib.shadow.CustomShadowWebView
 import io.karte.android.test_lib.shadow.customShadowOf
 import io.mockk.MockKAnnotations
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -46,11 +52,19 @@ class IAMWindowTest {
     private lateinit var webView: IAMWebView
     lateinit var activity: ActivityController<Activity>
     private lateinit var view: IAMWindow
+    private val windowFocusChanges = mutableListOf<Boolean>()
+    private val delegate = object : InAppMessagingDelegate() {
+        override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+            windowFocusChanges += hasWindowFocus
+        }
+    }
 
     @Before
     fun init() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockKarteApp()
+        mockkObject(InAppMessaging.Companion)
+        every { InAppMessaging.delegate } returns delegate
 
         activity = Robolectric.buildActivity(Activity::class.java).create().start().visible()
         webView =
@@ -65,6 +79,7 @@ class IAMWindowTest {
 
     @After
     fun teardown() {
+        unmockkObject(InAppMessaging.Companion)
         unmockKarteApp()
     }
 
@@ -99,5 +114,13 @@ class IAMWindowTest {
         val result = view.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK))
         Assert.assertEquals(true, result)
         Assert.assertEquals(true, shadowWebView.wasKeyEventCalled())
+    }
+
+    @Test
+    fun Windowのフォーカス変化がDelegateに通知される() {
+        view.onWindowFocusChanged(true)
+        view.onWindowFocusChanged(false)
+
+        assertThat(windowFocusChanges).containsExactly(true, false).inOrder()
     }
 }
