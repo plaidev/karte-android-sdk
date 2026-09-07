@@ -9,7 +9,6 @@ If you want to request a feature or report a bug, please open a new issue.
 Please consider following guidelines before creating a PR:
 
 - Confirm the intention and design of your change by reaching out to your account manager.
-- Run ktlint before creating PR and fix warning.
 - Make sure all of your commits are atomic (one feature per commit).
 - Add unit tests for the code that you have touched.
 - Start creating your pull request from `master` branch

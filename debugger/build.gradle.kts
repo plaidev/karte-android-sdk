@@ -44,7 +44,6 @@ android {
         }
     }
 
-
     lint {
         lintConfig = file("../lint.xml")
         warningsAsErrors = true
@@ -56,8 +55,6 @@ dependencyGuard {
         tree = true
     }
 }
-
-val kotlin_version: String by rootProject.extra
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
@@ -76,4 +73,4 @@ dependencies {
 }
 
 apply(from = "../buildscripts/projectMaven.gradle")
-apply(from = "../buildscripts/projectPublishing.gradle") 
+apply(from = "../buildscripts/projectPublishing.gradle")

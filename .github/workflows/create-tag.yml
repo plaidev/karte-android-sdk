@@ -27,6 +27,8 @@ jobs:
     if: github.repository != 'plaidev/karte-android-sdk' && (github.event.inputs.dry_run == 'true' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -44,6 +46,7 @@ jobs:
           repositories: |
             karte-android-sdk
             karte-android-dev
+          permission-contents: write
       - name: Configure Git
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}

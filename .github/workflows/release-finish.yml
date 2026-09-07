@@ -12,56 +12,59 @@ jobs:
     permissions:
       pull-requests: read
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       completed: ${{ steps.check_completion.outputs.completed }}
     steps:
-    - name: Check Completion
-      id: check_completion
-      env:
-        BODY: ${{ github.event.pull_request.body }}
-      run: |
-        incomplete_task=$(echo "$BODY" | sed -n "/\- \[ \]/ p")
-        if [ -z "$incomplete_task" ]; then
-            echo "::set-output name=completed::true"
-        else
-            echo "::set-output name=completed::false"
-        fi
-
+      - name: Check Completion
+        id: check_completion
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          incomplete_task=$(echo "$BODY" | sed -n "/\- \[ \]/ p")
+          if [ -z "$incomplete_task" ]; then
+              echo "::set-output name=completed::true"
+          else
+              echo "::set-output name=completed::false"
+          fi
   perform_merge:
     permissions:
       contents: write
     needs: [check_that_current_pr_is_complete]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: needs.check_that_current_pr_is_complete.outputs.completed == 'true'
     steps:
-    - name: Checkout
-      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-      with:
-        persist-credentials: false
-        fetch-depth: 0
-    # NOTE: Using GitHub App token to bypass branch protection rules.
-    - name: Generate GitHub App token
-      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-      id: app-token
-      with:
-        # TODO: app-id is deprecated in v3.1.0, rename to client-id
-        app-id: ${{ secrets.APP_TEAM_GITHUB_APP_ID }}
-        private-key: ${{ secrets.APP_TEAM_GITHUB_APP_PRIVATE_KEY }}
-    - name: Configure Git
-      run: |
-        git config user.email "git@users.noreply.github.com"
-        git config user.name "github actions"
-        git config url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/plaidev/karte-android-dev".insteadOf "https://github.com/plaidev/karte-android-dev"
-        git fetch
-    - name: Merge to develop
-      run: |
-        git checkout develop
-        git merge origin/${{ github.head_ref }} --no-ff -m "Merge ${{ github.head_ref }} into develop"
-    - name: Push to develop
-      run: git push origin develop
-    - name: Merge to master
-      run: |
-        git checkout master
-        git merge origin/${{ github.head_ref }} --no-ff -m "Merge ${{ github.head_ref }} into master"
-    - name: Push to master
-      run: git push origin master
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      # NOTE: Using GitHub App token to bypass branch protection rules.
+      - name: Generate GitHub App token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          # TODO: app-id is deprecated in v3.1.0, rename to client-id
+          app-id: ${{ secrets.APP_TEAM_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_TEAM_GITHUB_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-workflows: write
+      - name: Configure Git
+        run: |
+          git config user.email "git@users.noreply.github.com"
+          git config user.name "github actions"
+          git config url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/plaidev/karte-android-dev".insteadOf "https://github.com/plaidev/karte-android-dev"
+          git fetch
+      - name: Merge to develop
+        run: |
+          git checkout develop
+          git merge origin/${{ github.head_ref }} --no-ff -m "Merge ${{ github.head_ref }} into develop"
+      - name: Push to develop
+        run: git push origin develop
+      - name: Merge to master
+        run: |
+          git checkout master
+          git merge origin/${{ github.head_ref }} --no-ff -m "Merge ${{ github.head_ref }} into master"
+      - name: Push to master
+        run: git push origin master
