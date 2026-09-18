@@ -19,6 +19,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import io.karte.android.core.logger.Logger
+import io.karte.android.notifications.internal.startNotificationTargetActivity
 import io.karte.android.notifications.internal.track.ClickTracker
 import io.karte.android.notifications.internal.track.IgnoreTracker
 import io.karte.android.notifications.internal.wrapper.EventType
@@ -39,6 +40,6 @@ internal class MessageReceiver : BroadcastReceiver() {
             ClickTracker.sendIfNeeded(wrapper)
         }
         wrapper.popComponentName()
-        context.startActivity(wrapper.intent)
+        context.startNotificationTargetActivity(wrapper.intent)
     }
 }

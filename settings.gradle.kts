@@ -20,6 +20,7 @@ dependencyResolutionManagement {
                 includeGroupByRegex("com\\.android.*")
                 includeGroupByRegex("com\\.google\\.android.*")
                 includeGroupByRegex("com\\.google\\.firebase.*")
+                includeGroup("com.google.testing.platform")
             }
         }
         mavenCentral {
