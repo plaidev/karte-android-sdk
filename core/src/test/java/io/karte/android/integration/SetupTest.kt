@@ -23,18 +23,26 @@ import io.karte.android.core.config.Config
 import io.karte.android.core.config.ExperimentalConfig
 import io.karte.android.core.config.OperationMode
 import io.karte.android.core.library.LibraryConfig
+import io.karte.android.core.nativesdkconfig.NativeSDKConfigCache
+import io.karte.android.core.nativesdkconfig.NativeSDKConfigRepository
+import io.karte.android.core.repository.PreferenceRepository
 import io.karte.android.modules.crashreporting.CrashReporting
 import io.karte.android.modules.crashreporting.CrashReportingConfig
 import io.karte.android.test.R
+import io.karte.android.test_lib.TrackerRequestDispatcher
 import io.karte.android.test_lib.eventNameTransform
 import io.karte.android.test_lib.integration.SetupTestCase
 import io.karte.android.test_lib.parseBody
 import io.karte.android.test_lib.proceedBufferedCall
 import io.karte.android.test_lib.setupKarteApp
+import kotlin.time.Duration.Companion.seconds
+import io.karte.android.test_lib.application
 import io.karte.android.tracking.Tracker
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
@@ -397,4 +405,61 @@ class SetupTest {
             }
         }
     }
+
+    class isSDKConfigEnabledの場合 : SetupTestCase() {
+        @Test
+        fun 初期化前はdefaultを返すこと() {
+            assertThat(KarteApp.isSDKConfigEnabled("feature_x", default = false)).isFalse()
+            assertThat(KarteApp.isSDKConfigEnabled("feature_x", default = true)).isTrue()
+        }
+
+        @Test
+        fun 初期化後はキャッシュ済みフラグを返すこと() {
+            val prefsRepository = PreferenceRepository(application(), setupAppKey, "nativesdkconfig")
+            NativeSDKConfigRepository(prefsRepository).save(
+                NativeSDKConfigCache(
+                    mapOf("feature_x" to true, "feature_y" to false),
+                    System.currentTimeMillis(),
+                    ttl = 3600.seconds
+                )
+            )
+            setupKarteApp(server, appKey = setupAppKey)
+
+            assertThat(KarteApp.isSDKConfigEnabled("feature_x", default = false)).isTrue()
+            assertThat(KarteApp.isSDKConfigEnabled("feature_y", default = true)).isFalse()
+            assertThat(KarteApp.isSDKConfigEnabled("unknown_flag", default = false)).isFalse()
+        }
+
+        @Test
+        fun フォアグラウンド復帰時にNativeSDKConfigがフェッチされること() {
+            dispatcher = object : TrackerRequestDispatcher() {
+                override fun onRequest(path: String, request: RecordedRequest): MockResponse? {
+                    if (path.contains("/sdk-config")) {
+                        return MockResponse().setBody("""{"fetched_flag":true}""")
+                    }
+                    return super.onRequest(path, request)
+                }
+            }.also { server.dispatcher = it }
+            setupKarteApp(server, appKey = setupAppKey)
+
+            assertThat(KarteApp.isSDKConfigEnabled("fetched_flag", default = false)).isFalse()
+            Robolectric.buildActivity(Activity::class.java).create().start()
+            waitFor(message = "NativeSDKConfig was not updated after the activity has started.") {
+                KarteApp.isSDKConfigEnabled("fetched_flag", default = false) // Becomes true.
+            }
+        }
+    }
+}
+
+private fun waitFor(
+    timeoutMs: Long = 5_000L,
+    intervalMs: Long = 10L,
+    message: String = "Condition not met within ${timeoutMs}ms",
+    predicate: () -> Boolean
+) {
+    repeat((timeoutMs / intervalMs).toInt()) {
+        if (predicate()) return
+        Thread.sleep(intervalMs)
+    }
+    throw AssertionError(message)
 }

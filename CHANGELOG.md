@@ -2,7 +2,7 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- |:---------|
-| core | イベントトラッキング機能を提供します。 | 2.35.0   |
+| core | イベントトラッキング機能を提供します。 | 2.36.0   |
 | inappmessaging | アプリ内メッセージ機能を提供します。 | 2.29.0   |
 | notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.19.0   |
 | variables | 設定値配信機能を提供します。 | 2.13.0   |
@@ -12,6 +12,10 @@
 | debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.4.0    |
 
 # Releases - xxxx.xx.xx
+
+### Core 2.36.0
+**🔨CHANGED**
+- SDK内部向けのFeature Flagを追加しました。これはSDKの内部的な仕組みであり、SDKの利用者様向けの機能ではありません。詳細は[SDK内部のFeature Flagについて](https://app.developers.karte.io/common-concepts/internal-feature-flags)をご覧ください。
 
 ### Notifications 2.19.0
 **💊FIXED**

@@ -20,9 +20,11 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.concurrent.CopyOnWriteArrayList
 
 open class TrackerRequestDispatcher(private val onTrack: ((RecordedRequest) -> MockResponse?)? = null) : Dispatcher() {
-    protected val recordedRequests = mutableListOf<RecordedRequest>()
+    // NOTE: 複数のスレッドからアクセスされるため、recordedRequestsをスレッドセーフにするために、CopyOnWriteArrayListを使用する。
+    protected val recordedRequests: MutableList<RecordedRequest> = CopyOnWriteArrayList()
 
     final override fun dispatch(request: RecordedRequest): MockResponse {
         recordedRequests.add(request)
@@ -32,6 +34,9 @@ open class TrackerRequestDispatcher(private val onTrack: ((RecordedRequest) -> M
 
             if (path.contains("/track") || path.contains("/ingest")) {
                 return onTrackRequest(request)
+            }
+            if (path.contains("/sdk-config")) {
+                return MockResponse().setBody("{}")
             }
         }
         throw IllegalArgumentException("Unexpected request is coming to server.")

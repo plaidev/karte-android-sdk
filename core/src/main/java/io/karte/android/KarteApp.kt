@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 import io.karte.android.core.config.Config
 import io.karte.android.core.library.ActionModule
 import io.karte.android.core.library.CommandModule
@@ -32,6 +33,7 @@ import io.karte.android.core.library.Module
 import io.karte.android.core.library.NotificationModule
 import io.karte.android.core.logger.LogLevel
 import io.karte.android.core.logger.Logger
+import io.karte.android.core.nativesdkconfig.NativeSDKConfigService
 import io.karte.android.core.optout.OptOutConfig
 import io.karte.android.core.repository.PreferenceRepository
 import io.karte.android.core.repository.Repository
@@ -96,6 +98,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         private set
     internal var connectivityObserver: ConnectivityObserver? = null
     internal var tracker: TrackingService? = null
+    private var nativeSDKConfigService: NativeSDKConfigService? = null
     private var visitorId: VisitorId? = null
     private var optOutConfig: OptOutConfig? = null
 
@@ -144,11 +147,13 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         }
         libraries.clear()
         tracker?.teardown()
+        nativeSDKConfigService?.teardown()
 
         config = Config.build()
         appInfo = null
         connectivityObserver = null
         tracker = null
+        nativeSDKConfigService = null
         visitorId = null
         optOutConfig = null
     }
@@ -200,6 +205,7 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         Logger.v(LOG_TAG, "onActivityStarted $activity")
         if (++activityCount == 1) {
             self.tracker?.track(Event(AutoEventName.NativeAppForeground, values = null))
+            self.nativeSDKConfigService?.fetchIfNeeded()
         }
         handleDeeplink(activity.intent)
     }
@@ -303,6 +309,11 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
             self.visitorId = VisitorId(repository)
             self.optOutConfig = OptOutConfig(self.config, repository)
             self.tracker = TrackingService()
+            self.nativeSDKConfigService = NativeSDKConfigService(
+                appKey = self.appKey,
+                cdnBaseUrl = self.config.nativeSDKConfigCDNBaseUrl,
+                repository = self.repository("nativesdkconfig")
+            )
 
             Logger.v(LOG_TAG, "load libraries")
             val libraries =
@@ -365,6 +376,20 @@ class KarteApp private constructor() : ActivityLifecycleCallback() {
         @JvmStatic
         val isOptOut: Boolean
             get() = self.optOutConfig?.isOptOut ?: false
+
+        /**
+         * SDK内部の設定の有効・無効を返します。
+         *
+         * **SDK内部で利用するAPIであり、通常のアプリ開発では利用しません。**
+         * 初期化前、または該当フラグが未取得の場合は [default] を返します。
+         *
+         * @param name フラグ名
+         * @param default フラグが未定義の場合に返すデフォルト値
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmStatic
+        fun isSDKConfigEnabled(name: String, default: Boolean): Boolean =
+            self.nativeSDKConfigService?.isEnabled(name, default) ?: default
 
         /**
          * オプトインします。

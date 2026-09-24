@@ -27,7 +27,11 @@ fun setupKarteApp(
     appKey: String = VALID_APPKEY
 ): KarteApp {
     val config = if (server != null) {
-        configBuilder.baseUrl(server.url("").toString()).build()
+        val serverUrl = server.url("").toString().trimEnd('/')
+        configBuilder
+            .baseUrl(serverUrl)
+            .nativeSDKConfigCDNBaseUrl(serverUrl)
+            .build()
     } else {
         configBuilder.build()
     }
