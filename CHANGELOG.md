@@ -579,7 +579,7 @@
 ### Core 2.18.0
 **💊FIXED**
 - Android Gradle Plugin 4.2.0以降に付属するR8でコードの圧縮を行った際に、実行時エラーが起きる不具合を修正しました。（[issue](https://github.com/plaidev/karte-android-sdk/issues/17)）
-   - MessageEventTypeクラスのeventNameプロパティは非推奨になり、ダミーの固定値に変更されました。
+   - MessageEventTypeクラスのeventNameプロパティは非推奨になり、ダミーの固定値に変更されました。代わりに、該当する[MessageEventNameクラス](https://plaidev.github.io/karte-sdk-docs/android/core/2.18.0/core/io.karte.android.tracking/-message-event-name/index.html)のインスタンスを使用してください。
 
 ### InAppMessaging 2.13.0
 **💊FIXED**
@@ -713,7 +713,7 @@
 ### Notifications 2.7.0
 **🔨CHANGED**
 - モジュール設定の方法をCoreモジュールのConfigクラス経由のものに変更しました。
-   以前の方法は非推奨になりました。
+  - FCMトークンを自動送信する機能を設定するAPI `Notifications.Config.enabledFCMTokenResend` を非推奨にしました。今後は `NotificationsConfig` の`enabledFCMTokenResend`に値を設定し、`KarteApp.setup`時に`Config.libraryConfigs`に含めてください。
 
 # Releases - 2021.05.11
 
@@ -765,6 +765,7 @@
 ### Notifications 2.6.0
 **🎉FEATURE**
 - トリガー配信・ターゲット配信において通知の到達やキャンセルに関する補助イベントを追加しました。
+  - `MessageHandler.copyInfoToIntent()`を非推奨にしました。代わりに、`MessageHandler.handleMessage()`にカスタマイズ後の`Notification`を渡してください。
 
 # Releases - 2021.01.06
 
