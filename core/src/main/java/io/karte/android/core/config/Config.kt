@@ -57,6 +57,10 @@ import io.karte.android.core.library.LibraryConfig
  * @property[libraryConfigs] ライブラリの設定の取得・設定を行います。
  *
  * デフォルトは空配列です。
+ *
+ * @property[nativeSDKConfigCDNBaseUrl] SDK内部の設定の取得に使用するベースURLの取得・設定を行います。
+ *
+ * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
  */
 open class Config protected constructor(
     appKey: String,
@@ -103,6 +107,27 @@ open class Config protected constructor(
 
     private var _dataLocation: String = ""
 
+    private var _nativeSDKConfigCDNBaseUrl: String = ""
+
+    /**
+     * SDK内部の設定の取得に使用するベースURLの取得・設定を行います。
+     *
+     * **SDK内部で利用するプロパティであり、通常のSDK利用でこちらのプロパティを利用することはありません。**
+     */
+    var nativeSDKConfigCDNBaseUrl: String
+        private set(value) {
+            if (value.isEmpty()) {
+                return
+            }
+            _nativeSDKConfigCDNBaseUrl = value
+        }
+        get() {
+            if (_nativeSDKConfigCDNBaseUrl.isEmpty()) {
+                return "https://cdn-native-sdk-config.karte.io"
+            }
+            return _nativeSDKConfigCDNBaseUrl
+        }
+
     /** KARTEプロジェクトのデータロケーションを取得します。 */
     var dataLocation: String
         private set(value) {
@@ -147,6 +172,11 @@ open class Config protected constructor(
          */
         var dataLocation: String = "" @JvmSynthetic set
 
+        /**
+         * [Config.nativeSDKConfigCDNBaseUrl]を変更します。
+         */
+        var nativeSDKConfigCDNBaseUrl: String = "" @JvmSynthetic set
+
         /**[Config.isDryRun]を変更します。*/
         var isDryRun: Boolean = false @JvmSynthetic set
 
@@ -187,6 +217,12 @@ open class Config protected constructor(
          * 設定ファイルから自動でロードされる値以外を利用したい場合にのみ設定します。
          */
         fun dataLocation(dataLocation: String): Builder = apply { this.dataLocation = dataLocation }
+
+        /**
+         * [Config.nativeSDKConfigCDNBaseUrl]を変更します。
+         */
+        fun nativeSDKConfigCDNBaseUrl(nativeSDKConfigCDNBaseUrl: String): Builder =
+            apply { this.nativeSDKConfigCDNBaseUrl = nativeSDKConfigCDNBaseUrl }
 
         /**[Config.isDryRun]を変更します。*/
         fun isDryRun(isDryRun: Boolean): Builder = apply { this.isDryRun = isDryRun }
@@ -229,6 +265,7 @@ open class Config protected constructor(
             libraryConfigs
         ).also { config ->
             config.dataLocation = dataLocation
+            config.nativeSDKConfigCDNBaseUrl = nativeSDKConfigCDNBaseUrl
         }
     }
 

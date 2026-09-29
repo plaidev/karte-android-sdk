@@ -19,6 +19,7 @@ package io.karte.android.notifications
 import android.app.Activity
 import android.os.Bundle
 import io.karte.android.core.logger.Logger
+import io.karte.android.notifications.internal.startNotificationTargetActivity
 import io.karte.android.notifications.internal.track.ClickTracker
 import io.karte.android.notifications.internal.track.IgnoreTracker
 import io.karte.android.notifications.internal.wrapper.EventType
@@ -34,12 +35,13 @@ internal class MessageReceiveActivity : Activity() {
         val wrapper = IntentWrapper(intent)
         if (wrapper.eventType == EventType.MESSAGE_IGNORE) {
             IgnoreTracker.sendIfNeeded(wrapper)
+            finish()
             return
         } else {
             ClickTracker.sendIfNeeded(wrapper)
         }
         wrapper.popComponentName()
-        startActivity(wrapper.intent)
+        startNotificationTargetActivity(wrapper.intent)
         finish()
     }
 }

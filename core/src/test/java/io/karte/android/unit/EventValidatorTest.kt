@@ -119,7 +119,8 @@ class EventValidatorTest {
             Case("[非推奨] _ で始まる（allowlist 外）", "_my_custom_event", true),
             Case("[許可] allowlist: _message_ready", MessageEventName.MessageReady.value, false),
             Case("[許可] allowlist: _message_suppressed", MessageEventName.MessageSuppressed.value, false),
-            Case("[許可] allowlist: _fetch_variables", "_fetch_variables", false)
+            Case("[許可] allowlist: _fetch_variables", "_fetch_variables", false),
+            Case("[許可] allowlist: _fetch_native_sdk_config", "_fetch_native_sdk_config", false)
         )
         cases.forEach { case ->
             assertWithMessage(case.description)

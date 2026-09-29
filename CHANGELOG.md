@@ -2,14 +2,24 @@
 
 | モジュール/プラグイン名 | Description | 最新のバージョン |
 | :-- | :-- |:---------|
-| core | イベントトラッキング機能を提供します。 | 2.35.0   |
+| core | イベントトラッキング機能を提供します。 | 2.36.0   |
 | inappmessaging | アプリ内メッセージ機能を提供します。 | 2.29.0   |
-| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.18.0   |
+| notifications | プッシュ通知の受信および効果測定機能を提供します。 | 2.19.0   |
 | variables | 設定値配信機能を提供します。 | 2.13.0   |
 | visualtracking | ビジュアルトラッキング機能を提供します。| 2.15.0   |
 | inappframe          | アプリ内の特定の場所に任意の表示ができます     | 0.9.0    |
 | Karte Gradle Plugin | ビジュアルトラッキング機能に必要なプラグインです。| 2.9.0    |
 | debugger         | イベントをわかりやすく管理画面で確認できます。 | 1.4.0    |
+
+# Releases - 2026.09.29
+
+### Core 2.36.0
+**🔨CHANGED**
+- SDK内部向けのFeature Flagを追加しました。これはSDKの内部的な仕組みであり、SDKの利用者様向けの機能ではありません。詳細は[SDK内部のFeature Flagについて](https://app.developers.karte.io/common-concepts/internal-feature-flags)をご覧ください。
+
+### Notifications 2.19.0
+**💊FIXED**
+- 通知表示後に起動先Activityを解決できなくなった状態で通知をタップすると、クラッシュする問題を修正しました。この場合はアプリの通常の起動先へフォールバックします。
 
 # Releases - 2026.09.07
 
@@ -573,7 +583,7 @@
 ### Core 2.18.0
 **💊FIXED**
 - Android Gradle Plugin 4.2.0以降に付属するR8でコードの圧縮を行った際に、実行時エラーが起きる不具合を修正しました。（[issue](https://github.com/plaidev/karte-android-sdk/issues/17)）
-   - MessageEventTypeクラスのeventNameプロパティは非推奨になり、ダミーの固定値に変更されました。
+   - MessageEventTypeクラスのeventNameプロパティは非推奨になり、ダミーの固定値に変更されました。代わりに、該当する[MessageEventNameクラス](https://plaidev.github.io/karte-sdk-docs/android/core/2.18.0/core/io.karte.android.tracking/-message-event-name/index.html)のインスタンスを使用してください。
 
 ### InAppMessaging 2.13.0
 **💊FIXED**
@@ -707,7 +717,7 @@
 ### Notifications 2.7.0
 **🔨CHANGED**
 - モジュール設定の方法をCoreモジュールのConfigクラス経由のものに変更しました。
-   以前の方法は非推奨になりました。
+  - FCMトークンを自動送信する機能を設定するAPI `Notifications.Config.enabledFCMTokenResend` を非推奨にしました。今後は `NotificationsConfig` の`enabledFCMTokenResend`に値を設定し、`KarteApp.setup`時に`Config.libraryConfigs`に含めてください。
 
 # Releases - 2021.05.11
 
@@ -759,6 +769,7 @@
 ### Notifications 2.6.0
 **🎉FEATURE**
 - トリガー配信・ターゲット配信において通知の到達やキャンセルに関する補助イベントを追加しました。
+  - `MessageHandler.copyInfoToIntent()`を非推奨にしました。代わりに、`MessageHandler.handleMessage()`にカスタマイズ後の`Notification`を渡してください。
 
 # Releases - 2021.01.06
 

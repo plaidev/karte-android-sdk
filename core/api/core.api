@@ -19,6 +19,7 @@ public final class io/karte/android/KarteApp : io/karte/android/utilities/Activi
 	public final fun getPvId ()Ljava/lang/String;
 	public static final fun getVisitorId ()Ljava/lang/String;
 	public static final fun isOptOut ()Z
+	public static final fun isSDKConfigEnabled (Ljava/lang/String;Z)Z
 	public final fun libraryConfig (Ljava/lang/Class;)Lio/karte/android/core/library/LibraryConfig;
 	public fun onActivityCreated (Landroid/app/Activity;Landroid/os/Bundle;)V
 	public fun onActivityPaused (Landroid/app/Activity;)V
@@ -47,6 +48,7 @@ public final class io/karte/android/KarteApp : io/karte/android/utilities/Activi
 public final class io/karte/android/KarteApp$Companion {
 	public final fun getVisitorId ()Ljava/lang/String;
 	public final fun isOptOut ()Z
+	public final fun isSDKConfigEnabled (Ljava/lang/String;Z)Z
 	public final fun onNewIntent (Landroid/content/Intent;)V
 	public final fun openUrl (Landroid/net/Uri;Landroid/content/Context;)Z
 	public final fun optIn ()V
@@ -84,6 +86,7 @@ public class io/karte/android/core/config/Config {
 	public final fun getDataLocation ()Ljava/lang/String;
 	public final fun getEnabledTrackingAaid ()Z
 	public final fun getLibraryConfigs ()Ljava/util/List;
+	public final fun getNativeSDKConfigCDNBaseUrl ()Ljava/lang/String;
 	public final fun isAutoScreenBoundaryEnabled ()Z
 	public final fun isDryRun ()Z
 	public final fun isOptOut ()Z
@@ -103,6 +106,7 @@ public class io/karte/android/core/config/Config$Builder {
 	public final fun getDataLocation ()Ljava/lang/String;
 	public final fun getEnabledTrackingAaid ()Z
 	public final fun getLibraryConfigs ()Ljava/util/List;
+	public final fun getNativeSDKConfigCDNBaseUrl ()Ljava/lang/String;
 	public final fun isAutoScreenBoundaryEnabled ()Z
 	public final fun isAutoScreenBoundaryEnabled (Z)Lio/karte/android/core/config/Config$Builder;
 	public final fun isDryRun ()Z
@@ -111,6 +115,7 @@ public class io/karte/android/core/config/Config$Builder {
 	public final fun isOptOut (Z)Lio/karte/android/core/config/Config$Builder;
 	public final fun libraryConfigs (Ljava/util/List;)Lio/karte/android/core/config/Config$Builder;
 	public final fun libraryConfigs ([Lio/karte/android/core/library/LibraryConfig;)Lio/karte/android/core/config/Config$Builder;
+	public final fun nativeSDKConfigCDNBaseUrl (Ljava/lang/String;)Lio/karte/android/core/config/Config$Builder;
 	public final synthetic fun setApiKey (Ljava/lang/String;)V
 	public final synthetic fun setAppKey (Ljava/lang/String;)V
 	public final synthetic fun setAutoScreenBoundaryEnabled (Z)V
@@ -119,6 +124,7 @@ public class io/karte/android/core/config/Config$Builder {
 	public final synthetic fun setDryRun (Z)V
 	public final synthetic fun setEnabledTrackingAaid (Z)V
 	public final synthetic fun setLibraryConfigs (Ljava/util/List;)V
+	public final synthetic fun setNativeSDKConfigCDNBaseUrl (Ljava/lang/String;)V
 	public final synthetic fun setOptOut (Z)V
 }
 

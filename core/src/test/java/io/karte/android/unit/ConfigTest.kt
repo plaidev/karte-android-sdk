@@ -36,6 +36,7 @@ class ConfigTest {
         assertThat(config.appKey).isEmpty()
         assertThat(config.isValidAppKey).isFalse()
         assertThat(config.baseUrl).isEqualTo("https://b.karte.io/v0/native")
+        assertThat(config.nativeSDKConfigCDNBaseUrl).isEqualTo("https://cdn-native-sdk-config.karte.io")
         assertThat(config.dataLocation).isEqualTo("tw")
         assertThat(config.isDryRun).isFalse()
         assertThat(config.isOptOut).isFalse()
@@ -65,6 +66,7 @@ class ConfigTest {
             apiKey = "dummy_api_key"
             appKey = "dummy_application_key_1234567890"
             baseUrl = "https://b-jp.karte.io"
+            nativeSDKConfigCDNBaseUrl = "https://cdn.example.com"
             dataLocation = "jp"
             isDryRun = true
             isOptOut = true
@@ -76,6 +78,7 @@ class ConfigTest {
         assertThat(config.appKey).isEqualTo("dummy_application_key_1234567890")
         assertThat(config.isValidAppKey).isTrue()
         assertThat(config.baseUrl).isEqualTo("https://b-jp.karte.io/v0/native")
+        assertThat(config.nativeSDKConfigCDNBaseUrl).isEqualTo("https://cdn.example.com")
         assertThat(config.dataLocation).isEqualTo("jp")
         assertThat(config.isDryRun).isTrue()
         assertThat(config.isOptOut).isTrue()

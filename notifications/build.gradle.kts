@@ -73,6 +73,10 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.mockwebserver)
     testImplementation(project(":test_lib"))
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.truth)
 }
 
 apply(from = "../buildscripts/projectMaven.gradle")

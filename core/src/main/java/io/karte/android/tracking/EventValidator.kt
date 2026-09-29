@@ -95,7 +95,8 @@ internal object EventValidator {
         when (eventName) {
             MessageEventName.MessageReady.value,
             MessageEventName.MessageSuppressed.value,
-            "_fetch_variables" -> {
+            "_fetch_variables",
+            "_fetch_native_sdk_config" -> {
                 return false
             }
         }
