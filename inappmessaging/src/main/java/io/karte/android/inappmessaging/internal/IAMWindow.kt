@@ -32,6 +32,9 @@ internal class IAMWindow(val activity: Activity, panelWindowManager: PanelWindow
     val isShowing: Boolean
         get() = visibility == VISIBLE && isAttachedToWindow
 
+    // WindowManager への attach 完了後に追加する View
+    private var pendingContentView: View? = null
+
     override fun addView(child: View) {
         if (child.parent != null) {
             Logger.e(LOG_TAG, "webView already has Parent View!")
@@ -42,12 +45,26 @@ internal class IAMWindow(val activity: Activity, panelWindowManager: PanelWindow
 
     fun show(focus: Boolean, view: View?) {
         setFocus(focus)
-        view?.let { addView(view) }
+        pendingContentView = view
         super.show()
         InAppMessaging.delegate?.onWindowPresented()
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+
+        // Window の attach 処理中に WebView を追加すると描画されない場合があるため
+        // 確実に attach 処理を抜けた後に addView するように post をする
+        post {
+            if (!isAttachedToWindow) return@post
+            val contentView = pendingContentView ?: return@post
+            pendingContentView = null
+            addView(contentView)
+        }
+    }
+
     fun dismiss(withDelay: Boolean) {
+        pendingContentView = null
         if (withDelay) {
             postDelayed({
                 dismiss(false)
