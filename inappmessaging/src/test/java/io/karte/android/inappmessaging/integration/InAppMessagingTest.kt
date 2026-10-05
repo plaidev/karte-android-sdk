@@ -375,6 +375,8 @@ class InAppMessagingTest {
         fun viewによりページが切り替わった時にresetとwindow破棄が呼ばれること() {
             view("page2")
             assertThat(shadowWebView?.loadedUrls)
+                .contains("javascript:window.tracker.handleChangePv('${app.pvId}');")
+            assertThat(shadowWebView?.loadedUrls)
                 .contains("javascript:window.tracker.resetPageState(false);")
             assertThat(iamWindow).isNull()
         }

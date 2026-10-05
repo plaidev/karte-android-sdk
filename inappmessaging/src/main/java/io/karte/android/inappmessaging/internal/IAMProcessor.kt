@@ -73,8 +73,8 @@ internal class IAMProcessor(
         }
     }
 
-    fun handleChangePv() {
-        webView?.handleChangePv()
+    fun handleChangePv(pvId: String) {
+        webView?.handleChangePv(pvId)
     }
 
     fun handleView(values: JSONObject) {

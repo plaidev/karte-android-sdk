@@ -81,6 +81,7 @@ class IAMWebViewTest {
     private val overlayUrl = "https://api.karte.io/v0/native/overlay"
     private val emptyData = "<html></html>"
     private val dummyMessage = MessageModel(JSONObject(), TrackRequest("", "", "", "", listOf()))
+    private val dummyPvId = "dummy-pv-id"
 
     private lateinit var webView: IAMWebView
     private lateinit var shadowWebView: ShadowWebView
@@ -395,8 +396,8 @@ class IAMWebViewTest {
     @Test
     fun pvId更新時にhandleChangePvとresetされること() {
         makeStateReady()
-        webView.handleChangePv()
-        assertUrlLoaded("javascript:window.tracker.handleChangePv();")
+        webView.handleChangePv(dummyPvId)
+        assertUrlLoaded("javascript:window.tracker.handleChangePv('$dummyPvId');")
     }
 
     @Test
