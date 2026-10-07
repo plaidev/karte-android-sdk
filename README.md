@@ -1,4 +1,4 @@
-<a href="https://karte.io"><img src="https://karte.io/assets/images/common/logo_black.svg" width="270" height="80"></img></a>
+<a href="https://karte.io"><img src="https://karte.io/assets/images/common/logo-black.svg" width="270" height="80"></img></a>
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/plaidev/karte-android-sdk/blob/master/LICENSE)
 
 KARTE is a real-time user analytics & action tool.

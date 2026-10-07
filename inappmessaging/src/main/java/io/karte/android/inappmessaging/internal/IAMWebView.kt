@@ -77,13 +77,13 @@ internal class IAMWebView(context: Context, private val delegate: WebViewDelegat
         loadUrl("javascript:window.tracker.resetPageState($isForce);")
     }
 
-    fun handleChangePv() {
+    fun handleChangePv(pvId: String) {
         if (!isReady) {
             Logger.d(LOG_TAG, "overlay not ready, canceled: handleChangePv()")
             return
         }
         Logger.d(LOG_TAG, "handleChangePv()")
-        loadUrl("javascript:window.tracker.handleChangePv();")
+        loadUrl("javascript:window.tracker.handleChangePv('$pvId');")
     }
 
     fun handleView(values: JSONObject) {

@@ -4,9 +4,6 @@ $diff_files = (git.added_files + git.modified_files + git.deleted_files)
 $modules = ["core", "inappmessaging", "notifications", "variables", "visualtracking", "inbox", "inappframe", "gradle-plugin", "debugger"]
 $formatted_tags = git.tags.map { |tag| tag.strip }
 
-$is_develop_pr = github.branch_for_base == "develop" && github.branch_for_head.start_with?("feature/")
-$is_hotfix_pr = (github.branch_for_base == "master" || github.branch_for_base == "develop") && github.branch_for_head.start_with?("hotfix/")
-
 # 
 # Check Version
 # 
@@ -18,41 +15,29 @@ def get_lastest_release_version(module_name)
             .sort_by { |tag| Gem::Version.new(tag) }
             .last
 end
-# バージョン文字列をバンプアップする
-def bump_version(base_version)
+def next_patch_version(base_version)
     versions = base_version.split('.')
-    if $is_develop_pr
-        versions[1] = (versions[1].to_i + 1).to_s
-        versions[2] = "0"
-    elsif $is_hotfix_pr
-        versions[2] = (versions[2].to_i + 1).to_s
-    end
+    versions[2] = (versions[2].to_i + 1).to_s
     versions.join('.')
 end
 
-if ($is_develop_pr || $is_hotfix_pr)
-    $modules.each { |module_name|
-        if !$diff_files.include?("#{module_name}/**")
-            next
-        end
-    
-        last_release_version = get_lastest_release_version(module_name)
-        if last_release_version.nil?
-            warn "#{module_name} release history not found.\nIgnore this warning if you add a new module."
-            next
-        end
-        
-        next_version = bump_version(last_release_version)
-        current_version = File.read(File.join("#{module_name}", 'version'))
-        if Gem::Version.new(next_version) > Gem::Version.new(current_version)
-            warn format(
-                "Version number should be bumped. Run this command:\n`ruby scripts/bump_version.rb set-version -t %<module>s -n %<version>s`", 
-                module: "#{module_name}",
-                version: next_version
-            )
-        end
-    }
-end
+$modules.each { |module_name|
+    if !$diff_files.any? { |file| file.start_with?("#{module_name}/") }
+        next
+    end
+
+    last_release_version = get_lastest_release_version(module_name)
+    if last_release_version.nil?
+        warn "#{module_name} release history not found.\nIgnore this warning if you add a new module."
+        next
+    end
+
+    minimum_required_version = next_patch_version(last_release_version)
+    current_version = File.read(File.join("#{module_name}", 'version'))
+    if Gem::Version.new(minimum_required_version) > Gem::Version.new(current_version)
+        warn "#{module_name} version should be greater than the latest release (#{last_release_version})."
+    end
+}
 
 #
 # Check CHANGELOG.md modification
@@ -62,7 +47,7 @@ $has_module_changes = $modules.any? { |module_name|
     git.modified_files.include?("#{module_name}/version")
 }
 
-if ($is_develop_pr || $is_hotfix_pr) && $has_module_changes
+if $has_module_changes
     if !git.modified_files.include?("CHANGELOG.md")
         warn "Please update CHANGELOG.md"
     end

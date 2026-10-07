@@ -102,8 +102,9 @@ class InAppMessaging :
         Logger.d(LOG_TAG, "reset pv_id. ${app.pvId} ${app.originalPvId}")
         // pvIdがある(onResumeより後ろ)場合のみdismissする
         if (app.pvId != app.originalPvId) {
+            val pvId = app.pvId
             uiThreadHandler.post {
-                processor.handleChangePv()
+                processor.handleChangePv(pvId)
                 processor.reset(false)
             }
         }

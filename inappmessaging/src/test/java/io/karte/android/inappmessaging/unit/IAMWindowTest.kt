@@ -17,6 +17,7 @@ package io.karte.android.inappmessaging.unit
 
 import android.app.Activity
 import android.view.KeyEvent
+import android.view.View
 import android.view.WindowManager
 import com.google.common.truth.Truth.assertThat
 import io.karte.android.inappmessaging.InAppMessaging
@@ -42,6 +43,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [24], shadows = [CustomShadowWebView::class])
@@ -122,5 +124,83 @@ class IAMWindowTest {
         view.onWindowFocusChanged(false)
 
         assertThat(windowFocusChanges).containsExactly(true, false).inOrder()
+    }
+
+    @Test
+    fun showしたViewはUIキュー処理後に追加される() {
+        val pendingWebView = createWebView()
+        val pendingWindow = IAMWindow(activity.get(), PanelWindowManager())
+        var childCountAtAttach = -1
+        pendingWindow.addOnAttachStateChangeListener(
+            object : View.OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(v: View) {
+                    childCountAtAttach = pendingWindow.childCount
+                }
+
+                override fun onViewDetachedFromWindow(v: View) = Unit
+            }
+        )
+
+        pendingWindow.show(focus = false, view = pendingWebView)
+
+        assertThat(pendingWindow.childCount).isEqualTo(0)
+
+        proceedUiBufferedCall()
+
+        assertThat(childCountAtAttach).isEqualTo(0)
+        assertThat(pendingWindow.childCount).isEqualTo(1)
+        assertThat(pendingWindow.getChildAt(0)).isSameInstanceAs(pendingWebView)
+        pendingWindow.dismiss(false)
+    }
+
+    @Test
+    fun post処理前にdismissすると保留中のViewを追加しない() {
+        val pendingWebView = createWebView()
+        val pendingWindow = IAMWindow(activity.get(), PanelWindowManager())
+
+        pendingWindow.show(focus = false, view = pendingWebView)
+        pendingWindow.dismiss(false)
+        proceedUiBufferedCall()
+
+        assertThat(pendingWindow.childCount).isEqualTo(0)
+        assertThat(pendingWebView.parent).isNull()
+        pendingWindow.dismiss(false)
+    }
+
+    @Test
+    fun 遅延dismissでもpost処理前に保留中のViewを破棄する() {
+        val pendingWebView = createWebView()
+        val pendingWindow = IAMWindow(activity.get(), PanelWindowManager())
+
+        pendingWindow.show(focus = false, view = pendingWebView)
+        pendingWindow.dismiss(withDelay = true)
+        proceedUiBufferedCall()
+
+        assertThat(pendingWindow.childCount).isEqualTo(0)
+        assertThat(pendingWebView.parent).isNull()
+
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+    }
+
+    @Test
+    fun 追加済みのViewはdismissで削除される() {
+        val pendingWebView = createWebView()
+        val pendingWindow = IAMWindow(activity.get(), PanelWindowManager())
+
+        pendingWindow.show(focus = false, view = pendingWebView)
+        proceedUiBufferedCall()
+        assertThat(pendingWindow.childCount).isEqualTo(1)
+
+        pendingWindow.dismiss(false)
+
+        assertThat(pendingWindow.childCount).isEqualTo(0)
+        assertThat(pendingWebView.parent).isNull()
+    }
+
+    private fun createWebView(): IAMWebView = IAMWebView(
+        activity.get().applicationContext,
+        processor
+    ).also {
+        it.visible = true
     }
 }

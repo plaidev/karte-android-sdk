@@ -46,6 +46,8 @@ import org.robolectric.shadows.ShadowLooper
 @Config(sdk = [28], shadows = [CustomShadowWebView::class])
 class IAMProcessorTest {
 
+    private val dummyPvId = "dummy-pv-id"
+
     @MockK
     private lateinit var panelWindowManager: PanelWindowManager
 
@@ -112,14 +114,14 @@ class IAMProcessorTest {
     @Test
     fun pv_idのreset時にはhandleChangePvする() {
         // webviewが生成される前にprocessorのメソッドが呼ばれてしまうことがあるので、mockしておく
-        justRun { anyConstructed<IAMWebView>().handleChangePv() }
+        justRun { anyConstructed<IAMWebView>().handleChangePv(any()) }
         justRun { anyConstructed<IAMWebView>().reset(any()) }
 
-        processor.handleChangePv()
+        processor.handleChangePv(dummyPvId)
         processor.reset(false)
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
 
-        verify(exactly = 1) { anyConstructed<IAMWebView>().handleChangePv() }
+        verify(exactly = 1) { anyConstructed<IAMWebView>().handleChangePv(dummyPvId) }
         verify(exactly = 1) { anyConstructed<IAMWebView>().reset(false) }
     }
 
